@@ -86,10 +86,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   }
 
   return (
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+    <div className="flex flex-col gap-4">
       {dialog}
       {newAnswers && !busy && (
-        <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 fade-up xl:col-span-2">
+        <div className="order-0 flex flex-wrap items-center gap-3 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 fade-up">
           <Info size={16} className="shrink-0 text-brand" />
           <span className="flex-1 text-[0.92rem] text-brand-ink">You&apos;ve answered new questions since this resume was made. Regenerate to include them.</span>
           <button
@@ -100,7 +100,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
           </button>
         </div>
       )}
-      <div className="min-w-0 fade-up">
+      <div className="order-2 fade-up">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editing ? (
             <>
@@ -128,10 +128,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </div>
 
-      <aside className="grid items-start gap-4 stagger empty:hidden">
+      <aside className="order-1 grid items-start gap-4 stagger empty:hidden">
         {missing.length > 0 && (
           <Panel title="The recruiter needs numbers" sub="Real numbers make bullets credible. Skip any you do not know." icon={<Hash size={15} />}>
-            <div className="grid gap-3.5">
+            <div className="grid gap-3.5 md:grid-cols-2">
               {missing.map((q) => (
                 <div key={q}>
                   <label className="mb-1.5 block font-medium text-slate-800">{q}</label>
@@ -166,12 +166,12 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             {changes.map((c, i) => {
               const v = verified[i];
               return (
-                <div key={i} className={`flex flex-col gap-2 px-5 py-3 transition ${v === false ? "bg-bad-soft/40" : ""}`}>
+                <div key={i} className={`flex items-start gap-3 px-5 py-3 transition ${v === false ? "bg-bad-soft/40" : ""}`}>
                   <div className="min-w-0 flex-1">
                     <div className={`font-medium ${v === false ? "text-bad line-through decoration-bad/40" : "text-slate-800"}`}>{c.change}</div>
                     <div className="text-[0.85rem] text-muted">{c.why}</div>
                   </div>
-                  <div className="flex gap-1.5">
+                  <div className="flex shrink-0 gap-1.5">
                     <button
                       onClick={() => mark(i, true)}
                       aria-pressed={v === true}
