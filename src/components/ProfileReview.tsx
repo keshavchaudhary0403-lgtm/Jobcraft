@@ -7,6 +7,8 @@ export type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "./client-ui";
 import { ResumePreview } from "./ResumePreview";
+import { ResumeHealth } from "./ResumeHealth";
+import { resumeHealth } from "@/lib/resume-health";
 
 function Field({ label, value, onChange, placeholder, wide, area }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; wide?: boolean; area?: boolean }) {
   return (
@@ -33,7 +35,7 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
   );
 }
 
-export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft }) {
+export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline, scoreStart }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft; scoreStart?: number | null }) {
   const [d, setD] = useState(initial);
   const [view, setView] = useState<"details" | "resume">("details");
   const [saved, setSaved] = useState(baseline ?? initial);
@@ -68,6 +70,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         extra_notes: blank(d.extra_notes),
         skills: d.skills,
         onboarded: true,
+        ...(scoreStart == null && saved.master_resume?.trim() ? { resume_score_start: resumeHealth(saved.master_resume).score } : {}),
       })
       .eq("id", userId);
     setBusy(false);
@@ -142,7 +145,12 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           <span className="text-[0.88rem] text-muted">{msg || (dirty ? "Unsaved changes" : "")}</span>
         </div>
   );
-  const resumeUI = <ResumePreview page={tabs} value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />;
+  const resumeUI = (
+    <>
+      {tabs && <ResumeHealth value={d.master_resume ?? ""} savedValue={saved.master_resume ?? ""} start={scoreStart ?? null} onChange={(v) => set("master_resume", v)} />}
+      <ResumePreview page={tabs} value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+    </>
+  );
 
   if (tabs)
     return (

@@ -53,6 +53,8 @@ export async function POST(req: Request) {
     if (task === "analysis") {
       const a = data as Analysis;
       a.fit_score = Math.max(0, Math.min(10, Math.round(a.fit_score)));
+      const before = (app!.analysis as Analysis | null)?.fit_score;
+      if (typeof before === "number" && before !== a.fit_score) a.prev_score = before;
       a.scored_with = Object.fromEntries(Object.entries(app!.fit_answers ?? {}).filter(([, v]) => typeof v === "string" && v.trim()));
       await supabase
         .from("applications")

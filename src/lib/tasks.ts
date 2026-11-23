@@ -71,6 +71,10 @@ export type Analysis = {
   questions: string[];
   /** Answers this score was based on (added by the server). */
   scored_with?: Record<string, string>;
+  /** Score before the latest re-score (added by the server). */
+  prev_score?: number;
+  /** Likely titles of the person who'd hire for this role (newer analyses). */
+  hiring_titles?: string[];
 };
 
 export type ResumeResult = {
@@ -107,6 +111,7 @@ export const SCHEMAS = {
     location: nstr,
     seniority: nstr,
     hiring_contact: nstr,
+    hiring_titles: arr(str),
     summary: str,
     top_skills: arr(obj({ skill: str, why: str, match: { type: "string", enum: ["strong", "partial", "missing"] }, evidence: nstr, gap_note: nstr, how_to_show: nstr })),
     ats_keywords: arr(str),
@@ -191,6 +196,7 @@ Use null when the resume doesn't say. ${TRUTH_RULE}`,
         instructions: `You are a senior recruiter at a top hiring firm in India, screening this candidate for a client. First decode the job description, then compare the candidate's resume against it, line by line. Be brutally honest, not flattering — but always specific and useful, so the candidate knows exactly what to do next.
 Fill:
 - company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C… or null), location, seniority, hiring_contact (the hiring manager or recruiter if the JD names one — e.g. "reports to Ananya Rao, Head of Growth" → "Ananya Rao, Head of Growth"; else null).
+- hiring_titles: the 2–3 most likely job titles of the person who would hire for this role at this company (the hiring manager this role reports to, e.g. "Head of Category", "Regional Operations Director") — titles someone could search on LinkedIn. Do not include generic recruiter titles.
 - summary: one short line on what this role is.
 - top_skills: the 5 most important skills or experiences, ranked by how heavily the JD emphasises them. For each:
   - why: a few words on why it matters for this role.

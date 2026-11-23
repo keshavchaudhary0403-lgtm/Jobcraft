@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BriefcaseBusiness, Plus } from "lucide-react";
+import { BriefcaseBusiness, Columns3, LayoutGrid, Plus } from "lucide-react";
+import { JobBoard } from "@/components/JobBoard";
 import { requireUser } from "@/lib/auth";
 import { Empty, PageHeader, STATUS_META } from "@/components/ui";
 import { JobCard } from "@/components/JobCard";
@@ -7,8 +8,9 @@ import { STATUSES, type Application, type Status } from "@/lib/types";
 
 export const metadata = { title: "Jobs" };
 
-export default async function JobsPage({ searchParams }: { searchParams: Promise<{ status?: string }> }) {
-  const { status } = await searchParams;
+export default async function JobsPage({ searchParams }: { searchParams: Promise<{ status?: string; view?: string }> }) {
+  const { status, view } = await searchParams;
+  const board = view === "board";
   const { supabase } = await requireUser();
   const { data: all } = await supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>();
   const apps = (all ?? []).filter((a) => !status || a.status === status);
@@ -19,7 +21,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
     <>
       <PageHeader title="Jobs" sub={all?.length ? `${all.length} in your pipeline` : "Every job you're going after, in one place."} action={<Link href="/jobs/new" className="btn btn-primary"><Plus size={16} /> Add job</Link>} />
       {!!all?.length && (
-        <div className="mb-5 inline-flex flex-wrap gap-1 rounded-xl bg-line-2 p-1 fade-up">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3 fade-up">
+        {board ? <p className="text-[0.9rem] text-muted">Drag a job to move it to the next stage.</p> : (
+        <div className="inline-flex flex-wrap gap-1 rounded-xl bg-line-2 p-1">
           <Link href="/jobs" className={tab(!status)}>All <span className="text-faint">{all.length}</span></Link>
           {STATUSES.filter((s) => counts[s]).map((s) => (
             <Link key={s} href={`/jobs?status=${s}`} className={tab(status === s)}>
@@ -27,9 +31,17 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
             </Link>
           ))}
         </div>
+        )}
+        <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
+          <Link href="/jobs" className={tab(!board)}><LayoutGrid size={14} /> Cards</Link>
+          <Link href="/jobs?view=board" className={tab(board)}><Columns3 size={14} /> Board</Link>
+        </div>
+        </div>
       )}
       {!apps.length ? (
         <Empty icon={<BriefcaseBusiness size={20} />} title="No jobs yet" sub="Paste a job description to get your match, a tailored resume and outreach." action={<Link href="/jobs/new" className="btn btn-brand"><Plus size={16} /> Add your first job</Link>} />
+      ) : board ? (
+        <JobBoard apps={all ?? []} />
       ) : (
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 stagger">
           {apps.map((a) => <JobCard key={a.id} a={a} />)}

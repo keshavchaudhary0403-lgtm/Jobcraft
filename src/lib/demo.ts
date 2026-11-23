@@ -27,6 +27,7 @@ export const FIXTURES: Record<string, unknown> = {
     location: "Gurugram",
     seniority: "Senior",
     hiring_contact: null,
+    hiring_titles: ["Head of Category", "Director – Category Management", "City Business Head"],
     summary: "Own partner quality and operational excellence for a set of cities.",
     top_skills: [
       { skill: "Multi-city operations", why: "Main focus of the role", match: "strong", evidence: "Ran partner operations across 4 cities with 320 service partners", gap_note: null, how_to_show: null },

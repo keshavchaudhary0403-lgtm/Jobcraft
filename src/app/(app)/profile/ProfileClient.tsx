@@ -9,7 +9,7 @@ import type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
 import { Modal } from "@/components/client-ui";
 
-export function ProfileClient({ userId, initial, loginId, isDemo }: { userId: string; initial: ProfileDraft; loginId: string; isDemo?: boolean }) {
+export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: { userId: string; initial: ProfileDraft; loginId: string; isDemo?: boolean; scoreStart?: number | null }) {
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
   const [version, setVersion] = useState(0);
@@ -29,7 +29,7 @@ export function ProfileClient({ userId, initial, loginId, isDemo }: { userId: st
         </div>
       </div>
 
-      <ProfileReview key={version} tabs userId={userId} initial={draft} baseline={initial} onSaved={() => router.refresh()} />
+      <ProfileReview key={version} tabs userId={userId} initial={draft} baseline={initial} scoreStart={scoreStart} onSaved={() => router.refresh()} />
 
       <Modal open={upload} onClose={() => setUpload(false)} title="Upload new resume">
         <ResumeDrop

@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Building2, Link2, MapPin, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, Building2, DownloadCloud, Link2, MapPin, Sparkles, UserRound } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "@/components/client-ui";
 import type { DetectedJob } from "@/lib/tasks";
@@ -18,6 +18,31 @@ export default function NewJob() {
   const [detecting, setDetecting] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [fetching, setFetching] = useState(false);
+  const [fetchMsg, setFetchMsg] = useState<{ ok: boolean; text: string } | null>(null);
+
+  async function fromLink() {
+    if (!url.trim()) return;
+    setFetching(true);
+    setFetchMsg(null);
+    const res = await fetch("/api/jobs/fetch", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url }) });
+    const data = await res.json().catch(() => ({ error: "Something went wrong." }));
+    setFetching(false);
+    if (!res.ok) return setFetchMsg({ ok: false, text: data.error });
+    setJd(data.jd);
+    setUrl(data.url ?? url);
+    const next: Partial<Fields> = {};
+    const flags: Partial<Record<keyof Fields, boolean>> = {};
+    (["company", "role", "location"] as const).forEach((k) => {
+      if (data[k] && !edited.current.has(k)) {
+        next[k] = data[k];
+        flags[k] = true;
+      }
+    });
+    setF((x) => ({ ...x, ...next }));
+    setAuto((x) => ({ ...x, ...flags }));
+    setFetchMsg({ ok: true, text: "Description added from the link — check it reads right." });
+  }
   const lastDetected = useRef("");
   const edited = useRef<Set<keyof Fields>>(new Set());
 
@@ -118,11 +143,34 @@ export default function NewJob() {
             <span className="font-bold">Job description</span>
             <span className="text-[0.82rem] tabular-nums text-faint">{words} words</span>
           </div>
+          <div className="border-b border-line bg-line-2/40 px-5 py-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <div className="relative min-w-[220px] flex-1">
+                <Link2 size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+                <input
+                  className="field h-10 pl-9"
+                  placeholder="Have a link? Paste the job page (company careers, Lever, Greenhouse…)"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      fromLink();
+                    }
+                  }}
+                />
+              </div>
+              <button type="button" className="btn btn-ghost h-10" disabled={!url.trim() || fetching} onClick={fromLink}>
+                {fetching ? <Spinner size={14} /> : <DownloadCloud size={15} />} Get description
+              </button>
+            </div>
+            {fetchMsg && <p className={`mt-2 text-[0.84rem] ${fetchMsg.ok ? "text-good" : "text-mid"}`}>{fetchMsg.text}</p>}
+          </div>
           <textarea
             autoFocus
             required
-            className="thin-scroll block h-[min(64vh,600px)] w-full resize-none border-0 bg-transparent px-5 py-4 text-[0.97rem] leading-relaxed outline-none placeholder:text-faint"
-            placeholder="Paste the full job description from LinkedIn, Naukri, a company site…"
+            className="thin-scroll block h-[min(58vh,560px)] w-full resize-none border-0 bg-transparent px-5 py-4 text-[0.97rem] leading-relaxed outline-none placeholder:text-faint"
+            placeholder="…or paste the full job description here (LinkedIn, Naukri, any site)"
             value={jd}
             onChange={(e) => setJd(e.target.value)}
           />
@@ -138,13 +186,6 @@ export default function NewJob() {
           {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
           {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
           {detField("location", "Location", <MapPin size={15} />, "Optional")}
-          <div>
-            <label className="label">Job link <span className="text-faint">· optional</span></label>
-            <div className="relative">
-              <Link2 size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
-              <input className="field pl-9" placeholder="linkedin.com/jobs/…" value={url} onChange={(e) => setUrl(e.target.value)} />
-            </div>
-          </div>
           <button className="btn btn-brand w-full" disabled={busy || !ready}>
             {busy ? <Spinner /> : <Sparkles size={15} />} Analyse job <ArrowRight size={15} />
           </button>

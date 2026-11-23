@@ -113,6 +113,7 @@ export async function seedDemo(admin: SupabaseClient, id: string) {
         location: "Bengaluru",
         seniority: "Mid-senior",
         hiring_contact: null,
+        hiring_titles: ["Head of Operations", "Regional Operations Manager"],
         summary: "Run move-ins, maintenance and vendors across 3 cities.",
         top_skills: [
           { skill: "Multi-city operations", why: "Runs 3 cities", match: "strong", evidence: "Ran partner operations across 4 cities with 320 service partners", gap_note: null, how_to_show: null },

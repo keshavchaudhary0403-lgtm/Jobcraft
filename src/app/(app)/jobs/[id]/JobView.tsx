@@ -212,6 +212,11 @@ export function JobView({
                     {a.fit_score >= 7 ? "Strong fit" : a.fit_score >= 5 ? "Fair fit" : "Stretch"}
                   </span>
                 </div>
+                {typeof a.prev_score === "number" && a.prev_score !== a.fit_score && (
+                  <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mid-soft text-mid"}`}>
+                    {a.prev_score * 10} → {a.fit_score * 10} <span className="font-normal">{a.fit_score > a.prev_score ? "after your answers" : "after re-scoring"}</span>
+                  </div>
+                )}
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
                   <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
                 </div>
