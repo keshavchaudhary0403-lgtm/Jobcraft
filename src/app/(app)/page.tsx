@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, BarChart3, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { StatTile } from "@/components/ui";
+import { Kpi } from "@/components/ui";
 import { JobCard } from "@/components/JobCard";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
@@ -52,6 +52,7 @@ export default async function Home() {
     { key: "interviewing", label: "Interviewing", n: by(["interviewing"]), cls: "bg-[#8a6fe0]" },
     { key: "offer", label: "Offer", n: by(["offer"]), cls: "bg-brand" },
   ];
+  const appliedCount = by(["applied", "interviewing", "offer", "rejected"]);
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
   const moves = nextMoves(list, !!profile.linkedin_result, practised);
@@ -68,10 +69,40 @@ export default async function Home() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <StatTile href="/jobs" icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
-        <StatTile href="/jobs?status=applied" tone="sun" icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
-        <StatTile href="/interview" tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} />
-        <StatTile href={best ? `/jobs/${best.a.id}` : "/jobs/new"} tone="rose" icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
+        <Kpi
+          href="/jobs"
+          icon={<BriefcaseBusiness size={16} />}
+          label="Jobs tracked"
+          value={list.length}
+          breakdown={pipeline.map((p) => ({ label: p.label.toLowerCase(), n: p.n, cls: p.cls }))}
+        />
+        <Kpi
+          href="/jobs?status=applied"
+          tone="sun"
+          icon={<Send size={16} />}
+          label="Applied"
+          value={appliedCount}
+          unit={list.length ? `of ${list.length}` : undefined}
+          progress={list.length ? { value: appliedCount, max: list.length, caption: appliedCount ? `${by(["interviewing", "offer"])} moved to interviews or offers` : "Apply to your best matches first" } : undefined}
+        />
+        <Kpi
+          href="/interview"
+          tone="lilac"
+          icon={<Mic size={16} />}
+          label="Interviews practised"
+          value={interviews.length}
+          progress={{ value: Math.min(interviews.length, 3), max: 3, caption: interviews.length >= 3 ? "Goal reached — keep it sharp" : `${3 - interviews.length} more to reach 3 rounds` }}
+        />
+        <Kpi
+          href={best ? `/jobs/${best.a.id}` : "/jobs/new"}
+          tone="rose"
+          icon={<Target size={16} />}
+          label="Best match"
+          value={best ? best.s * 10 : "—"}
+          unit={best ? "%" : undefined}
+          progress={best ? { value: best.s, max: 10, caption: best.a.company } : undefined}
+          note={best ? undefined : "Add a job to see your match"}
+        />
       </div>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -148,6 +179,7 @@ export default async function Home() {
                 <span className="font-medium">AI usage this month</span>
                 <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
               </div>
+              <div className="mt-0.5 text-[0.78rem] text-muted">Your personal monthly AI limit · resets on the 1st</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line-2">
                 <div className={`h-full rounded-full ${spent / limit >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(Math.min(100, (spent / limit) * 100), 2)}%` }} />
               </div>

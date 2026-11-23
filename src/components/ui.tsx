@@ -181,3 +181,67 @@ export function Panel({
 export function SubLabel({ children }: { children: React.ReactNode }) {
   return <div className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
 }
+
+/**
+ * KPI card: label + icon, big value, and context — a progress bar against a limit/goal,
+ * or a stacked breakdown — so the number answers "am I on track?".
+ */
+export function Kpi({
+  icon,
+  tone = "sky",
+  label,
+  value,
+  unit,
+  note,
+  progress,
+  breakdown,
+  href,
+}: {
+  icon: React.ReactNode;
+  tone?: keyof typeof TONES;
+  label: string;
+  value: React.ReactNode;
+  unit?: string;
+  note?: React.ReactNode;
+  progress?: { value: number; max: number; caption?: string };
+  breakdown?: { label: string; n: number; cls: string }[];
+  href?: string;
+}) {
+  const pct = progress && progress.max > 0 ? Math.min(100, (progress.value / progress.max) * 100) : 0;
+  const total = breakdown?.reduce((t, b) => t + b.n, 0) ?? 0;
+  const body = (
+    <>
+      <div className="flex items-center justify-between">
+        <span className="text-[0.86rem] font-medium text-muted">{label}</span>
+        <span className={`grid h-8 w-8 place-items-center rounded-xl ${TONES[tone]}`}>{icon}</span>
+      </div>
+      <div className="mt-2 flex items-baseline gap-1.5">
+        <span className="text-[1.7rem] font-semibold leading-none tracking-tight tabular-nums">{value}</span>
+        {unit && <span className="text-[0.9rem] text-muted">{unit}</span>}
+      </div>
+      {progress && (
+        <div className="mt-3">
+          <div className="h-1.5 overflow-hidden rounded-full bg-line-2">
+            <div className={`h-full rounded-full transition-all duration-700 ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, progress.value > 0 ? 3 : 0)}%` }} />
+          </div>
+          {progress.caption && <div className="mt-1.5 text-[0.8rem] text-muted">{progress.caption}</div>}
+        </div>
+      )}
+      {breakdown && (
+        <div className="mt-3">
+          <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-line-2">
+            {total > 0 && breakdown.filter((b) => b.n).map((b) => <div key={b.label} className={b.cls} style={{ width: `${(b.n / total) * 100}%` }} />)}
+          </div>
+          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[0.78rem] text-muted">
+            {(breakdown.some((b) => b.n) ? breakdown.filter((b) => b.n) : breakdown.slice(0, 1)).map((b) => (
+              <span key={b.label} className="flex items-center gap-1"><span className={`h-1.5 w-1.5 rounded-full ${b.cls}`} />{b.n} {b.label}</span>
+            ))}
+          </div>
+        </div>
+      )}
+      {note && <div className="mt-2 text-[0.8rem] text-muted">{note}</div>}
+    </>
+  );
+  const cls = "card flex h-full flex-col p-4";
+  return href ? <Link href={href} className={`${cls} card-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
+}

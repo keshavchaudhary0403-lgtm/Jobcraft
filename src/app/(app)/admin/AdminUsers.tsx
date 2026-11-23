@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bot, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
+import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
-import { StatTile } from "@/components/ui";
+import { Kpi } from "@/components/ui";
 import { Modal, Spinner } from "@/components/client-ui";
 
 type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; spent_inr: number; created_at: string };
@@ -56,6 +56,14 @@ export function AdminUsers({ meId }: { meId: string }) {
   }, [users, q]);
 
   const budget = settings?.total_monthly_limit_inr ?? null;
+  const ranked = users
+    .map((u) => {
+      const limit = u.monthly_limit_inr ?? settings?.default_monthly_limit_inr ?? null;
+      return { name: u.full_name || u.email || (u.phone ? `+${u.phone}` : "User"), spent_inr: u.spent_inr, limit, ratio: limit ? u.spent_inr / limit : 0 };
+    })
+    .filter((u) => u.spent_inr > 0)
+    .sort((a, b) => b.ratio - a.ratio || b.spent_inr - a.spent_inr);
+  const top = ranked[0];
   const model = settings ? AI_MODELS[settings.ai_model as keyof typeof AI_MODELS] : null;
 
   return (
@@ -68,10 +76,50 @@ export function AdminUsers({ meId }: { meId: string }) {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive icon={<IndianRupee size={18} />} label="Spent this month" value={rupees(total)} sub={budget != null ? `of ${rupees(budget)} budget` : "No budget cap"} /></button>
-        <button className="text-left" onClick={() => setTab("users")}><StatTile interactive tone="sun" icon={<Users size={18} />} label="Users" value={users.length} sub={`${users.filter((u) => u.is_active).length} active`} /></button>
-        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive tone="lilac" icon={<Bot size={18} />} label="AI model" value={<span className="text-[1.05rem]">{model?.label.split(" —")[0] ?? "—"}</span>} sub={model ? `$${model.input} / $${model.output} per 1M tokens` : undefined} /></button>
-        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive tone="mint" icon={<span className="text-[0.95rem] font-semibold">$</span>} label="1 US$" value={settings ? `₹${settings.usd_to_inr}` : "—"} sub={settings?.fx_auto ? "Live rate" : "Fixed rate"} /></button>
+        <button className="text-left" onClick={() => setTab("ai")}>
+          <Kpi
+            icon={<IndianRupee size={16} />}
+            label="AI spend this month"
+            value={rupees(total)}
+            progress={budget != null ? { value: total, max: budget, caption: `of ${rupees(budget)} total budget (all users)` } : undefined}
+            note={budget == null ? "No total budget set" : undefined}
+          />
+        </button>
+        <button className="text-left" onClick={() => setTab("users")}>
+          <Kpi
+            tone="rose"
+            icon={<Gauge size={16} />}
+            label="Closest to their limit"
+            value={top ? rupees(top.spent_inr) : "—"}
+            progress={top && top.limit != null ? { value: top.spent_inr, max: top.limit, caption: `${top.name} · limit ${rupees(top.limit)}` } : undefined}
+            note={!top ? "No AI use yet this month" : top.limit == null ? `${top.name} · no limit` : undefined}
+          />
+        </button>
+        <button className="text-left" onClick={() => setTab("users")}>
+          <Kpi
+            tone="sun"
+            icon={<Users size={16} />}
+            label="Users"
+            value={users.length}
+            breakdown={[
+              { label: "active", n: users.filter((u) => u.is_active).length, cls: "bg-brand" },
+              { label: "paused", n: users.filter((u) => !u.is_active).length, cls: "bg-[#d6d0ea]" },
+            ]}
+          />
+        </button>
+        <button className="text-left" onClick={() => setTab("ai")}>
+          <Kpi
+            tone="lilac"
+            icon={<Bot size={16} />}
+            label="AI model"
+            value={<span className="text-[1.25rem]">{model?.label.split(" —")[0] ?? "—"}</span>}
+            note={
+              <>
+                Default limit <b className="font-semibold text-ink">{settings?.default_monthly_limit_inr != null ? rupees(settings.default_monthly_limit_inr) : "none"}</b> per user · $1 = ₹{settings?.usd_to_inr ?? "—"}
+              </>
+            }
+          />
+        </button>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-3">
