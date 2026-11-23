@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, ChevronRight, ClipboardPaste, FileText, IndianRupee, UserRound, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { Kpi } from "@/components/ui";
-import { JobCard } from "@/components/JobCard";
+import { CompanyAvatar, Kpi, MatchChip, StatusPill, timeAgo } from "@/components/ui";
+import { resumeHealth } from "@/lib/resume-health";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSettings, monthStartIST } from "@/lib/ai";
+
+const questionCount = (an: Analysis) => new Set([...(an.questions ?? []), ...(an.gaps ?? []).map((g) => g.question).filter(Boolean)]).size;
 
 function greeting() {
   const h = new Date(Date.now() + 5.5 * 3600e3).getUTCHours();
@@ -58,9 +60,23 @@ export default async function Home() {
   const moves = nextMoves(list, !!profile.linkedin_result, practised);
   const first = profile.full_name?.split(" ")[0];
 
+  const health = profile.master_resume?.trim() ? resumeHealth(profile.master_resume).score : null;
+  const [top, ...rest] = moves;
+  const step = (a: Application) => {
+    const an = a.analysis as Analysis | null;
+    const unanswered = an ? questionCount(an) - Object.values(a.fit_answers ?? {}).filter((v) => v?.trim()).length : 0;
+    if (!an) return "See your match";
+    if (unanswered > 0) return `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`;
+    if (!a.tailored_resume) return "Tailor resume";
+    if (!a.outreach) return "Write outreach";
+    if (a.status === "saved") return "Apply";
+    if (["applied", "interviewing"].includes(a.status) && !practised.has(a.id)) return "Practise interview";
+    return "On track";
+  };
+
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-4 fade-up">
         <div>
           <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
           <p className="mt-0.5 text-muted">{profile.target_role ? `Going after ${profile.target_role}` : "Let's land your next role."}</p>
@@ -68,16 +84,64 @@ export default async function Home() {
         <Link href="/jobs/new" className="btn btn-primary"><Plus size={16} /> Add job</Link>
       </div>
 
+      {/* Next move + readiness */}
+      <div className="mb-6 grid items-stretch gap-4 xl:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <section className="dark-card relative overflow-hidden p-6 fade-up">
+          <div className="pointer-events-none absolute -right-16 -top-16 h-56 w-56 rounded-full bg-brand-2/20 blur-3xl" />
+          <div className="relative flex items-center gap-2 text-[0.82rem] font-semibold uppercase tracking-[0.08em] text-white/60"><Sparkles size={14} /> Your next move</div>
+          {top ? (
+            <>
+              <div className="relative mt-2 text-[1.45rem] font-semibold leading-snug">{top.label}</div>
+              <div className="relative text-white/70">{top.sub}</div>
+              <Link href={top.href} className="btn relative mt-5 bg-white text-brand-ink hover:bg-white/90">Do it now <ArrowRight size={15} /></Link>
+              {rest.length > 0 && (
+                <div className="relative mt-6 grid gap-2 border-t border-white/10 pt-4 sm:grid-cols-2">
+                  {rest.map((m) => (
+                    <Link key={m.href + m.label} href={m.href} className="group flex items-center gap-3 rounded-xl bg-white/[.06] px-3.5 py-2.5 transition hover:bg-white/[.12]">
+                      <div className="min-w-0 flex-1">
+                        <div className="line-clamp-1 text-[0.9rem] font-medium">{m.label}</div>
+                        <div className="text-[0.76rem] text-white/60">{m.sub}</div>
+                      </div>
+                      <ArrowRight size={14} className="shrink-0 text-white/50 transition group-hover:translate-x-0.5" />
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="relative mt-2 text-[1.2rem] font-semibold">You&apos;re all caught up.</div>
+          )}
+        </section>
+
+        <section className="card flex flex-col p-5 fade-up">
+          <div className="mb-3 font-bold">Your readiness</div>
+          <div className="flex-1 divide-y divide-line">
+            {[
+              { href: "/profile", icon: <FileText size={15} />, label: "Resume health", value: health != null ? `${health}/100` : "Add resume", pct: health ?? 0 },
+              { href: "/linkedin", icon: <UserRound size={15} />, label: "LinkedIn rewrite", value: profile.linkedin_result ? "Done" : "Not yet", pct: profile.linkedin_result ? 100 : 0 },
+              { href: "/interview", icon: <Mic size={15} />, label: "Interview practice", value: `${Math.min(interviews.length, 3)} of 3 rounds`, pct: (Math.min(interviews.length, 3) / 3) * 100 },
+            ].map((r) => (
+              <Link key={r.label} href={r.href} className="group -mx-2 flex items-center gap-3 rounded-lg px-2 py-3 transition hover:bg-line-2/60">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">{r.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <span className="text-[0.92rem] font-medium">{r.label}</span>
+                    <span className="text-[0.84rem] text-muted">{r.value}</span>
+                  </div>
+                  <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-line-2"><div className="h-full rounded-full bg-brand transition-all duration-700" style={{ width: `${Math.max(r.pct, 2)}%` }} /></div>
+                </div>
+                <ChevronRight size={15} className="shrink-0 text-faint transition group-hover:translate-x-0.5" />
+              </Link>
+            ))}
+          </div>
+        </section>
+      </div>
+
+      {/* Key numbers */}
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
+        <Kpi href="/jobs" icon={<BriefcaseBusiness size={16} />} label="Jobs tracked" value={list.length} breakdown={pipeline.map((p) => ({ label: p.label.toLowerCase(), n: p.n, cls: p.cls }))} />
         <Kpi
-          href="/jobs"
-          icon={<BriefcaseBusiness size={16} />}
-          label="Jobs tracked"
-          value={list.length}
-          breakdown={pipeline.map((p) => ({ label: p.label.toLowerCase(), n: p.n, cls: p.cls }))}
-        />
-        <Kpi
-          href="/jobs?status=applied"
+          href="/jobs?view=board"
           tone="sun"
           icon={<Send size={16} />}
           label="Applied"
@@ -105,87 +169,89 @@ export default async function Home() {
         />
       </div>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-5">
-          <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-bold">Your jobs</h2>
-              {list.length > 0 && <Link href="/jobs" className="pill-link">View all <ArrowRight size={12} /></Link>}
-            </div>
-            {list.length === 0 ? (
-              <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand"><ClipboardPaste size={20} /></div>
-                <div className="flex-1">
-                  <div className="font-semibold">Paste a job description</div>
-                  <div className="text-muted">Get your match, a tailored resume and outreach.</div>
-                </div>
-                <ArrowRight size={18} className="text-faint" />
-              </Link>
-            ) : (
-              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3 stagger">
-                {list.slice(0, 6).map((a) => <JobCard key={a.id} a={a} />)}
-              </div>
-            )}
-          </section>
-
+      {/* Jobs list */}
+      <section className="card mb-6 overflow-hidden fade-up">
+        <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
+          <div className="font-bold">Your jobs</div>
           {list.length > 0 && (
-            <section className="card p-5 fade-up">
-              <div className="card-head"><span className="ico"><BarChart3 size={15} /></span>Your pipeline</div>
-              <div className="grid grid-cols-4 gap-3">
-                {pipeline.map((p) => (
-                  <Link key={p.label} href={`/jobs?status=${p.key}`} className="-m-2 rounded-xl p-2 transition hover:bg-line-2">
-                    <div className={`h-1.5 rounded-full ${p.n ? p.cls : "bg-line"}`} />
-                    <div className="mt-2.5 text-[1.25rem] font-semibold tabular-nums">{p.n}</div>
-                    <div className="text-[0.82rem] text-muted">{p.label}</div>
-                  </Link>
-                ))}
-              </div>
-            </section>
+            <div className="flex gap-2">
+              <Link href="/jobs?view=board" className="pill-link">Board <ArrowRight size={12} /></Link>
+              <Link href="/jobs" className="pill-link">View all <ArrowRight size={12} /></Link>
+            </div>
           )}
         </div>
-
-        <aside className="space-y-4 stagger">
-          <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[1.15rem] font-semibold"><Sparkles size={17} className="text-brand-2" /> Your next best move</div>
-            <div className="mt-4 space-y-2">
-              {moves.map((m) => (
-                <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">
-                  <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[0.92rem] font-medium leading-snug">{m.label}</div>
-                    <div className="text-[0.78rem] text-white/55">{m.sub}</div>
-                  </div>
-                  <ArrowRight size={15} className="shrink-0 text-white/50" />
-                </Link>
-              ))}
-            </div>
+        {list.length === 0 ? (
+          <div className="flex flex-col items-center px-6 py-12 text-center">
+            <ClipboardPaste size={22} className="text-brand-2" />
+            <div className="mt-3 font-semibold">No jobs yet</div>
+            <p className="mt-1 max-w-sm text-[0.9rem] text-muted">Paste a job description or a link — you&apos;ll get your match, a tailored resume and outreach.</p>
+            <Link href="/jobs/new" className="btn btn-primary mt-4"><Plus size={15} /> Add your first job</Link>
           </div>
-
-          <div className="card p-2">
-            <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-[#4b3fb3]"><Mic size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
-              <ArrowRight size={15} className="text-faint" />
-            </Link>
-            <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-brand"><IndianRupee size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
-              <ArrowRight size={15} className="text-faint" />
-            </Link>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[720px]">
+              <thead>
+                <tr className="text-left text-[0.78rem] text-muted">
+                  <th className="px-5 py-2.5 font-medium">Role</th>
+                  <th className="px-3 py-2.5 font-medium">Match</th>
+                  <th className="px-3 py-2.5 font-medium">Status</th>
+                  <th className="px-3 py-2.5 font-medium">Next step</th>
+                  <th className="px-5 py-2.5 text-right font-medium">Updated</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-line">
+                {list.slice(0, 6).map((a) => {
+                  const an = a.analysis as Analysis | null;
+                  return (
+                    <tr key={a.id} className="group transition hover:bg-brand-soft/30">
+                      <td className="px-5 py-3">
+                        <Link href={`/jobs/${a.id}`} className="flex items-center gap-3">
+                          <CompanyAvatar name={a.company} size={32} />
+                          <span className="min-w-0">
+                            <span className="block truncate font-medium group-hover:text-brand-ink">{a.role}</span>
+                            <span className="block truncate text-[0.82rem] text-muted">{a.company}</span>
+                          </span>
+                        </Link>
+                      </td>
+                      <td className="px-3 py-3">{an ? <MatchChip score={an.fit_score} /> : <span className="text-[0.84rem] text-faint">—</span>}</td>
+                      <td className="px-3 py-3"><StatusPill status={a.status} /></td>
+                      <td className="px-3 py-3"><Link href={`/jobs/${a.id}`} className="text-[0.88rem] font-medium text-brand-ink hover:underline">{step(a)}</Link></td>
+                      <td className="px-5 py-3 text-right text-[0.82rem] text-muted">{timeAgo(a.updated_at)}</td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
           </div>
+        )}
+      </section>
 
-          {limit != null && (
-            <div className="card p-4">
-              <div className="flex items-baseline justify-between text-[0.85rem]">
-                <span className="font-semibold">AI usage this month</span>
-                <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
-              </div>
-              <div className="mt-0.5 text-[0.78rem] text-muted">Your personal monthly AI limit · resets on the 1st</div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line-2">
-                <div className={`h-full rounded-full ${spent / limit >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(Math.min(100, (spent / limit) * 100), 2)}%` }} />
-              </div>
-            </div>
-          )}
-        </aside>
+      {/* Practice + usage */}
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        {[
+          { href: "/interview", icon: <Mic size={17} />, title: "Mock interview", sub: "By voice, honest score" },
+          { href: "/negotiation", icon: <IndianRupee size={17} />, title: "Salary practice", sub: "Check the offer, then negotiate" },
+          { href: "/linkedin", icon: <UserRound size={17} />, title: "LinkedIn", sub: "Headlines recruiters search" },
+        ].map((t) => (
+          <Link key={t.href} href={t.href} className="card card-hover group flex items-center gap-3 p-4">
+            <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">{t.icon}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block font-semibold">{t.title}</span>
+              <span className="block text-[0.82rem] text-muted">{t.sub}</span>
+            </span>
+            <ArrowRight size={15} className="text-faint transition group-hover:translate-x-0.5" />
+          </Link>
+        ))}
+        <div className="card p-4">
+          <div className="flex items-center justify-between text-[0.88rem]">
+            <span className="font-semibold">AI usage this month</span>
+            <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)}{limit != null ? ` / ₹${limit}` : ""}</span>
+          </div>
+          <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-line-2">
+            <div className="h-full rounded-full bg-brand" style={{ width: `${limit ? Math.min(100, Math.max(2, (spent / limit) * 100)) : 2}%` }} />
+          </div>
+          <div className="mt-1.5 text-[0.76rem] text-muted">Your monthly AI limit · resets on the 1st</div>
+        </div>
       </div>
     </>
   );

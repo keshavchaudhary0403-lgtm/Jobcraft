@@ -20,8 +20,10 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
 
   return (
     <>
+      <div className="mx-auto max-w-[960px]">
       <PageHeader title="Mock interview" sub="Six real questions by voice. An honest score at the end." />
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="space-y-5">
+        <HowItWorks steps={["The hiring manager asks one question at a time", "Answer out loud — it follows up if you're vague", "After 6 questions: your score and what a 9/10 answer sounds like"]} />
         <form action={start} className="card overflow-hidden fade-up">
           <div className="border-b border-line px-5 py-4">
             <div className="font-bold">Which job is the interview for?</div>
@@ -44,10 +46,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             <button className="btn btn-brand"><Mic size={15} /> Start interview</button>
           </div>
         </form>
-        <div className="space-y-4 stagger">
-          <HowItWorks steps={["The hiring manager asks one question at a time", "Answer out loud — it follows up if you're vague", "After 6 questions: your score and what a 9/10 answer sounds like"]} />
-          <SessionList sessions={sessions ?? []} base="/interview" />
-        </div>
+        <SessionList sessions={sessions ?? []} base="/interview" />
+      </div>
       </div>
     </>
   );

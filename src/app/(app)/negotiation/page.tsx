@@ -20,8 +20,10 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
 
   return (
     <>
+      <div className="mx-auto max-w-[960px]">
       <PageHeader title="Salary negotiation" sub="Know if the offer is fair. Then practise asking for more." />
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+      <div className="space-y-5">
+        <HowItWorks steps={["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter out loud — HR pushes back", "Say stop for feedback"]} />
         <form action={start} className="card overflow-hidden fade-up">
           <NegotiationForm
             apps={sorted}
@@ -30,10 +32,8 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
             defaults={{ city: profile.city ?? "", current_ctc: profile.current_ctc ?? "", experience: profile.experience_years ?? "", strongest_proof: profile.strongest_proof ?? "" }}
           />
         </form>
-        <div className="space-y-4 stagger">
-          <HowItWorks steps={["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter out loud — HR pushes back", "Say stop for feedback"]} />
-          <SessionList sessions={sessions ?? []} base="/negotiation" />
-        </div>
+        <SessionList sessions={sessions ?? []} base="/negotiation" />
+      </div>
       </div>
     </>
   );
