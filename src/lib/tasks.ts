@@ -77,6 +77,10 @@ export type ResumeResult = {
   resume_markdown: string;
   changes: { change: string; why: string }[];
   missing_numbers: string[];
+  /** Candidate's check of each change (index → true/false). Added client-side. */
+  verified?: Record<string, boolean>;
+  /** Answers this resume was built with (added by the server). */
+  used_answers?: Record<string, string>;
 };
 
 export type Outreach = { connection_note: string; message: string };
@@ -229,6 +233,7 @@ missing_numbers: questions for numbers that would make bullets stronger (empty i
           jobBlock(app!),
           answersBlock(app!),
           extra?.numbers && `=== NUMBERS THE CANDIDATE JUST GAVE ===\n${extra.numbers}`,
+          extra?.untrue && `=== CHANGES THE CANDIDATE SAYS ARE NOT TRUE — undo or correct each one; never repeat these claims ===\n${extra.untrue}`,
         ]
           .filter(Boolean)
           .join("\n\n"),

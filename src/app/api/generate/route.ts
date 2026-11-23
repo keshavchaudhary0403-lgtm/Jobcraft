@@ -66,6 +66,8 @@ export async function POST(req: Request) {
         .eq("id", app!.id);
     } else if (task === "resume") {
       const r = data as ResumeResult;
+      r.used_answers = Object.fromEntries(Object.entries(app!.fit_answers ?? {}).filter(([, v]) => typeof v === "string" && v.trim()));
+      r.verified = {};
       await supabase.from("applications").update({ resume_result: r, tailored_resume: r.resume_markdown, updated_at: now }).eq("id", app!.id);
     } else if (task === "outreach") {
       await supabase

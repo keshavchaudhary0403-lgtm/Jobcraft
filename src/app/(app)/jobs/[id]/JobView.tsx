@@ -53,7 +53,11 @@ export function JobView({
 }) {
   const router = useRouter();
   const [app, setApp] = useState(initial);
-  const [tab, setTab] = useState<Tab>(TABS.some((t) => t.key === initialTab) && initial.analysis ? (initialTab as Tab) : "overview");
+  const [tab, setTabRaw] = useState<Tab>(TABS.some((t) => t.key === initialTab) && initial.analysis ? (initialTab as Tab) : "overview");
+  const setTab = (t: Tab) => {
+    setTabRaw(t);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
   const [coach, setCoach] = useState(false);
   const [editing, setEditing] = useState(false);
   const [showJd, setShowJd] = useState(false);

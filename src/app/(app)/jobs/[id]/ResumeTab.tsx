@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AlertCircle, Check, ChevronDown, Download, FileText, Hash, ListChecks, Pencil, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, Check, Download, FileText, Hash, Info, ListChecks, Pencil, RotateCcw, Sparkles, X } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
@@ -19,7 +19,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(md);
   const [nums, setNums] = useState<Record<string, string>>({});
-  const [showChanges, setShowChanges] = useState(false);
+  const [verified, setVerified] = useState<Record<string, boolean>>(r?.verified ?? {});
   const paper = useRef<HTMLDivElement>(null);
   const [ask, dialog] = useAsk();
 
@@ -29,6 +29,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
       onUpdate({ resume_result: res, tailored_resume: res.resume_markdown });
       setDraft(res.resume_markdown);
       setNums({});
+      setVerified({});
     }
   }
 
@@ -66,10 +67,39 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
   const missing = r?.missing_numbers ?? [];
   const filled = Object.values(nums).some((v) => v.trim());
+  const changes = r?.changes ?? [];
+  const checked = changes.filter((_, i) => verified[i] !== undefined).length;
+  const untrue = changes.filter((_, i) => verified[i] === false);
+  const used = r?.used_answers;
+  const answersNow = Object.fromEntries(Object.entries(app.fit_answers ?? {}).filter(([, v]) => v?.trim()));
+  const newAnswers = !!used && Object.entries(answersNow).some(([q, v]) => (used[q] ?? "").trim() !== v.trim());
+
+  async function mark(i: number, ok: boolean) {
+    const next: Record<string, boolean> = { ...verified, [i]: ok };
+    if (verified[i] === ok) delete next[i];
+    setVerified(next);
+    if (r) {
+      const updated = { ...r, verified: next };
+      await createClient().from("applications").update({ resume_result: updated }).eq("id", app.id);
+      onUpdate({ resume_result: updated });
+    }
+  }
 
   return (
     <div className="flex flex-col gap-4">
       {dialog}
+      {newAnswers && !busy && (
+        <div className="order-0 flex flex-wrap items-center gap-3 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 fade-up">
+          <Info size={16} className="shrink-0 text-brand" />
+          <span className="flex-1 text-[0.92rem] text-brand-ink">You&apos;ve answered new questions since this resume was made. Regenerate to include them.</span>
+          <button
+            className="btn btn-primary btn-sm"
+            onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version uses your latest answers and replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}
+          >
+            <RotateCcw size={13} /> Regenerate
+          </button>
+        </div>
+      )}
       <div className="order-2 fade-up">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editing ? (
@@ -98,10 +128,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </div>
 
-      <aside className="order-1 grid items-start gap-4 md:grid-cols-2 stagger empty:hidden">
+      <aside className="order-1 grid items-start gap-4 stagger empty:hidden">
         {missing.length > 0 && (
-          <Panel title="Add real numbers" icon={<Hash size={15} />}>
-            <div className="space-y-3.5">
+          <Panel title="The recruiter needs numbers" sub="Real numbers make bullets credible. Skip any you do not know." icon={<Hash size={15} />}>
+            <div className="grid gap-3.5 md:grid-cols-2">
               {missing.map((q) => (
                 <div key={q}>
                   <label className="mb-1.5 block font-medium text-slate-800">{q}</label>
@@ -110,7 +140,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
               ))}
             </div>
             <button
-              className="btn btn-brand mt-4 w-full"
+              className="btn btn-brand mt-4"
               disabled={!filled || busy}
               onClick={() =>
                 generate({
@@ -125,24 +155,53 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             </button>
           </Panel>
         )}
-        {!!r?.changes?.length && (
+        {changes.length > 0 && (
           <Panel
-            title={<>What changed <span className="font-normal text-muted">· {r.changes.length}</span></>}
-            sub="Check each one is true"
+            title="Check every change is true"
+            sub="You'll be asked about each of these in interviews."
             icon={<ListChecks size={15} />}
-            action={
-              <button className="btn-quiet" onClick={() => setShowChanges(!showChanges)} aria-label="Show changes">
-                <ChevronDown size={16} className={`transition ${showChanges ? "rotate-180" : ""}`} />
-              </button>
-            }
-            bodyClass={showChanges ? "divide-y divide-line" : "hidden"}
+            action={<span className={`chip ${checked === changes.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{checked} of {changes.length} checked</span>}
+            bodyClass="divide-y divide-line"
           >
-            {r.changes.map((c, i) => (
-              <div key={i} className="px-5 py-3">
-                <div className="font-medium text-slate-800">{c.change}</div>
-                <div className="text-[0.85rem] text-muted">{c.why}</div>
+            {changes.map((c, i) => {
+              const v = verified[i];
+              return (
+                <div key={i} className={`flex items-start gap-3 px-5 py-3 transition ${v === false ? "bg-bad-soft/40" : ""}`}>
+                  <div className="min-w-0 flex-1">
+                    <div className={`font-medium ${v === false ? "text-bad line-through decoration-bad/40" : "text-slate-800"}`}>{c.change}</div>
+                    <div className="text-[0.85rem] text-muted">{c.why}</div>
+                  </div>
+                  <div className="flex shrink-0 gap-1.5">
+                    <button
+                      onClick={() => mark(i, true)}
+                      aria-pressed={v === true}
+                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}
+                    >
+                      <Check size={13} /> True
+                    </button>
+                    <button
+                      onClick={() => mark(i, false)}
+                      aria-pressed={v === false}
+                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === false ? "bg-bad text-white" : "bg-line-2 text-muted hover:bg-bad-soft hover:text-bad"}`}
+                    >
+                      <X size={13} /> Not true
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+            {untrue.length > 0 && (
+              <div className="flex flex-wrap items-center gap-3 bg-bad-soft/40 px-5 py-3.5">
+                <span className="flex-1 text-[0.9rem] text-slate-800">{untrue.length} change{untrue.length > 1 ? "s" : ""} marked not true — fix before you send this resume.</span>
+                <button
+                  className="btn btn-primary btn-sm"
+                  disabled={busy}
+                  onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}
+                >
+                  {busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these
+                </button>
               </div>
-            ))}
+            )}
           </Panel>
         )}
       </aside>
