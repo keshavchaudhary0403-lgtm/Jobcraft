@@ -83,7 +83,7 @@ export default async function Home() {
             </div>
             {list.length === 0 ? (
               <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-2 text-white"><ClipboardPaste size={20} /></div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand"><ClipboardPaste size={20} /></div>
                 <div className="flex-1">
                   <div className="font-semibold">Paste a job description</div>
                   <div className="text-muted">Get your match, a tailored resume and outreach.</div>

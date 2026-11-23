@@ -53,7 +53,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   if (!md)
     return (
       <div className="card ai-gradient flex flex-col items-center px-6 py-14 text-center fade-up">
-        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-2 text-white shadow-lg"><FileText size={22} /></div>
+        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand shadow-lg"><FileText size={22} /></div>
         <div className="mt-4 text-lg font-medium">A resume made for this job</div>
         <p className="mt-1 max-w-sm text-sm text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
         <button className="btn btn-brand mt-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>

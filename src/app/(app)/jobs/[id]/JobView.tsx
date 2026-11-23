@@ -159,7 +159,7 @@ export function JobView({
                   onClick={() => setTab(key)}
                   disabled={!analysed && key !== "overview"}
                   className={`h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
-                    tab === key ? "bg-brand text-white shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
+                    tab === key ? "bg-brand text-on-brand shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
                   }`}
                 >
                   {label}
@@ -214,7 +214,7 @@ export function JobView({
               <div className="text-[0.82rem] text-white/70">Recommended next action</div>
               <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
               <div className="text-[0.85rem] text-white/65">{next.sub}</div>
-              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-white text-brand hover:bg-brand-soft">
+              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-brand text-on-brand hover:opacity-90">
                 Do it now <ArrowRight size={14} />
               </button>
             </div>
@@ -226,7 +226,7 @@ export function JobView({
               <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
               {checklist.map((c) => (
                 <li key={c.label} className="relative flex items-center gap-3 text-[0.9rem]">
-                  <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-white" : "border-2 border-line bg-white"}`}>
+                  <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-on-brand" : "border-2 border-line bg-white"}`}>
                     {c.done && <Check size={11} strokeWidth={3} />}
                   </span>
                   <span className={c.done ? "text-ink" : "text-muted"}>{c.label}</span>

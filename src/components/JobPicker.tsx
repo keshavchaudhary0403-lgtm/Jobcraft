@@ -46,14 +46,14 @@ export function JobPicker({
                 </div>
               </div>
               {an && <MatchChip score={an.fit_score} />}
-              <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${on ? "border-brand bg-brand text-white" : "border-line"}`}>{on && <Check size={12} />}</span>
+              <span className={`grid h-5 w-5 shrink-0 place-items-center rounded-full border ${on ? "border-brand bg-brand text-on-brand" : "border-line"}`}>{on && <Check size={12} />}</span>
             </button>
           );
         })}
         <button type="button" data-on={id === ""} onClick={() => pick("")} className="option flex items-center gap-3 p-3">
           <div className="grid h-[34px] w-[34px] place-items-center rounded-[10px] border border-dashed border-line text-faint"><Plus size={16} /></div>
           <div className="flex-1 font-medium">{otherLabel}</div>
-          <span className={`grid h-5 w-5 place-items-center rounded-full border ${id === "" ? "border-brand bg-brand text-white" : "border-line"}`}>{id === "" && <Check size={12} />}</span>
+          <span className={`grid h-5 w-5 place-items-center rounded-full border ${id === "" ? "border-brand bg-brand text-on-brand" : "border-line"}`}>{id === "" && <Check size={12} />}</span>
         </button>
       </div>
       {id === "" && <div className="mt-4 fade-up">{otherFields}</div>}

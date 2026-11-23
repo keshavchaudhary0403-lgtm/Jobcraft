@@ -15,6 +15,7 @@
   --color-brand-ink: var(--brand-ink);
   --color-brand-soft: var(--brand-soft);
   --color-brand-2: var(--brand-2);
+  --color-on-brand: var(--on-brand);
   --color-mint: var(--brand-soft);
   --color-side: var(--side);
   --color-side-2: var(--side-2);
@@ -33,21 +34,36 @@
   --color-sky: #e2f0ff;
 }
 
-/* ── Palettes (switchable) ── */
-:root, [data-theme="violet"] {
-  --brand: #6236ff; --brand-ink: #4f22e6; --brand-2: #a855f7; --brand-soft: #f0ebff;
-  --side: #120d2b; --side-2: #1d1640;
-  --bg: #f7f6fd; --ink: #120f24; --muted: #5d5a73; --faint: #9d9ab3; --line: #eae7f5; --line-2: #f3f1fa;
+/* ── Palettes (switchable) — from coolors.co trending ── */
+/* Black & Gold Elegance */
+:root, [data-theme="gold"] {
+  --brand: #fca311; --brand-ink: #b06f00; --brand-2: #ffd27a; --brand-soft: #fff3db; --on-brand: #14213d;
+  --side: #14213d; --side-2: #1f2f55;
+  --bg: #f6f6f3; --ink: #14213d; --muted: #5c6475; --faint: #9aa1ae; --line: #e7e7e2; --line-2: #f0f0ec;
 }
-[data-theme="coral"] {
-  --brand: #f2542d; --brand-ink: #d63f19; --brand-2: #ff9a3d; --brand-soft: #fff0ea;
-  --side: #18171c; --side-2: #26242b;
-  --bg: #faf8f6; --ink: #1a1714; --muted: #6b635d; --faint: #a59d96; --line: #eee8e2; --line-2: #f6f2ee;
+/* Neutral Harmony Bliss */
+[data-theme="harmony"] {
+  --brand: #e07a5f; --brand-ink: #c45e43; --brand-2: #f2cc8f; --brand-soft: #fbeee8; --on-brand: #ffffff;
+  --side: #3d405b; --side-2: #4a4e6d;
+  --bg: #faf8f1; --ink: #2b2d42; --muted: #63657a; --faint: #a3a4b3; --line: #ece8dc; --line-2: #f4f1e7;
 }
-[data-theme="emerald"] {
-  --brand: #08a66c; --brand-ink: #058a59; --brand-2: #2dd4bf; --brand-soft: #e3f8ef;
-  --side: #0b1a16; --side-2: #142b25;
-  --bg: #f5f9f7; --ink: #0d1c17; --muted: #586a63; --faint: #96a7a0; --line: #e2ebe7; --line-2: #eff5f2;
+/* Refreshing Summer Fun */
+[data-theme="summer"] {
+  --brand: #219ebc; --brand-ink: #18809a; --brand-2: #ffb703; --brand-soft: #e4f4f9; --on-brand: #ffffff;
+  --side: #023047; --side-2: #0b4060;
+  --bg: #f4f9fb; --ink: #0b2233; --muted: #56697a; --faint: #97a7b4; --line: #e1ebf0; --line-2: #eef5f8;
+}
+/* Ocean Sunset */
+[data-theme="sunset"] {
+  --brand: #e56b6f; --brand-ink: #c9545a; --brand-2: #eaac8b; --brand-soft: #fdecec; --on-brand: #ffffff;
+  --side: #355070; --side-2: #415e80;
+  --bg: #f9f6f6; --ink: #1f2a3a; --muted: #5f6676; --faint: #a0a6b2; --line: #ebe6e6; --line-2: #f4f0f0;
+}
+/* Earthy Tones */
+[data-theme="earthy"] {
+  --brand: #4c956c; --brand-ink: #3a7a56; --brand-2: #d68c45; --brand-soft: #e7f3ec; --on-brand: #ffffff;
+  --side: #1f4d33; --side-2: #2c6e49;
+  --bg: #fafaf2; --ink: #17261d; --muted: #5a6a60; --faint: #9caba2; --line: #e7e9dc; --line-2: #f2f3e9;
 }
 
 /* Desktop-dense scale: 1rem = 14px */
@@ -81,10 +97,10 @@ textarea.field { height: auto; padding: .6rem .8rem; line-height: 1.55; }
 .btn:active:not(:disabled) { transform: scale(.98); }
 .btn:disabled { opacity: .45; cursor: not-allowed; }
 .btn-sm { height: 2.1rem; padding: 0 .85rem; font-size: .86rem; }
-.btn-primary { background: var(--color-brand); color: #fff; box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--brand) 70%, transparent); }
-.btn-primary:hover:not(:disabled) { background: var(--brand-ink); }
-.btn-brand { background: var(--color-brand); color: #fff; box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--brand) 70%, transparent); }
-.btn-brand:hover:not(:disabled) { background: var(--brand-ink); }
+.btn-primary { background: var(--color-brand); color: var(--on-brand); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--brand) 70%, transparent); }
+.btn-primary:hover:not(:disabled) { background: color-mix(in srgb, var(--brand) 88%, black); }
+.btn-brand { background: var(--color-brand); color: var(--on-brand); box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--brand) 70%, transparent); }
+.btn-brand:hover:not(:disabled) { background: color-mix(in srgb, var(--brand) 88%, black); }
 .btn-ghost { background: #fff; color: var(--color-ink); box-shadow: inset 0 0 0 1px var(--color-line); }
 .btn-ghost:hover:not(:disabled) { background: var(--line-2); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--brand) 25%, var(--line)); }
 .btn-soft { background: var(--color-brand-soft); color: var(--color-brand-ink); }
@@ -118,7 +134,7 @@ textarea.field { height: auto; padding: .6rem .8rem; line-height: 1.55; }
 .pop { animation: pop .14s ease-out both; }
 
 .ai-gradient { background: radial-gradient(900px 300px at 0% 0%, color-mix(in srgb, var(--brand) 9%, transparent), transparent 60%), radial-gradient(700px 300px at 100% 0%, color-mix(in srgb, var(--brand-2) 9%, transparent), transparent 60%); }
-.dark-card { background: radial-gradient(420px 220px at 100% 0%, color-mix(in srgb, var(--brand-2) 55%, transparent), transparent 65%), linear-gradient(150deg, var(--brand), var(--brand-ink)); color: #fff; border-radius: 16px; }
+.dark-card { background: radial-gradient(380px 220px at 100% 0%, color-mix(in srgb, var(--brand) 55%, transparent), transparent 65%), linear-gradient(150deg, var(--side-2), var(--side)); color: #fff; border-radius: 16px; }
 
 @layer components {
 /* Markdown */
