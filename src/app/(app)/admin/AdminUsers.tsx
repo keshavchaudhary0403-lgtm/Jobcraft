@@ -1,13 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
+import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, PlayCircle, Plus, RotateCcw, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
 import { Kpi } from "@/components/ui";
-import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
+import { Menu, Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
 
-type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; spent_inr: number; created_at: string };
-type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null };
+type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; ai_mode: AiMode; is_demo: boolean; spent_inr: number; created_at: string };
+type AiMode = "real" | "demo" | "off";
+type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null; demo_enabled: boolean };
+
+const AI_MODES: { value: AiMode; label: string; hint: string }[] = [
+  { value: "real", label: "Real AI", hint: "Uses OpenAI and your credits" },
+  { value: "demo", label: "Demo", hint: "Sample answers, no cost" },
+  { value: "off", label: "Off", hint: "AI features blocked" },
+];
+const MODE_CLS: Record<AiMode, string> = { real: "bg-brand-soft text-brand-ink", demo: "bg-sky text-[#3a4fa0]", off: "bg-slate-100 text-slate-500" };
 
 const rupees = (n: number) => `₹${n < 10 ? n.toFixed(2) : Math.round(n).toLocaleString("en-IN")}`;
 
@@ -17,6 +25,7 @@ export function AdminUsers({ meId }: { meId: string }) {
   const [total, setTotal] = useState(0);
   const [tab, setTab] = useState<"users" | "ai">("users");
   const [pendingModel, setPendingModel] = useState<string | null>(null);
+  const [demoBusy, setDemoBusy] = useState(false);
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
   const [toast, setToast] = useState("");
@@ -51,6 +60,15 @@ export function AdminUsers({ meId }: { meId: string }) {
     load();
   }
 
+  async function demoAction(action: "enable" | "disable" | "reset", done: string) {
+    setDemoBusy(true);
+    const data = await fetch("/api/admin/demo", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ action }) }).then((r) => r.json());
+    setDemoBusy(false);
+    flash(data.ok ? done : data.error);
+    load();
+  }
+  const demoUser = users.find((u) => u.is_demo);
+
   const shown = useMemo(() => {
     const t = q.trim().toLowerCase();
     return t ? users.filter((u) => [u.full_name, u.email, u.phone].some((v) => v?.toLowerCase().includes(t))) : users;
@@ -82,7 +100,7 @@ export function AdminUsers({ meId }: { meId: string }) {
             icon={<IndianRupee size={16} />}
             label="AI spend this month"
             value={rupees(total)}
-            progress={budget != null ? { value: total, max: budget, caption: `of ${rupees(budget)} total budget (all users)` } : undefined}
+            progress={budget != null ? { value: total, max: budget, limit: true, caption: `of ${rupees(budget)} total budget (all users)` } : undefined}
             note={budget == null ? "No total budget set" : undefined}
           />
         </button>
@@ -92,7 +110,7 @@ export function AdminUsers({ meId }: { meId: string }) {
             icon={<Gauge size={16} />}
             label="Closest to their limit"
             value={top ? rupees(top.spent_inr) : "—"}
-            progress={top && top.limit != null ? { value: top.spent_inr, max: top.limit, caption: `${top.name} · limit ${rupees(top.limit)}` } : undefined}
+            progress={top && top.limit != null ? { value: top.spent_inr, max: top.limit, limit: true, caption: `${top.name} · limit ${rupees(top.limit)}` } : undefined}
             note={!top ? "No AI use yet this month" : top.limit == null ? `${top.name} · no limit` : undefined}
           />
         </button>
@@ -144,6 +162,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               <tr className="border-b border-line bg-slate-50/70 text-left text-[0.8rem] text-muted">
                 <th className="px-4 py-2.5 font-medium">Person</th>
                 <th className="px-4 py-2.5 font-medium">Spent this month</th>
+                <th className="px-4 py-2.5 font-medium">AI</th>
                 <th className="px-4 py-2.5 font-medium">Monthly limit</th>
                 <th className="px-4 py-2.5 font-medium">Status</th>
                 <th className="w-px px-4 py-2.5" />
@@ -160,7 +179,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                       <div className="flex items-center gap-3">
                         <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-soft text-[0.75rem] font-semibold text-brand-ink">{name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}</div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 font-medium">{name}{u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}</div>
+                          <div className="flex items-center gap-1.5 font-medium">{name}{u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}{u.is_demo && <span className="chip bg-sky py-0 text-[0.72rem] text-[#3a4fa0]">Demo login</span>}</div>
                           <div className="truncate text-[0.82rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ")}</div>
                         </div>
                       </div>
@@ -174,6 +193,20 @@ export function AdminUsers({ meId }: { meId: string }) {
                       )}
                     </td>
                     <td className="px-4 py-3">
+                      <Menu
+                        align="left"
+                        value={u.ai_mode}
+                        options={AI_MODES}
+                        onChange={async (m) => {
+                          if (m === u.ai_mode) return;
+                          const label = AI_MODES.find((x) => x.value === m)!.label;
+                          const body = m === "real" ? <>Switch <b>{name}</b> to <b>Real AI</b>? Their AI use will cost your OpenAI credits (within their monthly limit).</> : m === "demo" ? <>Switch <b>{name}</b> to <b>Demo</b>? They&apos;ll get sample answers instead of real AI — no cost.</> : <>Turn AI <b>off</b> for <b>{name}</b>? AI features will stop working for them until you turn it back on.</>;
+                          if ((await ask({ title: `AI: ${label}`, body, confirm: `Switch to ${label}`, danger: m === "off" })) !== null) patch(u.id, { ai_mode: m });
+                        }}
+                        render={(c) => <span className={`chip ${MODE_CLS[c.value]}`}>{c.label}</span>}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
                       <SaveableNumber
                         size="sm"
                         value={u.monthly_limit_inr}
@@ -184,11 +217,11 @@ export function AdminUsers({ meId }: { meId: string }) {
                     <td className="px-4 py-3">{u.is_active ? <span className="chip bg-good-soft text-good">Active</span> : <span className="chip bg-slate-100 text-slate-500">Paused</span>}</td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <button className="btn-quiet" title="Reset password" onClick={async () => { const pw = await ask({ title: "Reset password", body: <>Set a new password for <b>{name}</b>. Share it with them yourself.</>, input: { label: "New password", type: "text", placeholder: "At least 6 characters" }, confirm: "Set password" }); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>
+                        {!u.is_demo && <button className="btn-quiet" title="Reset password" onClick={async () => { const pw = await ask({ title: "Reset password", body: <>Set a new password for <b>{name}</b>. Share it with them yourself.</>, input: { label: "New password", type: "text", placeholder: "At least 6 characters" }, confirm: "Set password" }); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>}
                         {u.id !== meId && (
                           <>
                             <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={async () => (await ask(u.is_active ? { title: "Pause user", body: <>Pause <b>{name}</b>? They lose access to AI features until you unpause.</>, confirm: "Pause", danger: true } : { title: "Unpause user", body: <>Give <b>{name}</b> access again?</>, confirm: "Unpause" })) !== null && patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
-                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={async () => (await ask(u.is_admin ? { title: "Remove admin", body: <>Remove admin access from <b>{name}</b>?</>, confirm: "Remove", danger: true } : { title: "Make admin", body: <>Make <b>{name}</b> an admin? They can manage users, limits and the AI model.</>, confirm: "Make admin" })) !== null && patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
+                            {!u.is_demo && <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={async () => (await ask(u.is_admin ? { title: "Remove admin", body: <>Remove admin access from <b>{name}</b>?</>, confirm: "Remove", danger: true } : { title: "Make admin", body: <>Make <b>{name}</b> an admin? They can manage users, limits and the AI model.</>, confirm: "Make admin" })) !== null && patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>}
                           </>
                         )}
                       </div>
@@ -251,6 +284,43 @@ export function AdminUsers({ meId }: { meId: string }) {
                   <p className="mt-1 text-[0.8rem] text-faint">{settings.fx_source} · updated {new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · refreshes every 6h</p>
                 )}
               </div>
+              </div>
+            </section>
+            <section className="card p-5 xl:col-span-2">
+              <div className="card-head">
+                <span className="ico"><PlayCircle size={15} /></span>
+                <span className="flex-1">Demo login</span>
+                <span className={`chip ${settings.demo_enabled ? "bg-good-soft text-good" : "bg-slate-100 text-slate-500"}`}>{settings.demo_enabled ? "On" : "Off"}</span>
+              </div>
+              <div className="flex flex-wrap items-center justify-between gap-4">
+                <p className="max-w-xl text-[0.92rem] text-slate-700">
+                  {settings.demo_enabled ? (
+                    <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Its AI mode is{" "}
+                    <b>{AI_MODES.find((m) => m.value === demoUser?.ai_mode)?.label ?? "Demo"}</b> — change it in the Users tab.</>
+                  ) : (
+                    <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account — no sign-up, no password.</>
+                  )}
+                </p>
+                <div className="flex gap-2">
+                  {settings.demo_enabled && (
+                    <button className="btn btn-ghost" disabled={demoBusy} onClick={async () => { if ((await ask({ title: "Reset demo data", body: "Restore the demo account's sample resume and jobs. Anything visitors changed is removed.", confirm: "Reset" })) !== null) demoAction("reset", "Demo data reset"); }}>
+                      <RotateCcw size={15} /> Reset demo data
+                    </button>
+                  )}
+                  <button
+                    className={`btn ${settings.demo_enabled ? "btn-ghost" : "btn-primary"}`}
+                    disabled={demoBusy}
+                    onClick={async () => {
+                      const on = !settings.demo_enabled;
+                      const ok = await ask(on
+                        ? { title: "Turn on demo login", body: <>An <b>Explore the demo</b> button appears on the login page. The demo account uses <b>Demo</b> AI (no cost) unless you change it.</>, confirm: "Turn on" }
+                        : { title: "Turn off demo login", body: "The Explore the demo button disappears from the login page.", confirm: "Turn off", danger: true });
+                      if (ok !== null) demoAction(on ? "enable" : "disable", on ? "Demo login on" : "Demo login off");
+                    }}
+                  >
+                    {demoBusy && <Spinner size={14} />} {settings.demo_enabled ? "Turn off" : "Turn on demo login"}
+                  </button>
+                </div>
               </div>
             </section>
           </div>

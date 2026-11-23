@@ -18,6 +18,8 @@ export type Profile = {
   skills: string[] | null;
   linkedin_result: unknown;
   onboarded: boolean;
+  ai_mode: "real" | "demo" | "off";
+  is_demo: boolean;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;

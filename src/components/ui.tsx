@@ -203,7 +203,7 @@ export function Kpi({
   value: React.ReactNode;
   unit?: string;
   note?: React.ReactNode;
-  progress?: { value: number; max: number; caption?: string };
+  progress?: { value: number; max: number; caption?: string; limit?: boolean };
   breakdown?: { label: string; n: number; cls: string }[];
   href?: string;
 }) {
@@ -222,7 +222,7 @@ export function Kpi({
       {progress && (
         <div className="mt-3">
           <div className="h-1.5 overflow-hidden rounded-full bg-line-2">
-            <div className={`h-full rounded-full transition-all duration-700 ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, progress.value > 0 ? 3 : 0)}%` }} />
+            <div className={`h-full rounded-full transition-all duration-700 ${progress.limit && pct >= 90 ? "bg-bad" : progress.limit && pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, progress.value > 0 ? 3 : 0)}%` }} />
           </div>
           {progress.caption && <div className="mt-1.5 text-[0.8rem] text-muted">{progress.caption}</div>}
         </div>

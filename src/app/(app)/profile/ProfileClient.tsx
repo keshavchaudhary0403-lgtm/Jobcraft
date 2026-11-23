@@ -9,7 +9,7 @@ import type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
 import { Modal } from "@/components/client-ui";
 
-export function ProfileClient({ userId, initial, loginId }: { userId: string; initial: ProfileDraft; loginId: string }) {
+export function ProfileClient({ userId, initial, loginId, isDemo }: { userId: string; initial: ProfileDraft; loginId: string; isDemo?: boolean }) {
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
   const [version, setVersion] = useState(0);
@@ -24,7 +24,7 @@ export function ProfileClient({ userId, initial, loginId }: { userId: string; in
           <p className="mt-0.5 text-muted">Signed in as {loginId}</p>
         </div>
         <div className="flex gap-2">
-          <button className="btn btn-ghost" onClick={() => setPwOpen(true)}><KeyRound size={15} /> Change password</button>
+          {!isDemo && <button className="btn btn-ghost" onClick={() => setPwOpen(true)}><KeyRound size={15} /> Change password</button>}
           <button className="btn btn-primary" onClick={() => setUpload(true)}><UploadCloud size={15} /> Upload new resume</button>
         </div>
       </div>

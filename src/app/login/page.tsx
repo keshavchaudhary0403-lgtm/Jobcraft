@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, FileText, Mic, Target } from "lucide-react";
+import { useEffect, useState } from "react";
+import { ArrowRight, FileText, Mic, PlayCircle, Target } from "lucide-react";
 import { Logo } from "@/components/Logo";
 import { Spinner } from "@/components/client-ui";
 
@@ -16,6 +16,22 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
+  const [demoOn, setDemoOn] = useState(false);
+  const [demoBusy, setDemoBusy] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/auth/demo").then((r) => r.json()).then((d) => setDemoOn(!!d.enabled)).catch(() => {});
+  }, []);
+
+  async function demo() {
+    setDemoBusy(true);
+    setError("");
+    const res = await fetch("/api/auth/demo", { method: "POST" });
+    if (res.ok) return window.location.assign("/");
+    const data = await res.json().catch(() => ({}));
+    setError(data.error ?? "Couldn't open the demo.");
+    setDemoBusy(false);
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -77,7 +93,15 @@ export default function LoginPage() {
           <button className="btn btn-primary mt-7 h-12 w-full text-[1rem] font-semibold" disabled={busy}>
             {busy ? <Spinner /> : <>Log in <ArrowRight size={16} /></>}
           </button>
-          <p className="mt-6 border-t border-line pt-5 text-center text-[0.88rem] text-muted">Forgot your password? Ask your admin.</p>
+          <p className="mt-5 text-center text-[0.88rem] text-muted">Forgot your password? Ask your admin.</p>
+          {demoOn && (
+            <div className="mt-6 border-t border-line pt-6">
+              <button type="button" onClick={demo} disabled={demoBusy} className="btn btn-ghost h-12 w-full text-[1rem] font-semibold">
+                {demoBusy ? <Spinner /> : <PlayCircle size={17} className="text-brand" />} Explore the demo
+              </button>
+              <p className="mt-2 text-center text-[0.82rem] text-faint">No sign-up. Sample data you can play with.</p>
+            </div>
+          )}
         </form>
       </section>
     </main>

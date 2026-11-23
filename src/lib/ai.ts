@@ -20,6 +20,7 @@ export type Settings = {
   fx_auto: boolean;
   fx_updated_at: string | null;
   fx_source: string | null;
+  demo_enabled: boolean;
 };
 
 const FX_MAX_AGE_MS = 6 * 3600 * 1000; // refresh the live rate every 6 hours
@@ -53,6 +54,7 @@ export async function getSettings(admin: SupabaseClient): Promise<Settings & { m
     fx_auto: data?.fx_auto ?? true,
     fx_updated_at: data?.fx_updated_at ?? null,
     fx_source: data?.fx_source ?? null,
+    demo_enabled: !!data?.demo_enabled,
   };
   const stale = !s.fx_updated_at || Date.now() - new Date(s.fx_updated_at).getTime() > FX_MAX_AGE_MS;
   if (s.fx_auto && stale) {
@@ -92,23 +94,34 @@ async function sumCost(admin: SupabaseClient, userId?: string) {
   return (data ?? []).reduce((t, r) => t + Number(r.cost_usd), 0);
 }
 
-/** Returns an error message if this user (or the whole app) has hit its monthly limit, else null. */
-export async function checkLimits(admin: SupabaseClient, userId: string, userLimitInr: number | null) {
+export type AiMode = "real" | "demo" | "off";
+
+/**
+ * Can this user use AI right now?
+ * - ai_mode "off"  → blocked
+ * - ai_mode "demo" → sample answers, no OpenAI call, no cost, no limits
+ * - ai_mode "real" → monthly per-user + total limits apply
+ */
+export async function checkLimits(admin: SupabaseClient, userId: string, profile: { monthly_limit_inr: number | null; ai_mode?: string | null }) {
   const s = await getSettings(admin);
+  const mode = (profile.ai_mode ?? "real") as AiMode;
+  if (mode === "off") return { error: "AI is turned off for your account. Ask your admin to turn it on.", settings: s, demo: false };
+  if (mode === "demo") return { error: null, settings: s, demo: true };
+  const userLimitInr = profile.monthly_limit_inr;
   const limit = userLimitInr ?? s.default_monthly_limit_inr;
   if (limit != null) {
     const spentInr = (await sumCost(admin, userId)) * s.usd_to_inr;
     if (spentInr >= limit) {
-      return { error: `You've used your AI limit for this month (₹${limit}). It resets on the 1st — or ask your admin to raise it.`, settings: s };
+      return { error: `You've used your AI limit for this month (₹${limit}). It resets on the 1st — or ask your admin to raise it.`, settings: s, demo: false };
     }
   }
   if (s.total_monthly_limit_inr != null) {
     const allInr = (await sumCost(admin)) * s.usd_to_inr;
     if (allInr >= s.total_monthly_limit_inr) {
-      return { error: "Jobcraft has reached its AI budget for this month. Please contact your admin.", settings: s };
+      return { error: "Jobcraft has reached its AI budget for this month. Please contact your admin.", settings: s, demo: false };
     }
   }
-  return { error: null, settings: s };
+  return { error: null, settings: s, demo: false };
 }
 
 export async function logUsage(
@@ -155,8 +168,10 @@ export async function runStructured<T>(opts: {
   input: string | OpenAI.Responses.ResponseInputItem[];
   effort?: "none" | "low" | "medium" | "high";
   userId: string;
+  /** Sample answer instead of a real AI call (user in demo mode). */
+  demo?: boolean;
 }): Promise<{ data: T; usage: OpenAI.Responses.ResponseUsage | null | undefined }> {
-  if (DEMO) return { data: await demoStructured<T>(opts.name), usage: null };
+  if (DEMO || opts.demo) return { data: await demoStructured<T>(opts.name), usage: null };
   let effort = opts.effort ?? "low";
   if (effort === "none" && !AI_MODELS[opts.model].noneEffort) effort = "low";
   const res = await openai().responses.create({

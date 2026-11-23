@@ -8,7 +8,7 @@ export async function GET() {
   const admin = createServiceClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, created_at")
+    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, created_at")
     .order("created_at", { ascending: false });
   if (error) return Response.json({ error: error.message }, { status: 500 });
   const settings = await getSettings(admin);
@@ -52,12 +52,13 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const me = await requireAdmin();
   if (!me) return Response.json({ error: "Admins only" }, { status: 403 });
-  const { id, password, is_active, is_admin, monthly_limit_inr } = (await req.json()) as {
+  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode } = (await req.json()) as {
     id: string;
     password?: string;
     is_active?: boolean;
     is_admin?: boolean;
     monthly_limit_inr?: number | null; // null = use default
+    ai_mode?: string;
   };
   const admin = createServiceClient();
   if (password) {
@@ -65,7 +66,11 @@ export async function PATCH(req: Request) {
     const { error } = await admin.auth.admin.updateUserById(id, { password });
     if (error) return Response.json({ error: error.message }, { status: 400 });
   }
-  const patch: Record<string, boolean | number | null> = {};
+  const patch: Record<string, boolean | number | string | null> = {};
+  if (ai_mode !== undefined) {
+    if (!["real", "demo", "off"].includes(ai_mode)) return Response.json({ error: "Unknown AI mode." }, { status: 400 });
+    patch.ai_mode = ai_mode;
+  }
   if (monthly_limit_inr !== undefined) {
     if (monthly_limit_inr !== null && !(Number(monthly_limit_inr) >= 0)) {
       return Response.json({ error: "Limit must be 0 or more." }, { status: 400 });

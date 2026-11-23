@@ -28,13 +28,14 @@ export async function POST(req: Request) {
   }
 
   const admin = createServiceClient();
-  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;
 
   const { instructions, input } = buildTask(task, { profile, app, extra });
   try {
     const { data, usage } = await runStructured<unknown>({
+      demo: limits.demo,
       model,
       name: task,
       schema: SCHEMAS[task],

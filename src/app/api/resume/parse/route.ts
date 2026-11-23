@@ -15,7 +15,7 @@ export async function POST(req: Request) {
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();
   if (!profile?.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
   const admin = createServiceClient();
-  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;
 
@@ -46,6 +46,7 @@ export async function POST(req: Request) {
 
   try {
     const { data, usage } = await runStructured<ParsedResume>({
+      demo: limits.demo,
       model,
       name: "parse_resume",
       schema: SCHEMAS.parse_resume,

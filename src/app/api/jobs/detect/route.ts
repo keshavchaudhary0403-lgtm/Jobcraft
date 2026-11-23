@@ -14,15 +14,16 @@ export async function POST(req: Request) {
   const { jd } = (await req.json()) as { jd?: string };
   if (!jd || jd.trim().split(/\s+/).length < 30) return Response.json({ data: null });
 
-  const { data: profile } = await supabase.from("profiles").select("is_active, monthly_limit_inr").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("is_active, monthly_limit_inr, ai_mode").eq("id", user.id).single();
   if (!profile?.is_active) return Response.json({ data: null });
   const admin = createServiceClient();
-  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ data: null });
 
   const { instructions, input } = buildTask("detect_job", { profile: {} as never, extra: { jd: jd.slice(0, 12000) } });
   try {
     const { data, usage } = await runStructured<DetectedJob>({
+      demo: limits.demo,
       model: DETECT_MODEL,
       name: "detect_job",
       schema: SCHEMAS.detect_job,

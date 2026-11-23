@@ -29,7 +29,7 @@ export async function POST(req: Request) {
   if (!profile.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
 
   const admin = createServiceClient();
-  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;
 
@@ -87,7 +87,7 @@ export async function POST(req: Request) {
     async start(controller) {
       let full = "";
       try {
-        if (DEMO) {
+        if (DEMO || limits.demo) {
           const turn = (history ?? []).filter((m) => m.role === "assistant").length;
           for await (const w of demoChat(session.kind, turn)) {
             full += w;

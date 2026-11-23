@@ -6,7 +6,7 @@ export const DEMO = process.env.AI_DEMO === "1";
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-const FIXTURES: Record<string, unknown> = {
+export const FIXTURES: Record<string, unknown> = {
   parse_resume: {
     resume_text:
       "ASHA NAIR\nBengaluru · asha.nair@example.com\n\nEXPERIENCE\nOperations Manager, QuickNest (home services) — 2021 – Present\n- Ran partner operations across 4 cities with 320 service partners\n- Cut partner churn from 18% to 9% in two quarters\n- Led a team of 14 city executives\n\nOperations Associate, Freshkart — 2018 – 2021\n- Managed last-mile vendors for 2 zones\n\nEDUCATION\nMBA, Christ University, 2018\n\nSKILLS\nPartner management, SQL, Excel, Process design",
