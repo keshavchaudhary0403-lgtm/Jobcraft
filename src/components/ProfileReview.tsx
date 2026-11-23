@@ -6,6 +6,7 @@ import type { ProfileDraft } from "@/lib/profile-draft";
 export type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "./client-ui";
+import { ResumePreview } from "./ResumePreview";
 
 function Field({ label, value, onChange, placeholder, wide, area }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; wide?: boolean; area?: boolean }) {
   return (
@@ -67,7 +68,6 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
     onSaved?.();
   }
 
-  const words = (d.master_resume ?? "").split(/\s+/).filter(Boolean).length;
 
   return (
     <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
@@ -127,17 +127,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
         </div>
       </div>
 
-      <section className="card flex flex-col xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)] fade-up">
-        <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-          <span className="font-semibold">Resume text</span>
-          <span className="text-[0.82rem] text-faint">{words} words</span>
-        </div>
-        <textarea
-          className="thin-scroll min-h-[420px] flex-1 resize-none border-0 bg-transparent px-5 py-4 font-mono text-[0.8rem] leading-relaxed outline-none xl:min-h-0"
-          value={d.master_resume ?? ""}
-          onChange={(e) => set("master_resume", e.target.value)}
-        />
-      </section>
+      <ResumePreview value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
     </div>
   );
 }
