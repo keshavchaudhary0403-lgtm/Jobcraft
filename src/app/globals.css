@@ -54,6 +54,19 @@
   --bg: #f6f9fc; --ink: #061b31; --muted: #52637a; --faint: #93a1b3; --line: #e5edf5; --line-2: #eff4f9;
 }
 
+/* Ink & Periwinkle — Mercury */
+[data-theme="periwinkle"] {
+  --brand: #5266eb; --brand-ink: #3f52d4; --brand-2: #a9b4ff; --brand-soft: #eceffd; --on-brand: #ffffff;
+  --side: #171721; --side-2: #272735;
+  --bg: #f5f5f9; --ink: #171721; --muted: #5e5e70; --faint: #9d9daf; --line: #e4e4ec; --line-2: #efeff5;
+}
+/* Midnight & Lavender — ClickUp */
+[data-theme="lavender"] {
+  --brand: #7b68ee; --brand-ink: #6552dc; --brand-2: #bcb2ff; --brand-soft: #f0edfd; --on-brand: #ffffff;
+  --side: #242449; --side-2: #36366a;
+  --bg: #f8f8fb; --ink: #1f1f3a; --muted: #606079; --faint: #a0a0b6; --line: #e8e7f0; --line-2: #f2f1f7;
+}
+
 /* Desktop-dense scale: 1rem = 14px */
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }
 body { background: var(--color-bg); color: var(--color-ink); font-size: 13.5px; line-height: 1.5; }
