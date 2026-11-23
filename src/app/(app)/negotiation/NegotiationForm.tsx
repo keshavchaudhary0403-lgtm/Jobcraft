@@ -63,23 +63,39 @@ export function NegotiationForm({ apps, preselect, defaults }: { apps: A[]; pres
           </div>
         </div>
 
-        <div className="rounded-xl border border-line bg-slate-50/60 p-4">
-          <div className="mb-2.5 flex items-center justify-between">
-            <span className="text-[0.88rem] font-medium">Your details</span>
-            {!edit && <button type="button" className="btn-quiet h-7 gap-1 px-2 text-[0.82rem]" onClick={() => setEdit(true)}><Pencil size={12} /> Edit</button>}
+        <div className="overflow-hidden rounded-xl border border-line">
+          <div className="flex items-center justify-between border-b border-line bg-line-2/50 px-4 py-2.5">
+            <span className="font-semibold">Your details</span>
+            {!edit && (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEdit(true)}>
+                <Pencil size={13} /> Edit
+              </button>
+            )}
           </div>
-          <div className={edit ? "grid gap-3 sm:grid-cols-3" : "hidden"}>
-            <input name="current_ctc" className="field" required defaultValue={defaults.current_ctc} placeholder="Current CTC" />
-            <input name="experience" className="field" required defaultValue={defaults.experience} placeholder="Experience" />
-            <input name="city" className="field" required defaultValue={defaults.city} placeholder="City" />
-            <textarea name="strongest_proof" className="field sm:col-span-3" rows={2} required defaultValue={defaults.strongest_proof} placeholder="Your strongest results with numbers" />
+          <div className={edit ? "grid gap-3 p-4 sm:grid-cols-3" : "hidden"}>
+            <div><label className="label">Current CTC</label><input name="current_ctc" className="field" required defaultValue={defaults.current_ctc} placeholder="₹12 LPA" /></div>
+            <div><label className="label">Experience</label><input name="experience" className="field" required defaultValue={defaults.experience} placeholder="5 years" /></div>
+            <div><label className="label">City</label><input name="city" className="field" required defaultValue={defaults.city} /></div>
+            <div className="sm:col-span-3"><label className="label">Best results (with numbers)</label><textarea name="strongest_proof" className="field" rows={3} required defaultValue={defaults.strongest_proof} /></div>
           </div>
           {!edit && (
-            <div className="flex flex-wrap gap-1.5">
-              {[defaults.current_ctc && `Current ${defaults.current_ctc}`, defaults.experience, defaults.city].filter(Boolean).map((t) => (
-                <span key={t} className="chip border border-line bg-white text-slate-600">{t}</span>
-              ))}
-              <span className="chip max-w-full truncate border border-line bg-white text-slate-600">{defaults.strongest_proof}</span>
+            <div className="divide-y divide-line">
+              <div className="grid grid-cols-3 divide-x divide-line">
+                {[
+                  ["Current CTC", defaults.current_ctc],
+                  ["Experience", defaults.experience],
+                  ["City", defaults.city],
+                ].map(([k, v]) => (
+                  <div key={k} className="px-4 py-3">
+                    <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
+                    <div className="mt-0.5 font-medium">{v || "—"}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="px-4 py-3">
+                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">Best results</div>
+                <p className="mt-0.5 leading-relaxed text-slate-800">{defaults.strongest_proof || "—"}</p>
+              </div>
             </div>
           )}
         </div>

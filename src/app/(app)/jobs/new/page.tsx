@@ -128,12 +128,13 @@ export default function NewJob() {
           />
         </div>
 
-        <aside className="card space-y-4 p-5 lg:sticky lg:top-6 fade-up [&>.card-head]:mb-0">
-          <div className="card-head !mb-4">
+        <aside className="card p-5 lg:sticky lg:top-6 fade-up">
+          <div className="card-head">
             <span className="ico"><Building2 size={15} /></span>
             <span className="flex-1">Job details</span>
-            {detecting && <span className="flex items-center gap-1.5 text-[0.82rem] text-muted"><Spinner size={13} /> Reading…</span>}
+            {detecting && <span className="flex items-center gap-1.5 text-[0.82rem] font-normal text-muted"><Spinner size={13} /> Reading…</span>}
           </div>
+          <div className="space-y-4">
           {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
           {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
           {detField("location", "Location", <MapPin size={15} />, "Optional")}
@@ -149,6 +150,7 @@ export default function NewJob() {
           </button>
           {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role — they weren&apos;t in the text.</p>}
           {err && <p className="text-[0.85rem] text-bad">{err}</p>}
+          </div>
         </aside>
       </form>
     </div>

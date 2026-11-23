@@ -176,8 +176,9 @@ export function AdminUsers({ meId }: { meId: string }) {
                 ))}
               </div>
             </section>
-            <section className="card space-y-4 p-5">
-              <div className="card-head !mb-1"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
+            <section className="card p-5">
+              <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
+              <div className="space-y-4">
               <LimitField label="Default per user / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="Applies to everyone without their own limit, including new users." />
               <LimitField label="Total budget, all users / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
               <div className="border-t border-line pt-4">
@@ -194,6 +195,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 {settings.fx_auto && settings.fx_updated_at && (
                   <p className="mt-1 text-[0.8rem] text-faint">{settings.fx_source} · updated {new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · refreshes every 6h</p>
                 )}
+              </div>
               </div>
             </section>
           </div>

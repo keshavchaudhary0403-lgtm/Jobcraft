@@ -104,7 +104,7 @@ export function StatTile({ icon, label, value, sub, tone = "sky", href, interact
       <div className="min-w-0">
         <div className="text-[0.82rem] text-muted">{label}</div>
         <div className="text-[1.45rem] font-semibold leading-tight tracking-tight tabular-nums">{value}</div>
-        {sub && <div className="truncate text-[0.78rem] text-faint">{sub}</div>}
+        {sub && <div className="truncate text-[0.78rem] text-faint" title={sub}>{sub}</div>}
       </div>
     </Tag>
   );

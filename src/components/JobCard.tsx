@@ -11,7 +11,7 @@ export function JobCard({ a }: { a: Application }) {
       <div className="flex items-center gap-2.5">
         <CompanyAvatar name={a.company} size={34} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[0.92rem] font-medium">{a.company}</div>
+          <div className="truncate text-[0.92rem] font-medium" title={a.company}>{a.company}</div>
           <div className="text-[0.78rem] text-faint">{timeAgo(a.updated_at)}</div>
         </div>
         <StatusPill status={a.status} />

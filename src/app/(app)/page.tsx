@@ -120,7 +120,7 @@ export default async function Home() {
               {moves.map((m) => (
                 <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">
                   <div className="min-w-0 flex-1">
-                    <div className="truncate text-[0.92rem] font-medium">{m.label}</div>
+                    <div className="line-clamp-2 text-[0.92rem] font-medium leading-snug">{m.label}</div>
                     <div className="text-[0.78rem] text-white/55">{m.sub}</div>
                   </div>
                   <ArrowRight size={15} className="shrink-0 text-white/50" />

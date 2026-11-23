@@ -114,7 +114,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
         <Section title="Optional">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA — only for salary practice" />
-            <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/…" />
+            <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/…" wide />
             <Field label="Anything true that's not on your resume" value={d.extra_notes ?? ""} onChange={(v) => set("extra_notes", v)} wide area />
           </div>
         </Section>

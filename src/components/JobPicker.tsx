@@ -39,8 +39,8 @@ export function JobPicker({
             <button key={a.id} type="button" data-on={on} onClick={() => pick(a.id)} className="option flex items-center gap-3 p-3">
               <CompanyAvatar name={a.company} size={34} />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium">{a.role}</div>
-                <div className="flex items-center gap-2 truncate text-[0.85rem] text-muted">
+                <div className="line-clamp-2 font-medium leading-snug" title={a.role}>{a.role}</div>
+                <div className="mt-0.5 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.85rem] text-muted">
                   {a.company}
                   {a.status === "offer" && <span className="chip bg-good-soft py-0 text-good">Offer</span>}
                 </div>
