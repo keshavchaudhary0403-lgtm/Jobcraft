@@ -4,11 +4,11 @@ import { useEffect, useState } from "react";
 
 const KEY = "jc-palette";
 const THEMES = [
-  { id: "plum", label: "Plum & Amber", from: "Rippling", colors: ["#4a0039", "#ffa81d"] },
-  { id: "forest", label: "Forest & Mint", from: "Greenhouse", colors: ["#15372c", "#008561"] },
   { id: "indigo", label: "Ink & Indigo", from: "Ashby", colors: ["#141415", "#473bce"] },
-  { id: "magenta", label: "Midnight & Magenta", from: "Wellfound", colors: ["#051316", "#d11f68"] },
   { id: "cream", label: "Indigo & Cream", from: "Deel", colors: ["#201547", "#5938b7"] },
+  { id: "blurple", label: "Navy & Blurple", from: "Stripe", colors: ["#061b31", "#533afd"] },
+  { id: "coral", label: "Charcoal & Coral", from: "Gusto", colors: ["#1c1b1a", "#f45d48"] },
+  { id: "graphite", label: "Graphite", from: "Notion & Vercel", colors: ["#0f0f10", "#8b8b94"] },
 ] as const;
 
 /** Applies the saved palette before first paint (no flash). */
@@ -18,11 +18,11 @@ export function ThemeScript() {
 
 /** Temporary palette picker — used to choose the final colours on real screens. */
 export function ThemeSwitcher() {
-  const [theme, setTheme] = useState<string>("plum");
+  const [theme, setTheme] = useState<string>("indigo");
   useEffect(() => {
     // Read the saved choice after mount (localStorage is browser-only).
     // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(document.documentElement.dataset.theme || "plum");
+    setTheme(document.documentElement.dataset.theme || "indigo");
   }, []);
   function pick(id: string) {
     setTheme(id);
