@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FileText, Plus, UserRound, X } from "lucide-react";
 import type { ProfileDraft } from "@/lib/profile-draft";
 export type { ProfileDraft } from "@/lib/profile-draft";
@@ -38,6 +38,12 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
   const [view, setView] = useState<"details" | "resume">("details");
   const [saved, setSaved] = useState(initial);
   const dirty = JSON.stringify(d) !== JSON.stringify(saved);
+  useEffect(() => {
+    if (!dirty) return;
+    const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+    window.addEventListener("beforeunload", warn);
+    return () => window.removeEventListener("beforeunload", warn);
+  }, [dirty]);
   const [skill, setSkill] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");

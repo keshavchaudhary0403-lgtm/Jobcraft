@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { AlertCircle, ExternalLink, MapPin, RotateCcw, Sparkles } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
-import { CharCount, CopyButton, Spinner } from "@/components/client-ui";
+import { CharCount, CopyButton, Spinner, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
 
 type Props = { initial: LinkedInResult | null; name: string; title: string; city: string; targetRole: string; url: string | null };
@@ -15,6 +15,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
   const { run, busy, error } = useGenerate<LinkedInResult>("linkedin");
   const initials = name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
+  const [ask, dialog] = useAsk();
   async function generate() {
     const r = await run({ role: targetRole });
     if (r) {
@@ -27,6 +28,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
 
   return (
     <>
+      {dialog}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
           <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">LinkedIn</h1>
@@ -37,7 +39,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         </div>
         <div className="flex gap-2">
           {url && <a className="btn btn-ghost" href={url} target="_blank" rel="noreferrer">Open my profile <ExternalLink size={14} /></a>}
-          <button className="btn btn-brand" disabled={busy} onClick={generate}>
+          <button className="btn btn-brand" disabled={busy} onClick={async () => { if (res && (await ask({ title: "Rewrite your LinkedIn?", body: "New headlines, About and skills replace the current ones. Uses AI credit.", confirm: "Rewrite" })) === null) return; generate(); }}>
             {busy ? <Spinner /> : res ? <RotateCcw size={15} /> : <Sparkles size={15} />} {res ? "Rewrite" : "Write my LinkedIn"}
           </button>
         </div>

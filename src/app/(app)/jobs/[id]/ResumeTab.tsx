@@ -7,7 +7,7 @@ import { AlertCircle, Check, ChevronDown, Download, FileText, Hash, ListChecks, 
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
-import { CopyButton, Spinner, Working } from "@/components/client-ui";
+import { CopyButton, Spinner, Working, useAsk } from "@/components/client-ui";
 import { Panel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
 
@@ -20,6 +20,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   const [nums, setNums] = useState<Record<string, string>>({});
   const [showChanges, setShowChanges] = useState(false);
   const paper = useRef<HTMLDivElement>(null);
+  const [ask, dialog] = useAsk();
 
   async function generate(extra?: Record<string, string>) {
     const res = await run(extra);
@@ -67,6 +68,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
   return (
     <div className="flex flex-col gap-4">
+      {dialog}
       <div className="order-2 fade-up">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editing ? (
@@ -79,14 +81,14 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
               <button className="btn btn-primary btn-sm" onClick={download}><Download size={14} /> Download PDF</button>
               <CopyButton text={md} />
               <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={14} /> Edit</button>
-              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => generate()}>
+              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}>
                 {busy ? <Spinner size={14} /> : <RotateCcw size={14} />} Regenerate
               </button>
             </>
           )}
         </div>
         {editing ? (
-          <textarea className="field min-h-[70vh] font-mono text-xs leading-relaxed" value={draft} onChange={(e) => setDraft(e.target.value)} />
+          <textarea className="field min-h-[70vh] text-[0.92rem] leading-relaxed" value={draft} onChange={(e) => setDraft(e.target.value)} />
         ) : (
           <div className={`paper transition ${busy ? "opacity-50" : ""}`} ref={paper}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>

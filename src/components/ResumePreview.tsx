@@ -49,6 +49,7 @@ function Formatted({ text }: { text: string }) {
 
 export function ResumePreview({ value, onChange, page }: { value: string; onChange: (v: string) => void; page?: boolean }) {
   const [editing, setEditing] = useState(false);
+  const [before, setBefore] = useState(value);
   const words = value.split(/\s+/).filter(Boolean).length;
   return (
     <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
@@ -56,9 +57,14 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
         <span className="font-semibold">Resume</span>
         <span className="flex items-center gap-3">
           <span className="text-[0.82rem] text-faint">{words} words</span>
-          <button className="btn btn-ghost btn-sm" onClick={() => setEditing(!editing)}>
-            {editing ? <><Check size={14} /> Done</> : <><Pencil size={13} /> Edit</>}
-          </button>
+          {editing ? (
+            <>
+              <button className="btn btn-ghost btn-sm" onClick={() => { onChange(before); setEditing(false); }}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={() => setEditing(false)}><Check size={14} /> Done</button>
+            </>
+          ) : (
+            <button className="btn btn-ghost btn-sm" onClick={() => { setBefore(value); setEditing(true); }}><Pencil size={13} /> Edit</button>
+          )}
         </span>
       </div>
       {editing ? (

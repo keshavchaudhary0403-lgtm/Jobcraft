@@ -10,7 +10,7 @@ export const metadata = { title: "Salary talk" };
 
 export default async function NegotiationPage({ searchParams }: { searchParams: Promise<{ app?: string }> }) {
   const { app: preselect } = await searchParams;
-  const { supabase, profile } = await requireUser();
+  const { supabase, profile, user } = await requireUser();
   const [{ data: apps }, { data: sessions }] = await Promise.all([
     supabase.from("applications").select("id, company, role, status, company_type, location, analysis").order("updated_at", { ascending: false }).returns<Application[]>(),
     supabase.from("sessions").select("*").eq("kind", "negotiation").order("updated_at", { ascending: false }).limit(8).returns<Session[]>(),
@@ -26,6 +26,7 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
           <NegotiationForm
             apps={sorted}
             preselect={preselect}
+            userId={user.id}
             defaults={{ city: profile.city ?? "", current_ctc: profile.current_ctc ?? "", experience: profile.experience_years ?? "", strongest_proof: profile.strongest_proof ?? "" }}
           />
         </form>
