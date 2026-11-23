@@ -47,10 +47,10 @@ export default async function Home() {
   const best = scored.sort((x, y) => y.s - x.s)[0];
   const by = (st: string[]) => list.filter((a) => st.includes(a.status)).length;
   const pipeline = [
-    { label: "Saved", n: by(["saved"]), cls: "bg-slate-300" },
-    { label: "Applied", n: by(["applied"]), cls: "bg-blue-400" },
-    { label: "Interviewing", n: by(["interviewing"]), cls: "bg-amber-400" },
-    { label: "Offer", n: by(["offer"]), cls: "bg-green-600" },
+    { label: "Saved", n: by(["saved"]), cls: "bg-[#d6d0ea]" },
+    { label: "Applied", n: by(["applied"]), cls: "bg-[#b9a6f2]" },
+    { label: "Interviewing", n: by(["interviewing"]), cls: "bg-[#8a6fe0]" },
+    { label: "Offer", n: by(["offer"]), cls: "bg-brand" },
   ];
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
@@ -132,12 +132,12 @@ export default async function Home() {
 
           <div className="card p-2">
             <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-violet-700"><Mic size={16} /></div>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-[#4b3fb3]"><Mic size={16} /></div>
               <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>
             <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-amber-800"><IndianRupee size={16} /></div>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-brand"><IndianRupee size={16} /></div>
               <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>

@@ -22,38 +22,25 @@
   --color-navy: var(--brand-ink);
   --color-good: #12805c;
   --color-good-soft: #e3f7ee;
-  --color-mid: #b45309;
-  --color-mid-soft: #fff3e0;
+  --color-mid: #b0501a;
+  --color-mid-soft: #fdeee6;
   --color-bad: #d6264f;
   --color-bad-soft: #ffe8ee;
   --color-info: #2563eb;
   --color-info-soft: #e6eeff;
-  --color-sun: #fff1c2;
-  --color-lilac: #efe8ff;
-  --color-rose: #ffe6f0;
-  --color-sky: #e2f0ff;
+  --color-sun: #efeafb;
+  --color-lilac: #e8e6fb;
+  --color-rose: #f1e9f7;
+  --color-sky: #e6ebfb;
 }
 
-/* ── Brand: Indigo & Cream (from Deel) ── */
+/* ── Brand: Indigo & Cream (from Deel) on Porcelain ── */
 :root {
   --brand: #5938b7; --brand-ink: #47299c; --brand-2: #b9a6f2; --brand-soft: #efeafb; --on-brand: #ffffff;
   --side: #201547; --side-2: #33266a;
   --ink: #1b1b1b; --muted: #625e6b; --faint: #a19da9;
-  /* "Whites" (switchable while choosing): page background, card surface, borders */
-  --bg: #f7f5f2; --card: #ffffff; --line: #ebe7e1; --line-2: #f3f0eb;
+  --bg: #f5f6f8; --card: #ffffff; --line: #e6e8ed; --line-2: #eff1f4;
 }
-/* Cream (original) */
-[data-paper="cream"] { --bg: #f7f5f2; --card: #ffffff; --line: #ebe7e1; --line-2: #f3f0eb; }
-/* Ivory — warmer, cards slightly warm too */
-[data-paper="ivory"] { --bg: #f8f5ee; --card: #fffdf9; --line: #ece6da; --line-2: #f4efe6; }
-/* Lavender mist — a whisper of the brand violet */
-[data-paper="mist"] { --bg: #f6f4fb; --card: #ffffff; --line: #e9e5f3; --line-2: #f1eef8; }
-/* Porcelain — cool, crisp, neutral */
-[data-paper="porcelain"] { --bg: #f5f6f8; --card: #ffffff; --line: #e6e8ed; --line-2: #eff1f4; }
-/* Linen — soft greige, calm and editorial */
-[data-paper="linen"] { --bg: #f2efea; --card: #fdfcfa; --line: #e5e0d8; --line-2: #efebe4; }
-/* Snow — near-pure white page, cards lifted by shadow */
-[data-paper="snow"] { --bg: #fcfcfd; --card: #ffffff; --line: #ececf1; --line-2: #f5f5f8; }
 
 /* Desktop-dense scale: 1rem = 14px */
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }

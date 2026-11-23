@@ -15,7 +15,7 @@ export function PageHeader({ title, sub, action }: { title: string; sub?: string
 export const STATUS_META: Record<Status, { label: string; cls: string; dot: string }> = {
   saved: { label: "Saved", cls: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
   applied: { label: "Applied", cls: "bg-info-soft text-info", dot: "bg-blue-500" },
-  interviewing: { label: "Interviewing", cls: "bg-mid-soft text-mid", dot: "bg-amber-500" },
+  interviewing: { label: "Interviewing", cls: "bg-mid-soft text-mid", dot: "bg-orange-500" },
   offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-green-600" },
   rejected: { label: "Rejected", cls: "bg-bad-soft text-bad", dot: "bg-orange-600" },
   withdrawn: { label: "Withdrawn", cls: "bg-slate-100 text-slate-500", dot: "bg-slate-300" },
@@ -73,7 +73,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
 }
 
 // Soft tinted monograms (like app icons) — never loud solid blocks.
-const AVATAR_HUES = [262, 222, 199, 168, 142, 32, 12, 330];
+const AVATAR_HUES = [256, 266, 244, 232, 276, 250, 238, 284];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
   const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
   return (
@@ -94,7 +94,7 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   );
 }
 
-const TONES = { sky: "bg-sky text-blue-700", sun: "bg-sun text-amber-800", lilac: "bg-lilac text-violet-700", rose: "bg-rose text-rose-700", mint: "bg-good-soft text-good" };
+const TONES = { sky: "bg-sky text-[#3b47b0]", sun: "bg-sun text-brand", lilac: "bg-lilac text-[#4b3fb3]", rose: "bg-rose text-[#6b3a8f]", mint: "bg-brand-soft text-brand" };
 export function StatTile({ icon, label, value, sub, tone = "sky" }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES }) {
   return (
     <div className="card card-hover flex items-center gap-3.5 p-4">

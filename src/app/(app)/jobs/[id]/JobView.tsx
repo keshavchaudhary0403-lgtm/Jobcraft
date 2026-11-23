@@ -117,10 +117,10 @@ export function JobView({
             </div>
             <div className="mt-5 grid w-full grid-cols-4 gap-2">
               {[
-                { label: "Coach", icon: MessageCircle, cls: "bg-sky text-blue-700", on: () => setCoach(true) },
-                { label: "JD", icon: FileText, cls: "bg-sun text-amber-800", on: () => setShowJd(true) },
-                { label: "Edit", icon: Pencil, cls: "bg-lilac text-violet-700", on: () => setEditing(true) },
-                { label: "Delete", icon: Trash2, cls: "bg-rose text-rose-700", on: remove },
+                { label: "Coach", icon: MessageCircle, cls: "bg-sky text-[#3b47b0]", on: () => setCoach(true) },
+                { label: "JD", icon: FileText, cls: "bg-sun text-brand", on: () => setShowJd(true) },
+                { label: "Edit", icon: Pencil, cls: "bg-lilac text-[#4b3fb3]", on: () => setEditing(true) },
+                { label: "Delete", icon: Trash2, cls: "bg-rose text-[#6b3a8f]", on: remove },
               ].map(({ label, icon: Icon, cls, on }) => (
                 <button key={label} onClick={on} className="group flex flex-col items-center gap-1.5">
                   <span className={`grid h-10 w-10 place-items-center rounded-xl transition group-hover:-translate-y-0.5 ${cls}`}><Icon size={17} /></span>

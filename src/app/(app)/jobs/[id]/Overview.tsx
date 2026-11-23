@@ -144,7 +144,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
       {a.questions.length > 0 && (
         <section className="card border-brand/25 p-5">
           <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-sun text-amber-800"><CircleHelp size={15} /></span>
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-sun text-brand"><CircleHelp size={15} /></span>
             <span className="font-semibold">Answer a few questions to sharpen your score</span>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">

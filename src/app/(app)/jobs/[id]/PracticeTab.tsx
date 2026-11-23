@@ -29,7 +29,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
         )}
       </div>
       <div className="card flex flex-col p-6">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-amber-50 text-amber-700"><IndianRupee size={20} /></div>
+        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-sun text-brand"><IndianRupee size={20} /></div>
         <div className="mt-4 text-lg font-medium">Salary negotiation</div>
         <p className="mt-1 text-sm text-muted">Got an offer? Check it against the market, then practise with HR.</p>
         <Link href={`/negotiation?app=${app.id}`} className="btn btn-ghost mt-5 self-start">Practise <ArrowRight size={16} /></Link>

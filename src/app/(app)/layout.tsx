@@ -1,6 +1,5 @@
 import { redirect } from "next/navigation";
 import { Nav } from "@/components/Nav";
-import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { profileStrength } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 
@@ -17,7 +16,6 @@ export default async function AppLayout({ children }: { children: React.ReactNod
           <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 lg:py-7">{children}</div>
         </div>
       </main>
-      <ThemeSwitcher />
     </div>
   );
 }
