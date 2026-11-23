@@ -1,5 +1,5 @@
 import { currentUser } from "@/lib/current-user";
-import { aiLimited } from "@/lib/rate-limit";
+import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkLimits, logUsage, runStructured, type ModelId } from "@/lib/ai";
 import { buildTask, SCHEMAS, type DetectedJob } from "@/lib/tasks";
@@ -15,10 +15,10 @@ export async function POST(req: Request) {
   const { jd } = (await req.json()) as { jd?: string };
   if (!jd || jd.trim().split(/\s+/).length < 30) return Response.json({ data: null });
 
-  const { data: profile } = await supabase.from("profiles").select("is_active, monthly_limit_inr, ai_mode").eq("id", user.id).single();
+  const { data: profile } = await supabase.from("profiles").select("is_active, monthly_limit_inr, ai_mode, feature_limits").eq("id", user.id).single();
   if (!profile?.is_active) return Response.json({ data: null });
   const admin = createServiceClient();
-  if (await aiLimited(user.id, "detect")) return Response.json({ data: null });
+  if (await aiLimited(user.id, "detect", profile.feature_limits)) return Response.json({ data: null });
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ data: null });
 

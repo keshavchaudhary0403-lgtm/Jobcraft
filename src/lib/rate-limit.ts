@@ -1,4 +1,5 @@
 import { createServiceClient } from "@/lib/supabase/server";
+import { FEATURES, effectiveLimit, type FeatureKey, type FeatureLimits } from "@/lib/features";
 
 /**
  * Shared rate limiting backed by Postgres (one counter per key across all server
@@ -37,19 +38,23 @@ export async function overLimit(key: string, max: number, windowSec: number): Pr
   }
 }
 
-/** Per-user limits for AI features — stops anyone burning credits in a burst. */
-export const AI_LIMITS = {
-  generate: [20, 60],
-  chat: [40, 60],
-  detect: [30, 60],
-  parse: [10, 3600],
-  insight: [20, 3600],
-  voice: [12, 3600],
-} as const;
-
-export async function aiLimited(userId: string, feature: keyof typeof AI_LIMITS) {
-  const [max, win] = AI_LIMITS[feature];
-  return overLimit(`ai:${feature}:${userId}`, max, win);
+/**
+ * Per-person AI feature gate, using the limits the admin set (person → app default → built-in).
+ * Returns "off" if the feature is switched off for them, "limited" if they're going too fast, else null.
+ */
+export async function aiLimited(userId: string, feature: FeatureKey, userLimits?: FeatureLimits | null): Promise<"off" | "limited" | null> {
+  let appLimits: FeatureLimits | null = null;
+  try {
+    const { data } = await createServiceClient().from("app_settings").select("feature_limits").eq("id", 1).maybeSingle();
+    appLimits = (data?.feature_limits as FeatureLimits) ?? null;
+  } catch {}
+  const max = effectiveLimit(feature, userLimits, appLimits);
+  if (max <= 0) return "off";
+  return (await overLimit(`ai:${feature}:${userId}`, max, FEATURES[feature].window)) ? "limited" : null;
 }
 
-export const TOO_FAST = "You're going a bit fast — wait a minute and try again.";
+export function gateResponse(gate: "off" | "limited", feature: FeatureKey) {
+  return gate === "off"
+    ? Response.json({ error: `${FEATURES[feature].label} is switched off for your account. Ask your admin.` }, { status: 403 })
+    : Response.json({ error: `You've hit your limit for ${FEATURES[feature].label.toLowerCase()} (${FEATURES[feature].per}). Wait a little and try again.` }, { status: 429 });
+}

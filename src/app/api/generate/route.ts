@@ -1,5 +1,5 @@
 import { currentUser } from "@/lib/current-user";
-import { TOO_FAST, aiLimited } from "@/lib/rate-limit";
+import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { buildTask, SCHEMAS, type Analysis, type LinkedInResult, type Outreach, type ResumeResult } from "@/lib/tasks";
@@ -29,7 +29,8 @@ export async function POST(req: Request) {
   }
 
   const admin = createServiceClient();
-  if (await aiLimited(user.id, "generate")) return Response.json({ error: TOO_FAST }, { status: 429 });
+  const gate = await aiLimited(user.id, "generate", profile.feature_limits);
+  if (gate) return gateResponse(gate, "generate");
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;

@@ -1,21 +1,25 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
 import { normalisePhone, placeholderEmail } from "@/lib/phone";
-import { getSettings, spendByUser } from "@/lib/ai";
+import { getSettings, monthStartIST, spendByUser } from "@/lib/ai";
+import { cleanLimits } from "@/lib/features";
 
 export async function GET() {
   if (!(await requireAdmin())) return Response.json({ error: "Admins only" }, { status: 403 });
   const admin = createServiceClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, voice_enabled, created_at")
+    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, voice_enabled, feature_limits, created_at")
     .order("created_at", { ascending: false });
   if (error) return Response.json({ error: error.message }, { status: 500 });
   const settings = await getSettings(admin);
   const spend = await spendByUser(admin, settings.usd_to_inr);
   const users = data.map((u) => ({ ...u, spent_inr: spend[u.id] ?? 0 }));
   const total_spent_inr = Object.values(spend).reduce((a, b) => a + b, 0);
-  return Response.json({ users, settings, total_spent_inr });
+  const { data: ev } = await admin.from("usage_events").select("feature, cost_usd").gte("created_at", monthStartIST());
+  const by_feature: Record<string, number> = {};
+  for (const r of ev ?? []) by_feature[r.feature] = (by_feature[r.feature] ?? 0) + Number(r.cost_usd) * settings.usd_to_inr;
+  return Response.json({ users, settings, total_spent_inr, by_feature });
 }
 
 /** Create a user: name + (email and/or phone) + password. No email/OTP is sent. */
@@ -52,7 +56,7 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const me = await requireAdmin();
   if (!me) return Response.json({ error: "Admins only" }, { status: 403 });
-  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode, voice_enabled } = (await req.json()) as {
+  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode, voice_enabled, feature_limits } = (await req.json()) as {
     id: string;
     password?: string;
     is_active?: boolean;
@@ -60,6 +64,7 @@ export async function PATCH(req: Request) {
     monthly_limit_inr?: number | null; // null = use default
     ai_mode?: string;
     voice_enabled?: boolean;
+    feature_limits?: Record<string, number | null>;
   };
   const admin = createServiceClient();
   if (password) {
@@ -67,7 +72,12 @@ export async function PATCH(req: Request) {
     const { error } = await admin.auth.admin.updateUserById(id, { password });
     if (error) return Response.json({ error: error.message }, { status: 400 });
   }
-  const patch: Record<string, boolean | number | string | null> = {};
+  const patch: Record<string, unknown> = {};
+  if (feature_limits !== undefined) {
+    const clean = cleanLimits(feature_limits);
+    if (!clean) return Response.json({ error: "Limits must be whole numbers, 0 or more." }, { status: 400 });
+    patch.feature_limits = clean;
+  }
   if (ai_mode !== undefined) {
     if (!["real", "demo", "off"].includes(ai_mode)) return Response.json({ error: "Unknown AI mode." }, { status: 400 });
     patch.ai_mode = ai_mode;

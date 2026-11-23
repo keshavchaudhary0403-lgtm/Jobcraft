@@ -21,6 +21,7 @@ export type Profile = {
   ai_mode: "real" | "demo" | "off";
   is_demo: boolean;
   voice_enabled: boolean;
+  feature_limits: Partial<Record<string, number>> | null;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;

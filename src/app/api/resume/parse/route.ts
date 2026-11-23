@@ -1,5 +1,5 @@
 import { currentUser } from "@/lib/current-user";
-import { TOO_FAST, aiLimited } from "@/lib/rate-limit";
+import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { buildTask, SCHEMAS, type ParsedResume } from "@/lib/tasks";
@@ -16,7 +16,8 @@ export async function POST(req: Request) {
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();
   if (!profile?.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
   const admin = createServiceClient();
-  if (await aiLimited(user.id, "parse")) return Response.json({ error: TOO_FAST }, { status: 429 });
+  const gate = await aiLimited(user.id, "parse", profile.feature_limits);
+  if (gate) return gateResponse(gate, "parse");
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;
