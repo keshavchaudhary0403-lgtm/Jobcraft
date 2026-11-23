@@ -9,18 +9,15 @@ import {
   ChevronRight,
   ExternalLink,
   FileText,
-  ListChecks,
   MapPin,
   MessageCircle,
   Pencil,
-  Sparkles,
   Trash2,
-  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { CompanyAvatar, MatchChip, Panel, STATUS_META, StatusPill } from "@/components/ui";
+import { CompanyAvatar, STATUS_META } from "@/components/ui";
 import { Menu, Modal, useAsk } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
@@ -111,159 +108,134 @@ export function JobView({
             : { label: "Practise the interview", sub: "6 questions, by voice", go: () => setTab("practice") };
 
   const strong = a ? a.top_skills.filter((s) => s.match === "strong").length : 0;
+  const currentStep = checklist.findIndex((c) => !c.done);
+  const fit = a ? (a.fit_score >= 7 ? { label: "Strong fit", cls: "bg-good-soft text-good" } : a.fit_score >= 5 ? { label: "Fair fit", cls: "bg-mid-soft text-mid" } : { label: "Stretch", cls: "bg-bad-soft text-bad" }) : null;
+  const meta = [app.company, app.location, a?.seniority, app.company_type].filter(Boolean) as string[];
 
   return (
     <div>
       {dialog}
-      <div className="mb-4 flex items-center gap-1.5 text-[0.88rem] text-muted">
+      <nav className="mb-3 flex items-center gap-1.5 text-[0.86rem] text-muted">
         <Link href="/jobs" className="hover:text-ink">Jobs</Link>
-        <ChevronRight size={14} className="text-faint" />
-        <span className="truncate text-ink">{app.role}</span>
-      </div>
+        <ChevronRight size={13} className="text-faint" />
+        <span className="truncate">{app.company}</span>
+      </nav>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[270px_minmax(0,1fr)_300px]">
-        {/* ── Left: job profile ── */}
-        <aside className="card overflow-hidden fade-up xl:sticky xl:top-6">
-          <div className="flex flex-col items-center px-5 pb-5 pt-6 text-center">
-            <CompanyAvatar name={app.company} size={64} />
-            <div className="mt-3 text-[1.08rem] font-semibold leading-snug">{app.role}</div>
-            <div className="mt-0.5 text-muted">{app.company}</div>
-            {app.location && <div className="mt-1 flex items-center gap-1 text-[0.85rem] text-faint"><MapPin size={12} /> {app.location}</div>}
-            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-              <StatusPill status={app.status} />
-              {a && <MatchChip score={a.fit_score} />}
-            </div>
-            <div className="mt-5 grid w-full grid-cols-4 gap-2">
-              {[
-                { label: "Coach", icon: MessageCircle, cls: "bg-sky text-[#3b47b0]", on: () => setCoach(true) },
-                { label: "JD", icon: FileText, cls: "bg-sun text-brand", on: () => setShowJd(true) },
-                { label: "Edit", icon: Pencil, cls: "bg-lilac text-[#4b3fb3]", on: () => setEditing(true) },
-                { label: "Delete", icon: Trash2, cls: "bg-rose text-[#6b3a8f]", on: remove },
-              ].map(({ label, icon: Icon, cls, on }) => (
-                <button key={label} onClick={on} className="group flex flex-col items-center gap-1.5">
-                  <span className={`grid h-10 w-10 place-items-center rounded-xl transition group-hover:-translate-y-0.5 ${cls}`}><Icon size={17} /></span>
-                  <span className="text-[0.75rem] text-muted">{label}</span>
-                </button>
+      {/* ── Job header ── */}
+      <header className="card mb-6 overflow-hidden fade-up">
+        <div className="flex flex-wrap items-start gap-4 px-6 pb-5 pt-6">
+          <CompanyAvatar name={app.company} size={56} />
+          <div className="min-w-0 flex-1">
+            <h1 className="text-[1.45rem] font-semibold leading-tight tracking-tight">{app.role}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-[0.92rem] text-muted">
+              {meta.map((m, i) => (
+                <span key={m} className="flex items-center gap-2">
+                  {i > 0 && <span className="h-1 w-1 rounded-full bg-faint" />}
+                  {i === 1 && app.location === m ? <span className="flex items-center gap-1"><MapPin size={13} />{m}</span> : m}
+                </span>
               ))}
+              <span className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-faint" /> Added {fmtDate(app.created_at)}</span>
             </div>
           </div>
-          <div className="space-y-3 border-t border-line bg-line-2/60 px-5 py-4 text-[0.88rem]">
-            {[
-              ["Added", fmtDate(app.created_at)],
-              ["Applied on", fmtDate(app.applied_on)],
-              ["Company type", app.company_type ?? "—"],
-              ["Seniority", a?.seniority ?? "—"],
-            ].map(([k, v]) => (
-              <div key={k}>
-                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
-                <div className="font-medium">{v}</div>
-              </div>
-            ))}
-            {app.job_url && (
-              <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm mt-1 w-full">
-                Open listing <ExternalLink size={13} />
-              </a>
-            )}
-          </div>
-        </aside>
-
-        {/* ── Center ── */}
-        <section className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 fade-up">
-            <div className="flex flex-wrap gap-1.5">
-              {TABS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  disabled={!analysed && key !== "overview"}
-                  className={`font-semibold h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
-                    tab === key ? "bg-brand text-on-brand shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
-            </div>
+          <div className="flex flex-wrap items-center gap-2">
             <Menu<Status>
               value={app.status}
               options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
               onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-              render={(c) => (
-                <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>
-              )}
+              render={(c) => <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>}
             />
+            <button className="btn btn-ghost btn-sm" onClick={() => setShowJd(true)}><FileText size={14} /> Job description</button>
+            <button className="btn btn-ghost btn-sm" onClick={() => setCoach(true)}><MessageCircle size={14} /> Coach</button>
+            {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn-quiet" title="Open listing" aria-label="Open listing"><ExternalLink size={16} /></a>}
+            <button className="btn-quiet" onClick={() => setEditing(true)} title="Edit details" aria-label="Edit details"><Pencil size={16} /></button>
+            <button className="btn-quiet hover:text-bad" onClick={remove} title="Delete job" aria-label="Delete job"><Trash2 size={16} /></button>
           </div>
+        </div>
 
-          {tab === "overview" && <Overview app={app} onUpdate={patchLocal} askAt={askAt} onAsk={setAskAt} onGo={(t) => setTab(t)} />}
-          {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
-          {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
-          {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
-        </section>
-
-        {/* ── Right: AI summary ── */}
-        <aside className="space-y-4 xl:sticky xl:top-6 stagger">
-          <Panel title="AI Summary" icon={<Sparkles size={15} />}>
+        {/* Score · journey · next action */}
+        <div className="grid items-center gap-5 border-t border-line bg-line-2/40 px-6 py-4 lg:grid-cols-[auto_minmax(0,1fr)_auto]">
+          <div className="flex items-center gap-4 lg:border-r lg:border-line lg:pr-6">
             {a ? (
               <>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[2.4rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
-                  <span className="text-muted">/100</span>
-                  <span className={`ml-auto chip ${a.fit_score >= 7 ? "bg-good-soft text-good" : a.fit_score >= 5 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>
-                    {a.fit_score >= 7 ? "Strong fit" : a.fit_score >= 5 ? "Fair fit" : "Stretch"}
-                  </span>
+                <div className="flex items-baseline gap-1">
+                  <span className="text-[2rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
+                  <span className="text-[0.85rem] text-muted">/100</span>
                 </div>
-                {typeof a.prev_score === "number" && a.prev_score !== a.fit_score && (
-                  <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mid-soft text-mid"}`}>
-                    {a.prev_score * 10} → {a.fit_score * 10} <span className="font-normal">{a.fit_score > a.prev_score ? "after your answers" : "after re-scoring"}</span>
+                <div>
+                  <span className={`chip ${fit!.cls}`}>{fit!.label}</span>
+                  <div className="mt-1 text-[0.78rem] text-muted">
+                    {typeof a.prev_score === "number" && a.prev_score !== a.fit_score
+                      ? <span className="font-semibold text-good">{a.prev_score * 10} → {a.fit_score * 10}</span>
+                      : <>{strong} of {a.top_skills.length} skills shown</>}
                   </div>
-                )}
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
-                  <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
-                </div>
-                <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
-                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
-                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
-                  <div className="flex items-center justify-between px-5 py-2"><span className="text-muted">Open questions</span><span className="flex items-center gap-2"><span className="font-medium">{unanswered}</span>{unanswered > 0 && <button onClick={openQuestions} className="pill-link">Answer <ArrowRight size={12} /></button>}</span></div>
                 </div>
               </>
             ) : (
-              <div className="space-y-2"><div className="skeleton h-9 w-24" /><div className="skeleton h-2 w-full" /><div className="skeleton h-3 w-3/4" /></div>
+              <div className="flex items-center gap-2 text-muted"><span className="skeleton h-8 w-14" /> Scoring…</div>
             )}
-          </Panel>
+          </div>
 
-          {next && (
-            <div className="dark-card p-5">
-              <div className="text-[0.82rem] text-white/70">Recommended next action</div>
-              <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
-              <div className="text-[0.85rem] text-white/65">{next.sub}</div>
-              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-brand text-on-brand hover:opacity-90">
-                Do it now <ArrowRight size={14} />
-              </button>
-            </div>
-          )}
-
-          <Panel title="Checklist" icon={<ListChecks size={15} />}>
-            <ol className="relative space-y-1.5">
-              <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
-              {checklist.map((c) => (
-                <li key={c.label}>
+          <ol className="flex min-w-0 items-center overflow-x-auto">
+            {checklist.map((c, i) => {
+              const current = i === currentStep;
+              return (
+                <li key={c.label} className="flex min-w-0 flex-1 items-center">
                   <button
                     onClick={c.go}
-                    disabled={!analysed && c.label !== "Match analysed"}
-                    title={c.label === "Applied" && !c.done ? "Mark as applied" : undefined}
-                    className="relative -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-lg px-2 py-1 text-left text-[0.9rem] transition hover:bg-line-2 disabled:cursor-default disabled:hover:bg-transparent"
+                    disabled={!analysed && i !== 0}
+                    title={c.label === "Applied" && !c.done ? "Mark as applied" : c.label}
+                    className="group flex min-w-0 flex-col items-center gap-1.5 px-1 disabled:cursor-default"
                   >
-                  <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-on-brand" : "border-2 border-line bg-white"}`}>
-                    {c.done && <Check size={11} strokeWidth={3} />}
-                  </span>
-                  <span className={c.done ? "text-ink" : "text-muted"}>{c.label}</span>
+                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.75rem] font-semibold transition ${c.done ? "bg-brand text-on-brand" : current ? "bg-white text-brand ring-2 ring-brand" : "bg-white text-faint ring-1 ring-line group-enabled:group-hover:ring-brand/40"}`}>
+                      {c.done ? <Check size={13} strokeWidth={3} /> : i + 1}
+                    </span>
+                    <span className={`whitespace-nowrap text-[0.76rem] ${c.done ? "text-ink" : current ? "font-semibold text-brand-ink" : "text-muted"}`}>{c.label}</span>
                   </button>
+                  {i < checklist.length - 1 && <span className={`mx-1 mb-5 h-0.5 min-w-4 flex-1 rounded-full ${c.done ? "bg-brand" : "bg-line"}`} />}
                 </li>
-              ))}
-            </ol>
-          </Panel>
-        </aside>
-      </div>
+              );
+            })}
+          </ol>
+
+          <div className="lg:border-l lg:border-line lg:pl-6">
+            {next ? (
+              <button onClick={next.go} className="btn btn-primary w-full justify-between gap-3 lg:w-auto">
+                <span className="text-left leading-tight">
+                  <span className="block">{next.label}</span>
+                  <span className="block text-[0.74rem] font-normal opacity-80">{next.sub}</span>
+                </span>
+                <ArrowRight size={16} />
+              </button>
+            ) : (
+              <span className="text-[0.86rem] text-muted">{analysed ? "All steps done" : "Analysing the job…"}</span>
+            )}
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-1 overflow-x-auto border-t border-line px-4">
+          {TABS.map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setTab(key)}
+              disabled={!analysed && key !== "overview"}
+              className={`relative h-12 shrink-0 px-3.5 text-[0.95rem] font-semibold transition disabled:opacity-40 ${tab === key ? "text-ink" : "text-muted hover:text-ink"}`}
+            >
+              {label}
+              {key === "overview" && unanswered > 0 && <span className="ml-1.5 rounded-full bg-brand-soft px-1.5 text-[0.72rem] text-brand-ink">{unanswered}</span>}
+              {tab === key && <span className="absolute inset-x-3 bottom-0 h-0.5 rounded-full bg-brand" />}
+            </button>
+          ))}
+        </div>
+      </header>
+
+      {/* ── Tab content: full width ── */}
+      <section className="min-w-0">
+        {tab === "overview" && <Overview app={app} onUpdate={patchLocal} askAt={askAt} onAsk={setAskAt} onGo={(t) => setTab(t)} />}
+        {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
+        {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
+        {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
+      </section>
 
       <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>
         <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-relaxed text-slate-700">{app.jd}</div>
@@ -293,23 +265,11 @@ export function JobView({
         </form>
       </Modal>
 
-      {coach && (
-        <div className="fixed inset-0 z-40 flex justify-end bg-slate-900/25 backdrop-blur-[2px]" onClick={() => setCoach(false)}>
-          <div className="flex h-full w-full max-w-lg flex-col bg-bg shadow-2xl" style={{ animation: "slide-in .25s cubic-bezier(.2,.7,.2,1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-line bg-white px-5 py-3.5">
-              <div>
-                <div className="font-semibold">Coach</div>
-                <div className="text-[0.82rem] text-muted">Knows your resume and this job</div>
-              </div>
-              <button className="btn-quiet" onClick={() => setCoach(false)} aria-label="Close"><X size={16} /></button>
-            </div>
-            <div className="thin-scroll flex-1 overflow-y-auto px-5 pt-4">
-              <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job…" suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
-            </div>
-          </div>
-          <style>{`@keyframes slide-in { from { transform: translateX(32px); opacity: 0 } }`}</style>
+      <Modal open={coach} onClose={() => setCoach(false)} title="Coach · knows your resume and this job" width={760}>
+        <div className="-mx-1 min-h-[50vh]">
+          <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job…" suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
         </div>
-      )}
+      </Modal>
     </div>
   );
 }
