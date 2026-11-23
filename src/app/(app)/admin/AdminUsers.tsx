@@ -177,23 +177,22 @@ export function AdminUsers({ meId }: { meId: string }) {
         <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
       </div>
 
-      <div className="grid items-start gap-6 lg:grid-cols-[210px_minmax(0,1fr)]">
-        {/* Section menu */}
-        <nav className="-mx-1 flex gap-1 overflow-x-auto px-1 pb-1 lg:sticky lg:top-6 lg:mx-0 lg:flex-col lg:overflow-visible lg:p-0">
-          {SECTIONS.map(({ key, label, icon: Icon }) => (
-            <button
-              key={key}
-              onClick={() => setSection(key)}
-              className={`flex h-10 shrink-0 items-center gap-2.5 rounded-xl px-3 text-left text-[0.92rem] font-semibold transition ${
-                section === key ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:bg-white/70 hover:text-ink"
-              }`}
-            >
-              <Icon size={16} className={section === key ? "text-brand" : ""} />
-              <span className="flex-1">{label}</span>
-              {key === "people" && <span className="rounded-full bg-line-2 px-2 text-[0.75rem] tabular-nums text-muted">{users.length}</span>}
-            </button>
-          ))}
-        </nav>
+      <div className="space-y-5">
+        {/* Section tabs — same style as My profile */}
+        <div className="-mx-1 overflow-x-auto px-1">
+          <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
+            {SECTIONS.map(({ key, label, icon: Icon }) => (
+              <button
+                key={key}
+                onClick={() => setSection(key)}
+                className={`flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${section === key ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}
+              >
+                <Icon size={14} className={section === key ? "text-brand" : ""} /> {label}
+                {key === "people" && <span className="ml-0.5 rounded-full bg-line-2 px-1.5 text-[0.72rem] tabular-nums text-muted">{users.length}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <div className="min-w-0">
           {!settings ? (
