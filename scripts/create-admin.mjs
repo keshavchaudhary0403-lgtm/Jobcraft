@@ -1,5 +1,8 @@
-// Create (or promote) the first admin user.  Usage:  npm run create-admin
-// Reads .env.local. Asks for name, email/phone and password in the terminal.
+// Create the first admin user. Reads .env.local.
+// Run in a real terminal (macOS Terminal app):  npm run create-admin
+// Name/email/phone can also be passed as flags:
+//   npm run create-admin -- --name "Keshav" --phone 9876543210 --email you@example.com
+// The password is always asked for, hidden, so it never lands in shell history.
 import { createClient } from "@supabase/supabase-js";
 import readline from "node:readline";
 
@@ -7,6 +10,15 @@ process.loadEnvFile(".env.local");
 const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
 if (!url || !key) throw new Error("Fill NEXT_PUBLIC_SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY in .env.local first");
+
+const flag = (n) => {
+  const i = process.argv.indexOf(`--${n}`);
+  return i > -1 ? process.argv[i + 1] ?? "" : null;
+};
+if (!process.stdin.isTTY) {
+  console.error("\nThis needs a real terminal to type the password.\nOpen the Terminal app and run:\n\n  cd ~/Desktop/jobcraft && npm run create-admin\n");
+  process.exit(1);
+}
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 const ask = (q) => new Promise((r) => rl.question(q, r));
@@ -21,9 +33,9 @@ const askHidden = (q) =>
     });
   });
 
-const name = (await ask("Full name: ")).trim();
-const email = (await ask("Email (optional, Enter to skip): ")).trim().toLowerCase();
-let phone = (await ask("Phone (optional, Enter to skip): ")).replace(/\D/g, "").replace(/^0+/, "");
+const name = (flag("name") ?? (await ask("Full name: "))).trim();
+const email = (flag("email") ?? (await ask("Email (optional, Enter to skip): "))).trim().toLowerCase();
+let phone = (flag("phone") ?? (await ask("Phone (optional, Enter to skip): "))).replace(/\D/g, "").replace(/^0+/, "");
 if (phone.length === 10) phone = `91${phone}`;
 const password = await askHidden("Password (min 6 chars, hidden): ");
 rl.close();
