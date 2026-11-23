@@ -34,11 +34,36 @@
   --color-sky: #e2f0ff;
 }
 
-/* ── Default colours (the in-app colour studio can override these live) ── */
-:root {
-  --brand: #6236ff; --brand-ink: #4c22e0; --brand-2: #a991ff; --brand-soft: #f0ebff; --on-brand: #ffffff;
-  --side: #14112b; --side-2: #2a2747;
-  --bg: #f7f7fb; --ink: #14131c; --muted: #5f5e6e; --faint: #9e9daf; --line: #e8e7ef; --line-2: #f2f1f6;
+/* ── Palettes sampled from leading hiring products' live sites ── */
+/* Plum & Amber — Rippling */
+:root, [data-theme="plum"] {
+  --brand: #ffa81d; --brand-ink: #a86200; --brand-2: #ffcf7a; --brand-soft: #fff3df; --on-brand: #2a0020;
+  --side: #4a0039; --side-2: #63114f;
+  --bg: #f7f4f1; --ink: #2a0a23; --muted: #6d5f68; --faint: #a89ba3; --line: #ebe5e1; --line-2: #f3efec;
+}
+/* Forest & Mint — Greenhouse */
+[data-theme="forest"] {
+  --brand: #008561; --brand-ink: #006b4e; --brand-2: #6fe3c2; --brand-soft: #e1f8f0; --on-brand: #ffffff;
+  --side: #15372c; --side-2: #21503f;
+  --bg: #faf7f5; --ink: #10231d; --muted: #5b6b65; --faint: #9aa8a2; --line: #ebe6e2; --line-2: #f4f0ed;
+}
+/* Ink & Indigo — Ashby */
+[data-theme="indigo"] {
+  --brand: #473bce; --brand-ink: #3a2fb0; --brand-2: #a89eff; --brand-soft: #eeecfd; --on-brand: #ffffff;
+  --side: #141415; --side-2: #2a2a2e;
+  --bg: #f7f6f9; --ink: #141415; --muted: #66656c; --faint: #9c9ca0; --line: #e8e7ec; --line-2: #f1f0f4;
+}
+/* Midnight & Magenta — Wellfound */
+[data-theme="magenta"] {
+  --brand: #d11f68; --brand-ink: #b0154f; --brand-2: #f58fb7; --brand-soft: #fdf0f6; --on-brand: #ffffff;
+  --side: #051316; --side-2: #12292d;
+  --bg: #fafafa; --ink: #0b1416; --muted: #5b6264; --faint: #9ca2a4; --line: #ebebeb; --line-2: #f4f4f4;
+}
+/* Indigo & Cream — Deel */
+[data-theme="cream"] {
+  --brand: #5938b7; --brand-ink: #47299c; --brand-2: #b9a6f2; --brand-soft: #efeafb; --on-brand: #ffffff;
+  --side: #201547; --side-2: #33266a;
+  --bg: #f7f5f2; --ink: #1b1b1b; --muted: #625e6b; --faint: #a19da9; --line: #ebe7e1; --line-2: #f3f0eb;
 }
 
 /* Desktop-dense scale: 1rem = 14px */
