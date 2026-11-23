@@ -1,4 +1,4 @@
--- JobPilot database schema
+-- Jobcraft database schema
 -- Run this once in Supabase: Dashboard → SQL Editor → New query → paste → Run.
 -- Safe to re-run (uses IF NOT EXISTS / OR REPLACE where possible).
 
@@ -133,11 +133,11 @@ begin
   insert into public.profiles (id, email, phone, full_name)
   values (
     new.id,
-    case when new.email like '%@phone.jobpilot.invalid' then null else new.email end,
+    case when new.email like '%@phone.jobcraft.invalid' then null else new.email end,
     nullif(regexp_replace(coalesce(
       new.phone,
       new.raw_user_meta_data->>'phone',
-      case when new.email like '%@phone.jobpilot.invalid' then split_part(new.email, '@', 1) end,
+      case when new.email like '%@phone.jobcraft.invalid' then split_part(new.email, '@', 1) end,
       ''), '\D', '', 'g'), ''),
     new.raw_user_meta_data->>'full_name'
   )
@@ -152,7 +152,7 @@ create trigger on_auth_user_created after insert on auth.users
 -- Backfill profiles for users that existed before this script ran.
 insert into public.profiles (id, email, phone)
 select u.id,
-       case when u.email like '%@phone.jobpilot.invalid' then null else u.email end,
+       case when u.email like '%@phone.jobcraft.invalid' then null else u.email end,
        nullif(regexp_replace(coalesce(u.phone, ''), '\D', '', 'g'), '')
 from auth.users u
 on conflict (id) do nothing;

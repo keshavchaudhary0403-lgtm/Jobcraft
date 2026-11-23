@@ -29,7 +29,7 @@ export default function LoginPage() {
   return (
     <main className="min-h-screen grid lg:grid-cols-2">
       <section className="hidden lg:flex flex-col justify-between p-12 bg-accent text-white">
-        <div className="font-serif text-2xl">JobPilot</div>
+        <div className="font-serif text-2xl">Jobcraft</div>
         <div className="max-w-md">
           <h1 className="font-serif text-4xl leading-tight">Your whole job search, one calm place.</h1>
           <p className="mt-4 text-white/80">
@@ -43,7 +43,7 @@ export default function LoginPage() {
       <section className="flex items-center justify-center p-6">
         <form onSubmit={submit} className="w-full max-w-sm space-y-5">
           <div>
-            <div className="font-serif text-2xl lg:hidden mb-6 text-accent">JobPilot</div>
+            <div className="font-serif text-2xl lg:hidden mb-6 text-accent">Jobcraft</div>
             <h2 className="text-2xl font-semibold">Log in</h2>
             <p className="text-sm text-muted mt-1">Use the email or phone number your admin gave you.</p>
           </div>

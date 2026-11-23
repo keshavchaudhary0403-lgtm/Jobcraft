@@ -10,5 +10,5 @@ export function looksLikeEmail(input: string) {
 
 /** Internal placeholder email for users who log in with phone only (never receives mail). */
 export function placeholderEmail(phone: string) {
-  return `${phone}@phone.jobpilot.invalid`;
+  return `${phone}@phone.jobcraft.invalid`;
 }

@@ -1,4 +1,4 @@
-# JobPilot — AI job search system
+# Jobcraft — AI job search system
 
 A multi-user web app built on the *Get Hired Faster* prompt library. Each user saves their details once.
 After that, every prompt is filled in from those details, so nobody has to re-type or re-prompt.
@@ -62,7 +62,7 @@ npm run dev                  # http://localhost:3000
 - For a phone number, the server finds the matching account (using the service-role key, server-side only) and signs in.
   No SMS provider or OTP is needed.
 - Users can change their own password under *My details*. Admins can reset anyone's password.
-- Phone-only users get an internal placeholder email (`<phone>@phone.jobpilot.invalid`). It never receives mail.
+- Phone-only users get an internal placeholder email (`<phone>@phone.jobcraft.invalid`). It never receives mail.
 
 ## Costs
 The app calls Claude with **your** `ANTHROPIC_API_KEY`, so you pay for every user's usage.

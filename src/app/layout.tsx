@@ -6,7 +6,7 @@ const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
 const serif = Fraunces({ variable: "--font-serif-display", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "JobPilot — your AI job search system",
+  title: "Jobcraft — your AI job search system",
   description: "Decode JDs, tailor resumes, rewrite LinkedIn, write outreach, practise interviews and salary negotiation.",
 };
 

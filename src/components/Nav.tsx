@@ -47,7 +47,7 @@ export function Nav({ name, isAdmin }: { name: string; isAdmin: boolean }) {
     <>
       {/* Mobile top bar */}
       <header className="no-print lg:hidden sticky top-0 z-30 flex items-center justify-between border-b border-line bg-paper/95 backdrop-blur px-4 py-3">
-        <Link href="/" className="font-serif text-xl text-accent">JobPilot</Link>
+        <Link href="/" className="font-serif text-xl text-accent">Jobcraft</Link>
         <button className="btn btn-ghost px-3 py-1.5" onClick={() => setOpen(!open)} aria-label="Menu">
           {open ? "Close" : "Menu"}
         </button>
@@ -61,7 +61,7 @@ export function Nav({ name, isAdmin }: { name: string; isAdmin: boolean }) {
 
       {/* Desktop sidebar */}
       <aside className="no-print hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col border-r border-line bg-paper px-4 py-6">
-        <Link href="/" className="font-serif text-2xl text-accent px-3 mb-8">JobPilot</Link>
+        <Link href="/" className="font-serif text-2xl text-accent px-3 mb-8">Jobcraft</Link>
         {list}
         <div className="mt-auto px-3 pt-6 border-t border-line">
           <div className="text-sm font-medium truncate">{name}</div>
