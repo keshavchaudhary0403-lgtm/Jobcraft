@@ -316,46 +316,56 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
           })}
         </Panel>
 
-        {/* Questions */}
-        {questions.length > 0 && (
-          <Panel
-            title="The recruiter's questions"
-            sub="Your answers decide the gaps marked “Need your input” — and make your resume and outreach stronger."
-            icon={<CircleHelp size={15} />}
-            action={<span className="chip bg-line-2 text-muted">{answered} of {questions.length} answered</span>}
-            bodyClass="divide-y divide-line"
-          >
-            {questions.map((q, i) => {
-              const ans = answers[q]?.trim();
-              return (
-                <button key={q} onClick={() => onAsk(i)} className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition hover:bg-line-2/60">
-                  <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[0.75rem] font-semibold ${ans ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>
-                    {ans ? <Check size={13} strokeWidth={3} /> : i + 1}
+        {/* Progress + any questions not already shown inside a gap */}
+        {questions.length > 0 && (() => {
+          const inGaps = new Set(a.gaps.map(gapQuestion).filter((q): q is string => !!q));
+          const extra = questions.map((q, i) => ({ q, i })).filter(({ q }) => !inGaps.has(q));
+          const pct = Math.round((answered / questions.length) * 100);
+          return (
+            <Panel
+              title={extra.length ? "More questions from the recruiter" : "Your answers"}
+              sub={extra.length ? "Not tied to a single gap, but they make your resume and outreach stronger." : "Answer the questions in the gaps above, then re-score."}
+              icon={<CircleHelp size={15} />}
+              action={<span className={`chip ${answered === questions.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{answered} of {questions.length} answered</span>}
+              bodyClass="divide-y divide-line"
+            >
+              {extra.map(({ q, i }) => {
+                const ans = answers[q]?.trim();
+                return (
+                  <button key={q} onClick={() => onAsk(i)} className="flex w-full items-start gap-3 px-5 py-3.5 text-left transition hover:bg-line-2/60">
+                    <span className={`mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full ${ans ? "bg-good-soft text-good" : "bg-info-soft text-info"}`}>
+                      {ans ? <Check size={13} strokeWidth={3} /> : <CircleHelp size={13} />}
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="font-medium leading-snug text-slate-800">{q}</div>
+                      <div className={`mt-0.5 line-clamp-1 text-[0.86rem] ${ans ? "text-muted" : "text-faint"}`}>{ans || "Not answered yet"}</div>
+                    </div>
+                    <span className={`shrink-0 ${ans ? "btn btn-ghost btn-sm" : "btn btn-primary btn-sm"}`}>{ans ? <><Pencil size={12} /> Edit</> : <>Answer <ArrowRight size={13} /></>}</span>
+                  </button>
+                );
+              })}
+              <div className="space-y-3 px-5 py-4">
+                <div className="h-1.5 overflow-hidden rounded-full bg-line-2">
+                  <div className="h-full rounded-full bg-brand transition-all duration-500" style={{ width: `${pct}%` }} />
+                </div>
+                <div className="flex flex-wrap items-center gap-3">
+                  {answered < questions.length && (
+                    <button className="btn btn-primary" onClick={() => onAsk(Math.max(0, questions.findIndex((q) => !answers[q]?.trim())))}>
+                      {answered ? `Answer ${questions.length - answered} left` : "Answer all questions"} <ArrowRight size={15} />
+                    </button>
+                  )}
+                  <button className={`btn ${answered === questions.length ? "btn-primary" : "btn-ghost"}`} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
+                    {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score with my answers
+                  </button>
+                  <span className="text-[0.84rem] text-muted">
+                    {!answered ? "Answer at least one to re-score." : changedSinceScore ? "Your score doesn't include your latest answers yet." : "Score is up to date with your answers."}
                   </span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium leading-snug text-slate-800">{q}</div>
-                    <div className={`mt-0.5 line-clamp-1 text-[0.86rem] ${ans ? "text-muted" : "text-faint"}`}>{ans || "Not answered yet"}</div>
-                  </div>
-                  <span className={`shrink-0 ${ans ? "btn btn-ghost btn-sm" : "btn btn-primary btn-sm"}`}>{ans ? <><Pencil size={12} /> Edit</> : <>Answer <ArrowRight size={13} /></>}</span>
-                </button>
-              );
-            })}
-            <div className="flex flex-wrap items-center gap-3 bg-line-2/40 px-5 py-3.5">
-              {answered < questions.length && (
-                <button className="btn btn-primary" onClick={() => onAsk(Math.max(0, questions.findIndex((q) => !answers[q]?.trim())))}>
-                  Answer {questions.length - answered === questions.length ? "questions" : `${questions.length - answered} left`} <ArrowRight size={15} />
-                </button>
-              )}
-              <button className={`btn ${answered === questions.length ? "btn-primary" : "btn-ghost"}`} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
-                {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score with my answers
-              </button>
-              <span className="text-[0.84rem] text-muted">
-                {!answered ? "Answer at least one to re-score." : changedSinceScore ? "Your score doesn't include your latest answers yet." : "Score is up to date with your answers."}
-              </span>
-            </div>
-            {error && <p className="px-5 py-3 text-bad">{error}</p>}
-          </Panel>
-        )}
+                </div>
+              </div>
+              {error && <p className="px-5 py-3 text-bad">{error}</p>}
+            </Panel>
+          );
+        })()}
       </div>
 
       <AnswerFlow
