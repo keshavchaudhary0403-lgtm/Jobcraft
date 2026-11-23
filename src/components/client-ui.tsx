@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Copy, Loader2, X } from "lucide-react";
 
 export function CopyButton({ text, label = "Copy", className = "" }: { text: string; label?: string; className?: string }) {
@@ -203,5 +203,66 @@ export function SaveableNumber({
       </div>
       {err && <p className="mt-1 text-[0.8rem] text-bad">{err}</p>}
     </div>
+  );
+}
+
+type AskOpts = {
+  title: string;
+  body?: React.ReactNode;
+  confirm: string;
+  danger?: boolean;
+  input?: { label: string; defaultValue?: string; placeholder?: string; type?: string; prefix?: string };
+};
+
+/**
+ * App-styled replacement for window.confirm / window.prompt.
+ * const [ask, dialog] = useAsk(); render {dialog}; then `await ask({...})`
+ * → null if cancelled, the typed value (or "") if confirmed.
+ */
+export function useAsk() {
+  const [state, setState] = useState<{ opts: AskOpts; resolve: (v: string | null) => void } | null>(null);
+  const ask = useCallback((opts: AskOpts) => new Promise<string | null>((resolve) => setState({ opts, resolve })), []);
+  const finish = (v: string | null) => {
+    state?.resolve(v);
+    setState(null);
+  };
+  const dialog = state ? <AskDialog key={state.opts.title} opts={state.opts} onDone={finish} /> : null;
+  return [ask, dialog] as const;
+}
+
+function AskDialog({ opts, onDone }: { opts: AskOpts; onDone: (v: string | null) => void }) {
+  const [v, setV] = useState(opts.input?.defaultValue ?? "");
+  const blocked = !!opts.input && !v.trim();
+  return (
+    <Modal open onClose={() => onDone(null)} title={opts.title} width={440}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!blocked) onDone(opts.input ? v.trim() : "");
+        }}
+      >
+        {opts.body && <div className="text-[0.95rem] leading-relaxed text-slate-700">{opts.body}</div>}
+        {opts.input && (
+          <div className={opts.body ? "mt-4" : ""}>
+            <label className="label">{opts.input.label}</label>
+            <div className="relative">
+              {opts.input.prefix && <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">{opts.input.prefix}</span>}
+              <input
+                autoFocus
+                type={opts.input.type ?? "text"}
+                className={`field ${opts.input.prefix ? "pl-7" : ""}`}
+                placeholder={opts.input.placeholder}
+                value={v}
+                onChange={(e) => setV(e.target.value)}
+              />
+            </div>
+          </div>
+        )}
+        <div className="mt-5 flex justify-end gap-2">
+          <button type="button" className="btn btn-ghost" onClick={() => onDone(null)}>Cancel</button>
+          <button type="submit" autoFocus={!opts.input} disabled={blocked} className={`btn ${opts.danger ? "bg-bad text-white hover:opacity-90" : "btn-primary"}`}>{opts.confirm}</button>
+        </div>
+      </form>
+    </Modal>
   );
 }

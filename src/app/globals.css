@@ -45,6 +45,9 @@
 /* Desktop-dense scale: 1rem = 14px */
 *:focus { outline: none; }
 *:focus-visible { outline: 2px solid var(--brand-2); outline-offset: 2px; }
+input:focus-visible, textarea:focus-visible, select:focus-visible, [contenteditable]:focus-visible { outline: none; }
+.option:focus-visible, .field:focus-visible { outline: none; }
+.option:focus-visible { border-color: var(--brand); }
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }
 body { background: var(--color-bg); color: var(--color-ink); font-size: 13.5px; line-height: 1.5; }
 

@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
 import { Kpi } from "@/components/ui";
-import { Modal, SaveableNumber, Spinner } from "@/components/client-ui";
+import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
 
 type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; spent_inr: number; created_at: string };
 type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null };
@@ -20,6 +20,7 @@ export function AdminUsers({ meId }: { meId: string }) {
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
   const [toast, setToast] = useState("");
+  const [ask, dialog] = useAsk();
 
   const load = useCallback(async () => {
     const data = await fetch("/api/admin/users").then((r) => r.json());
@@ -183,11 +184,11 @@ export function AdminUsers({ meId }: { meId: string }) {
                     <td className="px-4 py-3">{u.is_active ? <span className="chip bg-good-soft text-good">Active</span> : <span className="chip bg-slate-100 text-slate-500">Paused</span>}</td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1">
-                        <button className="btn-quiet" title="Reset password" onClick={() => { const pw = prompt(`New password for ${name}:`); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>
+                        <button className="btn-quiet" title="Reset password" onClick={async () => { const pw = await ask({ title: "Reset password", body: <>Set a new password for <b>{name}</b>. Share it with them yourself.</>, input: { label: "New password", type: "text", placeholder: "At least 6 characters" }, confirm: "Set password" }); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>
                         {u.id !== meId && (
                           <>
-                            <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={() => confirm(u.is_active ? `Pause ${name}? They lose access to AI features until you unpause.` : `Unpause ${name}?`) && patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
-                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={() => confirm(u.is_admin ? `Remove admin access from ${name}?` : `Make ${name} an admin? They can manage users, limits and the AI model.`) && patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
+                            <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={async () => (await ask(u.is_active ? { title: "Pause user", body: <>Pause <b>{name}</b>? They lose access to AI features until you unpause.</>, confirm: "Pause", danger: true } : { title: "Unpause user", body: <>Give <b>{name}</b> access again?</>, confirm: "Unpause" })) !== null && patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
+                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={async () => (await ask(u.is_admin ? { title: "Remove admin", body: <>Remove admin access from <b>{name}</b>?</>, confirm: "Remove", danger: true } : { title: "Make admin", body: <>Make <b>{name}</b> an admin? They can manage users, limits and the AI model.</>, confirm: "Make admin" })) !== null && patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
                           </>
                         )}
                       </div>
@@ -238,7 +239,11 @@ export function AdminUsers({ meId }: { meId: string }) {
                     <span className="font-medium tabular-nums">₹{settings.usd_to_inr}</span>
                     {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-green-600" /> live</span>}
                   </div>
-                  <button className="btn btn-ghost" onClick={() => (settings.fx_auto ? (() => { const v = prompt("Fixed rate: 1 US$ = ₹", String(settings.usd_to_inr)); if (v && Number(v) > 0) saveSettings({ usd_to_inr: Number(v) }); })() : saveSettings({ fx_auto: true }))}>
+                  <button className="btn btn-ghost" onClick={async () => {
+                    if (!settings.fx_auto) return saveSettings({ fx_auto: true });
+                    const v = await ask({ title: "Set a fixed rate", body: "Stops the live rate. Costs are converted with this number until you switch back.", input: { label: "1 US$ =", prefix: "₹", type: "number", defaultValue: String(settings.usd_to_inr) }, confirm: "Save rate" });
+                    if (v && Number(v) > 0) saveSettings({ usd_to_inr: Number(v) });
+                  }}>
                     {settings.fx_auto ? "Set fixed" : "Use live"}
                   </button>
                 </div>
@@ -252,6 +257,7 @@ export function AdminUsers({ meId }: { meId: string }) {
         )
       )}
 
+      {dialog}
       <AddUser open={adding} onClose={() => setAdding(false)} onDone={(m) => { flash(m); load(); }} />
       {toast && <div className="pop fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-ink px-4 py-2.5 text-[0.9rem] text-white shadow-xl">{toast}</div>}
     </>

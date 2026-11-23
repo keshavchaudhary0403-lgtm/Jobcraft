@@ -21,7 +21,7 @@ import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { CompanyAvatar, MatchChip, Panel, STATUS_META, StatusPill } from "@/components/ui";
-import { Menu, Modal } from "@/components/client-ui";
+import { Menu, Modal, useAsk } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview } from "./Overview";
 import { ResumeTab } from "./ResumeTab";
@@ -60,6 +60,7 @@ export function JobView({
   const a = app.analysis as Analysis | null;
   const analysed = !!a;
   const patchLocal = (p: Partial<Application>) => setApp((x) => ({ ...x, ...p }));
+  const [ask, dialog] = useAsk();
 
   async function update(patch: Partial<Application>) {
     patchLocal(patch);
@@ -67,7 +68,8 @@ export function JobView({
   }
 
   async function remove() {
-    if (!confirm(`Delete ${app.role} at ${app.company}? This can't be undone.`)) return;
+    const ok = await ask({ title: "Delete job", body: <>Delete <b>{app.role}</b> at <b>{app.company}</b>? Its resume, outreach and practice sessions go too. This can&apos;t be undone.</>, confirm: "Delete", danger: true });
+    if (ok === null) return;
     await createClient().from("applications").delete().eq("id", app.id);
     router.push("/jobs");
   }
@@ -102,6 +104,7 @@ export function JobView({
 
   return (
     <div>
+      {dialog}
       <div className="mb-4 flex items-center gap-1.5 text-[0.88rem] text-muted">
         <Link href="/jobs" className="hover:text-ink">Jobs</Link>
         <ChevronRight size={14} className="text-faint" />
