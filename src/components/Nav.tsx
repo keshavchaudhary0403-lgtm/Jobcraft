@@ -6,8 +6,8 @@ import { useState } from "react";
 import { BriefcaseBusiness, House, IndianRupee, LogOut, Menu, Mic, Settings2, UserRound, X } from "lucide-react";
 import { Logo } from "./Logo";
 
-const LinkedInIcon = ({ size = 17 }: { size?: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+const LinkedInIcon = ({ size = 17, className }: { size?: number; className?: string }) => (
+  <svg className={className} width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-4 0v7h-4v-7a6 6 0 0 1 6-6z" /><rect width="4" height="12" x="2" y="9" /><circle cx="4" cy="4" r="2" />
   </svg>
 );
@@ -63,10 +63,10 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                     href={href}
                     onClick={() => setOpen(false)}
                     className={`flex h-10 items-center gap-3 rounded-full px-3.5 text-[0.95rem] transition ${
-                      active ? "bg-white font-semibold text-brand shadow-[0_6px_16px_-8px_rgba(0,0,0,.45)]" : "text-white/75 hover:bg-white/[.08] hover:text-white"
+                      active ? "bg-white font-semibold text-ink shadow-[0_6px_16px_-8px_rgba(0,0,0,.5)]" : "text-white/70 hover:bg-white/[.07] hover:text-white"
                     }`}
                   >
-                    <Icon size={17} />
+                    <Icon size={17} className={active ? "text-brand" : ""} />
                     <span className="flex-1">{label}</span>
                     {count > 0 && <span className={`rounded-full px-2 text-[0.75rem] tabular-nums ${active ? "bg-brand-soft text-brand" : "bg-white/15 text-white/80"}`}>{count}</span>}
                   </Link>
@@ -85,12 +85,12 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
               <span className="font-medium text-white">{strength}%</span>
             </div>
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-white/10">
-              <div className="h-full rounded-full bg-amber-300" style={{ width: `${strength}%` }} />
+              <div className="h-full rounded-full bg-gradient-to-r from-brand-2 to-white" style={{ width: `${strength}%` }} />
             </div>
           </Link>
         )}
         <div className="flex items-center gap-2.5 rounded-xl px-1.5 py-1">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-amber-200 text-[0.75rem] font-semibold text-brand">{initials || "?"}</div>
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand-2 to-brand text-[0.75rem] font-semibold text-white">{initials || "?"}</div>
           <div className="min-w-0 flex-1 truncate text-[0.92rem] text-white/85">{name}</div>
           <button onClick={logout} className="grid h-8 w-8 place-items-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white" title="Log out" aria-label="Log out">
             <LogOut size={15} />

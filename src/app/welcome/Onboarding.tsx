@@ -28,8 +28,8 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
     <div className="grid min-h-screen lg:grid-cols-[300px_1fr]">
       {/* Left rail */}
       <aside className="relative hidden overflow-hidden bg-side p-7 text-white lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-blue-500/25 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-indigo-600/25 blur-3xl" />
+        <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/30 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand-2/25 blur-3xl" />
         <div className="relative"><Logo light /></div>
         <div className="relative mt-12">
           <div className="text-[0.82rem] text-white/45">Set up · about 2 minutes</div>
@@ -38,7 +38,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
               <li key={s.title} className={`flex items-start gap-3 rounded-xl p-2.5 transition ${i === step ? "bg-white/[.07]" : ""}`}>
                 <span
                   className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.8rem] font-semibold transition ${
-                    i < step ? "bg-sky-300 text-side" : i === step ? "bg-white text-side" : "border border-white/20 text-white/50"
+                    i < step ? "bg-brand-2 text-side" : i === step ? "bg-white text-side" : "border border-white/20 text-white/50"
                   }`}
                 >
                   {i < step ? <Check size={16} /> : i + 1}

@@ -83,7 +83,7 @@ export default async function Home() {
             </div>
             {list.length === 0 ? (
               <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-navy text-white"><ClipboardPaste size={20} /></div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-2 text-white"><ClipboardPaste size={20} /></div>
                 <div className="flex-1">
                   <div className="font-semibold">Paste a job description</div>
                   <div className="text-muted">Get your match, a tailored resume and outreach.</div>
@@ -115,7 +115,7 @@ export default async function Home() {
 
         <aside className="space-y-4 stagger">
           <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[0.85rem] text-blue-200"><Sparkles size={15} /> Jobcraft AI</div>
+            <div className="flex items-center gap-2 text-[0.85rem] text-white/70"><Sparkles size={15} /> Jobcraft AI</div>
             <div className="mt-2 text-[1.15rem] font-semibold">Your next best move</div>
             <div className="mt-4 space-y-2">
               {moves.map((m) => (

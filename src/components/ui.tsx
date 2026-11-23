@@ -72,11 +72,23 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   );
 }
 
-const AVATAR = ["#1e3a8a", "#1d4ed8", "#7c3aed", "#c2410c", "#0e7490", "#b45309", "#be185d", "#15803d"];
+// Soft tinted monograms (like app icons) — never loud solid blocks.
+const AVATAR_HUES = [262, 222, 199, 168, 142, 32, 12, 330];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
-  const bg = AVATAR[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR.length];
+  const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
   return (
-    <div className="grid shrink-0 place-items-center rounded-[10px] font-semibold text-white" style={{ width: size, height: size, fontSize: size * 0.42, background: bg }}>
+    <div
+      className="grid shrink-0 place-items-center font-bold"
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size * 0.3,
+        fontSize: size * 0.42,
+        background: `linear-gradient(145deg, hsl(${h} 90% 96%), hsl(${h} 80% 90%))`,
+        color: `hsl(${h} 60% 38%)`,
+        boxShadow: `inset 0 0 0 1px hsl(${h} 70% 86%)`,
+      }}
+    >
       {(name.trim()[0] ?? "?").toUpperCase()}
     </div>
   );

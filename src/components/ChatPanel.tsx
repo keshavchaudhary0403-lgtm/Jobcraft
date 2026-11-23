@@ -99,7 +99,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
                 onClick={() => (v.listening ? v.stopListening() : v.startListening((t) => send(t)))}
                 disabled={busy}
                 className={`grid h-16 w-16 place-items-center rounded-full text-white shadow-xl transition hover:scale-105 disabled:opacity-40 ${
-                  v.listening ? "bg-bad" : "bg-gradient-to-br from-brand to-navy"
+                  v.listening ? "bg-bad" : "bg-gradient-to-br from-brand to-brand-2"
                 }`}
                 aria-label={v.listening ? "Stop and send" : "Answer by voice"}
               >
@@ -182,7 +182,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
 function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
   const active = state !== "idle";
-  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-blue-400 to-indigo-700";
+  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-brand to-brand-2";
   return (
     <div className="relative grid h-32 w-32 place-items-center">
       {active && (
@@ -193,7 +193,7 @@ function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speak
       )}
       <span
         className={`relative h-24 w-24 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
-        style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px rgba(30,58,138,.6), inset 0 -10px 30px rgba(255,255,255,.25)" }}
+        style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px color-mix(in srgb, var(--brand) 60%, transparent), inset 0 -10px 30px rgba(255,255,255,.25)" }}
       />
     </div>
   );

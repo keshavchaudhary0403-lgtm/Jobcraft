@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Nav } from "@/components/Nav";
+import { ThemeSwitcher } from "@/components/ThemeSwitcher";
 import { profileStrength } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 
@@ -11,11 +12,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   return (
     <div className="min-h-screen bg-side">
       <Nav name={name} isAdmin={profile.is_admin} jobs={count ?? 0} strength={profileStrength(profile)} />
-      <main className="lg:py-3 lg:pl-60 lg:pr-3">
-        <div className="min-h-screen bg-bg lg:min-h-[calc(100vh-1.5rem)] lg:rounded-[28px]">
+      <main className="lg:pl-60">
+        <div className="min-h-screen bg-bg lg:rounded-l-[32px]">
           <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 lg:py-7">{children}</div>
         </div>
       </main>
+      <ThemeSwitcher />
     </div>
   );
 }

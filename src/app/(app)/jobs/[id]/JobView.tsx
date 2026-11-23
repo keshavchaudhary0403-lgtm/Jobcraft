@@ -129,7 +129,7 @@ export function JobView({
               ))}
             </div>
           </div>
-          <div className="space-y-3 border-t border-line bg-[#f8fafd] px-5 py-4 text-[0.88rem]">
+          <div className="space-y-3 border-t border-line bg-line-2/60 px-5 py-4 text-[0.88rem]">
             {[
               ["Added", fmtDate(app.created_at)],
               ["Applied on", fmtDate(app.applied_on)],
@@ -159,7 +159,7 @@ export function JobView({
                   onClick={() => setTab(key)}
                   disabled={!analysed && key !== "overview"}
                   className={`h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
-                    tab === key ? "bg-brand text-white shadow-[0_6px_16px_-8px_rgba(30,58,138,.7)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
+                    tab === key ? "bg-brand text-white shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
                   }`}
                 >
                   {label}
@@ -196,7 +196,7 @@ export function JobView({
                   </span>
                 </div>
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
-                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
+                  <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
                 </div>
                 <div className="mt-4 space-y-2 text-[0.9rem]">
                   <div className="flex justify-between"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
@@ -211,10 +211,10 @@ export function JobView({
 
           {next && (
             <div className="dark-card p-5">
-              <div className="text-[0.82rem] text-blue-200">Recommended next action</div>
+              <div className="text-[0.82rem] text-white/70">Recommended next action</div>
               <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
               <div className="text-[0.85rem] text-white/65">{next.sub}</div>
-              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-white text-brand hover:bg-blue-50">
+              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-white text-brand hover:bg-brand-soft">
                 Do it now <ArrowRight size={14} />
               </button>
             </div>

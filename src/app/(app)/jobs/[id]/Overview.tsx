@@ -95,7 +95,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-[0.8rem] text-faint">ATS keywords</span>
-          {a.ats_keywords.map((k) => <span key={k} className="chip bg-white px-3 text-brand ring-1 ring-blue-200">{k}</span>)}
+          {a.ats_keywords.map((k) => <span key={k} className="chip bg-white px-3 text-brand ring-1 ring-brand/25">{k}</span>)}
         </div>
       </section>
 
@@ -107,7 +107,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
             {a.top_skills.map((s, i) => {
               const m = MATCH[s.match];
               return (
-                <li key={s.skill} className="flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-[#f6f8fc]">
+                <li key={s.skill} className="flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-line-2">
                   <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-semibold text-muted">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     <div className="font-medium leading-snug">{s.skill}</div>
@@ -127,7 +127,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
             {a.gaps.map((g) => {
               const m = GAP[g.status];
               return (
-                <div key={g.gap} className="rounded-xl bg-[#f6f8fc] p-3.5">
+                <div key={g.gap} className="rounded-xl bg-line-2 p-3.5">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <span className="font-medium">{g.gap}</span>
                     <span className={`chip ${m.cls}`}><m.icon size={12} /> {m.label}</span>
@@ -142,7 +142,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
 
       {/* Questions */}
       {a.questions.length > 0 && (
-        <section className="card border-blue-200 p-5">
+        <section className="card border-brand/25 p-5">
           <div className="flex items-center gap-2">
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-sun text-amber-800"><CircleHelp size={15} /></span>
             <span className="font-semibold">Answer a few questions to sharpen your score</span>
