@@ -34,36 +34,11 @@
   --color-sky: #e2f0ff;
 }
 
-/* ── Palettes (switchable) — from coolors.co trending ── */
-/* Black & Gold Elegance */
-:root, [data-theme="gold"] {
-  --brand: #fca311; --brand-ink: #b06f00; --brand-2: #ffd27a; --brand-soft: #fff3db; --on-brand: #14213d;
-  --side: #14213d; --side-2: #1f2f55;
-  --bg: #f6f6f3; --ink: #14213d; --muted: #5c6475; --faint: #9aa1ae; --line: #e7e7e2; --line-2: #f0f0ec;
-}
-/* Neutral Harmony Bliss */
-[data-theme="harmony"] {
-  --brand: #e07a5f; --brand-ink: #c45e43; --brand-2: #f2cc8f; --brand-soft: #fbeee8; --on-brand: #ffffff;
-  --side: #3d405b; --side-2: #4a4e6d;
-  --bg: #faf8f1; --ink: #2b2d42; --muted: #63657a; --faint: #a3a4b3; --line: #ece8dc; --line-2: #f4f1e7;
-}
-/* Refreshing Summer Fun */
-[data-theme="summer"] {
-  --brand: #219ebc; --brand-ink: #18809a; --brand-2: #ffb703; --brand-soft: #e4f4f9; --on-brand: #ffffff;
-  --side: #023047; --side-2: #0b4060;
-  --bg: #f4f9fb; --ink: #0b2233; --muted: #56697a; --faint: #97a7b4; --line: #e1ebf0; --line-2: #eef5f8;
-}
-/* Ocean Sunset */
-[data-theme="sunset"] {
-  --brand: #e56b6f; --brand-ink: #c9545a; --brand-2: #eaac8b; --brand-soft: #fdecec; --on-brand: #ffffff;
-  --side: #355070; --side-2: #415e80;
-  --bg: #f9f6f6; --ink: #1f2a3a; --muted: #5f6676; --faint: #a0a6b2; --line: #ebe6e6; --line-2: #f4f0f0;
-}
-/* Earthy Tones */
-[data-theme="earthy"] {
-  --brand: #4c956c; --brand-ink: #3a7a56; --brand-2: #d68c45; --brand-soft: #e7f3ec; --on-brand: #ffffff;
-  --side: #1f4d33; --side-2: #2c6e49;
-  --bg: #fafaf2; --ink: #17261d; --muted: #5a6a60; --faint: #9caba2; --line: #e7e9dc; --line-2: #f2f3e9;
+/* ── Default colours (the in-app colour studio can override these live) ── */
+:root {
+  --brand: #6236ff; --brand-ink: #4c22e0; --brand-2: #a991ff; --brand-soft: #f0ebff; --on-brand: #ffffff;
+  --side: #14112b; --side-2: #2a2747;
+  --bg: #f7f7fb; --ink: #14131c; --muted: #5f5e6e; --faint: #9e9daf; --line: #e8e7ef; --line-2: #f2f1f6;
 }
 
 /* Desktop-dense scale: 1rem = 14px */
