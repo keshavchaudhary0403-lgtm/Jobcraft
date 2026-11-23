@@ -1,14 +1,13 @@
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, ChevronRight, ClipboardPaste, FileText, IndianRupee, UserRound, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { CompanyAvatar, Kpi, MatchChip, StatusPill, timeAgo } from "@/components/ui";
+import { Kpi } from "@/components/ui";
+import { JobTable } from "@/components/JobTable";
 import { resumeHealth } from "@/lib/resume-health";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSettings, monthStartIST } from "@/lib/ai";
-
-const questionCount = (an: Analysis) => new Set([...(an.questions ?? []), ...(an.gaps ?? []).map((g) => g.question).filter(Boolean)]).size;
 
 function greeting() {
   const h = new Date(Date.now() + 5.5 * 3600e3).getUTCHours();
@@ -62,17 +61,6 @@ export default async function Home() {
 
   const health = profile.master_resume?.trim() ? resumeHealth(profile.master_resume).score : null;
   const [top, ...rest] = moves;
-  const step = (a: Application) => {
-    const an = a.analysis as Analysis | null;
-    const unanswered = an ? questionCount(an) - Object.values(a.fit_answers ?? {}).filter((v) => v?.trim()).length : 0;
-    if (!an) return "See your match";
-    if (unanswered > 0) return `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`;
-    if (!a.tailored_resume) return "Tailor resume";
-    if (!a.outreach) return "Write outreach";
-    if (a.status === "saved") return "Apply";
-    if (["applied", "interviewing"].includes(a.status) && !practised.has(a.id)) return "Practise interview";
-    return "On track";
-  };
 
   return (
     <>
@@ -115,7 +103,7 @@ export default async function Home() {
 
         <section className="card flex flex-col p-5 fade-up">
           <div className="mb-3 font-bold">Your readiness</div>
-          <div className="flex-1 divide-y divide-line">
+          <div className="flex flex-1 flex-col justify-around divide-y divide-line">
             {[
               { href: "/profile", icon: <FileText size={15} />, label: "Resume health", value: health != null ? `${health}/100` : "Add resume", pct: health ?? 0 },
               { href: "/linkedin", icon: <UserRound size={15} />, label: "LinkedIn rewrite", value: profile.linkedin_result ? "Done" : "Not yet", pct: profile.linkedin_result ? 100 : 0 },
@@ -188,41 +176,7 @@ export default async function Home() {
             <Link href="/jobs/new" className="btn btn-primary mt-4"><Plus size={15} /> Add your first job</Link>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[720px]">
-              <thead>
-                <tr className="text-left text-[0.78rem] text-muted">
-                  <th className="px-5 py-2.5 font-medium">Role</th>
-                  <th className="px-3 py-2.5 font-medium">Match</th>
-                  <th className="px-3 py-2.5 font-medium">Status</th>
-                  <th className="px-3 py-2.5 font-medium">Next step</th>
-                  <th className="px-5 py-2.5 text-right font-medium">Updated</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-line">
-                {list.slice(0, 6).map((a) => {
-                  const an = a.analysis as Analysis | null;
-                  return (
-                    <tr key={a.id} className="group transition hover:bg-brand-soft/30">
-                      <td className="px-5 py-3">
-                        <Link href={`/jobs/${a.id}`} className="flex items-center gap-3">
-                          <CompanyAvatar name={a.company} size={32} />
-                          <span className="min-w-0">
-                            <span className="block truncate font-medium group-hover:text-brand-ink">{a.role}</span>
-                            <span className="block truncate text-[0.82rem] text-muted">{a.company}</span>
-                          </span>
-                        </Link>
-                      </td>
-                      <td className="px-3 py-3">{an ? <MatchChip score={an.fit_score} /> : <span className="text-[0.84rem] text-faint">—</span>}</td>
-                      <td className="px-3 py-3"><StatusPill status={a.status} /></td>
-                      <td className="px-3 py-3"><Link href={`/jobs/${a.id}`} className="text-[0.88rem] font-medium text-brand-ink hover:underline">{step(a)}</Link></td>
-                      <td className="px-5 py-3 text-right text-[0.82rem] text-muted">{timeAgo(a.updated_at)}</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+          <JobTable apps={list.slice(0, 6)} practised={practised} />
         )}
       </section>
 
