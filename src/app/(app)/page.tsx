@@ -70,7 +70,7 @@ export default async function Home() {
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
         <StatTile icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
         <StatTile tone="sun" icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
-        <StatTile tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} sub="Mock rounds" />
+        <StatTile tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} />
         <StatTile tone="rose" icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
       </div>
 
@@ -115,8 +115,7 @@ export default async function Home() {
 
         <aside className="space-y-4 stagger">
           <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[0.85rem] text-white/70"><Sparkles size={15} /> Jobcraft AI</div>
-            <div className="mt-2 text-[1.15rem] font-semibold">Your next best move</div>
+            <div className="flex items-center gap-2 text-[1.15rem] font-semibold"><Sparkles size={17} className="text-brand-2" /> Your next best move</div>
             <div className="mt-4 space-y-2">
               {moves.map((m) => (
                 <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">

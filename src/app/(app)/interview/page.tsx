@@ -25,7 +25,6 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
         <form action={start} className="card overflow-hidden fade-up">
           <div className="border-b border-line px-5 py-4">
             <div className="font-semibold">Which job is the interview for?</div>
-            <div className="text-[0.88rem] text-muted">The interviewer uses that job description and your resume.</div>
           </div>
           <div className="p-5">
             <JobPicker
@@ -41,7 +40,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             />
           </div>
           <div className="flex items-center justify-between border-t border-line bg-slate-50/60 px-5 py-3.5">
-            <span className="text-[0.85rem] text-muted">Works best in Chrome, with a mic</span>
+            <span />
             <button className="btn btn-brand"><Mic size={15} /> Start interview</button>
           </div>
         </form>

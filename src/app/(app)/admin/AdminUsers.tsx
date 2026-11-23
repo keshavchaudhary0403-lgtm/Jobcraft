@@ -63,7 +63,6 @@ export function AdminUsers({ meId }: { meId: string }) {
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
           <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">Admin</h1>
-          <p className="mt-0.5 text-muted">People, AI model and spending.</p>
         </div>
         <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
       </div>

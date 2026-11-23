@@ -49,10 +49,9 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
   const body = (
     <>
-      <nav className="space-y-5">
-        {groups.map((g) => (
-          <div key={g.label}>
-            <div className="mb-1.5 px-3.5 text-[0.72rem] font-medium text-white/45">{g.label}</div>
+      <nav className="space-y-3">
+        {groups.map((g, gi) => (
+          <div key={g.label} className={gi ? "border-t border-white/[.08] pt-3" : ""}>
             <div className="space-y-0.5">
               {g.items.map(({ href, label, icon: Icon, ...rest }) => {
                 const active = isActive(href);

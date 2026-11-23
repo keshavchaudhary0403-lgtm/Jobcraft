@@ -98,7 +98,6 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         {missing.length > 0 && (
           <div className="card p-5">
             <div className="flex items-center gap-2 font-medium"><Hash size={16} className="text-brand" /> Add real numbers</div>
-            <p className="mt-1 text-xs text-muted">Numbers make bullets stronger. Skip any you don&apos;t know.</p>
             <div className="mt-4 space-y-3">
               {missing.map((q) => (
                 <div key={q}>

@@ -70,7 +70,6 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
         <div className="flex items-center justify-between">
           <div>
             <div className="flex items-center gap-2 font-semibold"><Sparkles size={16} className="text-brand" /> AI-extracted insights</div>
-            <div className="text-[0.82rem] text-faint">From the job description and your resume</div>
           </div>
           <span className="chip bg-brand-soft text-brand">{a.fit_verdict}</span>
         </div>

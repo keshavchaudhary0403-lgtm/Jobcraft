@@ -123,7 +123,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
           <button className="btn btn-brand" onClick={save} disabled={busy || !(d.master_resume ?? "").trim()}>
             {busy && <Spinner />} {cta}
           </button>
-          <span className="text-[0.88rem] text-muted">{msg || "You can change these any time."}</span>
+          <span className="text-[0.88rem] text-muted">{msg}</span>
         </div>
       </div>
 
