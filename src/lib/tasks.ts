@@ -152,7 +152,7 @@ Use null when the resume doesn't say. ${TRUTH_RULE}`,
       return {
         instructions: `You are an experienced recruiter hiring in India. Analyse the job description, then compare the candidate's resume against it. Be brutally honest, not flattering.
 Fill:
-- company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C… or null), location, seniority, hiring_contact (only if a person is named in the JD, else null).
+- company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C… or null), location, seniority, hiring_contact (the hiring manager or recruiter if the JD names one — e.g. "reports to Ananya Rao, Head of Growth" → "Ananya Rao, Head of Growth"; else null).
 - summary: one short line on what this role is.
 - top_skills: the 5 most important skills or experiences, ranked by how heavily the JD emphasises them. "why": a few words. "match": how well the resume shows it.
 - ats_keywords: the 3 keywords most likely used to filter resumes for this role in an ATS.

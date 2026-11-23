@@ -3,14 +3,17 @@
 A multi-user web app built on the *Get Hired Faster* prompt library. Each user saves their details once.
 After that, every prompt is filled in from those details, so nobody has to re-type or re-prompt.
 
-| Section | Prompt | What it does |
-|---|---|---|
-| My details & resume | — | Master resume (paste or import from PDF), target role, CTC, strongest proof |
-| Job applications | 1–5 | One workspace per job: **JD Decoder → Fit Score → Resume Tailor → LinkedIn → Outreach**. All five run in one conversation, like "keep one chat open". The tailored resume is saved per job (copy / print to PDF). Tracks status: saved → applied → interviewing → offer. |
-| LinkedIn profile | 4 | Headlines, About section and skills, built from the master resume |
-| Interview practice | 6 | Voice mock interview: 6 questions, then a score. Every run starts a fresh session |
-| Salary negotiation | 7 | Market check, then a voice role-play with HR |
-| Admin · users & AI | — | Create users, reset passwords, pause users. Choose the AI model and set **monthly ₹ spend limits** (default per user, per-user overrides, and a total budget) |
+**How it works for a user**
+1. **Drop a resume.** AI fills in the profile, and the user reviews and confirms it.
+2. **Paste a job description**, with the listing link if they have one. The company, role, location and type are read from the JD.
+3. **Match.** An honest fit score, the skills they want, ATS keywords, gaps marked as *missing* or *not on resume*, and questions that sharpen the score.
+4. **Resume.** A tailored, ATS-safe resume for that job, with prompts for real numbers and PDF download. Nothing is invented.
+5. **Outreach.** A LinkedIn connection note and message, with character and word limits checked.
+6. **Practice.** A voice mock interview and a salary negotiation role-play.
+7. **LinkedIn.** Headlines, an About section and skills to pin.
+8. **Admin.** Users, the AI model, and monthly ₹ spend limits.
+
+The method from the *Get Hired Faster* prompt library runs in the backend (`src/lib/tasks.ts`, `src/lib/prompts.ts`). Users never see prompts.
 
 Built with Next.js 16, Supabase (auth + Postgres with Row Level Security), and the OpenAI API (default model `gpt-6.1-terra`; switchable in Admin).
 Voice uses the browser's built-in speech features (Chrome, Edge, Safari), so it adds no extra cost.
@@ -75,10 +78,10 @@ When a user reaches a limit, their AI features pause, with a clear message, unti
 
 The ₹ figures use a **live USD→INR rate** (open.er-api.com, with ECB rates via Frankfurter as backup), refreshed every 6 hours. Admins can switch to a fixed rate.
 
-Rough cost per user action with GPT-6.1 Terra: a full workspace run (prompts 1–5) is about ₹5–8, and a mock interview is about ₹2–4. GPT-6 Luna is about 10× cheaper.
+Measured with GPT-6.1 Terra: resume import + match + tailored resume + outreach + LinkedIn cost about **₹1.50** in total. GPT-6 Luna is about 10× cheaper.
 Prices are set in `src/lib/models.ts`. Update them there if OpenAI changes its prices.
 
-**Existing projects:** run `supabase/002_usage_limits.sql` and `003_live_fx.sql` once in the SQL Editor. (`schema.sql` already includes it.)
+**Existing projects:** run `supabase/002_usage_limits.sql`, `003_live_fx.sql` and `004_structured.sql` once in the SQL Editor. (`schema.sql` already includes it.)
 
 ## Project map
 ```
