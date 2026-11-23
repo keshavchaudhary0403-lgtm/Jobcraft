@@ -219,6 +219,23 @@ export function buildSystemPrompt(opts: {
       "--- JOB DESCRIPTION ---",
       app.jd,
     );
+    const an = app.analysis as {
+      real_problem?: string;
+      fit_score?: number;
+      gaps?: { gap: string; status: string; explanation: string }[];
+    } | null;
+    if (an?.real_problem) {
+      lines.push(
+        "",
+        "--- RECRUITER NOTES (from the screening — use them; in an interview, probe the gaps with real follow-ups) ---",
+        `Real problem this hire solves: ${an.real_problem}`,
+        ...(an.gaps ?? []).map((g) => `Gap (${g.status.replace("_", " ")}): ${g.gap} — ${g.explanation}`),
+      );
+    }
+    const answers = Object.entries(app.fit_answers ?? {}).filter(([, v]) => v?.trim());
+    if (answers.length) {
+      lines.push("", "--- MY ANSWERS TO THE RECRUITER'S QUESTIONS (true facts) ---", ...answers.map(([q, v]) => `Q: ${q}\nA: ${v}`));
+    }
   }
   lines.push("=== END CANDIDATE FILE ===");
   return lines.filter((l, i, a) => !(l === "" && a[i - 1] === "")).join("\n");

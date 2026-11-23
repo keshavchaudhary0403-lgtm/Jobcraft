@@ -250,7 +250,15 @@ message: under 110 words, for after they accept or as a cold InMail:
 - one or two lines connecting the candidate's single strongest real result to exactly that challenge;
 - a confident close (e.g. would love to be considered / walk them through how they'd approach it). NO hedging like "if relevant".
 NO abstract theory, NO lecturing, NO buzzwords, NO flattery, NO hedging. ${TRUTH_RULE}`,
-        input: [candidateBlock(profile), jobBlock(app!)].join("\n\n"),
+        input: [
+          candidateBlock(profile),
+          jobBlock(app!),
+          (app!.analysis as Analysis | null)?.real_problem &&
+            `=== RECRUITER'S READ OF THEIR REAL PROBLEM (use as the challenge, in your own words) ===\n${(app!.analysis as Analysis).real_problem}`,
+          answersBlock(app!),
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
       };
 
     case "linkedin":
