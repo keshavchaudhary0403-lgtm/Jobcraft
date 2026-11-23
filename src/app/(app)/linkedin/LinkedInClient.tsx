@@ -47,9 +47,9 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
       <div className={`grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px] transition ${busy ? "opacity-60" : ""}`}>
         {/* Live preview */}
         <section className="card overflow-hidden fade-up">
-          <div className="h-28 bg-gradient-to-r from-teal-600 via-teal-700 to-navy" />
+          <div className="h-28 bg-gradient-to-r from-blue-600 via-blue-700 to-navy" />
           <div className="px-6 pb-6">
-            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-teal-400 to-navy text-2xl font-semibold text-white">{initials}</div>
+            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-blue-400 to-navy text-2xl font-semibold text-white">{initials}</div>
             <div className="mt-3 text-[1.35rem] font-semibold">{name}</div>
             {headline ? (
               <p key={headline} className="mt-0.5 max-w-2xl leading-snug text-slate-700 fade-up">{headline}</p>

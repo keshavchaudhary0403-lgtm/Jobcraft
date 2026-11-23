@@ -3,10 +3,23 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronRight, ExternalLink, MapPin, MessageCircle, Pencil, Trash2, X } from "lucide-react";
+import {
+  ArrowRight,
+  Check,
+  ChevronRight,
+  ExternalLink,
+  FileText,
+  MapPin,
+  MessageCircle,
+  Pencil,
+  Sparkles,
+  Trash2,
+  X,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
-import { CompanyAvatar, STATUS_META } from "@/components/ui";
+import type { Analysis } from "@/lib/tasks";
+import { CompanyAvatar, MatchChip, STATUS_META, StatusPill } from "@/components/ui";
 import { Menu, Modal } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview } from "./Overview";
@@ -21,6 +34,8 @@ const TABS = [
   { key: "practice", label: "Practice" },
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
+
+const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—");
 
 export function JobView({
   app: initial,
@@ -40,10 +55,13 @@ export function JobView({
   const [tab, setTab] = useState<Tab>(TABS.some((t) => t.key === initialTab) && initial.analysis ? (initialTab as Tab) : "overview");
   const [coach, setCoach] = useState(false);
   const [editing, setEditing] = useState(false);
-  const analysed = !!app.analysis;
+  const [showJd, setShowJd] = useState(false);
+  const a = app.analysis as Analysis | null;
+  const analysed = !!a;
+  const patchLocal = (p: Partial<Application>) => setApp((x) => ({ ...x, ...p }));
 
   async function update(patch: Partial<Application>) {
-    setApp((a) => ({ ...a, ...patch }));
+    patchLocal(patch);
     await createClient().from("applications").update(patch).eq("id", app.id);
   }
 
@@ -53,64 +71,175 @@ export function JobView({
     router.push("/jobs");
   }
 
-  const done: Record<Tab, boolean> = { overview: analysed, resume: !!app.tailored_resume, outreach: !!app.outreach, practice: interviews.length > 0 };
+  const unanswered = a ? a.questions.filter((q) => !app.fit_answers?.[q]?.trim()).length : 0;
+  const checklist = [
+    { label: "Match analysed", done: analysed },
+    { label: "Questions answered", done: analysed && unanswered === 0 },
+    { label: "Resume tailored", done: !!app.tailored_resume },
+    { label: "Outreach written", done: !!app.outreach },
+    { label: "Applied", done: ["applied", "interviewing", "offer"].includes(app.status) },
+    { label: "Interview practised", done: interviews.length > 0 },
+  ];
+
+  const next: { label: string; sub: string; go: () => void } | null = !analysed
+    ? null
+    : unanswered
+      ? { label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`, sub: "Sharpens your match score", go: () => setTab("overview") }
+      : !app.tailored_resume
+        ? { label: "Tailor your resume", sub: "Built around what they want", go: () => setTab("resume") }
+        : !app.outreach
+          ? { label: "Message the hiring manager", sub: "A note + a short message", go: () => setTab("outreach") }
+          : app.status === "saved"
+            ? { label: "Mark as applied", sub: "Once you've sent your resume", go: () => update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }) }
+            : { label: "Practise the interview", sub: "6 questions, by voice", go: () => setTab("practice") };
+
+  const strong = a ? a.top_skills.filter((s) => s.match === "strong").length : 0;
 
   return (
     <div>
       <div className="mb-4 flex items-center gap-1.5 text-[0.88rem] text-muted">
         <Link href="/jobs" className="hover:text-ink">Jobs</Link>
         <ChevronRight size={14} className="text-faint" />
-        <span className="truncate text-ink">{app.company}</span>
+        <span className="truncate text-ink">{app.role}</span>
       </div>
 
-      <header className="card mb-5 flex flex-wrap items-center gap-4 p-5 fade-up">
-        <CompanyAvatar name={app.company} size={48} />
-        <div className="min-w-0 flex-1">
-          <h1 className="text-[1.35rem] font-semibold leading-tight tracking-tight">{app.role}</h1>
-          <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.9rem] text-muted">
-            <span className="font-medium text-ink">{app.company}</span>
-            {app.location && <span className="flex items-center gap-1"><MapPin size={13} /> {app.location}</span>}
-            {app.company_type && <span>{app.company_type}</span>}
+      <div className="grid items-start gap-5 xl:grid-cols-[270px_minmax(0,1fr)_300px]">
+        {/* ── Left: job profile ── */}
+        <aside className="card overflow-hidden fade-up xl:sticky xl:top-6">
+          <div className="flex flex-col items-center px-5 pb-5 pt-6 text-center">
+            <CompanyAvatar name={app.company} size={64} />
+            <div className="mt-3 text-[1.08rem] font-semibold leading-snug">{app.role}</div>
+            <div className="mt-0.5 text-muted">{app.company}</div>
+            {app.location && <div className="mt-1 flex items-center gap-1 text-[0.85rem] text-faint"><MapPin size={12} /> {app.location}</div>}
+            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
+              <StatusPill status={app.status} />
+              {a && <MatchChip score={a.fit_score} />}
+            </div>
+            <div className="mt-5 grid w-full grid-cols-4 gap-2">
+              {[
+                { label: "Coach", icon: MessageCircle, cls: "bg-sky text-blue-700", on: () => setCoach(true) },
+                { label: "JD", icon: FileText, cls: "bg-sun text-amber-800", on: () => setShowJd(true) },
+                { label: "Edit", icon: Pencil, cls: "bg-lilac text-violet-700", on: () => setEditing(true) },
+                { label: "Delete", icon: Trash2, cls: "bg-rose text-rose-700", on: remove },
+              ].map(({ label, icon: Icon, cls, on }) => (
+                <button key={label} onClick={on} className="group flex flex-col items-center gap-1.5">
+                  <span className={`grid h-10 w-10 place-items-center rounded-xl transition group-hover:-translate-y-0.5 ${cls}`}><Icon size={17} /></span>
+                  <span className="text-[0.75rem] text-muted">{label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-3 border-t border-line bg-[#f8fafd] px-5 py-4 text-[0.88rem]">
+            {[
+              ["Added", fmtDate(app.created_at)],
+              ["Applied on", fmtDate(app.applied_on)],
+              ["Company type", app.company_type ?? "—"],
+              ["Seniority", a?.seniority ?? "—"],
+            ].map(([k, v]) => (
+              <div key={k}>
+                <div className="text-[0.78rem] text-faint">{k}</div>
+                <div className="font-medium">{v}</div>
+              </div>
+            ))}
             {app.job_url && (
-              <a href={app.job_url} target="_blank" rel="noreferrer" className="flex items-center gap-1 text-brand-ink hover:underline">Listing <ExternalLink size={12} /></a>
+              <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm mt-1 w-full">
+                Open listing <ExternalLink size={13} />
+              </a>
             )}
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <Menu<Status>
-            value={app.status}
-            options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
-            onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-            render={(c) => (
-              <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>
+        </aside>
+
+        {/* ── Center ── */}
+        <section className="min-w-0">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 fade-up">
+            <div className="flex flex-wrap gap-1.5">
+              {TABS.map(({ key, label }) => (
+                <button
+                  key={key}
+                  onClick={() => setTab(key)}
+                  disabled={!analysed && key !== "overview"}
+                  className={`h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
+                    tab === key ? "bg-brand text-white shadow-[0_6px_16px_-8px_rgba(30,58,138,.7)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <Menu<Status>
+              value={app.status}
+              options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
+              onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
+              render={(c) => (
+                <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>
+              )}
+            />
+          </div>
+
+          {tab === "overview" && <Overview app={app} onUpdate={patchLocal} />}
+          {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
+          {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
+          {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
+        </section>
+
+        {/* ── Right: AI summary ── */}
+        <aside className="space-y-4 xl:sticky xl:top-6 stagger">
+          <div className="card p-5">
+            <div className="flex items-center gap-2 font-semibold"><Sparkles size={16} className="text-brand" /> AI Summary</div>
+            {a ? (
+              <>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-[2.4rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
+                  <span className="text-muted">/100</span>
+                  <span className={`ml-auto chip ${a.fit_score >= 7 ? "bg-good-soft text-good" : a.fit_score >= 5 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>
+                    {a.fit_score >= 7 ? "Strong fit" : a.fit_score >= 5 ? "Fair fit" : "Stretch"}
+                  </span>
+                </div>
+                <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
+                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
+                </div>
+                <div className="mt-4 space-y-2 text-[0.9rem]">
+                  <div className="flex justify-between"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
+                  <div className="flex justify-between"><span className="text-muted">Open questions</span><span className="font-medium">{unanswered}</span></div>
+                </div>
+              </>
+            ) : (
+              <div className="mt-3 space-y-2"><div className="skeleton h-9 w-24" /><div className="skeleton h-2 w-full" /><div className="skeleton h-3 w-3/4" /></div>
             )}
-          />
-          <button className="btn-quiet" onClick={() => setEditing(true)} title="Edit job details" aria-label="Edit job details"><Pencil size={15} /></button>
-          <button className="btn btn-ghost btn-sm" onClick={() => setCoach(true)}><MessageCircle size={15} /> Ask coach</button>
-          <button className="btn-quiet" onClick={remove} title="Delete job" aria-label="Delete job"><Trash2 size={15} /></button>
-        </div>
-      </header>
+          </div>
 
-      <nav className="mb-5 flex gap-6 border-b border-line fade-up">
-        {TABS.map(({ key, label }, i) => (
-          <button
-            key={key}
-            onClick={() => setTab(key)}
-            disabled={!analysed && key !== "overview"}
-            className={`-mb-px flex items-center gap-2 border-b-2 pb-2.5 text-[0.95rem] font-medium transition disabled:opacity-40 ${
-              tab === key ? "border-ink text-ink" : "border-transparent text-muted hover:text-ink"
-            }`}
-          >
-            <span className={`grid h-5 w-5 place-items-center rounded-full text-[0.7rem] ${done[key] ? "bg-brand text-white" : "bg-line-2 text-faint"}`}>{done[key] ? "✓" : i + 1}</span>
-            {label}
-          </button>
-        ))}
-      </nav>
+          {next && (
+            <div className="dark-card p-5">
+              <div className="text-[0.82rem] text-blue-200">Recommended next action</div>
+              <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
+              <div className="text-[0.85rem] text-white/65">{next.sub}</div>
+              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-white text-brand hover:bg-blue-50">
+                Do it now <ArrowRight size={14} />
+              </button>
+            </div>
+          )}
 
-      {tab === "overview" && <Overview app={app} onUpdate={(p) => setApp((a) => ({ ...a, ...p }))} onNext={() => setTab("resume")} />}
-      {tab === "resume" && <ResumeTab app={app} onUpdate={(p) => setApp((a) => ({ ...a, ...p }))} />}
-      {tab === "outreach" && <OutreachTab app={app} onUpdate={(p) => setApp((a) => ({ ...a, ...p }))} />}
-      {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
+          <div className="card p-5">
+            <div className="mb-3 font-semibold">Checklist</div>
+            <ol className="relative space-y-3">
+              <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
+              {checklist.map((c) => (
+                <li key={c.label} className="relative flex items-center gap-3 text-[0.9rem]">
+                  <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-white" : "border-2 border-line bg-white"}`}>
+                    {c.done && <Check size={11} strokeWidth={3} />}
+                  </span>
+                  <span className={c.done ? "text-ink" : "text-muted"}>{c.label}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </aside>
+      </div>
+
+      <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>
+        <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-relaxed text-slate-700">{app.jd}</div>
+      </Modal>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Job details" width={460}>
         <form

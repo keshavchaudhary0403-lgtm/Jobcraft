@@ -69,9 +69,9 @@ export default async function Home() {
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
         <StatTile icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
-        <StatTile icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
-        <StatTile icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} sub="Mock rounds" />
-        <StatTile icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
+        <StatTile tone="sun" icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
+        <StatTile tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} sub="Mock rounds" />
+        <StatTile tone="rose" icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
       </div>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -83,7 +83,7 @@ export default async function Home() {
             </div>
             {list.length === 0 ? (
               <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white"><ClipboardPaste size={20} /></div>
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-navy text-white"><ClipboardPaste size={20} /></div>
                 <div className="flex-1">
                   <div className="font-semibold">Paste a job description</div>
                   <div className="text-muted">Get your match, a tailored resume and outreach.</div>
@@ -115,7 +115,7 @@ export default async function Home() {
 
         <aside className="space-y-4 stagger">
           <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[0.85rem] text-teal-200"><Sparkles size={15} /> Jobcraft AI</div>
+            <div className="flex items-center gap-2 text-[0.85rem] text-blue-200"><Sparkles size={15} /> Jobcraft AI</div>
             <div className="mt-2 text-[1.15rem] font-semibold">Your next best move</div>
             <div className="mt-4 space-y-2">
               {moves.map((m) => (
@@ -132,12 +132,12 @@ export default async function Home() {
 
           <div className="card p-2">
             <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-brand-soft text-brand-ink"><Mic size={16} /></div>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-violet-700"><Mic size={16} /></div>
               <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>
             <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-lg bg-mid-soft text-mid"><IndianRupee size={16} /></div>
+              <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-amber-800"><IndianRupee size={16} /></div>
               <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>

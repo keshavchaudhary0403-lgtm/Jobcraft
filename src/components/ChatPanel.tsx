@@ -182,7 +182,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
 function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
   const active = state !== "idle";
-  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-teal-400 to-indigo-700";
+  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-blue-400 to-indigo-700";
   return (
     <div className="relative grid h-32 w-32 place-items-center">
       {active && (

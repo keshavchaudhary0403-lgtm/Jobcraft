@@ -9,10 +9,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const { count } = await supabase.from("applications").select("id", { count: "exact", head: true });
   const name = profile.full_name || user.email?.replace(/@phone\.jobcraft\.invalid$/, "") || "You";
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-side">
       <Nav name={name} isAdmin={profile.is_admin} jobs={count ?? 0} strength={profileStrength(profile)} />
-      <main className="lg:pl-60">
-        <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 lg:py-7">{children}</div>
+      <main className="lg:py-3 lg:pl-60 lg:pr-3">
+        <div className="min-h-screen bg-bg lg:min-h-[calc(100vh-1.5rem)] lg:rounded-[28px]">
+          <div className="mx-auto max-w-[1320px] px-4 py-6 sm:px-6 lg:px-8 lg:py-7">{children}</div>
+        </div>
       </main>
     </div>
   );

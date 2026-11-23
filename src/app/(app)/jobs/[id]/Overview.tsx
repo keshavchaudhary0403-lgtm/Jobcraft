@@ -1,26 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, ArrowRight, CheckCircle2, CircleDashed, CircleHelp, EyeOff, RotateCcw, Sparkles, XCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2, CircleDashed, CircleHelp, EyeOff, Lightbulb, RotateCcw, Sparkles, Target, XCircle } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
-import { ScoreRing } from "@/components/ui";
 import { Spinner, Working } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
 
 const MATCH = {
-  strong: { icon: CheckCircle2, cls: "text-good", label: "Strong" },
-  partial: { icon: CircleDashed, cls: "text-mid", label: "Partial" },
-  missing: { icon: XCircle, cls: "text-bad", label: "Missing" },
+  strong: { icon: CheckCircle2, cls: "bg-good-soft text-good", label: "On your resume" },
+  partial: { icon: CircleDashed, cls: "bg-mid-soft text-mid", label: "Partly shown" },
+  missing: { icon: XCircle, cls: "bg-bad-soft text-bad", label: "Missing" },
 };
 const GAP = {
   lacking: { label: "Missing", cls: "bg-bad-soft text-bad", icon: XCircle },
   not_shown: { label: "Not on resume", cls: "bg-mid-soft text-mid", icon: EyeOff },
-  unsure: { label: "Need your input", cls: "bg-blue-50 text-blue-700", icon: CircleHelp },
+  unsure: { label: "Need your input", cls: "bg-info-soft text-info", icon: CircleHelp },
 };
+const TILE = ["bg-sky", "bg-sun", "bg-lilac"];
 
-export function Overview({ app, onUpdate, onNext }: { app: Application; onUpdate: (p: Partial<Application>) => void; onNext: () => void }) {
+export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
   const a = app.analysis as Analysis | null;
   const { run, busy, error } = useGenerate<Analysis>("analysis", app.id);
   const started = useRef(false);
@@ -57,76 +57,95 @@ export function Overview({ app, onUpdate, onNext }: { app: Application; onUpdate
     return (
       <div className="card flex flex-col items-center p-10 text-center">
         <AlertCircle className="text-bad" />
-        <p className="mt-3 text-sm">{error}</p>
+        <p className="mt-3">{error}</p>
         <button className="btn btn-primary mt-4" onClick={analyse}><RotateCcw size={15} /> Try again</button>
       </div>
     );
   if (!a) return null;
 
-  const openQs = a.questions.filter((q) => !(app.fit_answers ?? {})[q]?.trim());
-
   return (
-    <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)] stagger">
-      {/* Match */}
+    <div className={`space-y-4 stagger transition ${busy ? "opacity-60" : ""}`}>
+      {/* AI-extracted insights */}
       <section className="card p-5">
-        <div className="flex items-center gap-6">
-          <ScoreRing score={a.fit_score} size={96} />
-          <div className="min-w-0">
-            <div className="eyebrow">Your match</div>
-            <div className="mt-1 text-[1.1rem] font-semibold leading-snug">{a.fit_verdict}</div>
-            <p className="mt-1.5 text-slate-600">{a.fit_reasoning}</p>
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="flex items-center gap-2 font-semibold"><Sparkles size={16} className="text-brand" /> AI-extracted insights</div>
+            <div className="text-[0.82rem] text-faint">From the job description and your resume</div>
+          </div>
+          <span className="chip bg-brand-soft text-brand">{a.fit_verdict}</span>
+        </div>
+        <div className="mt-4 grid gap-4 md:grid-cols-2">
+          <div>
+            <div className="text-[0.8rem] text-faint">The real problem they&apos;re hiring for</div>
+            <p className="mt-1 leading-relaxed text-slate-800">{a.real_problem}</p>
+          </div>
+          <div>
+            <div className="text-[0.8rem] text-faint">Why this score</div>
+            <p className="mt-1 leading-relaxed text-slate-800">{a.fit_reasoning}</p>
           </div>
         </div>
-        <div className="mt-5 divide-y divide-line-2 rounded-xl border border-line">
-          {a.gaps.map((g) => {
-            const m = GAP[g.status];
-            return (
-              <div key={g.gap} className="p-3.5">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="font-medium">{g.gap}</span>
-                  <span className={`chip ${m.cls}`}><m.icon size={12} /> {m.label}</span>
-                </div>
-                <p className="mt-0.5 text-[0.9rem] text-muted">{g.explanation}</p>
-              </div>
-            );
-          })}
-        </div>
-        {busy && <div className="mt-4 flex items-center gap-2 text-sm text-muted"><Spinner /> Re-scoring…</div>}
-      </section>
-
-      {/* What they want */}
-      <section className="card p-5">
-        <div className="eyebrow">What they want</div>
-        <ul className="mt-3 space-y-2.5">
-          {a.top_skills.map((s, i) => {
-            const m = MATCH[s.match];
-            return (
-              <li key={s.skill} className="flex items-start gap-3">
-                <span className="mt-0.5 w-4 text-xs font-semibold tabular-nums text-faint">{i + 1}</span>
-                <div className="min-w-0 flex-1">
-                  <div className="font-medium">{s.skill}</div>
-                  <div className="text-[0.85rem] text-muted">{s.why}</div>
-                </div>
-                <m.icon size={18} className={`shrink-0 ${m.cls}`} aria-label={m.label} />
-              </li>
-            );
-          })}
-        </ul>
-        <div className="mt-6 eyebrow">ATS keywords</div>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {a.ats_keywords.map((k) => (
-            <span key={k} className="chip bg-brand-soft text-brand-ink">{k}</span>
+        <div className="mt-4 text-[0.8rem] text-faint">Expected, but not written</div>
+        <div className="mt-1.5 grid gap-2.5 md:grid-cols-3">
+          {a.unwritten_expectations.map((x, i) => (
+            <div key={x} className={`rounded-xl p-3 text-[0.9rem] leading-snug text-slate-800 ${TILE[i % 3]}`}>
+              <Lightbulb size={14} className="mb-1.5 opacity-60" />
+              {x}
+            </div>
           ))}
         </div>
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <span className="text-[0.8rem] text-faint">ATS keywords</span>
+          {a.ats_keywords.map((k) => <span key={k} className="chip bg-white px-3 text-brand ring-1 ring-blue-200">{k}</span>)}
+        </div>
       </section>
+
+      <div className="grid gap-4 2xl:grid-cols-2">
+        {/* What they want */}
+        <section className="card p-5">
+          <div className="mb-3 flex items-center gap-2 font-semibold"><Target size={16} className="text-brand" /> What they want</div>
+          <ul className="space-y-1">
+            {a.top_skills.map((s, i) => {
+              const m = MATCH[s.match];
+              return (
+                <li key={s.skill} className="flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-[#f6f8fc]">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-semibold text-muted">{i + 1}</span>
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium leading-snug">{s.skill}</div>
+                    <div className="text-[0.82rem] text-faint">{s.why}</div>
+                  </div>
+                  <span className={`chip shrink-0 ${m.cls}`}><m.icon size={12} /> {m.label}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+
+        {/* Gaps */}
+        <section className="card p-5">
+          <div className="mb-3 font-semibold">Gaps to close</div>
+          <div className="space-y-2.5">
+            {a.gaps.map((g) => {
+              const m = GAP[g.status];
+              return (
+                <div key={g.gap} className="rounded-xl bg-[#f6f8fc] p-3.5">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="font-medium">{g.gap}</span>
+                    <span className={`chip ${m.cls}`}><m.icon size={12} /> {m.label}</span>
+                  </div>
+                  <p className="mt-1 text-[0.88rem] text-muted">{g.explanation}</p>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
 
       {/* Questions */}
       {a.questions.length > 0 && (
-        <section className="card border-brand/30 bg-[#fbfefd] p-5 lg:col-span-2">
+        <section className="card border-blue-200 p-5">
           <div className="flex items-center gap-2">
-            <Sparkles size={16} className="text-brand" />
-            <span className="font-medium">A few questions to sharpen your score</span>
-            {openQs.length === 0 && <span className="chip bg-good-soft text-good">Answered</span>}
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-sun text-amber-800"><CircleHelp size={15} /></span>
+            <span className="font-semibold">Answer a few questions to sharpen your score</span>
           </div>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {a.questions.map((q) => (
@@ -139,27 +158,9 @@ export function Overview({ app, onUpdate, onNext }: { app: Application; onUpdate
           <button className="btn btn-primary mt-4" disabled={busy} onClick={saveAnswersAndRescore}>
             {busy ? <Spinner /> : <RotateCcw size={15} />} Save &amp; re-score
           </button>
-          {error && <p className="mt-2 text-sm text-bad">{error}</p>}
+          {error && <p className="mt-2 text-bad">{error}</p>}
         </section>
       )}
-
-      {/* Insight */}
-      <section className="card p-5">
-        <div className="eyebrow">The real problem they&apos;re hiring for</div>
-        <p className="mt-2 leading-relaxed text-slate-700">{a.real_problem}</p>
-      </section>
-      <section className="card p-5">
-        <div className="eyebrow">Expected, but not written</div>
-        <ul className="mt-3 space-y-2">
-          {a.unwritten_expectations.map((x) => (
-            <li key={x} className="flex gap-2.5 text-slate-700"><span className="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-brand" /> {x}</li>
-          ))}
-        </ul>
-      </section>
-
-      <div className="flex justify-end lg:col-span-2">
-        <button className="btn btn-brand" onClick={onNext}>Tailor my resume <ArrowRight size={16} /></button>
-      </div>
     </div>
   );
 }

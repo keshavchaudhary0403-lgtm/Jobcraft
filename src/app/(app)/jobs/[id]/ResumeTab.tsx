@@ -53,7 +53,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   if (!md)
     return (
       <div className="card ai-gradient flex flex-col items-center px-6 py-14 text-center fade-up">
-        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white shadow-lg"><FileText size={22} /></div>
+        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-navy text-white shadow-lg"><FileText size={22} /></div>
         <div className="mt-4 text-lg font-medium">A resume made for this job</div>
         <p className="mt-1 max-w-sm text-sm text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
         <button className="btn btn-brand mt-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
@@ -65,8 +65,8 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   const filled = Object.values(nums).some((v) => v.trim());
 
   return (
-    <div className="grid gap-5 lg:grid-cols-[1fr_300px]">
-      <div className="fade-up">
+    <div className="flex flex-col gap-4">
+      <div className="order-2 fade-up">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editing ? (
             <>
@@ -94,7 +94,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </div>
 
-      <aside className="space-y-4 stagger">
+      <aside className="order-1 grid gap-4 md:grid-cols-2 stagger empty:hidden">
         {missing.length > 0 && (
           <div className="card p-5">
             <div className="flex items-center gap-2 font-medium"><Hash size={16} className="text-brand" /> Add real numbers</div>

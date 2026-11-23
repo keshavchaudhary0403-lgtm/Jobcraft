@@ -78,7 +78,7 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
         } ${drag ? "border-brand bg-brand-soft" : "border-line bg-white hover:border-brand/50 hover:bg-[#fbfdfd]"}`}
       >
         <div className="ai-gradient pointer-events-none absolute inset-0 opacity-70" />
-        <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-navy text-white shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>
+        <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-blue-500 to-navy text-white shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>
           {drag ? <FileText size={compact ? 20 : 24} /> : <UploadCloud size={compact ? 20 : 24} />}
         </div>
         <div className={`relative font-semibold ${compact ? "mt-3" : "mt-4 text-[1.1rem]"}`}>{drag ? "Drop it here" : "Drop your resume"}</div>

@@ -9,7 +9,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
   return (
     <div className="grid gap-5 md:grid-cols-2 stagger">
       <div className="card flex flex-col p-6">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white"><Mic size={20} /></div>
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-blue-500 to-navy text-white"><Mic size={20} /></div>
         <div className="mt-4 text-lg font-medium">Mock interview</div>
         <p className="mt-1 text-sm text-muted">The hiring manager at {app.company} asks 6 questions by voice, then scores you.</p>
         <form action={start} className="mt-5">

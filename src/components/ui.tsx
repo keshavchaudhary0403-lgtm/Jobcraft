@@ -72,7 +72,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   );
 }
 
-const AVATAR = ["#0f766e", "#1d4ed8", "#7c3aed", "#c2410c", "#0e7490", "#b45309", "#be185d", "#15803d"];
+const AVATAR = ["#1e3a8a", "#1d4ed8", "#7c3aed", "#c2410c", "#0e7490", "#b45309", "#be185d", "#15803d"];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
   const bg = AVATAR[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR.length];
   return (
@@ -82,10 +82,11 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   );
 }
 
-export function StatTile({ icon, label, value, sub }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string }) {
+const TONES = { sky: "bg-sky text-blue-700", sun: "bg-sun text-amber-800", lilac: "bg-lilac text-violet-700", rose: "bg-rose text-rose-700", mint: "bg-good-soft text-good" };
+export function StatTile({ icon, label, value, sub, tone = "sky" }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES }) {
   return (
-    <div className="card flex items-center gap-3.5 p-4">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand-ink">{icon}</div>
+    <div className="card card-hover flex items-center gap-3.5 p-4">
+      <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${TONES[tone]}`}>{icon}</div>
       <div className="min-w-0">
         <div className="text-[0.82rem] text-muted">{label}</div>
         <div className="text-[1.45rem] font-semibold leading-tight tracking-tight tabular-nums">{value}</div>

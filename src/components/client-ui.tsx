@@ -36,7 +36,7 @@ export function Working({ steps, className = "" }: { steps: string[]; className?
     <div className={`card ai-gradient flex flex-col items-center px-6 py-14 text-center ${className}`}>
       <div className="relative mb-5 grid h-12 w-12 place-items-center">
         <span className="absolute inset-0 rounded-full bg-brand/20" style={{ animation: "ripple 1.8s ease-out infinite" }} />
-        <span className="relative grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-teal-500 to-navy text-white shadow-lg"><Spinner size={20} /></span>
+        <span className="relative grid h-12 w-12 place-items-center rounded-full bg-gradient-to-br from-blue-500 to-navy text-white shadow-lg"><Spinner size={20} /></span>
       </div>
       <div key={i} className="fade-up font-medium">{steps[i]}</div>
       <div className="mt-4 flex gap-1.5">

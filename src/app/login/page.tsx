@@ -35,14 +35,14 @@ export default function LoginPage() {
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
       <section className="relative hidden overflow-hidden bg-side p-12 text-white lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-teal-500/25 blur-3xl" style={{ animation: "breathe 9s ease-in-out infinite" }} />
+        <div className="pointer-events-none absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-blue-500/25 blur-3xl" style={{ animation: "breathe 9s ease-in-out infinite" }} />
         <div className="pointer-events-none absolute -bottom-48 right-[-10rem] h-[36rem] w-[36rem] rounded-full bg-indigo-600/25 blur-3xl" style={{ animation: "breathe 11s ease-in-out infinite" }} />
         <div className="relative"><Logo light /></div>
         <div className="relative my-auto max-w-md">
           <h1 className="text-[2.6rem] font-semibold leading-[1.1] tracking-tight">
             Get hired faster.
             <br />
-            <span className="bg-gradient-to-r from-teal-300 to-indigo-300 bg-clip-text text-transparent">Stay honest.</span>
+            <span className="bg-gradient-to-r from-sky-300 to-indigo-300 bg-clip-text text-transparent">Stay honest.</span>
           </h1>
           <div className="mt-10 space-y-3">
             {FEATURES.map(({ icon: Icon, title, sub }, i) => (
