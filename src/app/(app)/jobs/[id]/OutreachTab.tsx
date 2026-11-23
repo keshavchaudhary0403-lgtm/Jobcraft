@@ -21,8 +21,13 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
 
   const an = app.analysis as Analysis | null;
   const people = (q: string) => `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(q)}`;
-  const fn = app.role.replace(/\(.*?\)/g, "").replace(/\b(senior|sr\.?|junior|jr\.?|lead|associate|assistant|trainee)\b/gi, "").trim();
-  const titles = an?.hiring_titles?.length ? an.hiring_titles : [`Head of ${fn.split(" ").slice(-2, -1)[0] ?? fn}`, `${fn} Manager`].filter(Boolean);
+  // Older analyses have no hiring titles: derive sensible ones from the role ("Senior Category Manager" → "Head of Category").
+  const core = app.role
+    .replace(/\(.*?\)/g, "")
+    .replace(/\b(senior|sr\.?|junior|jr\.?|lead|associate|assistant|trainee|manager|head|executive|specialist|analyst|officer|coordinator|director|vp|of|and|&|-)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  const titles = an?.hiring_titles?.length ? an.hiring_titles : core ? [`Head of ${core}`, `${core} Director`] : ["Hiring Manager"];
   const company = app.company.replace(/\(.*?\)/g, "").trim();
   const words = (s: string) => s.trim().split(/\s+/).filter(Boolean).length;
 

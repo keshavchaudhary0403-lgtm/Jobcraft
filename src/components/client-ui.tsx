@@ -167,12 +167,12 @@ export function Modal({ open, onClose, title, children, width = 520 }: { open: b
   if (!open) return null;
   return (
     <div data-modal className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={onClose}>
-      <div className="pop w-full rounded-3xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
+      <div className="pop flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
           <div className="font-semibold">{title}</div>
           <button className="btn-quiet" onClick={onClose} aria-label="Close"><X size={16} /></button>
         </div>
-        <div className="p-5">{children}</div>
+        <div className="overflow-y-auto p-5">{children}</div>
       </div>
     </div>
   );
