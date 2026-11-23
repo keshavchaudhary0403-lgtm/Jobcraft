@@ -1,0 +1,99 @@
+import Link from "next/link";
+import { ArrowRight, MapPin } from "lucide-react";
+import { CompanyAvatar, STATUS_META, timeAgo } from "./ui";
+import { STATUSES, type Application, type Status } from "@/lib/types";
+import type { Analysis } from "@/lib/tasks";
+import { journey } from "@/lib/journey";
+
+export const STATUS_BAR: Record<Status, string> = {
+  saved: "bg-mustard",
+  applied: "bg-ocean",
+  interviewing: "bg-plum",
+  offer: "bg-good",
+  rejected: "bg-clay",
+  withdrawn: "bg-faint",
+};
+
+export function JobTile({ a, practised }: { a: Application; practised: Set<string> }) {
+  const an = a.analysis as Analysis | null;
+  const m = an ? an.fit_score * 10 : null;
+  const steps = journey(a, practised);
+  const cur = steps.findIndex((s) => !s.done);
+  const next = cur >= 0 && !["rejected", "withdrawn"].includes(a.status) ? steps[cur] : null;
+  const done = steps.filter((s) => s.done).length;
+  const st = STATUS_META[a.status];
+  return (
+    <article className="card card-hover flex flex-col overflow-hidden">
+      <Link href={`/jobs/${a.id}`} className="block p-6 pb-5">
+        <div className="flex items-center gap-3">
+          <CompanyAvatar name={a.company} size={40} />
+          <span className="min-w-0 flex-1">
+            <span className="block truncate text-[0.92rem] font-semibold">{a.company}</span>
+            <span className="flex items-center gap-2 text-[0.8rem] text-muted">{a.location && <span className="inline-flex items-center gap-1 truncate"><MapPin size={11} />{a.location}</span>}<span>{timeAgo(a.updated_at)}</span></span>
+          </span>
+          <span className={`chip ${st.cls}`}>{st.label}</span>
+        </div>
+        <div className="mt-4 flex items-start justify-between gap-4">
+          <h2 className="line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>
+          <MiniDonut value={m} />
+        </div>
+      </Link>
+
+      <div className="mt-auto border-t border-line px-6 py-4">
+        <div className="flex items-center justify-between text-[0.8rem]">
+          <span className="text-muted">Step <b className="font-display text-ink">{Math.min(done + 1, 7)}</b> of 7</span>
+          {next && <span className="font-semibold text-clay">{steps[cur].label}</span>}
+        </div>
+        <div className="mt-2 flex gap-1">
+          {steps.map((s, i) => <span key={s.label} title={s.label} className={`h-2 flex-1 rounded-full ${s.done ? "bg-brand" : i === cur ? "bg-clay" : "bg-line"}`} />)}
+        </div>
+      </div>
+
+      {next ? (
+        <Link href={next.href} className="flex items-center justify-between bg-clay-soft px-6 py-3.5 font-semibold text-clay transition hover:bg-clay hover:text-white">
+          {next.cta} <ArrowRight size={16} />
+        </Link>
+      ) : (
+        <Link href={`/jobs/${a.id}`} className="flex items-center justify-between bg-line-2 px-6 py-3.5 font-semibold text-muted transition hover:text-ink">Open job <ArrowRight size={16} /></Link>
+      )}
+    </article>
+  );
+}
+
+export const STATUS_HEX: Record<Status, string> = { saved: "#e2a92c", applied: "#3b6e78", interviewing: "#a65a32", offer: "#2f7a52", rejected: "#e0653f", withdrawn: "#a39e92" };
+
+export function StatusDonut({ counts, total }: { counts: Record<Status, number>; total: number }) {
+  const size = 170, stroke = 22, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const present = STATUSES.filter((s) => counts[s]);
+  const gap = present.length > 1 ? 4 : 0;
+  const segs = present.map((s, i) => ({ s, len: (counts[s] / total) * c, start: present.slice(0, i).reduce((t, x) => t + (counts[x] / total) * c, 0) }));
+  return (
+    <div className="relative mx-auto mt-3 grid place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        {segs.map(({ s, len, start }) => (
+          <circle key={s} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={STATUS_HEX[s]} strokeWidth={stroke} strokeDasharray={`${Math.max(len - gap, 1)} ${c}`} strokeDashoffset={-start} />
+        ))}
+      </svg>
+      <div className="absolute text-center">
+        <div className="font-display text-[2.4rem] font-bold leading-none tabular-nums">{total}</div>
+        <div className="text-[0.76rem] text-muted">job{total === 1 ? "" : "s"}</div>
+      </div>
+    </div>
+  );
+}
+
+export function MiniDonut({ value }: { value: number | null }) {
+  const size = 64, stroke = 7, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const v = value ?? 0;
+  const color = value == null ? "var(--line)" : v >= 70 ? "var(--color-good)" : v >= 50 ? "var(--color-mustard)" : "var(--color-clay)";
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title="Your fit">
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
+      </svg>
+      <span className="absolute font-display text-[1.05rem] font-bold tabular-nums">{value ?? "—"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
+    </div>
+  );
+}

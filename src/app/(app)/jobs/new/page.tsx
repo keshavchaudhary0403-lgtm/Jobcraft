@@ -117,12 +117,12 @@ export default function NewJob() {
       <div key={k}>
         <label className="label flex items-center justify-between">
           <span>{label}</span>
-          {auto[k] && <span className="chip bg-brand-soft px-1.5 py-0 text-[0.72rem] text-brand-ink"><Sparkles size={10} /> from JD</span>}
+          {auto[k] && <span className="chip bg-mustard-soft px-1.5 py-0 text-[0.78rem] text-[#8a6414]"><Sparkles size={10} /> from JD</span>}
         </label>
         <div className="relative">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">{icon}</span>
           {detecting && !f[k] ? (
-            <div className="skeleton h-[2.6rem] w-full rounded-[10px]" />
+            <div className="skeleton h-[2.6rem] w-full rounded-[14px]" />
           ) : (
             <input className="field pl-9" value={f[k]} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} />
           )}
@@ -132,24 +132,23 @@ export default function NewJob() {
   };
 
   return (
-    <div>
-      <div className="mb-6 fade-up">
-        <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">Add a job</h1>
-        <p className="mt-0.5 text-muted">Paste the description. We&apos;ll pick out the company and role — you confirm.</p>
-      </div>
-      <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
-        <div className="card overflow-hidden fade-up">
-          <div className="flex items-center justify-between border-b border-line px-5 py-3">
-            <span className="font-bold">Job description</span>
-            <span className="text-[0.82rem] tabular-nums text-faint">{words} words</span>
-          </div>
-          <div className="border-b border-line bg-line-2/40 px-5 py-3">
+    <div className="space-y-6">
+      <header className="pt-2 fade-up">
+        <h1 className="text-[2.6rem] font-bold leading-none">Add a job<span className="text-clay">.</span></h1>
+        <p className="mt-2 text-[1rem] text-muted">Paste a link or the description. We pick out the company and role — you confirm.</p>
+      </header>
+
+      <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+        {/* Paste pane */}
+        <div className="card flex flex-col overflow-hidden fade-up">
+          <div className="border-b border-line p-5" style={{ background: "var(--color-cream)" }}>
+            <div className="mb-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">1 · From a link</div>
             <div className="flex flex-wrap items-center gap-2">
               <div className="relative min-w-[220px] flex-1">
                 <Link2 size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
                 <input
-                  className="field h-10 pl-9"
-                  placeholder="Have a link? Paste the job page (company careers, Lever, Greenhouse…)"
+                  className="field h-11 bg-card pl-9"
+                  placeholder="Company careers page, Lever, Greenhouse…"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
@@ -160,37 +159,64 @@ export default function NewJob() {
                   }}
                 />
               </div>
-              <button type="button" className="btn btn-ghost h-10" disabled={!url.trim() || fetching} onClick={fromLink}>
+              <button type="button" id="jc-get-desc" className="btn btn-primary h-11" disabled={!url.trim() || fetching} onClick={fromLink}>
                 {fetching ? <Spinner size={14} /> : <DownloadCloud size={15} />} Get description
               </button>
             </div>
             {fetchMsg && <p className={`mt-2 text-[0.84rem] ${fetchMsg.ok ? "text-good" : "text-mid"}`}>{fetchMsg.text}</p>}
           </div>
+          <div className="flex items-center justify-between px-5 pt-4">
+            <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">2 · Or paste the description</span>
+            <span className={`rounded-full px-2.5 py-0.5 text-[0.76rem] font-semibold tabular-nums ${words >= 30 ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{words} words{words < 30 ? " · need 30+" : ""}</span>
+          </div>
           <textarea
             autoFocus
             required
-            className="thin-scroll block h-[min(58vh,560px)] w-full resize-none border-0 bg-transparent px-5 py-4 text-[0.97rem] leading-relaxed outline-none placeholder:text-faint"
-            placeholder="…or paste the full job description here (LinkedIn, Naukri, any site)"
+            className="thin-scroll block h-[min(60vh,600px)] w-full resize-none border-0 bg-transparent px-5 py-3 text-[0.97rem] leading-relaxed outline-none placeholder:text-faint"
+            placeholder="Paste the full job description here (LinkedIn, Naukri, any site)…"
             value={jd}
             onChange={(e) => setJd(e.target.value)}
           />
         </div>
 
-        <aside className="card p-5 lg:sticky lg:top-6 fade-up">
-          <div className="card-head">
-            <span className="ico"><Building2 size={15} /></span>
-            <span className="flex-1">Job details</span>
-            {detecting && <span className="flex items-center gap-1.5 text-[0.82rem] font-normal text-muted"><Spinner size={13} /> Reading…</span>}
+        {/* Preview pane */}
+        <aside className="space-y-4 lg:sticky lg:top-6 fade-up">
+          <div className="dark-card p-5">
+            <div className="flex items-center justify-between">
+              <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Preview</span>
+              {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/70"><Spinner size={13} /> Reading…</span>}
+            </div>
+            <div className="mt-3 flex items-center gap-3">
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-mustard font-display text-[1.2rem] font-bold text-side">{(f.company.trim()[0] ?? "?").toUpperCase()}</span>
+              <div className="min-w-0">
+                <div className="truncate text-[0.9rem] text-cream/70">{f.company || "Company"}</div>
+                <div className="line-clamp-2 font-display text-[1.25rem] font-bold leading-tight">{f.role || "Role"}</div>
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-1.5 text-[0.76rem]">
+              {f.location && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><MapPin size={11} />{f.location}</span>}
+              {f.company_type && <span className="rounded-full bg-white/10 px-2.5 py-0.5">{f.company_type}</span>}
+              {url.trim() && <span className="inline-flex items-center gap-1 rounded-full bg-white/10 px-2.5 py-0.5"><Link2 size={11} />Link added</span>}
+            </div>
           </div>
-          <div className="space-y-4">
-          {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
-          {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
-          {detField("location", "Location", <MapPin size={15} />, "Optional")}
-          <button className="btn btn-brand w-full" disabled={busy || !ready}>
-            {busy ? <Spinner /> : <Sparkles size={15} />} Analyse job <ArrowRight size={15} />
-          </button>
-          {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role — they weren&apos;t in the text.</p>}
-          {err && <p className="text-[0.85rem] text-bad">{err}</p>}
+
+          <div className="card space-y-4 p-5">
+            {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
+            {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
+            {detField("location", "Location", <MapPin size={15} />, "Optional")}
+            {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role — they weren&apos;t in the text.</p>}
+            {err && <p className="text-[0.85rem] text-bad">{err}</p>}
+            <button className="btn btn-clay h-12 w-full text-[1rem]" disabled={busy || !ready}>
+              {busy ? <Spinner /> : <Sparkles size={15} />} Analyse job <ArrowRight size={15} />
+            </button>
+            <ol className="grid grid-cols-4 gap-1 border-t border-line pt-4 text-center text-[0.78rem] text-muted">
+              {["Decode", "Fit score", "Resume", "Outreach"].map((x, i) => (
+                <li key={x}>
+                  <span className="mx-auto mb-1 grid h-6 w-6 place-items-center rounded-full bg-line-2 font-display text-[0.78rem] font-bold text-ink">{i + 1}</span>
+                  {x}
+                </li>
+              ))}
+            </ol>
           </div>
         </aside>
       </form>

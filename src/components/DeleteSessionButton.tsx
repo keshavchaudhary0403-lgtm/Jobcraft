@@ -11,13 +11,14 @@ export function DeleteSessionButton({ action }: { action: () => Promise<void> })
       {dialog}
       <button
         type="button"
-        className="btn btn-ghost btn-sm"
+        className="btn h-10 text-bad hover:bg-bad-soft"
+        aria-label="Delete session"
         onClick={async () => {
           const ok = await ask({ title: "Delete this session?", body: "The conversation, transcript and scorecard are removed. This can't be undone.", confirm: "Delete", danger: true });
           if (ok !== null) await action();
         }}
       >
-        <Trash2 size={14} /> Delete
+        <Trash2 size={15} /> Delete
       </button>
     </>
   );

@@ -3,12 +3,11 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AlertCircle, Check, Download, FileText, Hash, Info, ListChecks, Pencil, RotateCcw, Sparkles, X } from "lucide-react";
+import { AlertCircle, Check, Download, Hash, Info, Pencil, RotateCcw, Sparkles, X } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
 import { CopyButton, Spinner, Working, useAsk } from "@/components/client-ui";
-import { Panel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
 import { DocEditor } from "@/components/DocEditor";
 
@@ -56,12 +55,34 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
   if (!md)
     return (
-      <div className="card ai-gradient flex flex-col items-center px-6 py-14 text-center fade-up">
-        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand shadow-lg"><FileText size={22} /></div>
-        <div className="mt-4 text-lg font-medium">A resume made for this job</div>
-        <p className="mt-1 max-w-sm text-sm text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
-        <button className="btn btn-brand mt-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
-        {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
+      <div className="card grid items-center gap-8 overflow-hidden p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_240px] fade-up">
+        <div>
+          <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-clay">Step 3 · Resume</span>
+          <h3 className="mt-2 text-[2rem] font-bold leading-tight">A resume made for this job<span className="text-clay">.</span></h3>
+          <p className="mt-2 max-w-md text-muted">Reordered and reworded around what they want — using only what&apos;s true, one page, ATS-safe.</p>
+          <button className="btn btn-clay mt-6 h-11" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
+          {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
+        </div>
+        <ul className="space-y-3">
+          {[
+            ["01", "Reordered around their top skills", "bg-clay-soft text-clay"],
+            ["02", "Bullets rewritten with real results", "bg-mustard-soft text-[#8a6414]"],
+            ["03", "Their ATS keywords, where true", "bg-ocean-soft text-ocean"],
+            ["04", "You check every change", "bg-good-soft text-good"],
+          ].map(([n, t, c]) => (
+            <li key={n} className="flex items-center gap-3">
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.85rem] font-bold ${c}`}>{n}</span>
+              <span className="font-medium">{t}</span>
+            </li>
+          ))}
+        </ul>
+        <div className="hidden rotate-2 rounded-2xl border border-line bg-white p-5 shadow-[0_24px_50px_-30px_rgba(22,48,43,.5)] md:block">
+          <div className="h-3 w-2/3 rounded bg-ink/80" />
+          <div className="mt-2 h-2 w-1/2 rounded bg-line" />
+          {[0, 1, 2].map((i) => (
+            <div key={i} className="mt-4 space-y-1.5"><div className="h-2 w-1/3 rounded bg-clay/70" /><div className="h-1.5 rounded bg-line" /><div className="h-1.5 w-5/6 rounded bg-line" /><div className="h-1.5 w-4/6 rounded bg-line" /></div>
+          ))}
+        </div>
       </div>
     );
 
@@ -85,126 +106,119 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     }
   }
 
+  const regen = async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); };
+  const truthPct = changes.length ? checked / changes.length : 0;
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="space-y-5">
       {dialog}
       {newAnswers && !busy && (
-        <div className="order-0 flex flex-wrap items-center gap-3 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 fade-up">
-          <Info size={16} className="shrink-0 text-brand" />
-          <span className="flex-1 text-[0.92rem] text-brand-ink">You&apos;ve answered new questions since this resume was made. Regenerate to include them.</span>
-          <button
-            className="btn btn-primary btn-sm"
-            onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version uses your latest answers and replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}
-          >
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-ocean-soft px-4 py-3 fade-up">
+          <Info size={16} className="shrink-0 text-ocean" />
+          <span className="flex-1 text-[0.92rem] text-ocean">You&apos;ve answered new questions since this resume was made.</span>
+          <button className="btn btn-primary btn-sm" onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version uses your latest answers and replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}>
             <RotateCcw size={13} /> Regenerate
           </button>
         </div>
       )}
-      <div className="order-2 fade-up">
-        <div className="mb-3 flex flex-wrap items-center gap-2">
-          {editing ? (
-            <>
-              <button className="btn btn-primary btn-sm" onClick={saveEdit}><Check size={14} /> Save</button>
-              <button className="btn btn-ghost btn-sm" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
-            </>
-          ) : (
-            <>
-              <button className="btn btn-primary btn-sm" onClick={download}><Download size={14} /> Download PDF</button>
-              <CopyButton text={md} />
-              <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={14} /> Edit</button>
-              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}>
-                {busy ? <Spinner size={14} /> : <RotateCcw size={14} />} Regenerate
-              </button>
-            </>
-          )}
-        </div>
-        {editing ? (
-          <div className="paper"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
-        ) : (
-          <div className={`paper transition ${busy ? "opacity-50" : ""}`} ref={paper}>
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
-          </div>
-        )}
-        {error && <p className="mt-2 text-sm text-bad">{error}</p>}
-      </div>
 
-      <aside className="order-1 grid items-start gap-4 stagger empty:hidden">
-        {missing.length > 0 && (
-          <Panel title="The recruiter needs numbers" sub="Real numbers make bullets credible. Skip any you do not know." icon={<Hash size={15} />}>
-            <div className="grid gap-3.5 md:grid-cols-2">
-              {missing.map((q) => (
-                <div key={q}>
-                  <label className="mb-1.5 block font-medium text-slate-800">{q}</label>
-                  <input className="field" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="Skip if you don't know" />
-                </div>
-              ))}
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* The resume */}
+        <div className="min-w-0">
+          {editing ? (
+            <div className="paper"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
+          ) : (
+            <div className={`paper transition ${busy ? "opacity-50" : ""}`} ref={paper}>
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
             </div>
-            <button
-              className="btn btn-brand mt-4"
-              disabled={!filled || busy}
-              onClick={() =>
-                generate({
-                  numbers: Object.entries(nums)
-                    .filter(([, v]) => v.trim())
-                    .map(([q, v]) => `${q} → ${v}`)
-                    .join("\n"),
-                })
-              }
-            >
-              {busy ? <Spinner /> : <Sparkles size={15} />} Update resume
-            </button>
-          </Panel>
-        )}
-        {changes.length > 0 && (
-          <Panel
-            title="Check every change is true"
-            sub="You'll be asked about each of these in interviews."
-            icon={<ListChecks size={15} />}
-            action={<span className={`chip ${checked === changes.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{checked} of {changes.length} checked</span>}
-            bodyClass="divide-y divide-line"
-          >
-            {changes.map((c, i) => {
-              const v = verified[i];
-              return (
-                <div key={i} className={`flex items-start gap-3 px-5 py-3 transition ${v === false ? "bg-bad-soft/40" : ""}`}>
-                  <div className="min-w-0 flex-1">
-                    <div className={`font-medium ${v === false ? "text-bad line-through decoration-bad/40" : "text-slate-800"}`}>{c.change}</div>
-                    <div className="text-[0.85rem] text-muted">{c.why}</div>
-                  </div>
-                  <div className="flex shrink-0 gap-1.5">
-                    <button
-                      onClick={() => mark(i, true)}
-                      aria-pressed={v === true}
-                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}
-                    >
-                      <Check size={13} /> True
-                    </button>
-                    <button
-                      onClick={() => mark(i, false)}
-                      aria-pressed={v === false}
-                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === false ? "bg-bad text-white" : "bg-line-2 text-muted hover:bg-bad-soft hover:text-bad"}`}
-                    >
-                      <X size={13} /> Not true
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-            {untrue.length > 0 && (
-              <div className="flex flex-wrap items-center gap-3 bg-bad-soft/40 px-5 py-3.5">
-                <span className="flex-1 text-[0.9rem] text-slate-800">{untrue.length} change{untrue.length > 1 ? "s" : ""} marked not true — fix before you send this resume.</span>
-                <button
-                  className="btn btn-primary btn-sm"
-                  disabled={busy}
-                  onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}
-                >
-                  {busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these
-                </button>
+          )}
+          {error && <p className="mt-2 text-sm text-bad">{error}</p>}
+        </div>
+
+        {/* Rail */}
+        <aside className="space-y-4 xl:sticky xl:top-6">
+          <section className="card p-4">
+            {editing ? (
+              <div className="grid grid-cols-2 gap-2">
+                <button className="btn btn-primary h-11" onClick={saveEdit}><Check size={15} /> Save</button>
+                <button className="btn btn-ghost h-11" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
               </div>
+            ) : (
+              <>
+                <button className="btn btn-clay h-11 w-full" onClick={download}><Download size={15} /> Download PDF</button>
+                <div className="mt-2 grid grid-cols-3 gap-2">
+                  <CopyButton text={md} />
+                  <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
+                  <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Redo</button>
+                </div>
+              </>
             )}
-          </Panel>
-        )}
-      </aside>
+          </section>
+
+          {changes.length > 0 && (
+            <section className="card overflow-hidden">
+              <header className="flex items-center gap-3 p-4">
+                <TruthRing value={truthPct} />
+                <div className="min-w-0">
+                  <h3 className="text-[1.1rem] font-bold leading-tight">Is every change true?</h3>
+                  <p className="text-[0.8rem] text-muted">{checked} of {changes.length} checked · you&apos;ll be asked in interviews</p>
+                </div>
+              </header>
+              <div className="thin-scroll max-h-[420px] divide-y divide-line overflow-y-auto border-t border-line">
+                {changes.map((c, i) => {
+                  const v = verified[i];
+                  return (
+                    <div key={i} className={`px-4 py-3 ${v === false ? "bg-clay-soft/50" : ""}`}>
+                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-clay line-through decoration-clay/40" : ""}`} title={c.why}>{c.change}</div>
+                      <div className="mt-2 flex gap-1.5">
+                        <button onClick={() => mark(i, true)} aria-pressed={v === true} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}><Check size={12} /> True</button>
+                        <button onClick={() => mark(i, false)} aria-pressed={v === false} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === false ? "bg-clay text-white" : "bg-line-2 text-muted hover:bg-clay-soft hover:text-clay"}`}><X size={12} /> Not true</button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              {untrue.length > 0 && (
+                <div className="flex items-center gap-3 border-t border-line bg-clay-soft/50 px-4 py-3">
+                  <span className="flex-1 text-[0.84rem]">{untrue.length} marked not true</span>
+                  <button className="btn btn-clay btn-sm" disabled={busy} onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these</button>
+                </div>
+              )}
+            </section>
+          )}
+
+          {missing.length > 0 && (
+            <section className="card p-4" style={{ background: "var(--color-mustard-soft)" }}>
+              <div className="flex items-center gap-2"><Hash size={15} className="text-[#8a6414]" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
+              <p className="mt-0.5 text-[0.8rem] text-[#6e4f0f]">Skip any you don&apos;t know.</p>
+              <div className="mt-3 space-y-2.5">
+                {missing.map((q) => (
+                  <div key={q}>
+                    <label className="mb-1 block text-[0.84rem] font-medium">{q}</label>
+                    <input className="field h-10 bg-white" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="e.g. 40%" />
+                  </div>
+                ))}
+              </div>
+              <button className="btn btn-primary mt-3 w-full" disabled={!filled || busy} onClick={() => generate({ numbers: Object.entries(nums).filter(([, v]) => v.trim()).map(([q, v]) => `${q} → ${v}`).join("\n") })}>
+                {busy ? <Spinner /> : <Sparkles size={15} />} Update resume
+              </button>
+            </section>
+          )}
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function TruthRing({ value }: { value: number }) {
+  const size = 52, stroke = 6, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-good)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} />
+      </svg>
+      <span className="absolute font-display text-[0.8rem] font-bold">{Math.round(value * 100)}%</span>
     </div>
   );
 }

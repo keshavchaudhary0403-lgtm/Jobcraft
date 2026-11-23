@@ -217,54 +217,59 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
   const ss = String(secs % 60).padStart(2, "0");
 
   return (
-    <div className="grid items-start gap-6 lg:grid-cols-[380px_minmax(0,1fr)]">
-      <div className="card ai-gradient flex flex-col items-center overflow-hidden px-6 py-10 fade-up lg:sticky lg:top-6">
-        <div className="mb-6 flex items-center gap-2">
-          <span className="chip bg-white/80 text-brand-ink ring-1 ring-brand/20">Realistic voice</span>
-          {live && <span className="chip bg-white/80 tabular-nums text-muted">{mm}:{ss}</span>}
-          {live && kind === "interview" && <span className="chip bg-white/80 text-muted">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
-        </div>
+    <div className="space-y-4">
+      <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
         <Orb state={speaking ?? (live ? "idle" : "off")} />
-        <div className="mt-8 h-6 text-center font-semibold text-slate-700">
-          {status === "connecting" ? "Connecting…" : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening…" : muted ? "You're muted" : "Your turn — just talk"}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 text-[0.78rem]">
+            <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-semibold">Realistic voice</span>
+            {live && <span className="rounded-full bg-white/10 px-2.5 py-0.5 tabular-nums">{mm}:{ss}</span>}
+            {live && kind === "interview" && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
+          </div>
+          <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">
+            {status === "connecting" ? "Connecting…" : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening…" : muted ? "You're muted" : "Your turn — just talk"}
+          </div>
+          <p className="mt-0.5 text-[0.84rem] text-cream/65">
+            {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
+          </p>
+          {kind === "interview" && (
+            <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= questions ? "bg-mustard" : "bg-white/15"}`} />)}</div>
+          )}
         </div>
-        <p className="mt-1 max-w-xs text-center text-[0.84rem] text-muted">
-          {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Use headphones for best results." : "Practise out loud with a live HR manager. Use headphones for best results."}
-        </p>
-        <div className="mt-6 flex items-center gap-3">
+        <div className="flex items-center gap-2">
           {!live ? (
-            <button onClick={start} disabled={status === "connecting"} className="btn btn-primary h-12 px-6 text-[1rem]">
+            <button onClick={start} disabled={status === "connecting"} className="btn btn-clay h-12 px-6 text-[1rem]">
               {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}
             </button>
           ) : (
             <>
-              <button onClick={toggleMute} className={`grid h-12 w-12 place-items-center rounded-full shadow-md transition ${muted ? "bg-bad text-white" : "bg-white text-ink hover:bg-line-2"}`} aria-label={muted ? "Unmute" : "Mute"}>
+              <button onClick={toggleMute} className={`grid h-12 w-12 place-items-center rounded-full transition ${muted ? "bg-bad text-white" : "bg-white/10 text-cream hover:bg-white/20"}`} aria-label={muted ? "Unmute" : "Mute"}>
                 {muted ? <MicOff size={18} /> : <Mic size={18} />}
               </button>
               <button onClick={end} className="btn h-12 bg-bad px-6 text-[1rem] text-white hover:opacity-90"><PhoneOff size={17} /> End call</button>
             </>
           )}
         </div>
-        {error && <p className="mt-4 flex items-start gap-1.5 text-center text-[0.86rem] text-bad"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
+        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-[#ffb59f]"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
-      <div className="min-w-0">
+      <div className="card min-h-[320px] p-5">
+        <div className="mb-3 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Transcript</div>
         {turns.length === 0 ? (
-          <div className="card flex flex-col items-center px-6 py-14 text-center text-muted fade-up">
-            <Mic size={22} className="text-brand-2" />
-            <p className="mt-3 max-w-sm text-[0.92rem]">Live captions of the conversation appear here, and the full transcript is saved.</p>
+          <div className="grid min-h-[240px] place-items-center text-center text-muted">
+            <div><Mic size={22} className="mx-auto text-clay" /><p className="mt-3 max-w-sm text-[0.92rem]">Live captions appear here, and the full transcript is saved.</p></div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {turns.map((t) =>
               t.role === "user" ? (
                 <div key={t.id} className="flex justify-end fade-up">
-                  <div className={`max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-sm text-white ${t.live ? "opacity-70" : ""}`}>{t.text}</div>
+                  <div className={`max-w-[85%] rounded-[18px] rounded-br-md bg-side px-4 py-2.5 text-[0.92rem] text-cream ${t.live ? "opacity-70" : ""}`}>{t.text}</div>
                 </div>
               ) : (
-                <div key={t.id} className="fade-up">
-                  <div className="mb-1 text-xs font-semibold text-faint">{aiName}</div>
-                  <div className={`card rounded-2xl rounded-tl-md px-4 py-3 text-[0.95rem] leading-relaxed ${t.live ? "text-slate-600" : ""}`}>{t.text || "…"}</div>
+                <div key={t.id} className="max-w-[90%] fade-up">
+                  <div className="mb-1 text-[0.8rem] font-semibold text-faint">{aiName}</div>
+                  <div className={`rounded-[18px] rounded-tl-md px-4 py-3 text-[0.95rem] leading-relaxed ${t.live ? "text-muted" : ""}`} style={{ background: "var(--color-cream)" }}>{t.text || "…"}</div>
                 </div>
               ),
             )}
@@ -278,17 +283,17 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
 
 function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
   const active = state === "ai" || state === "you";
-  const color = state === "you" ? "from-rose-400 to-rose-600" : "from-brand to-brand-2";
+  const color = state === "you" ? "from-[#f0a27f] to-[#e0653f]" : "from-[#9cc5b2] to-[#e2a92c]";
   return (
-    <div className="relative grid h-32 w-32 place-items-center">
+    <div className="relative grid h-24 w-24 shrink-0 place-items-center">
       {active && (
         <>
-          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out infinite" }} />
-          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out .8s infinite" }} />
+          <span className={`absolute inset-3 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out infinite" }} />
+          <span className={`absolute inset-3 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out .8s infinite" }} />
         </>
       )}
       <span
-        className={`relative h-24 w-24 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500 ${state === "off" ? "opacity-60 grayscale-[30%]" : ""}`}
+        className={`relative h-16 w-16 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500 ${state === "off" ? "opacity-60 grayscale-[30%]" : ""}`}
         style={{ animation: active ? "breathe 1.4s ease-in-out infinite" : "breathe 4s ease-in-out infinite" }}
       />
     </div>

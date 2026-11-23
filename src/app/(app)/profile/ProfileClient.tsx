@@ -18,18 +18,24 @@ export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: 
 
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
-        <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">My profile</h1>
-          <p className="mt-0.5 text-muted">Signed in as {loginId}</p>
-        </div>
-        <div className="flex gap-2">
-          {!isDemo && <button className="btn btn-ghost" onClick={() => setPwOpen(true)}><KeyRound size={15} /> Change password</button>}
-          <button className="btn btn-primary" onClick={() => setUpload(true)}><UploadCloud size={15} /> Upload new resume</button>
-        </div>
-      </div>
-
-      <ProfileReview key={version} tabs userId={userId} initial={draft} baseline={initial} scoreStart={scoreStart} onSaved={() => router.refresh()} />
+      <ProfileReview
+        key={version}
+        tabs
+        userId={userId}
+        initial={draft}
+        baseline={initial}
+        scoreStart={scoreStart}
+        onSaved={() => router.refresh()}
+        head={{
+          loginId,
+          actions: (
+            <>
+              {!isDemo && <button className="btn btn-ghost h-11" onClick={() => setPwOpen(true)}><KeyRound size={15} /> Change password</button>}
+              <button className="btn btn-primary h-11" onClick={() => setUpload(true)}><UploadCloud size={15} /> Upload new resume</button>
+            </>
+          ),
+        }}
+      />
 
       <Modal open={upload} onClose={() => setUpload(false)} title="Upload new resume">
         <ResumeDrop

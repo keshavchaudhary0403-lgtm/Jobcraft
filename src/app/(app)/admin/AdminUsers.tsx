@@ -5,13 +5,11 @@ import {
   AudioLines,
   Bot,
   ChevronRight,
-  Gauge,
   IndianRupee,
   KeyRound,
   LayoutDashboard,
   Lightbulb,
   TrendingUp,
-  UserCheck,
   PlayCircle,
   Plus,
   RotateCcw,
@@ -23,7 +21,7 @@ import {
 } from "lucide-react";
 import { AI_MODELS, REALTIME_MODEL, VOICES } from "@/lib/models";
 import { FEATURES, FEATURE_KEYS, effectiveLimit, type FeatureKey, type FeatureLimits } from "@/lib/features";
-import { Kpi, Panel } from "@/components/ui";
+import { Panel } from "@/components/ui";
 import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
 
 type AiMode = "real" | "demo" | "off";
@@ -61,7 +59,7 @@ const AI_MODES: { value: AiMode; label: string; hint: string }[] = [
   { value: "demo", label: "Demo", hint: "Sample answers, no cost" },
   { value: "off", label: "Off", hint: "AI features blocked" },
 ];
-const MODE_CLS: Record<AiMode, string> = { real: "bg-brand-soft text-brand-ink", demo: "bg-sky text-[#3a4fa0]", off: "bg-slate-100 text-slate-500" };
+const MODE_CLS: Record<AiMode, string> = { real: "bg-good-soft text-good", demo: "bg-ocean-soft text-ocean", off: "bg-line-2 text-muted" };
 const SPEND_LABEL: Record<string, string> = {
   analysis: "Match analysis",
   resume: "Tailored resumes",
@@ -157,46 +155,54 @@ export function AdminUsers({ meId }: { meId: string }) {
   }, [users, q]);
 
   const limitOf = (u: U) => u.monthly_limit_inr ?? settings?.default_monthly_limit_inr ?? null;
-  const ranked = users
-    .map((u) => ({ u, limit: limitOf(u), ratio: limitOf(u) ? u.spent_inr / (limitOf(u) as number) : 0 }))
-    .filter((x) => x.u.spent_inr > 0)
-    .sort((a, b) => b.ratio - a.ratio || b.u.spent_inr - a.u.spent_inr);
-  const top = ranked[0];
   const model = settings ? AI_MODELS[settings.ai_model as keyof typeof AI_MODELS] : null;
   const budget = settings?.total_monthly_limit_inr ?? null;
   const open = users.find((u) => u.id === openId) ?? null;
   const demoUser = users.find((u) => u.is_demo);
 
+  const voiceOnCount = users.filter((u) => u.voice_enabled).length;
+  const chapterSub: Record<Section, string> = {
+    overview: settings ? `${rupees(total)} spent` : "…",
+    people: `${users.length} ${users.length === 1 ? "person" : "people"}`,
+    ai: model ? model.label.split(" —")[0] : "…",
+    features: `Voice on for ${voiceOnCount}`,
+    demo: settings ? (settings.demo_enabled ? "On" : "Off") : "…",
+  };
+
   return (
     <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+      <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">Admin</h1>
-          <p className="mt-0.5 text-muted">People, AI spending and what each person can use.</p>
+          <h1 className="text-[2.6rem] font-bold leading-none">Admin<span className="text-clay">.</span></h1>
+          <p className="mt-2 text-[1rem] text-muted">People, AI spending and what each person can use.</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
-      </div>
+        <button className="btn btn-clay h-11" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
+      </header>
 
-      <div className="space-y-5">
-        {/* Section tabs — same style as My profile */}
-        <div className="-mx-1 overflow-x-auto px-1">
-          <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
-            {SECTIONS.map(({ key, label, icon: Icon }) => (
+      <div className="mt-6 space-y-5">
+        {/* Chapters */}
+        <nav className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5 fade-up">
+          {SECTIONS.map(({ key, label, icon: Icon }, i) => {
+            const on = section === key;
+            return (
               <button
                 key={key}
                 onClick={() => setSection(key)}
-                className={`flex h-8 shrink-0 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${section === key ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}
+                className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 text-left transition ${on ? "border-side bg-side text-cream" : "border-line bg-card hover:border-brand/40"}`}
               >
-                <Icon size={14} className={section === key ? "text-brand" : ""} /> {label}
-                {key === "people" && <span className="ml-0.5 rounded-full bg-line-2 px-1.5 text-[0.72rem] tabular-nums text-muted">{users.length}</span>}
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}><Icon size={16} /></span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[1.05rem] font-bold leading-tight">{label}</span>
+                  <span className={`block truncate text-[0.78rem] ${on ? "text-cream/65" : "text-muted"}`}>{String(i + 1).padStart(2, "0")} · {chapterSub[key]}</span>
+                </span>
               </button>
-            ))}
-          </div>
-        </div>
+            );
+          })}
+        </nav>
 
         <div className="min-w-0">
           {!settings ? (
-            <div className="space-y-3"><div className="skeleton h-28 rounded-2xl" /><div className="skeleton h-64 rounded-2xl" /></div>
+            <div className="space-y-3"><div className="skeleton h-28 rounded-[22px]" /><div className="skeleton h-64 rounded-[22px]" /></div>
           ) : section === "overview" ? (
             <AdminOverview
               users={users}
@@ -210,86 +216,76 @@ export function AdminUsers({ meId }: { meId: string }) {
             />
           ) : section === "people" ? (
             <div className="space-y-4 fade-up">
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div>
-                  <h2 className="text-[1.15rem] font-semibold">People</h2>
-                  <p className="text-[0.88rem] text-muted">Click anyone to change their AI, voice, spending and feature limits.</p>
+              <div className="flex flex-wrap items-center gap-3">
+                <div className="relative min-w-[240px] flex-1">
+                  <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
+                  <input className="field h-11 rounded-full pl-11" placeholder="Search by name, phone or email" value={q} onChange={(e) => setQ(e.target.value)} />
                 </div>
-                <div className="relative w-64">
-                  <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
-                  <input className="field h-9 pl-9" placeholder="Search people" value={q} onChange={(e) => setQ(e.target.value)} />
+                <div className="flex flex-wrap gap-2 text-[0.84rem]">
+                  {AI_MODES.map((m) => (
+                    <span key={m.value} className={`chip ${MODE_CLS[m.value]}`}>{m.label} · {users.filter((u) => u.ai_mode === m.value).length}</span>
+                  ))}
                 </div>
               </div>
-              <div className="card overflow-x-auto">
-                <table className="w-full min-w-[760px]">
-                  <thead>
-                    <tr className="border-b border-line bg-slate-50/70 text-left text-[0.8rem] text-muted">
-                      <th className="px-4 py-2.5 font-medium">Person</th>
-                      <th className="px-4 py-2.5 font-medium">AI</th>
-                      <th className="px-4 py-2.5 font-medium">Voice</th>
-                      <th className="px-4 py-2.5 font-medium">This month</th>
-                      <th className="px-4 py-2.5 font-medium">Status</th>
-                      <th className="w-px px-4 py-2.5" />
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-line-2">
-                    {shown.map((u) => {
-                      const limit = limitOf(u);
-                      const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
-                      const custom = u.feature_limits ? Object.keys(u.feature_limits).length : 0;
-                      return (
-                        <tr key={u.id} onClick={() => setOpenId(u.id)} className="cursor-pointer transition hover:bg-brand-soft/30">
-                          <td className="px-4 py-3">
-                            <div className="flex items-center gap-3">
-                              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.75rem] font-semibold text-brand-ink">{initials(nameOf(u))}</div>
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-1.5 font-medium">
-                                  {nameOf(u)}
-                                  {u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}
-                                  {u.is_demo && <span className="chip bg-sky py-0 text-[0.72rem] text-[#3a4fa0]">Demo login</span>}
-                                  {custom > 0 && <span className="chip bg-line-2 py-0 text-[0.72rem] text-muted">{custom} custom limit{custom > 1 ? "s" : ""}</span>}
-                                </div>
-                                <div className="truncate text-[0.82rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "—"}</div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-4 py-3"><span className={`chip ${MODE_CLS[u.ai_mode]}`}>{AI_MODES.find((m) => m.value === u.ai_mode)?.label}</span></td>
-                          <td className="px-4 py-3">{u.voice_enabled ? <span className="chip bg-brand-soft text-brand-ink"><AudioLines size={12} /> On</span> : <span className="text-[0.85rem] text-faint">Off</span>}</td>
-                          <td className="px-4 py-3">
-                            <div className="text-[0.9rem] tabular-nums">{rupees(u.spent_inr)} <span className="text-muted">/ {limit != null ? rupees(limit) : "no limit"}</span></div>
-                            {limit != null && (
-                              <div className="mt-1 h-1 w-28 overflow-hidden rounded-full bg-line-2">
-                                <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
-                              </div>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">{u.is_active ? <span className="chip bg-good-soft text-good">Active</span> : <span className="chip bg-slate-100 text-slate-500">Paused</span>}</td>
-                          <td className="px-4 py-3 text-right"><span className="btn btn-ghost btn-sm">Manage <ChevronRight size={14} /></span></td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 stagger">
+                {shown.map((u) => {
+                  const limit = limitOf(u);
+                  const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
+                  const custom = u.feature_limits ? Object.keys(u.feature_limits).length : 0;
+                  return (
+                    <button key={u.id} onClick={() => setOpenId(u.id)} className="card card-hover flex flex-col p-5 text-left">
+                      <div className="flex items-start gap-3">
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(nameOf(u))}</div>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-1.5 truncate font-display text-[1.1rem] font-bold leading-tight">{nameOf(u)}{u.is_admin && <Shield size={14} className="shrink-0 text-brand" aria-label="Admin" />}</div>
+                          <div className="truncate text-[0.8rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "—"}</div>
+                        </div>
+                        <SpendRing pct={limit != null ? pct : null} />
+                      </div>
+                      <div className="mt-4 flex flex-wrap gap-1.5">
+                        <span className={`chip ${MODE_CLS[u.ai_mode]}`}>{AI_MODES.find((m) => m.value === u.ai_mode)?.label}</span>
+                        {u.voice_enabled && <span className="chip bg-plum-soft text-plum"><AudioLines size={12} /> Voice</span>}
+                        {u.is_demo && <span className="chip bg-ocean-soft text-ocean">Demo login</span>}
+                        {custom > 0 && <span className="chip bg-line-2 text-muted">{custom} custom limit{custom > 1 ? "s" : ""}</span>}
+                        {!u.is_active && <span className="chip bg-clay-soft text-clay">Paused</span>}
+                      </div>
+                      <div className="mt-auto flex items-baseline justify-between border-t border-line pt-3 mt-4 text-[0.86rem]">
+                        <span className="text-muted">This month</span>
+                        <span className="tabular-nums"><b className="font-display text-[1.05rem]">{rupees(u.spent_inr)}</b> <span className="text-muted">/ {limit != null ? rupees(limit) : "no limit"}</span></span>
+                      </div>
+                    </button>
+                  );
+                })}
+                {!q && (
+                  <button onClick={() => setAdding(true)} className="flex min-h-[170px] flex-col items-center justify-center gap-2 rounded-[22px] border-[1.5px] border-dashed border-clay/50 text-clay transition hover:border-clay hover:bg-clay-soft/50">
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-clay text-white"><Plus size={20} /></span>
+                    <span className="font-display text-[1.05rem] font-bold">Add a person</span>
+                  </button>
+                )}
               </div>
             </div>
           ) : section === "ai" ? (
-            <div className="grid items-start gap-4 fade-up xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+            <div className="grid gap-5 fade-up xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <section className="card p-5">
                 <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[0.82rem] font-normal text-muted">Used for everyone</span></div>
-                <div className="space-y-2.5">
-                  {Object.entries(AI_MODELS).map(([id, m]) => (
-                    <button key={id} data-on={(pendingModel ?? settings.ai_model) === id} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex w-full items-center gap-4 p-3.5">
-                      <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${(pendingModel ?? settings.ai_model) === id ? "border-brand" : "border-line"}`} />
-                      <span className="flex-1">
-                        <span className="block font-medium">{m.label}</span>
-                        <span className="block text-[0.85rem] text-muted">{m.note}</span>
-                      </span>
-                      <span className="text-right text-[0.8rem] tabular-nums text-faint">${m.input} in<br />${m.output} out</span>
-                    </button>
-                  ))}
+                <div className="grid gap-2.5">
+                  {Object.entries(AI_MODELS).map(([id, m]) => {
+                    const on = (pendingModel ?? settings.ai_model) === id;
+                    return (
+                      <button key={id} data-on={on} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex flex-col gap-2 p-4">
+                        <span className="flex w-full items-center gap-2">
+                          <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${on ? "border-brand" : "border-line"}`} />
+                          <span className="flex-1 font-semibold">{m.label.split(" —")[0]}</span>
+                          {id === settings.ai_model && <span className="chip bg-good-soft text-good">Live</span>}
+                        </span>
+                        <span className="text-[0.82rem] leading-snug text-muted">{m.note}</span>
+                        <span className="text-[0.78rem] tabular-nums text-faint">${m.input} in · ${m.output} out per 1M tokens</span>
+                      </button>
+                    );
+                  })}
                 </div>
                 {pendingModel && (
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-3 fade-up">
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-4 py-3 fade-up">
                     <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" —")[0]}</b>?</span>
                     <span className="flex gap-2">
                       <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
@@ -300,15 +296,21 @@ export function AdminUsers({ meId }: { meId: string }) {
               </section>
               <section className="card p-5">
                 <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
+                {budget != null && (
+                  <div className="mb-5 rounded-2xl p-4" style={{ background: "var(--color-cream)" }}>
+                    <div className="flex items-baseline justify-between text-[0.86rem]"><span className="text-muted">Used this month</span><span className="tabular-nums"><b className="font-display text-[1.25rem]">{rupees(total)}</b> <span className="text-muted">of {rupees(budget)}</span></span></div>
+                    <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${total / budget >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(2, Math.min(100, (total / budget) * 100))}%` }} /></div>
+                  </div>
+                )}
                 <div className="space-y-4">
                   <LimitField label="Default per person / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="For everyone without their own limit, including new people." />
                   <LimitField label="Total budget, everyone / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
                   <div className="border-t border-line pt-4">
                     <label className="label">Dollar to rupee</label>
                     <div className="flex items-center gap-2">
-                      <div className="field flex items-center justify-between bg-slate-50">
+                      <div className="field flex items-center justify-between" style={{ background: "var(--color-cream)" }}>
                         <span className="font-medium tabular-nums">₹{settings.usd_to_inr}</span>
-                        {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-brand" /> live</span>}
+                        {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-good" /> live</span>}
                       </div>
                       <button
                         className="btn btn-ghost"
@@ -329,20 +331,17 @@ export function AdminUsers({ meId }: { meId: string }) {
               </section>
             </div>
           ) : section === "features" ? (
-            <div className="space-y-4 fade-up">
-              <Panel
-                title="Default feature limits"
-                sub="Apply to everyone unless you set something different on a person. 0 switches a feature off."
-                icon={<SlidersHorizontal size={15} />}
-                bodyClass="divide-y divide-line"
-              >
+            <div className="space-y-5 fade-up">
+              <div>
+                <h2 className="text-[1.45rem] font-bold leading-none">Default feature limits</h2>
+                <p className="mt-1.5 text-[0.9rem] text-muted">For everyone unless set on a person. Blank = built-in default · 0 = off. On top of each monthly ₹ limit.</p>
+              </div>
+              <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {FEATURE_KEYS.map((f) => (
-                  <div key={f} className="flex flex-wrap items-center gap-4 px-5 py-3.5">
-                    <div className="min-w-0 flex-1">
-                      <div className="font-semibold">{FEATURES[f].label}</div>
-                      <div className="text-[0.86rem] text-muted">{FEATURES[f].desc}</div>
-                    </div>
-                    <div className="flex items-center gap-2">
+                  <div key={f} className="card flex flex-col p-5">
+                    <div className="font-display text-[1.1rem] font-bold leading-tight">{FEATURES[f].label}</div>
+                    <div className="mt-1 flex-1 text-[0.84rem] leading-snug text-muted">{FEATURES[f].desc}</div>
+                    <div className="mt-4 flex items-center gap-2">
                       <SaveableNumber
                         size="sm"
                         prefix=""
@@ -350,22 +349,19 @@ export function AdminUsers({ meId }: { meId: string }) {
                         placeholder={String(FEATURES[f].def)}
                         onSave={(v) => saveSettings({ feature_limits: { ...settings.feature_limits, [f]: v ?? undefined } as FeatureLimits })}
                       />
-                      <span className="w-20 text-[0.84rem] text-muted">per {FEATURES[f].per}</span>
+                      <span className="text-[0.84rem] text-muted">per {FEATURES[f].per}</span>
                     </div>
                   </div>
                 ))}
-                <p className="px-5 py-3 text-[0.8rem] text-faint">Blank = built-in default (shown in grey). These are on top of each person&apos;s monthly ₹ limit.</p>
-              </Panel>
-              <section className="card p-5">
-                <div className="card-head">
-                  <span className="ico"><AudioLines size={15} /></span>
-                  <span className="flex-1">Realistic voice</span>
-                  <span className="text-[0.82rem] font-normal text-muted">{users.filter((u) => u.voice_enabled).length} of {users.length} people on · switch it per person in People</span>
+              </div>
+              <section className="card grid gap-5 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
+                <div>
+                  <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
+                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live AI interviewer and HR manager that listens and talks back ({REALTIME_MODEL}). About <b className="text-ink">₹1.5 per minute</b>, counted in each person&apos;s limit. Needs Real AI.</p>
+                  <div className="mt-4 font-display text-[2rem] font-bold leading-none">{voiceOnCount}<span className="text-[1rem] font-medium text-muted"> of {users.length} people on</span></div>
+                  <button className="mt-2 text-[0.86rem] font-semibold text-brand hover:underline" onClick={() => setSection("people")}>Switch it per person →</button>
                 </div>
-                <p className="mb-4 max-w-2xl text-[0.92rem] text-slate-700">
-                  A live AI interviewer and HR manager that listens and talks back ({REALTIME_MODEL}). About <b>$0.016 / ₹1.5 per minute</b>, counted in each person&apos;s monthly limit. Needs Real AI.
-                </p>
-                <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
+                <div className="grid content-start gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   {VOICES.map((v) => (
                     <button
                       key={v.id}
@@ -384,29 +380,18 @@ export function AdminUsers({ meId }: { meId: string }) {
               </section>
             </div>
           ) : (
-            <section className="card p-5 fade-up">
-              <div className="card-head">
-                <span className="ico"><PlayCircle size={15} /></span>
-                <span className="flex-1">Demo login</span>
-                <span className={`chip ${settings.demo_enabled ? "bg-good-soft text-good" : "bg-slate-100 text-slate-500"}`}>{settings.demo_enabled ? "On" : "Off"}</span>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="max-w-xl text-[0.92rem] text-slate-700">
-                  {settings.demo_enabled ? (
-                    <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Its sample data resets every day. AI mode: <b>{AI_MODES.find((m) => m.value === demoUser?.ai_mode)?.label ?? "Demo"}</b>.</>
-                  ) : (
-                    <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account — no sign-up, no password.</>
-                  )}
+            <section className="grid gap-5 fade-up lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
+              <div className={`relative overflow-hidden rounded-[22px] p-7 ${settings.demo_enabled ? "dark-card" : "card"}`}>
+                <div className={`text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${settings.demo_enabled ? "text-white/55" : "text-muted"}`}>Demo login</div>
+                <div className="mt-2 font-display text-[3rem] font-bold leading-none">{settings.demo_enabled ? "On" : "Off"}<span className="text-clay">.</span></div>
+                <p className={`mt-3 max-w-lg text-[0.95rem] leading-relaxed ${settings.demo_enabled ? "text-white/75" : "text-muted"}`}>
+                  {settings.demo_enabled
+                    ? <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Sample data resets every day.</>
+                    : <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account — no sign-up, no password.</>}
                 </p>
-                <div className="flex flex-wrap gap-2">
-                  {demoUser && <button className="btn btn-ghost" onClick={() => setOpenId(demoUser.id)}>Demo account settings <ChevronRight size={14} /></button>}
-                  {settings.demo_enabled && (
-                    <button className="btn btn-ghost" disabled={demoBusy} onClick={async () => { if ((await ask({ title: "Reset demo data", body: "Restore the demo account's sample resume and jobs. Anything visitors changed is removed.", confirm: "Reset" })) !== null) demoAction("reset", "Demo data reset"); }}>
-                      <RotateCcw size={15} /> Reset demo data
-                    </button>
-                  )}
+                <div className="mt-6 flex flex-wrap gap-2">
                   <button
-                    className={`btn ${settings.demo_enabled ? "btn-ghost" : "btn-primary"}`}
+                    className={`btn h-11 ${settings.demo_enabled ? "bg-cream text-side hover:bg-white" : "btn-clay"}`}
                     disabled={demoBusy}
                     onClick={async () => {
                       const on = !settings.demo_enabled;
@@ -418,7 +403,28 @@ export function AdminUsers({ meId }: { meId: string }) {
                   >
                     {demoBusy && <Spinner size={14} />} {settings.demo_enabled ? "Turn off" : "Turn on demo login"}
                   </button>
+                  {settings.demo_enabled && (
+                    <button className="btn h-11 text-white ring-1 ring-white/25 hover:bg-white/10" disabled={demoBusy} onClick={async () => { if ((await ask({ title: "Reset demo data", body: "Restore the demo account's sample resume and jobs. Anything visitors changed is removed.", confirm: "Reset" })) !== null) demoAction("reset", "Demo data reset"); }}>
+                      <RotateCcw size={15} /> Reset demo data
+                    </button>
+                  )}
                 </div>
+              </div>
+              <div className="card flex flex-col p-6">
+                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">Demo account</div>
+                {demoUser ? (
+                  <>
+                    <dl className="mt-4 grid grid-cols-2 gap-4">
+                      <div><dt className="text-[0.8rem] text-muted">AI mode</dt><dd className="font-display text-[1.3rem] font-bold">{AI_MODES.find((m) => m.value === demoUser.ai_mode)?.label}</dd></div>
+                      <div><dt className="text-[0.8rem] text-muted">Spent this month</dt><dd className="font-display text-[1.3rem] font-bold">{rupees(demoUser.spent_inr)}</dd></div>
+                      <div><dt className="text-[0.8rem] text-muted">Voice</dt><dd className="font-display text-[1.3rem] font-bold">{demoUser.voice_enabled ? "On" : "Off"}</dd></div>
+                      <div><dt className="text-[0.8rem] text-muted">Status</dt><dd className="font-display text-[1.3rem] font-bold">{demoUser.is_active ? "Active" : "Paused"}</dd></div>
+                    </dl>
+                    <button className="btn btn-ghost mt-auto h-11 w-full" onClick={() => setOpenId(demoUser.id)}>Demo account settings <ChevronRight size={14} /></button>
+                  </>
+                ) : (
+                  <p className="mt-3 text-muted">The demo account is created the first time you turn demo login on.</p>
+                )}
               </div>
             </section>
           )}
@@ -438,7 +444,7 @@ export function AdminUsers({ meId }: { meId: string }) {
       )}
       {dialog}
       <AddUser open={adding} onClose={() => setAdding(false)} onDone={(m) => { flash(m); load(); }} />
-      {toast && <div className="pop fixed bottom-5 left-1/2 z-[70] -translate-x-1/2 rounded-xl bg-ink px-4 py-2.5 text-[0.9rem] text-white shadow-xl">{toast}</div>}
+      {toast && <div className="pop fixed bottom-6 left-1/2 z-[70] -translate-x-1/2 rounded-full bg-side px-5 py-2.5 text-[0.9rem] text-cream shadow-xl">{toast}</div>}
     </>
   );
 }
@@ -512,12 +518,12 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
   const defMonthly = settings.default_monthly_limit_inr;
 
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={close}>
-      <div className="pop flex max-h-[88vh] w-full max-w-[640px] flex-col overflow-hidden rounded-3xl bg-bg shadow-2xl" onMouseDown={(e) => e.stopPropagation()} aria-label={`${name} settings`}>
-        <header className="flex items-center gap-3 border-b border-line bg-white px-6 py-4">
-          <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-soft text-[0.85rem] font-semibold text-brand-ink">{initials(name)}</div>
+    <div className="fixed inset-0 z-50 grid place-items-center bg-side/40 p-4 backdrop-blur-[2px]" onMouseDown={close}>
+      <div className="pop flex max-h-[88vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[28px] bg-bg shadow-2xl" onMouseDown={(e) => e.stopPropagation()} aria-label={`${name} settings`}>
+        <header className="flex items-center gap-3 border-b border-line bg-card px-6 py-4">
+          <div className="grid h-11 w-11 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(name)}</div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[1.05rem] font-semibold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
+            <div className="flex items-center gap-1.5 font-display text-[1.2rem] font-bold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
             <div className="truncate text-[0.84rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || (u.is_demo ? "Shared demo account" : "—")}</div>
           </div>
           <button className="btn-quiet" onClick={close} aria-label="Close"><X size={17} /></button>
@@ -529,7 +535,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
               {AI_MODES.map((m) => (
                 <button key={m.value} data-on={d.ai_mode === m.value} onClick={() => setD({ ...d, ai_mode: m.value, voice_enabled: m.value === "real" ? d.voice_enabled : false })} className="option p-2.5 text-left">
                   <span className="block text-[0.9rem] font-semibold">{m.label}</span>
-                  <span className="block text-[0.75rem] leading-snug text-muted">{m.hint}</span>
+                  <span className="block text-[0.78rem] leading-snug text-muted">{m.hint}</span>
                 </button>
               ))}
             </div>
@@ -562,12 +568,12 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
                     {x.mode === "custom" && (
                       <input className="field h-8 w-20 text-[0.88rem]" inputMode="numeric" value={x.n} placeholder={String(def || FEATURES[f].def)} onChange={(e) => setLimit(f, { n: e.target.value.replace(/\D/g, "") })} />
                     )}
-                    <div className="inline-flex gap-0.5 rounded-lg bg-line-2 p-0.5">
+                    <div className="inline-flex gap-0.5 rounded-full bg-line-2 p-0.5">
                       {(["default", "custom", "off"] as LimitMode[]).map((m) => (
                         <button
                           key={m}
                           onClick={() => setLimit(f, { mode: m, n: m === "custom" && !x.n ? String(def || FEATURES[f].def) : x.n })}
-                          className={`h-7 rounded-md px-2.5 text-[0.8rem] font-semibold capitalize transition ${x.mode === m ? (m === "off" ? "bg-bad text-white" : "bg-white text-ink shadow-sm") : "text-muted hover:text-ink"}`}
+                          className={`h-7 rounded-full px-3 text-[0.8rem] font-semibold capitalize transition ${x.mode === m ? (m === "off" ? "bg-bad text-white" : "bg-side text-cream") : "text-muted hover:text-ink"}`}
                         >
                           {m}
                         </button>
@@ -608,7 +614,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
           </Block>
         </div>
 
-        <footer className="flex items-center gap-3 border-t border-line bg-white px-6 py-3.5">
+        <footer className="flex items-center gap-3 border-t border-line bg-card px-6 py-3.5">
           <span className={`flex-1 text-[0.86rem] ${err ? "text-bad" : "text-muted"}`}>{err || (dirty ? "Unsaved changes" : "No changes")}</span>
           <button className="btn btn-ghost" onClick={close}>Cancel</button>
           <button className="btn btn-primary" disabled={!dirty || saving} onClick={save}>{saving && <Spinner size={14} />} Save</button>
@@ -618,11 +624,26 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
   );
 }
 
+function SpendRing({ pct }: { pct: number | null }) {
+  const size = 46, stroke = 5, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const v = pct ?? 0;
+  const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mustard)" : "var(--brand)";
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        {pct != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(v, 2) / 100)} />}
+      </svg>
+      <span className="absolute text-[0.78rem] font-bold tabular-nums">{pct == null ? "∞" : `${Math.round(v)}%`}</span>
+    </div>
+  );
+}
+
 function Block({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
     <section className="card p-4">
       <div className="mb-3">
-        <div className="font-semibold">{title}</div>
+        <div className="font-display text-[1.05rem] font-bold">{title}</div>
         {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
       </div>
       {children}
@@ -781,87 +802,67 @@ function AdminOverview({
 
   return (
     <div className="space-y-5 fade-up">
-      {/* Headline numbers */}
-      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <button className="text-left" onClick={() => go("ai")}>
-          <Kpi
-            icon={<IndianRupee size={16} />}
-            label={`Spent in ${monthName}`}
-            value={rupees(total)}
-            progress={budget != null ? { value: total, max: budget, limit: true, caption: `${Math.round((total / budget) * 100)}% of ${rupees(budget)} budget` } : undefined}
-            note={budget == null ? "No total budget set" : undefined}
-          />
-        </button>
-        <button className="text-left" onClick={() => go("ai")}>
-          <Kpi
-            tone="rose"
-            icon={<TrendingUp size={16} />}
-            label="Projected by month end"
-            value={rupees(projected)}
-            progress={budget != null ? { value: projected, max: budget, limit: true, caption: `At today's pace · day ${today} of ${daysInMonth}` } : undefined}
-            note={budget == null ? `At today's pace · day ${today} of ${daysInMonth}` : undefined}
-          />
-        </button>
-        <button className="text-left" onClick={() => go("people")}>
-          <Kpi
-            tone="sun"
-            icon={<UserCheck size={16} />}
-            label="Active this month"
-            value={stats.active}
-            unit={`of ${users.length}`}
-            progress={{ value: stats.active, max: Math.max(users.length, 1), caption: "Used AI at least once" }}
-          />
-        </button>
-        <button className="text-left" onClick={() => go("people")}>
-          <Kpi
-            tone="lilac"
-            icon={<Users size={16} />}
-            label="Average per active person"
-            value={stats.active ? rupees(total / stats.active) : "—"}
-            note={<>{stats.events.toLocaleString("en-IN")} AI requests this month</>}
-          />
-        </button>
-      </div>
+      {/* Headline band */}
+      <section className="dark-card grid gap-6 p-7 lg:grid-cols-[auto_minmax(0,1fr)]">
+        <div className="flex items-center gap-6">
+          <BudgetDonut spent={total} budget={budget} />
+          <div>
+            <div className="text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/55">Spent in {monthName}</div>
+            <div className="mt-1 font-display text-[3.2rem] font-bold leading-none tabular-nums">{rupees(total)}</div>
+            <div className="mt-1.5 text-[0.9rem] text-white/60">{budget != null ? `of ${rupees(budget)} budget` : "No total budget set"}</div>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          {[
+            { label: "Projected by month end", value: rupees(projected), sub: `Day ${today} of ${daysInMonth}`, warn: budget != null && projected > budget, go: () => go("ai") },
+            { label: "Active this month", value: `${stats.active}/${users.length}`, sub: "Used AI at least once", go: () => go("people") },
+            { label: "Per active person", value: stats.active ? rupees(total / stats.active) : "—", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, go: () => go("people") },
+          ].map((k) => (
+            <button key={k.label} onClick={k.go} className="rounded-2xl bg-white/[.07] p-4 text-left transition hover:bg-white/[.12]">
+              <div className="text-[0.78rem] text-white/55">{k.label}</div>
+              <div className={`mt-1 font-display text-[1.8rem] font-bold leading-none tabular-nums ${k.warn ? "text-[#f0a27f]" : ""}`}>{k.value}</div>
+              <div className="mt-1.5 text-[0.76rem] text-white/45">{k.sub}</div>
+            </button>
+          ))}
+        </div>
+      </section>
 
-      {/* Daily spend + insights */}
-      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+      {/* Two balanced columns */}
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+        <div className="flex flex-col gap-5">
         <Panel title="Daily AI spend" sub={`${monthName} · India time`} icon={<TrendingUp size={15} />}>
           <DailyBars days={days} />
         </Panel>
-        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="divide-y divide-line">
+        <Panel title="Insights" icon={<Lightbulb size={15} />} className="flex-1" bodyClass="divide-y divide-line">
           {insights.map((x, i) => {
             const Tag = x.go ? "button" : "div";
             return (
               <Tag key={i} onClick={x.go} className={`flex w-full items-start gap-3 px-5 py-3 text-left text-[0.9rem] leading-snug ${x.go ? "transition hover:bg-line-2/60" : ""}`}>
-                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${x.tone === "warn" ? "bg-orange-400" : x.tone === "good" ? "bg-good" : "bg-brand-2"}`} />
-                <span className="flex-1 text-slate-700">{x.text}</span>
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${x.tone === "warn" ? "bg-clay" : x.tone === "good" ? "bg-good" : "bg-ocean"}`} />
+                <span className="flex-1">{x.text}</span>
                 {x.go && <ChevronRight size={15} className="mt-0.5 shrink-0 text-faint" />}
               </Tag>
             );
           })}
         </Panel>
-      </div>
-
-      {/* Breakdown by feature and by person */}
-      <div className="grid items-start gap-4 xl:grid-cols-2">
+        </div>
+        <div className="space-y-5">
         <Panel title="Where the money goes" sub="Spend by feature this month" icon={<IndianRupee size={15} />}>
           {features.length === 0 ? (
             <p className="text-muted">No AI use yet this month.</p>
           ) : (
-            <div className="space-y-3.5">
-              {features.map(([f, v]) => (
-                <div key={f} title={`${SPEND_LABEL[f] ?? f}: ${rupees(v)} · ${stats.calls[f] ?? 0} requests`}>
-                  <div className="flex items-baseline justify-between gap-3 text-[0.9rem]">
-                    <span className="font-medium">{SPEND_LABEL[f] ?? f}</span>
-                    <span className="tabular-nums text-muted">
-                      <b className="font-semibold text-ink">{rupees(v)}</b> · {total ? Math.round((v / total) * 100) : 0}% · {stats.calls[f] ?? 0} req
-                    </span>
-                  </div>
-                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-line-2">
-                    <div className="h-full rounded-full bg-brand transition-all duration-700" style={{ width: `${Math.max(2, (v / features[0][1]) * 100)}%` }} />
-                  </div>
-                </div>
-              ))}
+            <div className="flex flex-col items-center gap-5">
+              <FeatureDonut parts={features.map(([f, v], i) => ({ label: SPEND_LABEL[f] ?? f, v, color: PALETTE[i % PALETTE.length] }))} total={total} />
+              <ul className="w-full space-y-2.5">
+                {features.map(([f, v], i) => (
+                  <li key={f} className="flex items-center gap-2.5 text-[0.9rem]" title={`${stats.calls[f] ?? 0} requests`}>
+                    <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
+                    <span className="flex-1 truncate font-medium">{SPEND_LABEL[f] ?? f}</span>
+                    <span className="tabular-nums text-muted">{total ? Math.round((v / total) * 100) : 0}%</span>
+                    <b className="w-16 text-right font-display tabular-nums">{rupees(v)}</b>
+                  </li>
+                ))}
+              </ul>
             </div>
           )}
         </Panel>
@@ -872,7 +873,7 @@ function AdminOverview({
             const level = !limit ? "No limit" : pct >= 90 ? "Almost out" : pct >= 70 ? "Getting close" : "Fine";
             return (
               <button key={u.id} onClick={() => onPerson(u.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-line-2/60">
-                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.72rem] font-semibold text-brand-ink">{initials(nameOf(u))}</div>
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mustard text-[0.8rem] font-bold text-side">{initials(nameOf(u))}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2 text-[0.9rem]">
                     <span className="truncate font-medium">{nameOf(u)}</span>
@@ -881,9 +882,9 @@ function AdminOverview({
                   {limit != null && (
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line-2">
-                        <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+                        <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-mustard" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
                       </div>
-                      <span className={`w-24 shrink-0 text-right text-[0.75rem] ${pct >= 90 ? "text-bad" : pct >= 70 ? "text-mid" : "text-muted"}`}>{level}</span>
+                      <span className={`w-24 shrink-0 text-right text-[0.78rem] ${pct >= 90 ? "text-bad" : pct >= 70 ? "text-mid" : "text-muted"}`}>{level}</span>
                     </div>
                   )}
                 </div>
@@ -892,6 +893,7 @@ function AdminOverview({
             );
           })}
         </Panel>
+        </div>
       </div>
     </div>
   );
@@ -917,7 +919,7 @@ function DailyBars({ days }: { days: { d: number; key: string; v: number; future
         )}
       </div>
       <div className="flex gap-2">
-        <div className="flex h-44 w-11 shrink-0 flex-col justify-between text-right text-[0.72rem] tabular-nums text-faint">
+        <div className="flex h-44 w-11 shrink-0 flex-col justify-between text-right text-[0.78rem] tabular-nums text-faint">
           {ticks.map((t) => <span key={t} className="-translate-y-1/2 first:translate-y-0 last:translate-y-0">{rupees(t)}</span>)}
         </div>
         <div className="relative h-44 flex-1">
@@ -936,7 +938,7 @@ function DailyBars({ days }: { days: { d: number; key: string; v: number; future
           </div>
         </div>
       </div>
-      <div className="ml-[52px] mt-1.5 flex justify-between text-[0.72rem] tabular-nums text-faint">
+      <div className="ml-[52px] mt-1.5 flex justify-between text-[0.78rem] tabular-nums text-faint">
         {[1, 8, 15, 22, days.length].map((d) => <span key={d}>{d}</span>)}
       </div>
     </div>
@@ -947,4 +949,38 @@ function niceCeil(v: number) {
   const p = Math.pow(10, Math.floor(Math.log10(v)));
   const n = v / p;
   return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
+}
+
+const PALETTE = ["#1f4d3f", "#e0653f", "#e2a92c", "#3b6e78", "#a65a32", "#2f7a52", "#9cc5b2", "#f0a27f", "#a39e92"];
+
+function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
+  const size = 150, stroke = 20, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const sum = parts.reduce((t, p) => t + p.v, 0) || 1;
+  const segs = parts.map((p, i) => ({ ...p, len: (p.v / sum) * c, start: parts.slice(0, i).reduce((t, x) => t + (x.v / sum) * c, 0) }));
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        {segs.map((p) => <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max(p.len - (segs.length > 1 ? 3 : 0), 1)} ${c}`} strokeDashoffset={-p.start}><title>{p.label}</title></circle>)}
+      </svg>
+      <div className="absolute text-center">
+        <div className="font-display text-[1.4rem] font-bold leading-none tabular-nums">{rupees(total)}</div>
+        <div className="text-[0.78rem] text-muted">this month</div>
+      </div>
+    </div>
+  );
+}
+
+function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }) {
+  const size = 120, stroke = 14, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const pct = budget ? Math.min(1, spent / budget) : 0;
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth={stroke} />
+        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "#f0a27f" : "#e2a92c"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
+      </svg>
+      <span className="absolute font-display text-[1.4rem] font-bold tabular-nums">{budget != null ? `${Math.round(pct * 100)}%` : "—"}</span>
+    </div>
+  );
 }

@@ -9,18 +9,16 @@ import {
   ChevronRight,
   ExternalLink,
   FileText,
-  ListChecks,
   MapPin,
   MessageCircle,
   Pencil,
-  Sparkles,
   Trash2,
   X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { CompanyAvatar, MatchChip, Panel, STATUS_META, StatusPill } from "@/components/ui";
+import { CompanyAvatar, STATUS_META } from "@/components/ui";
 import { Menu, Modal, useAsk } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
@@ -85,19 +83,6 @@ export function JobView({
     setTab("overview");
     setAskAt(Math.max(0, qs.findIndex((q) => !app.fit_answers?.[q]?.trim())));
   };
-  const checklist = [
-    { label: "Match analysed", done: analysed, go: () => setTab("overview") },
-    { label: "Questions answered", done: analysed && unanswered === 0, go: () => (unanswered ? openQuestions() : setTab("overview")) },
-    { label: "Resume tailored", done: !!app.tailored_resume, go: () => setTab("resume") },
-    { label: "Outreach written", done: !!app.outreach, go: () => setTab("outreach") },
-    {
-      label: "Applied",
-      done: ["applied", "interviewing", "offer"].includes(app.status),
-      go: () => app.status === "saved" && update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }),
-    },
-    { label: "Interview practised", done: interviews.length > 0, go: () => setTab("practice") },
-  ];
-
   const next: { label: string; sub: string; go: () => void } | null = !analysed
     ? null
     : unanswered
@@ -110,160 +95,161 @@ export function JobView({
             ? { label: "Mark as applied", sub: "Once you've sent your resume", go: () => update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }) }
             : { label: "Practise the interview", sub: "6 questions, by voice", go: () => setTab("practice") };
 
-  const strong = a ? a.top_skills.filter((s) => s.match === "strong").length : 0;
+  const fit = a ? a.fit_score * 10 : null;
+  const fitColor = fit == null ? "var(--line)" : fit >= 70 ? "var(--color-good)" : fit >= 50 ? "var(--color-mustard)" : "var(--color-clay)";
+  const steps = [
+    { label: "Decoded", done: analysed, go: () => setTab("overview") },
+    { label: "Questions", done: analysed && unanswered === 0, go: () => (unanswered ? openQuestions() : setTab("overview")) },
+    { label: "Resume", done: !!app.tailored_resume, go: () => setTab("resume") },
+    { label: "Outreach", done: !!app.outreach, go: () => setTab("outreach") },
+    { label: "Applied", done: ["applied", "interviewing", "offer", "rejected"].includes(app.status), go: () => app.status === "saved" && update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }) },
+    { label: "Interview", done: interviews.length > 0 || ["interviewing", "offer"].includes(app.status), go: () => setTab("practice") },
+    { label: "Offer", done: app.status === "offer", go: () => router.push("/negotiation") },
+  ];
+  const cur = steps.findIndex((x) => !x.done);
+  const chapters: { key: Tab; label: string; sub: string; done: boolean }[] = [
+    { key: "overview", label: "Match", sub: !analysed ? "Reading the job…" : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
+    { key: "resume", label: "Resume", sub: app.tailored_resume ? "Tailored" : "Not tailored yet", done: !!app.tailored_resume },
+    { key: "outreach", label: "Outreach", sub: app.outreach ? "Written" : "Not written yet", done: !!app.outreach },
+    { key: "practice", label: "Practice", sub: `${interviews.length} round${interviews.length === 1 ? "" : "s"} done`, done: interviews.length > 0 },
+  ];
+  const facts = [
+    ["Added", fmtDate(app.created_at)],
+    ["Applied", fmtDate(app.applied_on)],
+    ["Company", app.company_type ?? "—"],
+    ["Level", a?.seniority ?? "—"],
+  ];
 
   return (
-    <div>
+    <div className="space-y-5">
       {dialog}
-      <div className="mb-4 flex items-center gap-1.5 text-[0.88rem] text-muted">
-        <Link href="/jobs" className="hover:text-ink">Jobs</Link>
-        <ChevronRight size={14} className="text-faint" />
-        <span className="truncate text-ink">{app.role}</span>
-      </div>
+      <Link href="/jobs" className="inline-flex items-center gap-1 pt-2 text-[0.9rem] font-medium text-muted hover:text-ink"><ChevronRight size={15} className="rotate-180" /> All jobs</Link>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[270px_minmax(0,1fr)_300px]">
-        {/* ── Left: job profile ── */}
-        <aside className="card overflow-hidden fade-up xl:sticky xl:top-6">
-          <div className="flex flex-col items-center px-5 pb-5 pt-6 text-center">
-            <CompanyAvatar name={app.company} size={64} />
-            <div className="mt-3 text-[1.08rem] font-semibold leading-snug">{app.role}</div>
-            <div className="mt-0.5 text-muted">{app.company}</div>
-            {app.location && <div className="mt-1 flex items-center gap-1 text-[0.85rem] text-faint"><MapPin size={12} /> {app.location}</div>}
-            <div className="mt-3 flex flex-wrap justify-center gap-1.5">
-              <StatusPill status={app.status} />
-              {a && <MatchChip score={a.fit_score} />}
-            </div>
-            <div className="mt-5 grid w-full grid-cols-4 gap-2">
-              {[
-                { label: "Coach", icon: MessageCircle, cls: "bg-sky text-[#3b47b0]", on: () => setCoach(true) },
-                { label: "JD", icon: FileText, cls: "bg-sun text-brand", on: () => setShowJd(true) },
-                { label: "Edit", icon: Pencil, cls: "bg-lilac text-[#4b3fb3]", on: () => setEditing(true) },
-                { label: "Delete", icon: Trash2, cls: "bg-rose text-[#6b3a8f]", on: remove },
-              ].map(({ label, icon: Icon, cls, on }) => (
-                <button key={label} onClick={on} className="group flex flex-col items-center gap-1.5">
-                  <span className={`grid h-10 w-10 place-items-center rounded-xl transition group-hover:-translate-y-0.5 ${cls}`}><Icon size={17} /></span>
-                  <span className="text-[0.75rem] text-muted">{label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="space-y-3 border-t border-line bg-line-2/60 px-5 py-4 text-[0.88rem]">
-            {[
-              ["Added", fmtDate(app.created_at)],
-              ["Applied on", fmtDate(app.applied_on)],
-              ["Company type", app.company_type ?? "—"],
-              ["Seniority", a?.seniority ?? "—"],
-            ].map(([k, v]) => (
-              <div key={k}>
-                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
-                <div className="font-medium">{v}</div>
+      {/* ── Hero ── */}
+      <section className="card overflow-hidden fade-up">
+        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1fr)_auto]">
+          <div className="min-w-0">
+            <div className="flex items-center gap-3">
+              <CompanyAvatar name={app.company} size={52} />
+              <div className="min-w-0">
+                <div className="truncate text-[1rem] font-semibold">{app.company}</div>
+                <div className="flex flex-wrap items-center gap-x-3 text-[0.86rem] text-muted">
+                  {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
+                  <Menu<Status>
+                    align="left"
+                    value={app.status}
+                    options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
+                    onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
+                    render={(c) => <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>}
+                  />
+                </div>
               </div>
-            ))}
-            {app.job_url && (
-              <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-primary btn-sm mt-1 w-full">
-                Open listing <ExternalLink size={13} />
-              </a>
-            )}
-          </div>
-        </aside>
-
-        {/* ── Center ── */}
-        <section className="min-w-0">
-          <div className="mb-4 flex flex-wrap items-center justify-between gap-3 fade-up">
-            <div className="flex flex-wrap gap-1.5">
-              {TABS.map(({ key, label }) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  disabled={!analysed && key !== "overview"}
-                  className={`font-semibold h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
-                    tab === key ? "bg-brand text-on-brand shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
-                  }`}
-                >
-                  {label}
-                </button>
-              ))}
             </div>
-            <Menu<Status>
-              value={app.status}
-              options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
-              onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-              render={(c) => (
-                <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>
-              )}
-            />
+            <h1 className="mt-5 text-[2.5rem] font-bold leading-[1.02]">{app.role}</h1>
+            <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
+              {facts.map(([k, v]) => (
+                <div key={k}>
+                  <dt className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-faint">{k}</dt>
+                  <dd className="font-medium">{v}</dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-6 flex flex-wrap gap-2">
+              {[
+                { label: "Job description", icon: FileText, on: () => setShowJd(true) },
+                { label: "Edit", icon: Pencil, on: () => setEditing(true) },
+              ].map(({ label, icon: Icon, on }) => (
+                <button key={label} onClick={on} className="btn btn-ghost h-10"><Icon size={15} /> {label}</button>
+              ))}
+              {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-10">Listing <ExternalLink size={14} /></a>}
+              <button onClick={remove} className="btn h-10 text-bad hover:bg-bad-soft" aria-label="Delete job"><Trash2 size={15} /></button>
+            </div>
           </div>
 
-          {tab === "overview" && <Overview app={app} onUpdate={patchLocal} askAt={askAt} onAsk={setAskAt} onGo={(t) => setTab(t)} />}
-          {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
-          {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
-          {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
-        </section>
-
-        {/* ── Right: AI summary ── */}
-        <aside className="space-y-4 xl:sticky xl:top-6 stagger">
-          <Panel title="AI Summary" icon={<Sparkles size={15} />}>
+          {/* Fit dial */}
+          <div className="flex flex-col items-center justify-center rounded-[22px] px-8 py-6" style={{ background: "var(--color-cream)" }}>
             {a ? (
               <>
-                <div className="flex items-baseline gap-2">
-                  <span className="text-[2.4rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
-                  <span className="text-muted">/100</span>
-                  <span className={`ml-auto chip ${a.fit_score >= 7 ? "bg-good-soft text-good" : a.fit_score >= 5 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>
-                    {a.fit_score >= 7 ? "Strong fit" : a.fit_score >= 5 ? "Fair fit" : "Stretch"}
-                  </span>
+                <div className="relative grid h-[150px] w-[150px] place-items-center">
+                  <svg width="150" height="150" className="-rotate-90">
+                    <circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" strokeWidth="14" />
+                    <circle cx="75" cy="75" r="64" fill="none" stroke={fitColor} strokeWidth="14" strokeLinecap="round" strokeDasharray={2 * Math.PI * 64} strokeDashoffset={2 * Math.PI * 64 * (1 - (fit ?? 0) / 100)} style={{ transition: "stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)" }} />
+                  </svg>
+                  <div className="absolute text-center">
+                    <div className="font-display text-[2.8rem] font-bold leading-none tabular-nums">{fit}<span className="text-[1.1rem] text-muted">%</span></div>
+                    <div className="mt-1 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">Your fit</div>
+                  </div>
                 </div>
                 {typeof a.prev_score === "number" && a.prev_score !== a.fit_score && (
-                  <div className={`mt-2 inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mid-soft text-mid"}`}>
-                    {a.prev_score * 10} → {a.fit_score * 10} <span className="font-normal">{a.fit_score > a.prev_score ? "after your answers" : "after re-scoring"}</span>
-                  </div>
+                  <div className={`mt-3 rounded-full px-3 py-1 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mustard-soft text-[#8a6414]"}`}>{a.prev_score * 10} → {a.fit_score * 10}</div>
                 )}
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
-                  <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
-                </div>
-                <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
-                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
-                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
-                  <div className="flex items-center justify-between px-5 py-2"><span className="text-muted">Open questions</span><span className="flex items-center gap-2"><span className="font-medium">{unanswered}</span>{unanswered > 0 && <button onClick={openQuestions} className="pill-link">Answer <ArrowRight size={12} /></button>}</span></div>
-                </div>
               </>
             ) : (
-              <div className="space-y-2"><div className="skeleton h-9 w-24" /><div className="skeleton h-2 w-full" /><div className="skeleton h-3 w-3/4" /></div>
+              <div className="grid h-[150px] w-[150px] place-items-center text-center text-[0.9rem] text-muted">Reading the job…</div>
             )}
-          </Panel>
+          </div>
+        </div>
 
+        {/* Journey */}
+        <div className="border-t border-line px-7 py-6">
+          <ol className="grid grid-cols-7">
+            {steps.map((x, i) => {
+              const isCur = i === cur;
+              return (
+                <li key={x.label} className="relative flex flex-col items-center text-center">
+                  {i > 0 && <span className={`absolute right-1/2 top-[15px] h-[3px] w-full ${steps[i - 1].done ? "bg-brand" : "bg-line"}`} />}
+                  <button onClick={x.go} disabled={!analysed && i > 0} className={`relative z-10 grid h-8 w-8 place-items-center rounded-full text-[0.8rem] font-bold transition disabled:cursor-default ${x.done ? "bg-brand text-cream" : isCur ? "bg-clay text-white ring-[5px] ring-clay-soft" : "border-[1.5px] border-line bg-card text-faint"}`}>
+                    {x.done ? <Check size={15} strokeWidth={3} /> : i + 1}
+                  </button>
+                  <span className={`mt-2 text-[0.8rem] ${isCur ? "font-bold text-clay" : x.done ? "font-medium" : "text-faint"}`}>{x.label}</span>
+                </li>
+              );
+            })}
+          </ol>
           {next && (
-            <div className="dark-card p-5">
-              <div className="text-[0.82rem] text-white/70">Recommended next action</div>
-              <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
-              <div className="text-[0.85rem] text-white/65">{next.sub}</div>
-              <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-brand text-on-brand hover:opacity-90">
-                Do it now <ArrowRight size={14} />
-              </button>
+            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-5 py-3.5">
+              <div>
+                <div className="font-display text-[1.1rem] font-bold">{next.label}</div>
+                <div className="text-[0.86rem] text-muted">{next.sub}</div>
+              </div>
+              <button onClick={next.go} className="btn btn-clay h-11">Do it now <ArrowRight size={15} /></button>
             </div>
           )}
+        </div>
+      </section>
 
-          <Panel title="Checklist" icon={<ListChecks size={15} />}>
-            <ol className="relative space-y-1.5">
-              <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
-              {checklist.map((c) => (
-                <li key={c.label}>
-                  <button
-                    onClick={c.go}
-                    disabled={!analysed && c.label !== "Match analysed"}
-                    title={c.label === "Applied" && !c.done ? "Mark as applied" : undefined}
-                    className="relative -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-lg px-2 py-1 text-left text-[0.9rem] transition hover:bg-line-2 disabled:cursor-default disabled:hover:bg-transparent"
-                  >
-                  <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-on-brand" : "border-2 border-line bg-white"}`}>
-                    {c.done && <Check size={11} strokeWidth={3} />}
-                  </span>
-                  <span className={c.done ? "text-ink" : "text-muted"}>{c.label}</span>
-                  </button>
-                </li>
-              ))}
-            </ol>
-          </Panel>
-        </aside>
-      </div>
+      {/* ── Chapters ── */}
+      <nav className="grid grid-cols-2 gap-3 md:grid-cols-4 fade-up">
+        {chapters.map((c, i) => {
+          const on = tab === c.key;
+          return (
+            <button
+              key={c.key}
+              onClick={() => setTab(c.key)}
+              disabled={!analysed && c.key !== "overview"}
+              className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 text-left transition disabled:opacity-40 ${on ? "border-side bg-side text-cream" : "border-line bg-card hover:border-brand/40"}`}
+            >
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
+              <span className="min-w-0">
+                <span className="block font-display text-[1.1rem] font-bold leading-tight">{c.label}</span>
+                <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>
+              </span>
+            </button>
+          );
+        })}
+      </nav>
+
+      <section className="min-w-0 pb-20 fade-up">
+        {tab === "overview" && <Overview app={app} onUpdate={patchLocal} askAt={askAt} onAsk={setAskAt} onGo={(t) => setTab(t)} />}
+        {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
+        {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
+        {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
+      </section>
+
+      {/* Coach */}
+      <button onClick={() => setCoach(true)} className="fixed bottom-6 right-6 z-30 flex h-14 items-center gap-2 rounded-full bg-side pl-5 pr-6 font-semibold text-cream shadow-[0_20px_40px_-16px_rgba(22,48,43,.7)] transition hover:bg-brand">
+        <MessageCircle size={18} className="text-mustard" /> Ask the coach
+      </button>
 
       <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>
         <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-relaxed text-slate-700">{app.jd}</div>

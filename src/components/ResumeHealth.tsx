@@ -13,7 +13,7 @@ const GRADE = {
 };
 
 /** Live resume health check (Prompt 3 rules) with one-at-a-time bullet fixes. */
-export function ResumeHealth({ value, onChange, savedValue, start }: { value: string; onChange: (v: string) => void; savedValue: string; start: number | null }) {
+export function ResumeHealth({ value, onChange, savedValue, start, compact }: { value: string; onChange: (v: string) => void; savedValue: string; start: number | null; compact?: boolean }) {
   const report = useMemo(() => resumeHealth(value), [value]);
   const savedScore = useMemo(() => resumeHealth(savedValue).score, [savedValue]);
   const [fixing, setFixing] = useState<BulletReport | null>(null);
@@ -37,18 +37,11 @@ export function ResumeHealth({ value, onChange, savedValue, start }: { value: st
   }
 
   return (
-    <section className="card mb-4 overflow-hidden fade-up">
-      <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
-        <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-soft text-brand"><HeartPulse size={15} /></span>
-        <div className="min-w-0 flex-1">
-          <div className="font-bold leading-tight">Resume health</div>
-          <div className="text-[0.8rem] text-muted">Checked live against what recruiters and ATS look for. Free, no AI.</div>
-        </div>
-      </div>
-
-      <div className="grid gap-5 p-5 lg:grid-cols-[220px_minmax(0,1fr)]">
+    <section className={`card overflow-hidden fade-up ${compact ? "" : "mb-5"}`}>
+      <div className={`grid gap-6 p-6 ${compact ? "" : "lg:grid-cols-[250px_minmax(0,1fr)]"}`}>
         {/* Score */}
-        <div className="flex flex-col items-center text-center">
+        <div className="flex flex-col items-center rounded-[20px] px-4 py-5 text-center" style={{ background: "var(--color-cream)" }}>
+          <div className="mb-3 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><HeartPulse size={13} className="text-clay" /> Resume health</div>
           <ScoreRing score={report.score} />
           <div className={`mt-2 font-semibold ${g.cls}`}>{g.label}</div>
           {delta !== 0 && (
@@ -60,15 +53,22 @@ export function ResumeHealth({ value, onChange, savedValue, start }: { value: st
         </div>
 
         {/* ATS-safe checks */}
-        <div>
-          <div className="mb-2 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">ATS-safe checks</div>
-          <div className="grid gap-x-6 gap-y-2 sm:grid-cols-2">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <h2 className="text-[1.3rem] font-bold leading-tight">ATS-safe checks</h2>
+              <div className="text-[0.84rem] text-muted">Checked live against what recruiters and ATS look for. Free, no AI.</div>
+            </div>
+            <span className="chip bg-good-soft text-good">{report.doc.filter((d) => d.ok).length} of {report.doc.length} passed</span>
+          </div>
+          <div className="mt-3 flex h-2 gap-1">{report.doc.map((d) => <span key={d.label} className={`flex-1 rounded-full ${d.ok ? "bg-good" : "bg-clay"}`} />)}</div>
+          <div className={`mt-4 grid gap-2.5 ${compact ? "" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
             {report.doc.map((d) => (
-              <div key={d.label} className="flex items-start gap-2 text-[0.9rem]" title={d.ok ? undefined : d.tip}>
-                <span className={`mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full ${d.ok ? "bg-good text-white" : "bg-bad-soft text-bad"}`}>{d.ok ? <Check size={10} strokeWidth={3} /> : <X size={10} strokeWidth={3} />}</span>
-                <span className={d.ok ? "text-slate-700" : "text-ink"}>
+              <div key={d.label} className={`flex items-start gap-2.5 rounded-2xl border-[1.5px] px-3.5 py-2.5 text-[0.88rem] ${d.ok ? "border-line" : "border-clay/40 bg-clay-soft/50"}`} title={d.ok ? undefined : d.tip}>
+                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${d.ok ? "bg-good text-white" : "bg-clay text-white"}`}>{d.ok ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}</span>
+                <span className="font-medium">
                   {d.label}
-                  {!d.ok && <span className="block text-[0.8rem] text-muted">{d.tip}</span>}
+                  {!d.ok && <span className="block text-[0.78rem] font-normal text-muted">{d.tip}</span>}
                 </span>
               </div>
             ))}
@@ -78,22 +78,22 @@ export function ResumeHealth({ value, onChange, savedValue, start }: { value: st
 
       {/* Bullets */}
       <div className="border-t border-line">
-        <div className="flex flex-wrap items-center justify-between gap-2 px-5 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4">
           <div>
-            <div className="font-semibold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
+            <div className="font-display text-[1.15rem] font-bold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
             <div className="text-[0.8rem] text-muted">Each is scored out of 10: a number, a strong verb, length, active voice, no filler, no buzzwords.</div>
           </div>
           {report.bullets.length > 0 && <button className="pill-link" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only weak ones" : `Show all ${report.bullets.length}`}</button>}
         </div>
-        <div className="divide-y divide-line">
+        <div className={`grid gap-px bg-line ${compact ? "" : "lg:grid-cols-2"}`}>
           {list.map((b) => (
-            <div key={b.line} className="flex items-start gap-3 px-5 py-3">
-              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-lg text-[0.85rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>{b.score}</span>
+            <div key={b.line} className="flex items-start gap-3 bg-card px-6 py-3.5">
+              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-[#8a6414]" : "bg-clay-soft text-clay"}`}>{b.score}</span>
               <div className="min-w-0 flex-1">
-                <p className="line-clamp-2 text-[0.92rem] leading-snug text-slate-800">{b.text}</p>
+                <p className="line-clamp-2 text-[0.92rem] leading-snug text-ink">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-bad-soft/70 py-0 text-[0.72rem] text-bad">{c.fail}</span>)}
-                  {b.score >= 8 && <span className="chip bg-good-soft py-0 text-[0.72rem] text-good"><Check size={10} /> Strong</span>}
+                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-clay-soft py-0 text-[0.78rem] text-clay">{c.fail}</span>)}
+                  {b.score >= 8 && <span className="chip bg-good-soft py-0 text-[0.78rem] text-good"><Check size={10} /> Strong</span>}
                 </div>
               </div>
               {b.score < 10 && <button className="btn btn-ghost btn-sm shrink-0" onClick={() => setFixing(b)}><Wrench size={13} /> Fix</button>}
@@ -117,7 +117,7 @@ function FixBullet({ bullet, onClose, onApply }: { bullet: BulletReport; onClose
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <span className={`mr-1 grid h-7 w-9 place-items-center rounded-lg text-[0.85rem] font-bold tabular-nums ${live.score >= 8 ? "bg-good-soft text-good" : live.score >= 6 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>{live.score}</span>
         {live.checks.map((c) => (
-          <span key={c.key} className={`chip py-0.5 text-[0.75rem] ${c.ok ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{c.ok ? <Check size={11} /> : <X size={11} />} {c.label}</span>
+          <span key={c.key} className={`chip py-0.5 text-[0.78rem] ${c.ok ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{c.ok ? <Check size={11} /> : <X size={11} />} {c.label}</span>
         ))}
       </div>
       {live.tip && <p className="mt-3 flex items-start gap-2 rounded-xl bg-brand-soft px-3.5 py-2.5 text-[0.9rem] text-brand-ink"><Sparkles size={14} className="mt-0.5 shrink-0" /> {live.tip}</p>}
@@ -133,16 +133,16 @@ function FixBullet({ bullet, onClose, onApply }: { bullet: BulletReport; onClose
 function ScoreRing({ score }: { score: number }) {
   const r = 46;
   const c = 2 * Math.PI * r;
-  const color = score >= 85 ? "var(--color-good)" : score >= 70 ? "var(--brand)" : score >= 50 ? "#d8822c" : "var(--color-bad)";
+  const color = score >= 85 ? "var(--color-good)" : score >= 70 ? "var(--color-mustard)" : "var(--color-clay)";
   return (
     <div className="relative grid h-[120px] w-[120px] place-items-center">
       <svg width="120" height="120" className="-rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="var(--line-2)" strokeWidth="9" />
-        <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="9" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - score / 100)} style={{ transition: "stroke-dashoffset .6s ease" }} />
+        <circle cx="60" cy="60" r={r} fill="none" stroke="var(--line)" strokeWidth="11" />
+        <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - score / 100)} style={{ transition: "stroke-dashoffset .6s ease" }} />
       </svg>
       <div className="absolute text-center">
-        <div className="text-[2rem] font-bold leading-none tracking-tight">{score}</div>
-        <div className="text-[0.75rem] text-muted">of 100</div>
+        <div className="font-display text-[2.3rem] font-bold leading-none">{score}</div>
+        <div className="text-[0.78rem] text-muted">of 100</div>
       </div>
     </div>
   );

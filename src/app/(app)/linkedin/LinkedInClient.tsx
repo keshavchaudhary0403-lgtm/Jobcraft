@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, ExternalLink, ListChecks, MapPin, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, Check, ExternalLink, MapPin, RotateCcw, Sparkles } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
 import { CharCount, CopyButton, Spinner, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
@@ -26,89 +26,116 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
 
   const headline = res?.headlines[pick];
 
+  const rewrite = async () => {
+    if (res && (await ask({ title: "Rewrite your LinkedIn?", body: "New headlines, About and skills replace the current ones. Uses AI credit.", confirm: "Rewrite" })) === null) return;
+    generate();
+  };
+  const aboutWords = res ? res.about.trim().split(/\s+/).length : 0;
+
   return (
-    <>
+    <div className="space-y-5">
       {dialog}
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+      <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">LinkedIn</h1>
-          <p className="mt-0.5 text-muted">
-            Optimised for <span className="font-medium text-ink">{targetRole || "your next role"}</span>
-            <Link href="/profile" className="pill-link ml-2 h-6 px-2.5 text-[0.78rem]">Change</Link>
+          <h1 className="text-[2.6rem] font-bold leading-none">LinkedIn<span className="text-clay">.</span></h1>
+          <p className="mt-2 flex flex-wrap items-center gap-2 text-[1rem] text-muted">
+            Written to be found for <span className="font-semibold text-ink">{targetRole || "your next role"}</span>
+            <Link href="/profile" className="rounded-full border-[1.5px] border-line px-2.5 py-0.5 text-[0.8rem] font-semibold text-ink hover:border-brand/40">Change</Link>
           </p>
         </div>
         <div className="flex gap-2">
-          {url && <a className="btn btn-ghost" href={url} target="_blank" rel="noreferrer">Open my profile <ExternalLink size={14} /></a>}
-          <button className="btn btn-brand" disabled={busy} onClick={async () => { if (res && (await ask({ title: "Rewrite your LinkedIn?", body: "New headlines, About and skills replace the current ones. Uses AI credit.", confirm: "Rewrite" })) === null) return; generate(); }}>
+          {url && <a className="btn btn-ghost h-11" href={url} target="_blank" rel="noreferrer">Open my profile <ExternalLink size={14} /></a>}
+          <button className="btn btn-clay h-11" disabled={busy} onClick={rewrite}>
             {busy ? <Spinner /> : res ? <RotateCcw size={15} /> : <Sparkles size={15} />} {res ? "Rewrite" : "Write my LinkedIn"}
           </button>
         </div>
-      </div>
-      {error && <p className="mb-4 flex items-center gap-1.5 text-bad"><AlertCircle size={14} /> {error}</p>}
+      </header>
+      {error && <p className="flex items-center gap-1.5 text-bad"><AlertCircle size={14} /> {error}</p>}
 
-      <div className={`grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px] transition ${busy ? "opacity-60" : ""}`}>
+      <div className={`grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px] transition ${busy ? "opacity-60" : ""}`}>
         {/* Live preview */}
         <section className="card overflow-hidden fade-up">
-          <div className="h-28 bg-gradient-to-r from-brand via-brand to-brand-2" />
-          <div className="px-6 pb-6">
-            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-brand to-brand-2 text-2xl font-semibold text-white">{initials}</div>
-            <div className="mt-3 text-[1.35rem] font-semibold">{name}</div>
+          <div className="grain relative h-32" style={{ background: "linear-gradient(120deg, #16302b, #234a40 55%, #2b6352)" }}>
+            <span className="absolute right-5 top-4 rounded-full bg-white/10 px-3 py-1 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/80">Live preview</span>
+          </div>
+          <div className="px-7 pb-7">
+            <div className="relative z-10 -mt-12 grid h-24 w-24 place-items-center rounded-full border-[5px] border-card bg-mustard font-display text-[1.9rem] font-bold text-side">{initials}</div>
+            <div className="mt-3 font-display text-[1.9rem] font-bold leading-tight">{name}</div>
             {headline ? (
-              <p key={headline} className="mt-0.5 max-w-2xl leading-snug text-slate-700 fade-up">{headline}</p>
+              <p key={headline} className="mt-1 max-w-3xl text-[1.02rem] leading-snug fade-up">{headline}</p>
             ) : (
               <div className="mt-2 space-y-1.5"><div className={`h-3 w-3/4 rounded ${busy ? "skeleton" : "bg-line-2"}`} /><div className={`h-3 w-1/2 rounded ${busy ? "skeleton" : "bg-line-2"}`} /></div>
             )}
             <div className="mt-2 flex items-center gap-1 text-[0.88rem] text-muted">{city && <><MapPin size={13} /> {city}</>}{title && <span className="ml-2">· {title}</span>}</div>
 
-            <div className="mt-6 border-t border-line pt-5">
-              <div className="mb-2 flex items-center justify-between">
-                <span className="font-semibold">About</span>
-                {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
+            <div className="mt-6 grid gap-6 border-t border-line pt-6 xl:grid-cols-[minmax(0,1fr)_240px]">
+              <div className="min-w-0">
+                <div className="mb-2 flex items-center justify-between">
+                  <h2 className="text-[1.2rem] font-bold">About</h2>
+                  {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
+                </div>
+                {res ? (
+                  <p className="whitespace-pre-wrap leading-relaxed">{res.about}</p>
+                ) : (
+                  <div className="space-y-2">{[90, 100, 95, 70].map((w, i) => <div key={i} className={`h-3 rounded ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: `${w}%` }} />)}</div>
+                )}
               </div>
-              {res ? (
-                <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{res.about}</p>
-              ) : (
-                <div className="space-y-2">{[90, 100, 95, 70].map((w, i) => <div key={i} className={`h-3 rounded ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: `${w}%` }} />)}</div>
-              )}
-            </div>
-
-            <div className="mt-6 border-t border-line pt-5">
-              <div className="mb-3 flex items-center justify-between">
-                <span className="font-semibold">Top skills</span>
-                {res && <CopyButton text={res.skills.join(", ")} label="Copy all" />}
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {res
-                  ? res.skills.map((s) => <span key={s} className="chip border border-line bg-white px-3 py-1 text-[0.88rem] text-slate-700">{s}</span>)
-                  : [80, 110, 90, 70, 100].map((w, i) => <span key={i} className={`h-7 rounded-full ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: w }} />)}
+              <div>
+                <div className="mb-3 flex items-center justify-between">
+                  <h2 className="text-[1.2rem] font-bold">Top skills</h2>
+                  {res && <CopyButton text={res.skills.join(", ")} label="Copy" />}
+                </div>
+                <ol className="space-y-2">
+                  {res
+                    ? res.skills.map((s, i) => (
+                        <li key={s} className="flex items-center gap-2.5 rounded-2xl border-[1.5px] border-line px-3 py-2 text-[0.9rem] font-medium">
+                          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard-soft font-display text-[0.78rem] font-bold text-[#8a6414]">{i + 1}</span>{s}
+                        </li>
+                      ))
+                    : [0, 1, 2, 3, 4].map((i) => <li key={i} className={`h-10 rounded-2xl ${busy ? "skeleton" : "bg-line-2"}`} />)}
+                </ol>
+                {res && (
+                  <div className="mt-4 rounded-2xl px-4 py-3" style={{ background: "var(--color-cream)" }}>
+                    <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">About length</div>
+                    <div className="mt-1 font-display text-[1.4rem] font-bold">{aboutWords}<span className="text-[0.85rem] font-medium text-muted"> / 150 words</span></div>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${aboutWords > 150 ? "bg-clay" : "bg-good"}`} style={{ width: `${Math.min(100, (aboutWords / 150) * 100)}%` }} /></div>
+                  </div>
+                )}
               </div>
             </div>
           </div>
         </section>
 
-        {/* Headline options */}
-        <aside className="card p-5 xl:sticky xl:top-6 fade-up">
-          <div className="card-head"><span className="ico"><Sparkles size={15} /></span>Headline options</div>
-          {res ? (
-            <div className="space-y-2.5">
-              {res.headlines.map((h, i) => (
-                <button key={i} type="button" data-on={pick === i} onClick={() => setPick(i)} className="option w-full p-3.5">
-                  <div className="mb-1.5 flex items-center justify-between text-[0.78rem] text-faint">
-                    <span>Option {i + 1}</span>
-                    <CharCount text={h} max={220} />
-                  </div>
-                  <div className="leading-snug">{h}</div>
-                </button>
-              ))}
-              {headline && <CopyButton text={headline} label="Copy selected" className="mt-1 w-full" />}
+        {/* Right rail: headlines + update steps */}
+        <aside className="space-y-5 lg:sticky lg:top-6">
+          <section className="card p-5 fade-up">
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="text-[1.2rem] font-bold">Pick a headline</h2>
+              {headline && <CopyButton text={headline} label="Copy" />}
             </div>
-          ) : (
-            <div className="space-y-2.5">{[0, 1, 2].map((i) => <div key={i} className={`h-[74px] rounded-xl ${busy ? "skeleton" : "border border-dashed border-line"}`} />)}</div>
-          )}
+            {res ? (
+              <div className="space-y-2">
+                {res.headlines.map((h, i) => {
+                  const on = pick === i;
+                  return (
+                    <button key={i} type="button" onClick={() => setPick(i)} className={`w-full rounded-[18px] border-[1.5px] p-3.5 text-left transition ${on ? "border-side bg-side text-cream" : "border-line hover:border-brand/40"}`}>
+                      <div className="mb-1.5 flex items-center gap-2 text-[0.8rem]">
+                        <span className={`grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
+                        <span className={`ml-auto ${on ? "text-cream/60" : ""}`}><CharCount text={h} max={220} /></span>
+                      </div>
+                      <div className="text-[0.9rem] leading-snug">{h}</div>
+                    </button>
+                  );
+                })}
+              </div>
+            ) : (
+              <div className="space-y-2">{[0, 1, 2].map((i) => <div key={i} className={`h-[74px] rounded-[18px] ${busy ? "skeleton" : "border-[1.5px] border-dashed border-line"}`} />)}</div>
+            )}
+          </section>
+          {res && <UpdateChecklist url={url} headline={headline ?? ""} about={res.about} skills={res.skills} />}
         </aside>
       </div>
-      {res && <div className="mt-5"><UpdateChecklist url={url} headline={headline ?? ""} about={res.about} skills={res.skills} /></div>}
-    </>
+    </div>
   );
 }
 
@@ -130,42 +157,46 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
   };
   const n = STEPS.filter((k) => done[k]).length;
   const items: { k: (typeof STEPS)[number]; title: string; how: string; action?: React.ReactNode }[] = [
-    { k: "headline", title: "Replace your headline", how: "Profile → pencil icon next to your name → Headline. Paste the option you picked.", action: <CopyButton text={headline} label="Copy headline" /> },
-    { k: "about", title: "Replace your About section", how: "Profile → About → pencil icon. Paste, then check the first two lines read well on their own.", action: <CopyButton text={about} label="Copy About" /> },
-    { k: "skills", title: "Add the 5 skills", how: "Profile → Skills → Add skill. Add each one; remove skills you no longer want to be found for.", action: <CopyButton text={skills.join(", ")} label="Copy skills" /> },
+    { k: "headline", title: "Replace your headline", how: "Profile → pencil icon next to your name → Headline. Paste the option you picked.", action: <CopyButton text={headline} label="Copy" /> },
+    { k: "about", title: "Replace your About section", how: "Profile → About → pencil icon. Paste, then check the first two lines read well on their own.", action: <CopyButton text={about} label="Copy" /> },
+    { k: "skills", title: "Add the 5 skills", how: "Profile → Skills → Add skill. Add each one; remove skills you no longer want to be found for.", action: <CopyButton text={skills.join(", ")} label="Copy" /> },
     { k: "pin", title: "Pin your top skills", how: "Skills → pencil → drag these 5 to the top so recruiters see them first." },
     { k: "open", title: "Turn on Open to Work (recruiters only)", how: "Profile → Open to → Finding a new job → choose 'Recruiters only' and add your target role." },
   ];
   return (
-    <section className="card overflow-hidden fade-up">
-      <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
-        <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-soft text-brand"><ListChecks size={15} /></span>
-        <div className="flex-1">
-          <div className="font-bold">Update your LinkedIn — about 5 minutes</div>
-          <div className="text-[0.8rem] text-muted">Recruiters search by headline and skills, so these steps matter most.</div>
+    <section className="card p-5 fade-up">
+      <div className="flex items-center gap-3">
+        <div className="relative grid h-14 w-14 shrink-0 place-items-center">
+          <svg width="56" height="56" className="-rotate-90">
+            <circle cx="28" cy="28" r="23" fill="none" stroke="var(--line-2)" strokeWidth="6" />
+            <circle cx="28" cy="28" r="23" fill="none" stroke="var(--color-good)" strokeWidth="6" strokeLinecap="round" strokeDasharray={2 * Math.PI * 23} strokeDashoffset={2 * Math.PI * 23 * (1 - n / STEPS.length)} style={{ transition: "stroke-dashoffset .6s ease" }} />
+          </svg>
+          <span className="absolute font-display text-[0.95rem] font-bold">{n}/{STEPS.length}</span>
         </div>
-        <span className={`chip ${n === STEPS.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{n} of {STEPS.length} done</span>
-        {url && <a href={url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">Open LinkedIn <ExternalLink size={13} /></a>}
+        <div className="min-w-0 flex-1">
+          <h2 className="text-[1.2rem] font-bold leading-tight">Put it live</h2>
+          <div className="text-[0.8rem] text-muted">About 5 minutes · hover a step for how</div>
+        </div>
+        {url && <a href={url} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-line text-muted hover:text-ink" aria-label="Open LinkedIn"><ExternalLink size={14} /></a>}
       </div>
-      <div className="divide-y divide-line">
-        {items.map((it, i) => (
-          <div key={it.k} className="flex flex-wrap items-center gap-4 px-5 py-3.5">
+      <ol className="mt-4 space-y-1">
+        {items.map((it) => (
+          <li key={it.k} className="flex items-center gap-3 rounded-2xl px-2 py-1.5 transition hover:bg-line-2/60" title={it.how}>
             <button
               onClick={() => toggle(it.k)}
               aria-pressed={!!done[it.k]}
               aria-label={done[it.k] ? "Mark not done" : "Mark done"}
-              className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 transition ${done[it.k] ? "border-brand bg-brand text-white" : "border-line bg-white text-transparent hover:border-brand/50"}`}
+              className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition ${done[it.k] ? "border-good bg-good text-white" : "border-line bg-card text-transparent hover:border-good/50"}`}
             >
-              <Check size={14} strokeWidth={3} />
+              <Check size={12} strokeWidth={3} />
             </button>
             <div className="min-w-0 flex-1">
-              <div className={`font-semibold ${done[it.k] ? "text-muted line-through decoration-line" : ""}`}>{i + 1}. {it.title}</div>
-              <div className="text-[0.88rem] text-muted">{it.how}</div>
+              <div className={`text-[0.88rem] font-semibold leading-snug ${done[it.k] ? "text-muted line-through decoration-line" : ""}`}>{it.title}</div>
             </div>
-            {it.action}
-          </div>
+            {it.action && <div className="shrink-0 [&_button]:h-8 [&_button]:px-2.5 [&_button]:text-[0.78rem]">{it.action}</div>}
+          </li>
         ))}
-      </div>
+      </ol>
     </section>
   );
 }

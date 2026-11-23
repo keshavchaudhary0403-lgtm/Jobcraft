@@ -25,53 +25,43 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
   }
 
   return (
-    <div className="grid min-h-screen lg:grid-cols-[300px_1fr]">
-      {/* Left rail */}
-      <aside className="relative hidden overflow-hidden bg-side p-7 text-white lg:flex lg:flex-col">
-        <div className="pointer-events-none absolute -left-32 -top-32 h-96 w-96 rounded-full bg-brand/30 blur-3xl" />
-        <div className="pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand-2/25 blur-3xl" />
-        <div className="relative"><Logo light /></div>
-        <div className="relative mt-12">
-          <div className="text-[0.82rem] text-white/45">Set up · about 2 minutes</div>
-          <ol className="mt-6 space-y-1">
-            {STEPS.map((s, i) => (
-              <li key={s.title} className={`flex items-start gap-3 rounded-xl p-2.5 transition ${i === step ? "bg-white/[.07]" : ""}`}>
-                <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.8rem] font-semibold transition ${
-                    i < step ? "bg-brand-2 text-side" : i === step ? "bg-white text-side" : "border border-white/20 text-white/50"
-                  }`}
-                >
-                  {i < step ? <Check size={16} /> : i + 1}
-                </span>
-                <span>
-                  <span className={`block font-medium ${i > step ? "text-white/50" : ""}`}>{s.title}</span>
-                  <span className="block text-[0.8rem] text-white/45">{s.sub}</span>
+    <div className="min-h-screen bg-bg">
+      <header className="mx-auto flex max-w-[1240px] items-center justify-between gap-4 px-6 py-6 lg:px-8">
+        <Logo size={32} />
+        <div className="flex items-center gap-3 text-[0.88rem] text-muted">
+          <span className="hidden truncate sm:inline">Signed in as <b className="font-semibold text-ink">{loginId}</b></span>
+          <button onClick={logout} className="btn btn-ghost btn-sm"><LogOut size={14} /> Log out</button>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1240px] px-6 pb-12 lg:px-8">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <h1 className="text-[2.8rem] font-bold leading-none fade-up">{!draft ? (first ? `Welcome, ${first}` : "Welcome") : "Does this look right"}<span className="text-clay">{draft ? "?" : "."}</span></h1>
+            <p className="mt-3 text-[1.02rem] text-muted fade-up">{!draft ? "Set up takes about 2 minutes. Start with your resume." : "We read this from your resume. Fix anything that's off."}</p>
+          </div>
+        </div>
+
+        {/* Steps */}
+        <ol className="mt-7 grid gap-3 sm:grid-cols-3 fade-up">
+          {STEPS.map((s, i) => {
+            const on = i === step;
+            const done = i < step;
+            return (
+              <li key={s.title} className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 ${on ? "border-side bg-side text-cream" : "border-line bg-card"}`}>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{done ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
+                <span className="min-w-0">
+                  <span className="block font-display text-[1.05rem] font-bold leading-tight">{s.title}</span>
+                  <span className={`block text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{s.sub}</span>
                 </span>
               </li>
-            ))}
-          </ol>
-        </div>
-        <div className="relative mt-auto flex items-center justify-between rounded-xl bg-white/[.06] px-3.5 py-2.5">
-          <span className="min-w-0">
-            <span className="block text-[0.75rem] text-white/45">Signed in as</span>
-            <span className="block truncate">{loginId}</span>
-          </span>
-          <button onClick={logout} className="rounded-lg p-2 text-white/60 hover:bg-white/10 hover:text-white" title="Log out" aria-label="Log out"><LogOut size={16} /></button>
-        </div>
-      </aside>
+            );
+          })}
+        </ol>
 
-      {/* Main */}
-      <main className="ai-gradient flex flex-col">
-        <div className="flex items-center justify-between px-6 py-5 lg:hidden">
-          <Logo />
-          <button onClick={logout} className="btn-quiet rounded-lg text-sm">Log out</button>
-        </div>
-        <div className={`mx-auto w-full px-6 py-8 lg:px-10 lg:py-10 ${draft ? "max-w-[1240px]" : "max-w-[760px] lg:my-auto"}`}>
+        <div className="mt-6 fade-up">
           {!draft ? (
-            <>
-              <div className="text-[0.85rem] font-medium text-brand-ink">Step 1 of 3</div>
-              <h1 className="mt-1 text-[1.9rem] font-semibold tracking-tight fade-up">{first ? `Welcome, ${first}.` : "Welcome."}</h1>
-              <p className="mb-7 mt-1 text-muted fade-up">Upload your resume and we&apos;ll set up your profile from it.</p>
+            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <ResumeDrop
                 onParsed={(p) =>
                   setDraft(
@@ -89,14 +79,18 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                   )
                 }
               />
-            </>
+              <aside className="dark-card p-6">
+                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/55">From your resume we fill in</div>
+                <ul className="mt-4 space-y-3">
+                  {["Your name, title and city", "The role you're going after", "Your skills and strongest result", "Your full resume, ready to tailor"].map((x) => (
+                    <li key={x} className="flex items-center gap-3 text-[0.95rem]"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard text-side"><Check size={13} strokeWidth={3} /></span>{x}</li>
+                  ))}
+                </ul>
+                <p className="mt-5 border-t border-white/10 pt-4 text-[0.84rem] text-white/60">You check everything before it&apos;s saved. Nothing is invented.</p>
+              </aside>
+            </div>
           ) : (
-            <>
-              <div className="text-[0.85rem] font-medium text-brand-ink">Step 2 of 3</div>
-              <h1 className="mt-1 text-[1.6rem] font-semibold tracking-tight fade-up">Does this look right?</h1>
-              <p className="mb-6 mt-0.5 text-muted fade-up">We read this from your resume. Fix anything that&apos;s off.</p>
-              <ProfileReview userId={userId} initial={draft} cta="Looks good — continue" onSaved={() => router.push("/jobs/new")} />
-            </>
+            <ProfileReview userId={userId} initial={draft} cta="Looks good — continue" onSaved={() => router.push("/jobs/new")} />
           )}
         </div>
       </main>

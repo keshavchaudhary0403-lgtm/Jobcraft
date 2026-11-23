@@ -56,13 +56,13 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                 if (dragId) move(dragId, col);
                 setDragId(null);
               }}
-              className={`flex min-h-[420px] flex-col rounded-2xl border p-2.5 transition ${over === col.key ? "border-brand/50 bg-brand-soft/60" : "border-line bg-line-2/50"}`}
+              className={`flex min-h-[460px] flex-col rounded-[22px] border-[1.5px] p-3 transition ${over === col.key ? "border-clay/60 bg-clay-soft/60" : "border-line bg-card/60"}`}
             >
               <header className="mb-2 px-1.5 pt-1">
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
-                  <span className="font-semibold">{col.label}</span>
-                  <span className="ml-auto rounded-full bg-white px-2 text-[0.75rem] tabular-nums text-muted ring-1 ring-line">{list.length}</span>
+                  <span className="font-display text-[1.05rem] font-bold">{col.label}</span>
+                  <span className="ml-auto grid h-6 min-w-6 place-items-center rounded-full bg-side px-1.5 text-[0.78rem] font-bold tabular-nums text-cream">{list.length}</span>
                 </div>
                 <div className="mt-0.5 text-[0.78rem] text-faint">{col.hint}</div>
               </header>
@@ -86,11 +86,11 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                         <span className="min-w-0 flex-1 truncate text-[0.84rem] font-medium" title={a.company}>{a.company}</span>
                         <GripVertical size={14} className="shrink-0 text-faint opacity-0 transition group-hover:opacity-100" />
                       </div>
-                      <div className="mt-2 line-clamp-2 text-[0.92rem] font-semibold leading-snug">{a.role}</div>
+                      <div className="mt-2 line-clamp-2 font-display text-[1rem] font-bold leading-snug">{a.role}</div>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
-                        {an ? <MatchChip score={an.fit_score} /> : <span className="chip bg-slate-100 text-slate-500">Not analysed</span>}
+                        {an ? <MatchChip score={an.fit_score} /> : <span className="chip bg-line-2 text-muted">Not analysed</span>}
                         {a.tailored_resume && <span className="chip bg-brand-soft text-brand-ink">Resume</span>}
-                        <span className="ml-auto text-[0.72rem] text-faint">{timeAgo(a.updated_at)}</span>
+                        <span className="ml-auto text-[0.78rem] text-faint">{timeAgo(a.updated_at)}</span>
                       </div>
                     </Link>
                   );

@@ -38,8 +38,8 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
   const words = value.split(/\s+/).filter(Boolean).length;
   return (
     <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
-      <div className={`flex items-center justify-between border-b border-line px-5 py-3 ${page ? "sticky top-[3.4rem] z-10 rounded-t-[inherit] bg-white" : ""}`}>
-        <span className="font-bold">Resume</span>
+      <div className={`flex items-center justify-between border-b border-line px-6 py-3.5 ${page ? "sticky top-[6.4rem] z-10 rounded-t-[inherit] bg-card" : ""}`}>
+        <span className="font-display text-[1.2rem] font-bold">Your master resume</span>
         <span className="flex items-center gap-3">
           <span className="text-[0.82rem] text-faint">{words} words</span>
           {editing ? (
@@ -57,13 +57,13 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
           <DocEditor
             value={value}
             onChange={onChange}
-            toolbarTop={page ? "top-[6.6rem]" : "top-0"}
-            className={`text-[0.9rem] leading-relaxed text-slate-700 ${page ? "mx-auto max-w-[860px] text-[1.02rem]" : ""}`}
+            toolbarTop={page ? "top-[12.8rem]" : "top-0"}
+            className={`text-[0.9rem] leading-relaxed text-ink ${page ? "text-[1rem]" : ""}`}
           />
         </div>
       ) : (
-        <div className={page ? "px-6 py-8 sm:px-10" : "thin-scroll min-h-[420px] flex-1 overflow-y-auto px-6 py-5 xl:min-h-0"}>
-          <div className={page ? "mx-auto max-w-[860px] text-[1.02rem]" : ""}>
+        <div className={page ? "px-7 py-7" : "thin-scroll min-h-[420px] flex-1 overflow-y-auto px-6 py-5 xl:min-h-0"}>
+          <div className={page ? "text-[1rem]" : ""}>
           {value.trim() ? <Formatted text={value} /> : <p className="text-muted">No resume yet.</p>}
           </div>
         </div>

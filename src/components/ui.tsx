@@ -5,8 +5,8 @@ export function PageHeader({ title, sub, action }: { title: string; sub?: string
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
       <div>
-        <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{title}</h1>
-        {sub && <p className="mt-0.5 text-muted">{sub}</p>}
+        <h1 className="text-[2.1rem] font-bold leading-[1.05]">{title}</h1>
+        {sub && <p className="mt-1.5 text-[1rem] text-muted">{sub}</p>}
       </div>
       {action && <div className="flex items-center gap-2">{action}</div>}
     </div>
@@ -14,12 +14,12 @@ export function PageHeader({ title, sub, action }: { title: string; sub?: string
 }
 
 export const STATUS_META: Record<Status, { label: string; cls: string; dot: string }> = {
-  saved: { label: "Saved", cls: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
-  applied: { label: "Applied", cls: "bg-info-soft text-info", dot: "bg-blue-500" },
-  interviewing: { label: "Interviewing", cls: "bg-mid-soft text-mid", dot: "bg-orange-500" },
-  offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-brand" },
-  rejected: { label: "Rejected", cls: "bg-bad-soft text-bad", dot: "bg-orange-600" },
-  withdrawn: { label: "Withdrawn", cls: "bg-slate-100 text-slate-500", dot: "bg-slate-300" },
+  saved: { label: "Saved", cls: "bg-mustard-soft text-[#8a6414]", dot: "bg-mustard" },
+  applied: { label: "Applied", cls: "bg-ocean-soft text-ocean", dot: "bg-ocean" },
+  interviewing: { label: "Interviewing", cls: "bg-plum-soft text-plum", dot: "bg-plum" },
+  offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-good" },
+  rejected: { label: "Rejected", cls: "bg-clay-soft text-clay", dot: "bg-clay" },
+  withdrawn: { label: "Withdrawn", cls: "bg-line-2 text-muted", dot: "bg-faint" },
 };
 
 export function StatusPill({ status }: { status: Status }) {
@@ -33,7 +33,7 @@ export function StatusPill({ status }: { status: Status }) {
 }
 
 export function scoreColor(score: number) {
-  return score >= 7 ? "#15803d" : score >= 5 ? "#b45309" : "#c2410c";
+  return score >= 7 ? "#2f7a52" : score >= 5 ? "#b5701a" : "#c8452c";
 }
 
 export function MatchChip({ score }: { score: number }) {
@@ -49,7 +49,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   return (
     <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#e9eeec" strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="#efe8dc" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -74,7 +74,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
 }
 
 // Soft tinted monograms (like app icons) — never loud solid blocks.
-const AVATAR_HUES = [256, 266, 244, 232, 276, 250, 238, 284];
+const AVATAR_HUES = [14, 38, 150, 205, 285, 162, 26, 340];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
   const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
   return (
@@ -83,11 +83,10 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
       style={{
         width: size,
         height: size,
-        borderRadius: size * 0.3,
+        borderRadius: 999,
         fontSize: size * 0.42,
-        background: `linear-gradient(145deg, hsl(${h} 90% 96%), hsl(${h} 80% 90%))`,
-        color: `hsl(${h} 60% 38%)`,
-        boxShadow: `inset 0 0 0 1px hsl(${h} 70% 86%)`,
+        background: `hsl(${h} 55% 90%)`,
+        color: `hsl(${h} 45% 30%)`,
       }}
     >
       {(name.trim()[0] ?? "?").toUpperCase()}
@@ -95,7 +94,7 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   );
 }
 
-const TONES = { sky: "bg-sky text-[#3b47b0]", sun: "bg-sun text-brand", lilac: "bg-lilac text-[#4b3fb3]", rose: "bg-rose text-[#6b3a8f]", mint: "bg-brand-soft text-brand" };
+const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-[#8a6414]", lilac: "bg-plum-soft text-plum", rose: "bg-clay-soft text-clay", mint: "bg-brand-soft text-brand" };
 export function StatTile({ icon, label, value, sub, tone = "sky", href, interactive }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES; href?: string; interactive?: boolean }) {
   const Tag = href ? Link : "div";
   return (
@@ -164,10 +163,10 @@ export function Panel({
 }) {
   return (
     <section className={`card overflow-hidden ${className}`}>
-      <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
-        {icon && <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">{icon}</span>}
+      <div className="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
+        {icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-clay-soft text-clay">{icon}</span>}
         <div className="min-w-0 flex-1">
-          <div className="font-bold leading-tight">{title}</div>
+          <div className="font-display text-[1.05rem] font-bold leading-tight">{title}</div>
           {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
         </div>
         {action}
@@ -179,7 +178,7 @@ export function Panel({
 
 /** Sub-heading inside a card. */
 export function SubLabel({ children }: { children: React.ReactNode }) {
-  return <div className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
+  return <div className="mb-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
 }
 
 /**

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 import { DeleteSessionButton } from "./DeleteSessionButton";
 import { requireUser } from "@/lib/auth";
 import { buildPrompt, type NegotiationInputs, type StepKey } from "@/lib/prompts";
@@ -10,10 +10,11 @@ import { RealtimeCall } from "./RealtimeCall";
 import { InterviewScorecard, OfferCheckCard, PracticeModes } from "./PracticeInsights";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { deleteSession } from "@/lib/actions";
+import { CompanyAvatar, timeAgo } from "./ui";
 
 const CONFIG = {
-  interview: { step: "mock_interview" as StepKey, back: "/interview", backLabel: "Interview practice", quick: ["Ready"], ai: "Interviewer" },
-  negotiation: { step: "negotiation" as StepKey, back: "/negotiation", backLabel: "Salary negotiation", quick: ["Stop and give feedback"], ai: "HR" },
+  interview: { step: "mock_interview" as StepKey, back: "/interview", backLabel: "Interview", tag: "Mock interview", quick: ["Ready"], ai: "Interviewer" },
+  negotiation: { step: "negotiation" as StepKey, back: "/negotiation", backLabel: "Salary", tag: "Salary talk", quick: ["Stop and give feedback"], ai: "HR" },
 };
 
 export async function SessionView({ id, kind }: { id: string; kind: keyof typeof CONFIG }) {
@@ -44,31 +45,48 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   const transcriptLen = visible.map((m) => `${m.role === "user" ? "Candidate" : "Interviewer"}: ${m.content}`).join("\n").length;
   const stale = !!report && transcriptLen > Number(meta.report_turns ?? 0) + 40;
   const voiceReady = profile.voice_enabled && profile.ai_mode === "real" && profile.is_active;
+  const company = app?.company ?? (meta.company as string | undefined);
 
   return (
-    <div>
-      <div className="mb-5 flex items-center justify-between">
-        <Link href={cfg.back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft size={15} /> {cfg.backLabel}</Link>
+    <div className="space-y-5">
+      <Link href={cfg.back} className="inline-flex items-center gap-1 pt-2 text-[0.9rem] font-medium text-muted hover:text-ink"><ChevronLeft size={15} /> {cfg.backLabel}</Link>
+
+      <header className="card flex flex-wrap items-center gap-4 p-6 fade-up">
+        {company && <CompanyAvatar name={company} size={52} />}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2 text-[0.84rem] text-muted">
+            <span className={`chip ${kind === "interview" ? "bg-plum-soft text-plum" : "bg-good-soft text-good"}`}>{cfg.tag}</span>
+            <span>Started {timeAgo(session.created_at)}</span>
+            {kind === "interview" && <span>· {answers} answer{answers === 1 ? "" : "s"} given</span>}
+          </div>
+          <h1 className="mt-2 text-[2rem] font-bold leading-[1.05]">{session.title}</h1>
+        </div>
         <DeleteSessionButton action={del} />
-      </div>
-      <h1 className="mb-5 text-xl font-bold tracking-tight">{session.title}</h1>
-      {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
-      {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
-      <PracticeModes
-        available={voiceReady}
-        realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: m.content }))} />}
-        classic={
-          <ChatPanel
-            sessionId={id}
-            initialMessages={messages ?? []}
-            voice
-            aiName={cfg.ai}
-            quickReplies={cfg.quick}
-            autoStart={{ prompt, step: cfg.step }}
-            placeholder="Or type your answer…"
+      </header>
+
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        <div className="min-w-0 fade-up">
+          <PracticeModes
+            available={voiceReady}
+            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: m.content }))} />}
+            classic={
+              <ChatPanel
+                sessionId={id}
+                initialMessages={messages ?? []}
+                voice
+                aiName={cfg.ai}
+                quickReplies={cfg.quick}
+                autoStart={{ prompt, step: cfg.step }}
+                placeholder="Or type your answer…"
+              />
+            }
           />
-        }
-      />
+        </div>
+        <aside className="space-y-4 xl:sticky xl:top-6 fade-up">
+          {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
+          {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
+        </aside>
+      </div>
     </div>
   );
 }

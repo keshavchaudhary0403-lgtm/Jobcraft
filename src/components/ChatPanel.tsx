@@ -85,36 +85,33 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
   const state = v.listening ? "listening" : busy ? "thinking" : v.speaking ? "speaking" : "idle";
 
   return (
-    <div className={voice ? "grid items-start gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "flex flex-col gap-4"}>
+    <div className="flex flex-col gap-4">
       {voice && (
-        <div className="card ai-gradient flex flex-col items-center overflow-hidden px-6 py-12 fade-up lg:sticky lg:top-6">
+        <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
           <VoiceOrb state={state} />
-          <div className="mt-10 h-6 text-center font-medium text-slate-700">
-            {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-[1.35rem] font-bold leading-tight">
+              {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
+            </div>
+            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/65">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud — or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
           </div>
-          <div className="mt-1 min-h-5 max-w-lg text-center text-sm text-muted">{v.listening ? v.transcript : ""}</div>
-          <div className="mt-6 flex items-center gap-3">
-            {v.supported.listen ? (
-              <button
-                onClick={() => (v.listening ? v.stopListening() : v.startListening((t) => send(t)))}
-                disabled={busy}
-                className={`grid h-16 w-16 place-items-center rounded-full text-white shadow-xl transition hover:scale-105 disabled:opacity-40 ${
-                  v.listening ? "bg-bad" : "bg-gradient-to-br from-brand to-brand-2"
-                }`}
-                aria-label={v.listening ? "Stop and send" : "Answer by voice"}
-              >
-                {v.listening ? <Square size={22} fill="currentColor" /> : <Mic size={26} />}
-              </button>
-            ) : (
-              <p className="text-xs text-muted">Voice works in Chrome, Edge and Safari. You can type below.</p>
-            )}
+          <div className="flex items-center gap-2">
             {v.supported.speak && (
-              <button className="btn btn-ghost h-11 w-11 rounded-full p-0" onClick={() => { setSpeakOn(!speakOn); v.stopSpeaking(); }} aria-label="Toggle voice replies">
+              <button className="grid h-12 w-12 place-items-center rounded-full bg-white/10 text-cream transition hover:bg-white/20" onClick={() => { setSpeakOn(!speakOn); v.stopSpeaking(); }} aria-label="Toggle voice replies">
                 {speakOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
               </button>
             )}
+            {v.supported.listen && (
+              <button
+                onClick={() => (v.listening ? v.stopListening() : v.startListening((t) => send(t)))}
+                disabled={busy}
+                className={`grid h-14 w-14 place-items-center rounded-full text-white shadow-xl transition hover:scale-105 disabled:opacity-40 ${v.listening ? "bg-bad" : "bg-clay"}`}
+                aria-label={v.listening ? "Stop and send" : "Answer by voice"}
+              >
+                {v.listening ? <Square size={20} fill="currentColor" /> : <Mic size={24} />}
+              </button>
+            )}
           </div>
-          {v.listening && <div className="mt-3 text-xs text-muted">Tap ■ when you finish your answer</div>}
         </div>
       )}
 
@@ -162,7 +159,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             }}
           />
           <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-ink text-white transition hover:bg-slate-800 disabled:opacity-30"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white transition hover:bg-[#c9532f] disabled:opacity-30"
             disabled={busy || !input.trim()}
             onClick={() => {
               const t = input;
@@ -182,17 +179,17 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
 function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
   const active = state !== "idle";
-  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-brand to-brand-2";
+  const color = state === "listening" ? "from-[#f0a27f] to-[#e0653f]" : "from-[#9cc5b2] to-[#e2a92c]";
   return (
-    <div className="relative grid h-32 w-32 place-items-center">
+    <div className="relative grid h-20 w-20 shrink-0 place-items-center">
       {active && (
         <>
-          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out infinite" }} />
-          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out .8s infinite" }} />
+          <span className={`absolute inset-2 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out infinite" }} />
+          <span className={`absolute inset-2 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out .8s infinite" }} />
         </>
       )}
       <span
-        className={`relative h-24 w-24 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
+        className={`relative h-16 w-16 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
         style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px color-mix(in srgb, var(--brand) 60%, transparent), inset 0 -10px 30px rgba(255,255,255,.25)" }}
       />
     </div>
@@ -203,17 +200,17 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
   if (msg.role === "user")
     return (
       <div className="flex justify-end fade-up">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-sm text-white">{msg.content}</div>
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-[18px] rounded-br-md bg-side px-4 py-2.5 text-[0.92rem] text-cream">{msg.content}</div>
       </div>
     );
   return (
     <div className="fade-up">
       <div className="mb-1 text-xs font-medium text-faint">{aiName}</div>
-      <div className="card rounded-2xl rounded-tl-md px-4 py-3">
+      <div className="rounded-[18px] rounded-tl-md border-[1.5px] border-line bg-card px-4 py-3">
         {msg.pending && !msg.content ? (
           <div className="flex gap-1 py-1.5">
             {[0, 1, 2].map((i) => (
-              <span key={i} className="h-2 w-2 rounded-full bg-brand/60" style={{ animation: `breathe 1s ease-in-out ${i * 0.15}s infinite` }} />
+              <span key={i} className="h-2 w-2 rounded-full bg-clay/60" style={{ animation: `breathe 1s ease-in-out ${i * 0.15}s infinite` }} />
             ))}
           </div>
         ) : (

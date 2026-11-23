@@ -1,192 +1,244 @@
 import Link from "next/link";
-import { ArrowRight, BarChart3, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, IndianRupee, Mic, Plus, Send, Target, UserRound } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { Kpi } from "@/components/ui";
-import { JobCard } from "@/components/JobCard";
-import type { Application } from "@/lib/types";
+import { profileStrength } from "@/components/ui";
+import { JobTile, STATUS_BAR, StatusDonut } from "@/components/JobTiles";
+import { STATUSES, type Application, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSettings, monthStartIST } from "@/lib/ai";
+import { resumeHealth } from "@/lib/resume-health";
+import { journey, openQs } from "@/lib/journey";
 
 function greeting() {
   const h = new Date(Date.now() + 5.5 * 3600e3).getUTCHours();
-  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+  return h < 12 ? "Morning" : h < 17 ? "Afternoon" : "Evening";
 }
-
-type Move = { href: string; label: string; sub: string };
-
-function nextMoves(apps: Application[], hasLinkedIn: boolean, practised: Set<string>): Move[] {
-  const moves: Move[] = [];
-  for (const a of apps) {
-    const an = a.analysis as Analysis | null;
-    const unanswered = an ? an.questions.filter((q) => !a.fit_answers?.[q]?.trim()).length : 0;
-    if (!an) moves.push({ href: `/jobs/${a.id}`, label: `See your match for ${a.company}`, sub: "Takes about 15 seconds" });
-    else if (unanswered) moves.push({ href: `/jobs/${a.id}`, label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""} for ${a.company}`, sub: "Sharpens your match score" });
-    else if (!a.tailored_resume) moves.push({ href: `/jobs/${a.id}?tab=resume`, label: `Tailor your resume for ${a.company}`, sub: `${an.fit_score * 10}% match today` });
-    else if (!a.outreach) moves.push({ href: `/jobs/${a.id}?tab=outreach`, label: `Message the hiring manager at ${a.company}`, sub: "Connection note + message" });
-    else if (["applied", "interviewing"].includes(a.status) && !practised.has(a.id)) moves.push({ href: `/jobs/${a.id}?tab=practice`, label: `Practise your ${a.company} interview`, sub: "6 questions, by voice" });
-    if (moves.length >= 3) break;
-  }
-  if (moves.length < 3 && !hasLinkedIn) moves.push({ href: "/linkedin", label: "Refresh your LinkedIn", sub: "Headlines recruiters search for" });
-  if (!apps.length) moves.unshift({ href: "/jobs/new", label: "Add your first job", sub: "Paste any job description" });
-  return moves.slice(0, 3);
+function lastWeek() {
+  const now = Date.now();
+  return Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(now - (6 - i) * 864e5 + 5.5 * 3600e3);
+    return { key: d.toISOString().slice(0, 10), day: d.toLocaleDateString("en-IN", { weekday: "narrow", timeZone: "UTC" }) };
+  });
 }
 
 export default async function Home() {
   const { supabase, profile } = await requireUser();
   const [{ data: apps }, { data: sessions }, settings, { data: usage }] = await Promise.all([
     supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>(),
-    supabase.from("sessions").select("application_id, kind").in("kind", ["interview", "negotiation"]),
+    supabase.from("sessions").select("application_id, kind, meta").in("kind", ["interview", "negotiation"]).order("updated_at", { ascending: true }),
     getSettings(createServiceClient()),
     supabase.from("usage_events").select("cost_usd").gte("created_at", monthStartIST()),
   ]);
-  const list = apps ?? [];
+  const all = apps ?? [];
+  const live = all.filter((a) => !["rejected", "withdrawn"].includes(a.status));
   const interviews = (sessions ?? []).filter((s) => s.kind === "interview");
+  const negotiations = (sessions ?? []).filter((s) => s.kind === "negotiation");
   const practised = new Set(interviews.map((s) => s.application_id).filter(Boolean) as string[]);
-  const scored = list.filter((a) => a.analysis).map((a) => ({ a, s: (a.analysis as Analysis).fit_score }));
-  const best = scored.sort((x, y) => y.s - x.s)[0];
-  const by = (st: string[]) => list.filter((a) => st.includes(a.status)).length;
-  const pipeline = [
-    { key: "saved", label: "Saved", n: by(["saved"]), cls: "bg-[#d6d0ea]" },
-    { key: "applied", label: "Applied", n: by(["applied"]), cls: "bg-[#b9a6f2]" },
-    { key: "interviewing", label: "Interviewing", n: by(["interviewing"]), cls: "bg-[#8a6fe0]" },
-    { key: "offer", label: "Offer", n: by(["offer"]), cls: "bg-brand" },
-  ];
-  const appliedCount = by(["applied", "interviewing", "offer", "rejected"]);
+  const scores = interviews.map((s) => (s.meta as { interview_report?: { score?: number } } | null)?.interview_report?.score).filter((x): x is number => typeof x === "number");
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
-  const moves = nextMoves(list, !!profile.linkedin_result, practised);
   const first = profile.full_name?.split(" ")[0];
+  const health = profile.master_resume?.trim() ? resumeHealth(profile.master_resume).score : null;
+  const strength = profileStrength(profile);
+
+  // Search score
+  const fits = live.filter((a) => a.analysis).map((a) => (a.analysis as Analysis).fit_score * 10);
+  const avg = fits.length ? Math.round(fits.reduce((t, x) => t + x, 0) / fits.length) : null;
+  const week = lastWeek().map((d) => ({ ...d, n: all.filter((a) => a.applied_on === d.key).length }));
+  const thisWeek = week.reduce((t, d) => t + d.n, 0);
+  const GOAL = 5;
+  const saved = live.filter((a) => a.status === "saved");
+  const prepDone = saved.reduce((t, a) => t + journey(a, practised).slice(0, 4).filter((s) => s.done).length, 0);
+  const parts = [
+    { label: "Resume", color: "#e2a92c", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
+    { label: "Match", color: "#9cc5b2", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
+    { label: "Prep", color: "#f0a27f", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
+    { label: "Applying", color: "#8fb5bb", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
+    { label: "Interview", color: "#d9a27f", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
+    { label: "LinkedIn", color: "#fdfaf4", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
+  ];
+  const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
+  const lift = [...parts].sort((x, y) => y.weight * (1 - y.value) - x.weight * (1 - x.value))[0];
+  const gain = Math.round(lift.weight * (1 - lift.value));
+  const word = score >= 75 ? "Interview-ready" : score >= 50 ? "Picking up pace" : "Warming up";
+
+  // Areas of the platform with live status
+  const qOpen = live.reduce((t, a) => t + openQs(a), 0);
+  const offers = live.filter((a) => a.status === "offer").length;
+  const areas = [
+    { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active${qOpen ? ` · ${qOpen} questions open` : ""}` : "Add your first" },
+    { href: "/linkedin", label: "LinkedIn", icon: Send, hint: profile.linkedin_result ? "Rewritten" : "Not rewritten yet" },
+    { href: "/interview", label: "Interview", icon: Mic, hint: `${Math.min(interviews.length, 3)}/3 rounds${scores.length ? ` · last ${scores.at(-1)}/10` : ""}` },
+    { href: "/negotiation", label: "Salary", icon: IndianRupee, hint: offers ? `${offers} offer${offers > 1 ? "s" : ""}` : `${negotiations.length} talk${negotiations.length === 1 ? "" : "s"} practised` },
+    { href: "/profile", label: "Profile", icon: UserRound, hint: `${strength}% complete${health != null ? ` · resume ${health}` : ""}` },
+  ];
+
+  // Gaps that repeat across jobs
+  const gapMap = new Map<string, { n: number; status: string }>();
+  for (const a of live) for (const g of (a.analysis as Analysis | null)?.gaps ?? []) {
+    const k = g.gap.trim();
+    gapMap.set(k, { n: (gapMap.get(k)?.n ?? 0) + 1, status: g.status });
+  }
+  const gaps = [...gapMap.entries()].sort((x, y) => y[1].n - x[1].n).slice(0, 4);
+  const counts = Object.fromEntries(STATUSES.map((s) => [s, all.filter((a) => a.status === s).length])) as Record<Status, number>;
 
   return (
-    <>
-      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
-        <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
-          <p className="mt-0.5 text-muted">{profile.target_role ? `Going after ${profile.target_role}` : "Let's land your next role."}</p>
-        </div>
-        <Link href="/jobs/new" className="btn btn-primary"><Plus size={16} /> Add job</Link>
-      </div>
+    <div className="space-y-5">
+      {/* ── Hero band ── */}
+      <section className="dark-card overflow-hidden fade-up">
+        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.1fr)_auto_minmax(0,1.2fr)] lg:items-center">
+          <div>
+            <div className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-white/50">Your job search</div>
+            <h1 className="mt-2 text-[2.9rem] font-bold leading-[0.95] text-cream">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
+            {profile.target_role && <p className="mt-3 text-white/65">Chasing <span className="font-semibold text-cream">{profile.target_role}</span></p>}
+          </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <Kpi
-          href="/jobs"
-          icon={<BriefcaseBusiness size={16} />}
-          label="Jobs tracked"
-          value={list.length}
-          breakdown={pipeline.map((p) => ({ label: p.label.toLowerCase(), n: p.n, cls: p.cls }))}
-        />
-        <Kpi
-          href="/jobs?status=applied"
-          tone="sun"
-          icon={<Send size={16} />}
-          label="Applied"
-          value={appliedCount}
-          unit={list.length ? `of ${list.length}` : undefined}
-          progress={list.length ? { value: appliedCount, max: list.length, caption: appliedCount ? `${by(["interviewing", "offer"])} moved to interviews or offers` : "Apply to your best matches first" } : undefined}
-        />
-        <Kpi
-          href="/interview"
-          tone="lilac"
-          icon={<Mic size={16} />}
-          label="Interviews practised"
-          value={interviews.length}
-          progress={{ value: Math.min(interviews.length, 3), max: 3, caption: interviews.length >= 3 ? "Goal reached — keep it sharp" : `${3 - interviews.length} more to reach 3 rounds` }}
-        />
-        <Kpi
-          href={best ? `/jobs/${best.a.id}` : "/jobs/new"}
-          tone="rose"
-          icon={<Target size={16} />}
-          label="Best match"
-          value={best ? best.s * 10 : "—"}
-          unit={best ? "%" : undefined}
-          progress={best ? { value: best.s, max: 10, caption: best.a.company } : undefined}
-          note={best ? undefined : "Add a job to see your match"}
-        />
-      </div>
-
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
-        <div className="space-y-5">
-          <section>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-bold">Your jobs</h2>
-              {list.length > 0 && <Link href="/jobs" className="pill-link">View all <ArrowRight size={12} /></Link>}
+          <Link href={lift.href} className="flex items-center gap-4" title="Your search score">
+            <ScoreRing value={score} parts={parts} />
+            <div>
+              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/50">Search score</div>
+              <div className="font-display text-[1.25rem] font-bold text-brand-2">{word}</div>
             </div>
-            {list.length === 0 ? (
-              <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
-                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand"><ClipboardPaste size={20} /></div>
-                <div className="flex-1">
-                  <div className="font-semibold">Paste a job description</div>
-                  <div className="text-muted">Get your match, a tailored resume and outreach.</div>
-                </div>
-                <ArrowRight size={18} className="text-faint" />
-              </Link>
-            ) : (
-              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3 stagger">
-                {list.slice(0, 6).map((a) => <JobCard key={a.id} a={a} />)}
-              </div>
-            )}
+          </Link>
+
+          <div className="grid grid-cols-3 gap-3">
+            <Link href="/jobs" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+              <div className="text-[0.8rem] text-white/55">This week</div>
+              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{thisWeek}<span className="text-[0.9rem] text-white/45">/{GOAL}</span></div>
+              <div className="mt-2 flex gap-1">{week.map((d) => <span key={d.key} title={`${d.n} applied`} className={`h-1.5 flex-1 rounded-full ${d.n ? "bg-clay" : "bg-white/15"}`} />)}</div>
+            </Link>
+            <Link href="/interview" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+              <div className="text-[0.8rem] text-white/55">Mock rounds</div>
+              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{Math.min(interviews.length, 3)}<span className="text-[0.9rem] text-white/45">/3</span></div>
+              <div className="mt-2 flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < interviews.length ? "bg-[#d9a27f]" : "bg-white/15"}`} />)}</div>
+            </Link>
+            <Link href="/profile" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+              <div className="text-[0.8rem] text-white/55">AI left</div>
+              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "—"}</div>
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${limit ? Math.max(2, Math.min(100, 100 - (spent / limit) * 100)) : 0}%` }} /></div>
+            </Link>
+          </div>
+        </div>
+        {gain > 0 && (
+          <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-7 py-3.5 transition hover:bg-white/[.08]">
+            <span className="flex items-center gap-3"><span className="rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Biggest lift</span><span className="font-semibold text-cream">{lift.lift}</span></span>
+            <span className="flex items-center gap-2 font-display text-[1.1rem] font-bold text-mustard">+{gain} points <ArrowRight size={16} /></span>
+          </Link>
+        )}
+      </section>
+
+      {/* ── Areas ── */}
+      <nav className="grid grid-cols-2 gap-3 md:grid-cols-5 fade-up">
+        {areas.map((x, i) => (
+          <Link key={x.href} href={x.href} className="group flex items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
+            <span className="min-w-0">
+              <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
+              <span className="block truncate text-[0.78rem] text-muted">{x.hint}</span>
+            </span>
+          </Link>
+        ))}
+      </nav>
+
+      {/* ── Jobs + side ── */}
+      {all.length === 0 ? (
+        <Link href="/jobs/new" className="flex items-center gap-5 rounded-[22px] border-[1.5px] border-dashed border-clay/50 bg-card p-8 transition hover:border-clay fade-up">
+          <span className="grid h-14 w-14 place-items-center rounded-full bg-clay text-white"><Plus size={24} /></span>
+          <span className="flex-1">
+            <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
+            <span className="block text-muted">Paste the description — Jobcraft decodes it, scores your fit, tailors your resume and writes to the hiring manager.</span>
+          </span>
+        </Link>
+      ) : (
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+          <section className="fade-up">
+            <div className="mb-3 flex items-end justify-between">
+              <h2 className="text-[1.6rem] font-bold leading-none">Your jobs</h2>
+              <Link href="/jobs" className="inline-flex items-center gap-1 text-[0.92rem] font-semibold text-brand hover:underline">All {all.length} <ArrowRight size={14} /></Link>
+            </div>
+            <div className="grid gap-5 md:grid-cols-2 stagger">
+              {live.slice(0, 4).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
+              {live.length < 4 && (
+                <Link href="/jobs/new" className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-[22px] border-[1.5px] border-dashed border-line text-center text-muted transition hover:border-clay hover:text-clay">
+                  <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
+                  <span>
+                    <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
+                    <span className="block text-[0.84rem]">Five or more keeps your search moving.</span>
+                  </span>
+                </Link>
+              )}
+              {live.length < 4 && live.length % 2 === 0 && (
+                <Link href="/interview" className="card card-hover flex min-h-[190px] flex-col justify-between p-5" style={{ background: "var(--color-plum-soft)" }}>
+                  <span className="flex items-center gap-3">
+                    <span className="grid h-11 w-11 place-items-center rounded-full bg-plum text-white"><Mic size={19} /></span>
+                    <span>
+                      <span className="block text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-plum">Practise while you wait</span>
+                      <span className="block font-display text-[1.15rem] font-bold">Mock interview</span>
+                    </span>
+                  </span>
+                  <span className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < interviews.length ? "bg-plum" : "bg-white"}`} />)}</span>
+                  <span className="flex items-center justify-between text-[0.88rem]">
+                    <span className="text-muted">{Math.min(interviews.length, 3)} of 3 rounds{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
+                    <span className="inline-flex items-center gap-1 font-semibold text-plum">Start <ArrowRight size={14} /></span>
+                  </span>
+                </Link>
+              )}
+            </div>
           </section>
 
-          {list.length > 0 && (
-            <section className="card p-5 fade-up">
-              <div className="card-head"><span className="ico"><BarChart3 size={15} /></span>Your pipeline</div>
-              <div className="grid grid-cols-4 gap-3">
-                {pipeline.map((p) => (
-                  <Link key={p.label} href={`/jobs?status=${p.key}`} className="-m-2 rounded-xl p-2 transition hover:bg-line-2">
-                    <div className={`h-1.5 rounded-full ${p.n ? p.cls : "bg-line"}`} />
-                    <div className="mt-2.5 text-[1.25rem] font-semibold tabular-nums">{p.n}</div>
-                    <div className="text-[0.82rem] text-muted">{p.label}</div>
-                  </Link>
-                ))}
+          <aside className="space-y-5 xl:pt-[2.35rem] fade-up">
+            <section className="card p-5">
+              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Pipeline</div>
+              <div className="mt-1 flex items-center">
+                <div className="-my-5 -ml-3 -mr-9 shrink-0 scale-[.7]"><StatusDonut counts={counts} total={all.length} /></div>
+                <ul className="min-w-0 flex-1 space-y-1.5 text-[0.88rem]">
+                  {STATUSES.filter((s) => counts[s]).map((s) => (
+                    <li key={s}><Link href={`/jobs?status=${s}`} className="flex items-center gap-2 hover:text-brand"><span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} /><span className="flex-1 capitalize">{s}</span><b className="tabular-nums">{counts[s]}</b></Link></li>
+                  ))}
+                </ul>
               </div>
             </section>
-          )}
+
+            {gaps.length > 0 && (
+              <section className="card p-5" style={{ background: "var(--color-mustard-soft)" }}>
+                <div className="flex items-center gap-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-[#8a6414]"><Target size={14} /> Gaps across your jobs</div>
+                <ul className="mt-3 space-y-2.5">
+                  {gaps.map(([g, v]) => (
+                    <li key={g} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 grid h-6 min-w-6 place-items-center rounded-full bg-clay px-1 text-[0.78rem] font-bold text-white">{v.n}×</span>
+                      <span className="text-[0.9rem] font-medium leading-snug">{g}</span>
+                    </li>
+                  ))}
+                </ul>
+                <Link href="/profile" className="mt-4 inline-flex items-center gap-1 text-[0.88rem] font-semibold text-clay hover:underline">Close them in your resume <ArrowRight size={14} /></Link>
+              </section>
+            )}
+          </aside>
         </div>
+      )}
+    </div>
+  );
+}
 
-        <aside className="space-y-4 stagger">
-          <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[1.15rem] font-semibold"><Sparkles size={17} className="text-brand-2" /> Your next best move</div>
-            <div className="mt-4 space-y-2">
-              {moves.map((m) => (
-                <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">
-                  <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[0.92rem] font-medium leading-snug">{m.label}</div>
-                    <div className="text-[0.78rem] text-white/55">{m.sub}</div>
-                  </div>
-                  <ArrowRight size={15} className="shrink-0 text-white/50" />
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="card p-2">
-            <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-[#4b3fb3]"><Mic size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
-              <ArrowRight size={15} className="text-faint" />
-            </Link>
-            <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-brand"><IndianRupee size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
-              <ArrowRight size={15} className="text-faint" />
-            </Link>
-          </div>
-
-          {limit != null && (
-            <div className="card p-4">
-              <div className="flex items-baseline justify-between text-[0.85rem]">
-                <span className="font-semibold">AI usage this month</span>
-                <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
-              </div>
-              <div className="mt-0.5 text-[0.78rem] text-muted">Your personal monthly AI limit · resets on the 1st</div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line-2">
-                <div className={`h-full rounded-full ${spent / limit >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(Math.min(100, (spent / limit) * 100), 2)}%` }} />
-              </div>
-            </div>
-          )}
-        </aside>
+/** Ring made of the six score parts: each arc's length is its weight, the bright part is what you've earned. */
+function ScoreRing({ value, parts }: { value: number; parts: { label: string; color: string; value: number; weight: number }[] }) {
+  const size = 128, stroke = 12, r = (size - stroke) / 2, c = 2 * Math.PI * r, gap = 4;
+  const segs = parts.map((p, i) => ({ ...p, start: (parts.slice(0, i).reduce((t, x) => t + x.weight, 0) / 100) * c, len: (p.weight / 100) * c }));
+  return (
+    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+      <svg width={size} height={size} className="-rotate-90">
+        {segs.map((p) => (
+          <g key={p.label}>
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.1)" strokeWidth={stroke} strokeDasharray={`${p.len - gap} ${c}`} strokeDashoffset={-p.start} />
+            {p.value > 0 && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max((p.len - gap) * p.value, 1)} ${c}`} strokeDashoffset={-p.start}><title>{p.label}</title></circle>}
+          </g>
+        ))}
+      </svg>
+      <div className="absolute text-center">
+        <div className="font-display text-[2.4rem] font-bold leading-none tabular-nums text-cream">{value}</div>
+        <div className="text-[0.78rem] text-white/45">of 100</div>
       </div>
-    </>
+    </div>
   );
 }
