@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, X } from "lucide-react";
+import { FileText, Plus, UserRound, X } from "lucide-react";
 import type { ProfileDraft } from "@/lib/profile-draft";
 export type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
@@ -33,8 +33,11 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
   );
 }
 
-export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string }) {
+export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean }) {
   const [d, setD] = useState(initial);
+  const [view, setView] = useState<"details" | "resume">("details");
+  const [saved, setSaved] = useState(initial);
+  const dirty = JSON.stringify(d) !== JSON.stringify(saved);
   const [skill, setSkill] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -63,15 +66,16 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
       .eq("id", userId);
     setBusy(false);
     if (error) return setMsg(error.message);
+    setSaved(d);
     setMsg("Saved");
     setTimeout(() => setMsg(""), 1500);
     onSaved?.();
   }
 
 
-  return (
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
-      <div className="space-y-4 stagger">
+  const detailsUI = (
+    <>
+      <div className="space-y-4">
         <Section title="Basics">
           <div className="grid gap-4 sm:grid-cols-2">
             <Field label="Name" value={d.full_name ?? ""} onChange={(v) => set("full_name", v)} />
@@ -86,6 +90,8 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
           <textarea className="field" rows={3} value={d.strongest_proof ?? ""} onChange={(e) => set("strongest_proof", e.target.value)} />
         </Section>
 
+      </div>
+      <div className="space-y-4">
         <Section title="Skills">
           <div className="flex flex-wrap gap-2">
             {d.skills.map((s) => (
@@ -119,15 +125,41 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes" }
           </div>
         </Section>
 
+      </div>
+    </>
+  );
+  const saveBar = (
         <div className="sticky bottom-4 z-10 flex items-center gap-3 rounded-2xl border border-line bg-white/90 p-3 shadow-lg backdrop-blur">
           <button className="btn btn-brand" onClick={save} disabled={busy || !(d.master_resume ?? "").trim()}>
             {busy && <Spinner />} {cta}
           </button>
-          <span className="text-[0.88rem] text-muted">{msg}</span>
+          <span className="text-[0.88rem] text-muted">{msg || (dirty ? "Unsaved changes" : "")}</span>
         </div>
-      </div>
+  );
+  const resumeUI = <ResumePreview page={tabs} value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />;
 
-      <ResumePreview value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+  if (tabs)
+    return (
+      <div className="space-y-4">
+        <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
+          {([["details", "Details", UserRound], ["resume", "Resume", FileText]] as const).map(([k, l, Icon]) => (
+            <button key={k} onClick={() => setView(k)} className={`flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] transition ${view === k ? "bg-white font-medium shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
+              <Icon size={14} /> {l}
+            </button>
+          ))}
+        </div>
+        {view === "details" ? <div className="grid items-start gap-4 xl:grid-cols-2 stagger">{detailsUI}</div> : resumeUI}
+        {saveBar}
+      </div>
+    );
+
+  return (
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px]">
+      <div className="space-y-4 stagger">
+        {detailsUI}
+        {saveBar}
+      </div>
+      {resumeUI}
     </div>
   );
 }

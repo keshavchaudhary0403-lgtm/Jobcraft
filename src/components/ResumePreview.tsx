@@ -47,11 +47,11 @@ function Formatted({ text }: { text: string }) {
   return <div className="text-[0.9rem] leading-relaxed text-slate-700">{out}</div>;
 }
 
-export function ResumePreview({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+export function ResumePreview({ value, onChange, page }: { value: string; onChange: (v: string) => void; page?: boolean }) {
   const [editing, setEditing] = useState(false);
   const words = value.split(/\s+/).filter(Boolean).length;
   return (
-    <section className="card flex flex-col xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)] fade-up">
+    <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
       <div className="flex items-center justify-between border-b border-line px-5 py-3">
         <span className="font-semibold">Resume</span>
         <span className="flex items-center gap-3">
@@ -64,13 +64,15 @@ export function ResumePreview({ value, onChange }: { value: string; onChange: (v
       {editing ? (
         <textarea
           autoFocus
-          className="thin-scroll min-h-[420px] flex-1 resize-none border-0 bg-transparent px-5 py-4 text-[0.9rem] leading-relaxed text-slate-700 outline-none xl:min-h-0"
+          className={`thin-scroll flex-1 resize-none border-0 bg-transparent text-[0.9rem] leading-relaxed text-slate-700 outline-none ${page ? "mx-auto block min-h-[70vh] w-full max-w-[860px] px-8 py-8" : "min-h-[420px] px-5 py-4 xl:min-h-0"}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />
       ) : (
-        <div className="thin-scroll min-h-[420px] flex-1 overflow-y-auto px-6 py-5 xl:min-h-0">
+        <div className={page ? "px-6 py-8 sm:px-10" : "thin-scroll min-h-[420px] flex-1 overflow-y-auto px-6 py-5 xl:min-h-0"}>
+          <div className={page ? "mx-auto max-w-[860px] text-[1.02rem]" : ""}>
           {value.trim() ? <Formatted text={value} /> : <p className="text-muted">No resume yet.</p>}
+          </div>
         </div>
       )}
     </section>
