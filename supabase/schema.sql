@@ -105,6 +105,13 @@ drop policy if exists "own messages" on public.messages;
 create policy "own messages" on public.messages
   for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 
+-- Explicit API grants (needed when "auto-grant new tables" is off). anon gets nothing.
+revoke all on public.profiles, public.applications, public.sessions, public.messages from anon;
+grant usage on schema public to authenticated, service_role;
+grant select, update on public.profiles to authenticated;
+grant select, insert, update, delete on public.applications, public.sessions, public.messages to authenticated;
+grant all on public.profiles, public.applications, public.sessions, public.messages to service_role;
+
 -- Users must not be able to make themselves admin or change their login phone.
 create or replace function public.protect_profile_columns()
 returns trigger language plpgsql as $$
