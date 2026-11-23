@@ -166,7 +166,7 @@ export function JobView({
                   key={key}
                   onClick={() => setTab(key)}
                   disabled={!analysed && key !== "overview"}
-                  className={`h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
+                  className={`font-semibold h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
                     tab === key ? "bg-brand text-on-brand shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
                   }`}
                 >

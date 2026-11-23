@@ -115,7 +115,7 @@ export default function NewJob() {
       <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="card overflow-hidden fade-up">
           <div className="flex items-center justify-between border-b border-line px-5 py-3">
-            <span className="font-medium">Job description</span>
+            <span className="font-bold">Job description</span>
             <span className="text-[0.82rem] tabular-nums text-faint">{words} words</span>
           </div>
           <textarea

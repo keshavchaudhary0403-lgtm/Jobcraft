@@ -48,7 +48,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
   return (
     <>
       <div className="border-b border-line px-5 py-4">
-        <div className="font-semibold">Which offer?</div>
+        <div className="font-bold">Which offer?</div>
       </div>
       <div className="space-y-5 p-5">
         <JobPicker
@@ -95,7 +95,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
 
         <div className={`overflow-hidden rounded-xl border transition ${edit ? "border-brand/40" : "border-line"}`}>
           <div className="flex items-center justify-between gap-3 border-b border-line bg-line-2/50 px-4 py-2.5">
-            <span className="font-semibold">Your details</span>
+            <span className="font-bold">Your details</span>
             {edit ? (
               <span className="flex items-center gap-2">
                 {saveMsg && <span className="text-[0.82rem] text-bad">{saveMsg}</span>}

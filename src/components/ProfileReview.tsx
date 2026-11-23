@@ -25,7 +25,7 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
   return (
     <section className="card">
       <div className="border-b border-line px-5 py-3.5">
-        <div className="font-semibold">{title}</div>
+        <div className="font-bold">{title}</div>
         {sub && <div className="text-[0.85rem] text-muted">{sub}</div>}
       </div>
       <div className="p-5">{children}</div>
@@ -150,7 +150,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         <div className="sticky top-0 z-20 -mx-1 flex flex-wrap items-center justify-between gap-3 bg-bg/90 px-1 py-2 backdrop-blur">
         <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
           {([["details", "Details", UserRound], ["resume", "Resume", FileText]] as const).map(([k, l, Icon]) => (
-            <button key={k} onClick={() => setView(k)} className={`flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] transition ${view === k ? "bg-white font-medium shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
+            <button key={k} onClick={() => setView(k)} className={`flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${view === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
               <Icon size={14} /> {l}
             </button>
           ))}

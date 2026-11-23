@@ -109,7 +109,7 @@ export default async function Home() {
         <div className="space-y-5">
           <section>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="font-semibold">Your jobs</h2>
+              <h2 className="font-bold">Your jobs</h2>
               {list.length > 0 && <Link href="/jobs" className="text-[0.9rem] text-muted hover:text-ink">View all</Link>}
             </div>
             {list.length === 0 ? (
@@ -176,7 +176,7 @@ export default async function Home() {
           {limit != null && (
             <div className="card p-4">
               <div className="flex items-baseline justify-between text-[0.85rem]">
-                <span className="font-medium">AI usage this month</span>
+                <span className="font-semibold">AI usage this month</span>
                 <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
               </div>
               <div className="mt-0.5 text-[0.78rem] text-muted">Your personal monthly AI limit · resets on the 1st</div>

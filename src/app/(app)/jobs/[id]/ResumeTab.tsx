@@ -10,6 +10,7 @@ import { createClient } from "@/lib/supabase/client";
 import { CopyButton, Spinner, Working, useAsk } from "@/components/client-ui";
 import { Panel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
+import { DocEditor } from "@/components/DocEditor";
 
 export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
   const r = app.resume_result as ResumeResult | null;
@@ -88,7 +89,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
           )}
         </div>
         {editing ? (
-          <textarea className="field min-h-[70vh] text-[0.92rem] leading-relaxed" value={draft} onChange={(e) => setDraft(e.target.value)} />
+          <div className="paper"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
         ) : (
           <div className={`paper transition ${busy ? "opacity-50" : ""}`} ref={paper}>
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>

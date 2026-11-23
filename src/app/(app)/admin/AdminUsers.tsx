@@ -126,7 +126,7 @@ export function AdminUsers({ meId }: { meId: string }) {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
           {([["users", "Users"], ["ai", "AI & limits"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} className={`h-8 rounded-lg px-3.5 text-[0.9rem] transition ${tab === k ? "bg-white font-medium shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>{l}</button>
+            <button key={k} onClick={() => setTab(k)} className={`h-8 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${tab === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>{l}</button>
           ))}
         </div>
         {tab === "users" && (
