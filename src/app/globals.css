@@ -53,18 +53,6 @@
   --side: #061b31; --side-2: #12304f;
   --bg: #f6f9fc; --ink: #061b31; --muted: #52637a; --faint: #93a1b3; --line: #e5edf5; --line-2: #eff4f9;
 }
-/* Charcoal & Coral — Gusto */
-[data-theme="coral"] {
-  --brand: #f45d48; --brand-ink: #d8442f; --brand-2: #ffab9e; --brand-soft: #feefec; --on-brand: #ffffff;
-  --side: #1c1b1a; --side-2: #33312f;
-  --bg: #fbfaf8; --ink: #1c1b1a; --muted: #65605b; --faint: #a39d97; --line: #ece8e3; --line-2: #f5f2ee;
-}
-/* Graphite — monochrome, like Notion & Vercel */
-[data-theme="graphite"] {
-  --brand: #18181b; --brand-ink: #000000; --brand-2: #8b8b94; --brand-soft: #f1f1f3; --on-brand: #ffffff;
-  --side: #0f0f10; --side-2: #27272a;
-  --bg: #f7f7f8; --ink: #18181b; --muted: #61616b; --faint: #a0a0a8; --line: #e6e6e9; --line-2: #f1f1f3;
-}
 
 /* Desktop-dense scale: 1rem = 14px */
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }

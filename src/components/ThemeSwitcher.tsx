@@ -7,8 +7,6 @@ const THEMES = [
   { id: "indigo", label: "Ink & Indigo", from: "Ashby", colors: ["#141415", "#473bce"] },
   { id: "cream", label: "Indigo & Cream", from: "Deel", colors: ["#201547", "#5938b7"] },
   { id: "blurple", label: "Navy & Blurple", from: "Stripe", colors: ["#061b31", "#533afd"] },
-  { id: "coral", label: "Charcoal & Coral", from: "Gusto", colors: ["#1c1b1a", "#f45d48"] },
-  { id: "graphite", label: "Graphite", from: "Notion & Vercel", colors: ["#0f0f10", "#8b8b94"] },
 ] as const;
 
 /** Applies the saved palette before first paint (no flash). */
