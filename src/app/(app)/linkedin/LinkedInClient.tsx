@@ -106,8 +106,8 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             <div className="space-y-2.5">{[0, 1, 2].map((i) => <div key={i} className={`h-[74px] rounded-xl ${busy ? "skeleton" : "border border-dashed border-line"}`} />)}</div>
           )}
         </aside>
-        {res && <UpdateChecklist url={url} headline={headline ?? ""} about={res.about} skills={res.skills} />}
       </div>
+      {res && <div className="mt-5"><UpdateChecklist url={url} headline={headline ?? ""} about={res.about} skills={res.skills} /></div>}
     </>
   );
 }
@@ -137,7 +137,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
     { k: "open", title: "Turn on Open to Work (recruiters only)", how: "Profile → Open to → Finding a new job → choose 'Recruiters only' and add your target role." },
   ];
   return (
-    <section className="card overflow-hidden fade-up xl:col-span-2">
+    <section className="card overflow-hidden fade-up">
       <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-soft text-brand"><ListChecks size={15} /></span>
         <div className="flex-1">

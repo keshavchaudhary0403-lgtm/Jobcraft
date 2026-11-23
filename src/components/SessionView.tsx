@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { DeleteSessionButton } from "./DeleteSessionButton";
 import { requireUser } from "@/lib/auth";
 import { buildPrompt, type NegotiationInputs, type StepKey } from "@/lib/prompts";
 import type { Application, Message, Session } from "@/lib/types";
@@ -48,9 +49,7 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
     <div>
       <div className="mb-5 flex items-center justify-between">
         <Link href={cfg.back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft size={15} /> {cfg.backLabel}</Link>
-        <form action={del}>
-          <button className="btn-quiet rounded-lg" title="Delete session" aria-label="Delete session"><Trash2 size={15} /></button>
-        </form>
+        <DeleteSessionButton action={del} />
       </div>
       <h1 className="mb-5 text-xl font-bold tracking-tight">{session.title}</h1>
       {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}

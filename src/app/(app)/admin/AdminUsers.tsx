@@ -156,8 +156,8 @@ export function AdminUsers({ meId }: { meId: string }) {
       </div>
 
       {tab === "users" ? (
-        <div className="card overflow-hidden fade-up">
-          <table className="w-full">
+        <div className="card overflow-x-auto fade-up">
+          <table className="w-full min-w-[880px]">
             <thead>
               <tr className="border-b border-line bg-slate-50/70 text-left text-[0.8rem] text-muted">
                 <th className="px-4 py-2.5 font-medium">Person</th>

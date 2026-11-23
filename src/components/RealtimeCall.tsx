@@ -34,7 +34,12 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
 
   const questions = turns.filter((t) => t.role === "assistant" && t.text.includes("?")).length;
 
-  useEffect(() => bottom.current?.scrollIntoView({ behavior: "smooth", block: "nearest" }), [turns]);
+  const seen = useRef(turns.length);
+  useEffect(() => {
+    // Follow new captions during a call — but don't jump the page on first load.
+    if (turns.length > seen.current) bottom.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    seen.current = turns.length;
+  }, [turns]);
   useEffect(() => {
     if (status !== "live") return;
     const t = setInterval(() => setSecs((s) => s + 1), 1000);
