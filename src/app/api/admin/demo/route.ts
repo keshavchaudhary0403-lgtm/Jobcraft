@@ -19,6 +19,7 @@ export async function POST(req: Request) {
     }
     if (action === "reset") {
       await seedDemo(admin, await ensureDemoUser(admin));
+      await admin.from("app_settings").update({ demo_reset_at: new Date().toISOString() }).eq("id", 1);
       return Response.json({ ok: true });
     }
   } catch (e) {

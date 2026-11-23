@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, ExternalLink, MapPin, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, Check, ExternalLink, ListChecks, MapPin, RotateCcw, Sparkles } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
 import { CharCount, CopyButton, Spinner, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
@@ -106,7 +106,66 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             <div className="space-y-2.5">{[0, 1, 2].map((i) => <div key={i} className={`h-[74px] rounded-xl ${busy ? "skeleton" : "border border-dashed border-line"}`} />)}</div>
           )}
         </aside>
+        {res && <UpdateChecklist url={url} headline={headline ?? ""} about={res.about} skills={res.skills} />}
       </div>
     </>
+  );
+}
+
+const STEPS = ["headline", "about", "skills", "pin", "open"] as const;
+
+/** Step-by-step: put the new content on LinkedIn. Progress is remembered on this device. */
+function UpdateChecklist({ url, headline, about, skills }: { url: string | null; headline: string; about: string; skills: string[] }) {
+  const [done, setDone] = useState<Record<string, boolean>>({});
+  useEffect(() => {
+    try {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDone(JSON.parse(localStorage.getItem("jc-li-steps") ?? "{}"));
+    } catch {}
+  }, []);
+  const toggle = (k: string) => {
+    const next = { ...done, [k]: !done[k] };
+    setDone(next);
+    localStorage.setItem("jc-li-steps", JSON.stringify(next));
+  };
+  const n = STEPS.filter((k) => done[k]).length;
+  const items: { k: (typeof STEPS)[number]; title: string; how: string; action?: React.ReactNode }[] = [
+    { k: "headline", title: "Replace your headline", how: "Profile → pencil icon next to your name → Headline. Paste the option you picked.", action: <CopyButton text={headline} label="Copy headline" /> },
+    { k: "about", title: "Replace your About section", how: "Profile → About → pencil icon. Paste, then check the first two lines read well on their own.", action: <CopyButton text={about} label="Copy About" /> },
+    { k: "skills", title: "Add the 5 skills", how: "Profile → Skills → Add skill. Add each one; remove skills you no longer want to be found for.", action: <CopyButton text={skills.join(", ")} label="Copy skills" /> },
+    { k: "pin", title: "Pin your top skills", how: "Skills → pencil → drag these 5 to the top so recruiters see them first." },
+    { k: "open", title: "Turn on Open to Work (recruiters only)", how: "Profile → Open to → Finding a new job → choose 'Recruiters only' and add your target role." },
+  ];
+  return (
+    <section className="card overflow-hidden fade-up xl:col-span-2">
+      <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
+        <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-soft text-brand"><ListChecks size={15} /></span>
+        <div className="flex-1">
+          <div className="font-bold">Update your LinkedIn — about 5 minutes</div>
+          <div className="text-[0.8rem] text-muted">Recruiters search by headline and skills, so these steps matter most.</div>
+        </div>
+        <span className={`chip ${n === STEPS.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{n} of {STEPS.length} done</span>
+        {url && <a href={url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">Open LinkedIn <ExternalLink size={13} /></a>}
+      </div>
+      <div className="divide-y divide-line">
+        {items.map((it, i) => (
+          <div key={it.k} className="flex flex-wrap items-center gap-4 px-5 py-3.5">
+            <button
+              onClick={() => toggle(it.k)}
+              aria-pressed={!!done[it.k]}
+              aria-label={done[it.k] ? "Mark not done" : "Mark done"}
+              className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border-2 transition ${done[it.k] ? "border-brand bg-brand text-white" : "border-line bg-white text-transparent hover:border-brand/50"}`}
+            >
+              <Check size={14} strokeWidth={3} />
+            </button>
+            <div className="min-w-0 flex-1">
+              <div className={`font-semibold ${done[it.k] ? "text-muted line-through decoration-line" : ""}`}>{i + 1}. {it.title}</div>
+              <div className="text-[0.88rem] text-muted">{it.how}</div>
+            </div>
+            {it.action}
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }

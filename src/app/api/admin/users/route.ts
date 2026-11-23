@@ -8,7 +8,7 @@ export async function GET() {
   const admin = createServiceClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, created_at")
+    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, voice_enabled, created_at")
     .order("created_at", { ascending: false });
   if (error) return Response.json({ error: error.message }, { status: 500 });
   const settings = await getSettings(admin);
@@ -52,13 +52,14 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const me = await requireAdmin();
   if (!me) return Response.json({ error: "Admins only" }, { status: 403 });
-  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode } = (await req.json()) as {
+  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode, voice_enabled } = (await req.json()) as {
     id: string;
     password?: string;
     is_active?: boolean;
     is_admin?: boolean;
     monthly_limit_inr?: number | null; // null = use default
     ai_mode?: string;
+    voice_enabled?: boolean;
   };
   const admin = createServiceClient();
   if (password) {
@@ -77,6 +78,7 @@ export async function PATCH(req: Request) {
     }
     patch.monthly_limit_inr = monthly_limit_inr === null ? null : Number(monthly_limit_inr);
   }
+  if (typeof voice_enabled === "boolean") patch.voice_enabled = voice_enabled;
   if (typeof is_active === "boolean" && id !== me.id) patch.is_active = is_active;
   if (typeof is_admin === "boolean" && id !== me.id) patch.is_admin = is_admin;
   if (Object.keys(patch).length) {

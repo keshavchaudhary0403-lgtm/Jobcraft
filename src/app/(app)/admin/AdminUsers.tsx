@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bot, ChevronDown, Gauge, IndianRupee, KeyRound, Pause, Play, PlayCircle, Plus, RotateCcw, Search, Shield, Users } from "lucide-react";
-import { AI_MODELS } from "@/lib/models";
+import { AudioLines, Bot, ChevronDown, Gauge, IndianRupee, KeyRound, Pause, Play, PlayCircle, Plus, RotateCcw, Search, Shield, Users } from "lucide-react";
+import { AI_MODELS, REALTIME_MODEL, VOICES } from "@/lib/models";
 import { Kpi } from "@/components/ui";
 import { Menu, Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
 
-type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; ai_mode: AiMode; is_demo: boolean; spent_inr: number; created_at: string };
+type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; ai_mode: AiMode; is_demo: boolean; voice_enabled: boolean; spent_inr: number; created_at: string };
 type AiMode = "real" | "demo" | "off";
-type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null; demo_enabled: boolean };
+type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null; demo_enabled: boolean; voice_name: string };
 
 const AI_MODES: { value: AiMode; label: string; hint: string }[] = [
   { value: "real", label: "Real AI", hint: "Uses OpenAI and your credits" },
@@ -163,6 +163,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <th className="px-4 py-2.5 font-medium">Person</th>
                 <th className="px-4 py-2.5 font-medium">Spent this month</th>
                 <th className="px-4 py-2.5 font-medium">AI</th>
+                <th className="px-4 py-2.5 font-medium">Voice</th>
                 <th className="px-4 py-2.5 font-medium">Monthly limit</th>
                 <th className="px-4 py-2.5 font-medium">Status</th>
                 <th className="w-px px-4 py-2.5" />
@@ -205,6 +206,19 @@ export function AdminUsers({ meId }: { meId: string }) {
                         }}
                         bare
                         render={(c) => <span className={`chip gap-1 py-1 pl-3 pr-2 font-semibold transition hover:brightness-95 ${MODE_CLS[c.value]}`}>{c.label}<ChevronDown size={13} className="opacity-60" /></span>}
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Switch
+                        on={u.voice_enabled}
+                        disabled={u.ai_mode !== "real" && !u.voice_enabled}
+                        title={u.ai_mode !== "real" ? "Needs Real AI" : u.voice_enabled ? "Realistic voice on" : "Realistic voice off"}
+                        onChange={async (on) => {
+                          const ok = await ask(on
+                            ? { title: "Turn on realistic voice", body: <>Let <b>{name}</b> practise interviews and salary talks with a live AI voice. Costs about <b>₹1.5 per minute</b>, within their monthly limit.</>, confirm: "Turn on" }
+                            : { title: "Turn off realistic voice", body: <><b>{name}</b> will use the chat with basic browser voice instead.</>, confirm: "Turn off" });
+                          if (ok !== null) patch(u.id, { voice_enabled: on });
+                        }}
                       />
                     </td>
                     <td className="px-4 py-3">
@@ -324,6 +338,32 @@ export function AdminUsers({ meId }: { meId: string }) {
                 </div>
               </div>
             </section>
+            <section className="card p-5 xl:col-span-2">
+              <div className="card-head">
+                <span className="ico"><AudioLines size={15} /></span>
+                <span className="flex-1">Realistic voice</span>
+                <span className="text-[0.82rem] font-normal text-muted">{users.filter((u) => u.voice_enabled).length} of {users.length} users on · switch per person in Users</span>
+              </div>
+              <p className="mb-4 max-w-2xl text-[0.92rem] text-slate-700">
+                A live AI interviewer and HR manager that listens and talks back naturally ({REALTIME_MODEL}). About <b>$0.016 / ₹1.5 per minute</b>, counted in each person&apos;s monthly limit. Needs Real AI.
+              </p>
+              <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
+                {VOICES.map((v) => (
+                  <button
+                    key={v.id}
+                    data-on={settings.voice_name === v.id}
+                    className="option p-3 text-left"
+                    onClick={async () => {
+                      if (v.id === settings.voice_name) return;
+                      if ((await ask({ title: `Voice: ${v.label}`, body: <>Use <b>{v.label}</b> ({v.note.toLowerCase()}) for everyone&apos;s voice practice?</>, confirm: "Use this voice" })) !== null) saveSettings({ voice_name: v.id });
+                    }}
+                  >
+                    <span className="block font-semibold">{v.label}</span>
+                    <span className="block text-[0.8rem] text-muted">{v.note}</span>
+                  </button>
+                ))}
+              </div>
+            </section>
           </div>
         )
       )}
@@ -389,5 +429,21 @@ function AddUser({ open, onClose, onDone }: { open: boolean; onClose: () => void
         </div>
       </form>
     </Modal>
+  );
+}
+
+function Switch({ on, onChange, disabled, title }: { on: boolean; onChange: (v: boolean) => void; disabled?: boolean; title?: string }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={on}
+      title={title}
+      disabled={disabled}
+      onClick={() => onChange(!on)}
+      className={`relative h-6 w-11 rounded-full transition disabled:cursor-not-allowed disabled:opacity-40 ${on ? "bg-brand" : "bg-line"}`}
+    >
+      <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
+    </button>
   );
 }

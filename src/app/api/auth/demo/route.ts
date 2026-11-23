@@ -1,5 +1,8 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { DEMO_EMAIL } from "@/lib/demo-account";
+import { DEMO_EMAIL, seedDemo } from "@/lib/demo-account";
+import { rateLimited } from "@/lib/rate-limit";
+
+const DAY = 24 * 3600 * 1000;
 
 /** Is the demo login switched on? (public) */
 export async function GET() {
@@ -9,12 +12,19 @@ export async function GET() {
 }
 
 /** Sign the visitor into the shared demo account — no password needed. */
-export async function POST() {
+export async function POST(req: Request) {
+  if (rateLimited(req, "demo", 8, 10 * 60_000)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
   const admin = createServiceClient();
-  const { data: settings } = await admin.from("app_settings").select("demo_enabled").eq("id", 1).maybeSingle();
+  const { data: settings } = await admin.from("app_settings").select("demo_enabled, demo_reset_at").eq("id", 1).maybeSingle();
   if (!settings?.demo_enabled) return Response.json({ error: "The demo is switched off right now." }, { status: 403 });
   const { data: demo } = await admin.from("profiles").select("id, is_active").eq("is_demo", true).maybeSingle();
   if (!demo?.is_active) return Response.json({ error: "The demo isn't available right now." }, { status: 403 });
+
+  // Fresh sample data every day, so the demo always looks right for the next visitor.
+  if (!settings.demo_reset_at || Date.now() - new Date(settings.demo_reset_at).getTime() > DAY) {
+    await seedDemo(admin, demo.id);
+    await admin.from("app_settings").update({ demo_reset_at: new Date().toISOString() }).eq("id", 1);
+  }
 
   // One-time sign-in token generated server-side, then exchanged for a session cookie.
   const { data: link, error } = await admin.auth.admin.generateLink({ type: "magiclink", email: DEMO_EMAIL });

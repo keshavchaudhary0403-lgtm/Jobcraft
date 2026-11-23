@@ -1,5 +1,6 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { looksLikeEmail, normalisePhone } from "@/lib/phone";
+import { rateLimited } from "@/lib/rate-limit";
 
 const GENERIC = "Wrong email/phone or password.";
 
@@ -9,6 +10,9 @@ const GENERIC = "Wrong email/phone or password.";
  * so no SMS provider / OTP is needed.
  */
 export async function POST(req: Request) {
+  if (rateLimited(req, "login", 10, 5 * 60_000)) {
+    return Response.json({ error: "Too many attempts. Wait a few minutes and try again." }, { status: 429 });
+  }
   const { identifier, password } = (await req.json()) as { identifier?: string; password?: string };
   if (!identifier?.trim() || !password) {
     return Response.json({ error: "Enter your email or phone and password." }, { status: 400 });

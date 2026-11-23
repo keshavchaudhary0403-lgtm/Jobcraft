@@ -272,3 +272,72 @@ ${TRUTH_RULE}`,
       };
   }
 }
+
+// ───────────────────────── Practice insights (from a session) ─────────────────────────
+export type InterviewReport = {
+  score: number;
+  verdict: string;
+  strongest: { moment: string; why: string }[];
+  weakest: { question: string; why_weak: string; better_answer: string }[];
+  next_focus: string;
+};
+export type OfferCheck = {
+  position: "below" | "at" | "above";
+  reasoning: string;
+  counter_low: string;
+  counter_high: string;
+  opening_line: string;
+  objections: { hr_says: string; you_say: string }[];
+};
+
+export const INSIGHT_SCHEMAS = {
+  interview_report: obj({
+    score: { type: "integer" },
+    verdict: str,
+    strongest: arr(obj({ moment: str, why: str })),
+    weakest: arr(obj({ question: str, why_weak: str, better_answer: str })),
+    next_focus: str,
+  }),
+  offer_check: obj({
+    position: { type: "string", enum: ["below", "at", "above"] },
+    reasoning: str,
+    counter_low: str,
+    counter_high: str,
+    opening_line: str,
+    objections: arr(obj({ hr_says: str, you_say: str })),
+  }),
+};
+
+export function buildInsight(
+  kind: keyof typeof INSIGHT_SCHEMAS,
+  ctx: { profile: Profile; app?: Application | null; transcript?: string; offer?: Record<string, string> },
+): { instructions: string; input: string } {
+  if (kind === "interview_report")
+    return {
+      instructions: `You were the hiring manager in the mock interview below. The interview is over. Give the candidate honest feedback, in simple English, like a senior interviewer who wants them to get the job:
+- score: 0–10 for the interview as a whole. Be honest, not flattering.
+- verdict: one short line (e.g. "Strong on results, vague on how").
+- strongest: their 2–3 strongest moments — quote or closely paraphrase what they actually said, and why it worked.
+- weakest: their weakest answers (2–3). For each: the question, the exact reason it was weak, and what a 9/10 answer would have sounded like — written in the candidate's voice, using ONLY facts from their resume and answers (never invent numbers; say "[your number]" where a number is needed).
+- next_focus: the one thing to practise before the real interview.
+If the interview is very short, base it on what's there and say so in the verdict. ${TRUTH_RULE}`,
+      input: [candidateBlock(ctx.profile), ctx.app?.jd ? jobBlock(ctx.app) : "", "=== INTERVIEW TRANSCRIPT ===", ctx.transcript ?? ""].filter(Boolean).join("\n\n"),
+    };
+  const o = ctx.offer ?? {};
+  return {
+    instructions: `You are a salary negotiation coach in India. The candidate has an offer. In simple English:
+- position: is the offer below, at, or above the market range they found? Reason it out in reasoning (2–3 sentences), using their market data, current CTC, experience and strongest proof. Treat your own salary knowledge as a rough guide only.
+- counter_low / counter_high: a realistic counter range (e.g. "₹10.5 LPA") — not a fantasy number.
+- opening_line: the exact first thing they should say to HR when countering — warm, confident, one or two sentences, using their strongest proof.
+- objections: the 3 pushbacks HR is most likely to give, each with a short, confident reply (hr_says / you_say).
+${TRUTH_RULE}`,
+    input: [
+      candidateBlock(ctx.profile),
+      "=== THE OFFER ===",
+      `Role: ${o.role ?? ""}. Company type: ${o.company_type ?? ""}. City: ${o.city ?? ""}.`,
+      `Offered CTC: ${o.offered_ctc ?? ""}. Current CTC: ${o.current_ctc ?? ""}. Experience: ${o.experience ?? ""}.`,
+      `Market range they found (AmbitionBox/Glassdoor): ${o.market_range ?? ""}.`,
+      `Strongest proof: ${o.strongest_proof ?? ""}.`,
+    ].join("\n"),
+  };
+}

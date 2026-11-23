@@ -69,6 +69,31 @@ export const FIXTURES: Record<string, unknown> = {
     message:
       "Hi — I'm very interested in the Senior Category Manager role.\n\nRaising partner quality while growing supply across cities is hard to do at the same time.\n\nAt QuickNest I cut partner churn from 18% to 9% in two quarters across 320 partners by redesigning onboarding.\n\nI'd love to be considered and walk you through how I'd approach it.",
   },
+  interview_report: {
+    score: 7,
+    verdict: "Strong on results, vague on how you did them",
+    strongest: [
+      { moment: "\"We cut partner churn from 18% to 9% in two quarters.\"", why: "A real number, said early and with confidence." },
+      { moment: "Your answer on handling a city where numbers dropped", why: "You walked through first steps in order — data, partners, then people." },
+    ],
+    weakest: [
+      { question: "How did you decide which partners to keep?", why_weak: "You said 'we looked at quality' but never said what you measured.", better_answer: "I tracked three things weekly — ratings, cancellations and repeat bookings. Partners below the bar got a two-week coaching plan; if nothing changed, we replaced them. That's how churn went from 18% to 9%." },
+      { question: "Why should we hire you?", why_weak: "It listed your history instead of linking it to their problem.", better_answer: "You need someone who can raise partner quality while growing supply. I've done exactly that across 4 cities with 320 partners — and I'd start by fixing how partners are chosen and trained here." },
+    ],
+    next_focus: "For every result, say how you did it in one sentence before the number.",
+  },
+  offer_check: {
+    position: "below",
+    reasoning: "₹9 LPA sits at the low end of the ₹8–12 LPA range you found. With about 7 years and a clear churn result, you can reasonably ask for the upper half of that range.",
+    counter_low: "₹10.5 LPA",
+    counter_high: "₹11 LPA",
+    opening_line: "Thank you — I'm really excited about this role. Given that I cut partner churn from 18% to 9% across 320 partners, I was expecting something closer to ₹11 LPA. Is there flexibility there?",
+    objections: [
+      { hr_says: "This is already above what we pay most people at this level.", you_say: "I understand. I'm not asking for the average — I'm bringing a proven result on the exact problem this role exists to solve." },
+      { hr_says: "Our budget for this role is fixed.", you_say: "That makes sense. Could we look at a joining bonus or a review at six months tied to clear goals?" },
+      { hr_says: "Can you share your current CTC?", you_say: "It's ₹8 LPA, but I'm basing my ask on the market range for this role and the results I've delivered." },
+    ],
+  },
   linkedin: {
     headlines: [
       "Senior Operations Manager | Multi-city Partner Operations | Service Quality | Consumer Services",

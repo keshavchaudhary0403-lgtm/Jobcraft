@@ -21,6 +21,7 @@ export type Settings = {
   fx_updated_at: string | null;
   fx_source: string | null;
   demo_enabled: boolean;
+  voice_name: string;
 };
 
 const FX_MAX_AGE_MS = 6 * 3600 * 1000; // refresh the live rate every 6 hours
@@ -55,6 +56,7 @@ export async function getSettings(admin: SupabaseClient): Promise<Settings & { m
     fx_updated_at: data?.fx_updated_at ?? null,
     fx_source: data?.fx_source ?? null,
     demo_enabled: !!data?.demo_enabled,
+    voice_name: data?.voice_name ?? "marin",
   };
   const stale = !s.fx_updated_at || Date.now() - new Date(s.fx_updated_at).getTime() > FX_MAX_AGE_MS;
   if (s.fx_auto && stale) {

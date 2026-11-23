@@ -20,6 +20,7 @@ export type Profile = {
   onboarded: boolean;
   ai_mode: "real" | "demo" | "off";
   is_demo: boolean;
+  voice_enabled: boolean;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;

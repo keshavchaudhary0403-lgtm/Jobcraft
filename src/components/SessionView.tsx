@@ -5,6 +5,9 @@ import { requireUser } from "@/lib/auth";
 import { buildPrompt, type NegotiationInputs, type StepKey } from "@/lib/prompts";
 import type { Application, Message, Session } from "@/lib/types";
 import { ChatPanel } from "./ChatPanel";
+import { RealtimeCall } from "./RealtimeCall";
+import { InterviewScorecard, OfferCheckCard, PracticeModes } from "./PracticeInsights";
+import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { deleteSession } from "@/lib/actions";
 
 const CONFIG = {
@@ -33,6 +36,13 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
     negotiation: kind === "negotiation" ? (session.meta as unknown as NegotiationInputs) : undefined,
   });
   const del = deleteSession.bind(null, id, cfg.back);
+  const visible = (messages ?? []).filter((m) => !(m.role === "user" && m.step));
+  const answers = visible.filter((m) => m.role === "user" && m.content.trim().toLowerCase() !== "ready").length;
+  const meta = session.meta as unknown as Record<string, unknown>;
+  const report = (meta.interview_report as InterviewReport | undefined) ?? null;
+  const transcriptLen = visible.map((m) => `${m.role === "user" ? "Candidate" : "Interviewer"}: ${m.content}`).join("\n").length;
+  const stale = !!report && transcriptLen > Number(meta.report_turns ?? 0) + 40;
+  const voiceReady = profile.voice_enabled && profile.ai_mode === "real" && profile.is_active;
 
   return (
     <div>
@@ -42,15 +52,23 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
           <button className="btn-quiet rounded-lg" title="Delete session" aria-label="Delete session"><Trash2 size={15} /></button>
         </form>
       </div>
-      <h1 className="mb-5 text-xl font-semibold tracking-tight">{session.title}</h1>
-      <ChatPanel
-        sessionId={id}
-        initialMessages={messages ?? []}
-        voice
-        aiName={cfg.ai}
-        quickReplies={cfg.quick}
-        autoStart={{ prompt, step: cfg.step }}
-        placeholder="Or type your answer…"
+      <h1 className="mb-5 text-xl font-bold tracking-tight">{session.title}</h1>
+      {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
+      {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
+      <PracticeModes
+        available={voiceReady}
+        realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: m.content }))} />}
+        classic={
+          <ChatPanel
+            sessionId={id}
+            initialMessages={messages ?? []}
+            voice
+            aiName={cfg.ai}
+            quickReplies={cfg.quick}
+            autoStart={{ prompt, step: cfg.step }}
+            placeholder="Or type your answer…"
+          />
+        }
       />
     </div>
   );
