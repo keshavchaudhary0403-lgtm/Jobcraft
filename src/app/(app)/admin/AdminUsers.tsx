@@ -69,6 +69,7 @@ const SPEND_LABEL: Record<string, string> = {
   interview_report: "Scorecards",
   offer_check: "Offer checks",
   parse_resume: "Resume upload",
+  resume_import: "Resume upload",
   detect_job: "Job auto-fill",
 };
 const SECTIONS: { key: Section; label: string; icon: React.ElementType }[] = [
