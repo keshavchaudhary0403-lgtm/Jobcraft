@@ -60,6 +60,7 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, [contentedita
 .option:focus-visible { border-color: var(--brand); }
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }
 body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); font-size: 13.5px; line-height: 1.55; }
+.grid > * { min-width: 0; }
 h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
 
 @layer components {

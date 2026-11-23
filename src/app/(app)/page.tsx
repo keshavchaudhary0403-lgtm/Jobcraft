@@ -121,17 +121,17 @@ export default async function Home() {
           </div>
         </div>
         {gain > 0 && (
-          <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-7 py-3.5 transition hover:bg-white/[.08]">
-            <span className="flex items-center gap-3"><span className="rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Biggest lift</span><span className="font-semibold text-cream">{lift.lift}</span></span>
-            <span className="flex items-center gap-2 font-display text-[1.1rem] font-bold text-mustard">+{gain} points <ArrowRight size={16} /></span>
+          <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3.5 sm:px-7 transition hover:bg-white/[.08]">
+            <span className="flex min-w-0 items-center gap-3"><span className="shrink-0 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Biggest lift</span><span className="truncate font-semibold text-cream">{lift.lift}</span></span>
+            <span className="flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-[1.1rem] font-bold text-mustard">+{gain}<span className="hidden sm:inline"> points</span> <ArrowRight size={16} /></span>
           </Link>
         )}
       </section>
 
       {/* ── Areas ── */}
-      <nav className="grid grid-cols-2 gap-3 md:grid-cols-5 fade-up">
+      <nav className="thin-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 fade-up sm:mx-0 sm:px-0 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {areas.map((x, i) => (
-          <Link key={x.href} href={x.href} className="group flex items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white">
+          <Link key={x.href} href={x.href} className="group flex min-w-[220px] shrink-0 items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white md:min-w-0">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
             <span className="min-w-0">
               <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>

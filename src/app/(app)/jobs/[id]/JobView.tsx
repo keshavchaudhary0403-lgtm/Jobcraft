@@ -247,8 +247,8 @@ export function JobView({
       </section>
 
       {/* Coach */}
-      <button onClick={() => setCoach(true)} className="fixed bottom-6 right-6 z-30 flex h-14 items-center gap-2 rounded-full bg-side pl-5 pr-6 font-semibold text-cream shadow-[0_20px_40px_-16px_rgba(22,48,43,.7)] transition hover:bg-brand">
-        <MessageCircle size={18} className="text-mustard" /> Ask the coach
+      <button onClick={() => setCoach(true)} className="fixed bottom-4 right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-side px-4 font-semibold sm:bottom-6 sm:right-6 sm:pl-5 sm:pr-6 text-cream shadow-[0_20px_40px_-16px_rgba(22,48,43,.7)] transition hover:bg-brand">
+        <MessageCircle size={18} className="text-mustard" /> <span className="hidden sm:inline">Ask the coach</span>
       </button>
 
       <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>

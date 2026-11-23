@@ -105,9 +105,9 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
   return (
     <>
       {/* Mobile */}
-      <header className="no-print sticky top-0 z-30 flex items-center justify-between bg-bg/90 px-4 py-3 backdrop-blur lg:hidden">
-        <Link href="/"><Logo size={28} /></Link>
-        <button className="grid h-10 w-10 place-items-center rounded-full bg-side text-cream" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X size={18} /> : <Menu size={18} />}</button>
+      <header className="no-print sticky top-0 z-30 flex items-center justify-between bg-side px-4 py-3 lg:hidden">
+        <Link href="/"><Logo size={28} light /></Link>
+        <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-cream" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X size={18} /> : <Menu size={18} />}</button>
       </header>
       {open && <div className="no-print fixed inset-x-3 bottom-3 top-[68px] z-30 flex flex-col rounded-[28px] bg-side p-4 lg:hidden">{body}</div>}
 
