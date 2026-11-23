@@ -5,7 +5,7 @@
  * every bullet = action verb + what you did + a measurable result; simple, ATS-safe; no buzzwords.
  */
 
-export type BulletCheck = { key: "number" | "verb" | "length" | "active" | "filler" | "buzzword"; ok: boolean; label: string };
+export type BulletCheck = { key: "number" | "verb" | "length" | "active" | "filler" | "buzzword"; ok: boolean; label: string; fail: string };
 export type BulletReport = { line: number; text: string; score: number; checks: BulletCheck[]; tip: string | null };
 export type DocCheck = { label: string; ok: boolean; tip: string };
 export type HealthReport = { score: number; bullets: BulletReport[]; doc: DocCheck[]; words: number; grade: "strong" | "good" | "fair" | "weak" };
@@ -31,12 +31,12 @@ export function checkBullet(text: string, line: number): BulletReport {
   const t = text.trim();
   const words = t.split(/\s+/).filter(Boolean).length;
   const checks: BulletCheck[] = [
-    { key: "number", ok: NUMBER.test(t), label: "Has a number" },
-    { key: "verb", ok: STRONG_VERB.test(t) && !WEAK_STARTS.test(t), label: "Strong verb" },
-    { key: "length", ok: words >= 8 && words <= 38, label: "Good length" },
-    { key: "active", ok: !PASSIVE.test(t) && !WEAK_STARTS.test(t), label: "Active voice" },
-    { key: "filler", ok: !FILLER.test(t), label: "No filler" },
-    { key: "buzzword", ok: !BUZZ.test(t), label: "No buzzwords" },
+    { key: "number", ok: NUMBER.test(t), label: "Has a number", fail: "No number" },
+    { key: "verb", ok: STRONG_VERB.test(t) && !WEAK_STARTS.test(t), label: "Strong verb", fail: "Weak opening verb" },
+    { key: "length", ok: words >= 8 && words <= 38, label: "Good length", fail: words < 8 ? "Too short" : "Too long" },
+    { key: "active", ok: !PASSIVE.test(t) && !WEAK_STARTS.test(t), label: "Active voice", fail: "Passive wording" },
+    { key: "filler", ok: !FILLER.test(t), label: "No filler", fail: "Filler words" },
+    { key: "buzzword", ok: !BUZZ.test(t), label: "No buzzwords", fail: "Buzzwords" },
   ];
   const weights = { number: 3, verb: 2, length: 1.5, active: 1.5, filler: 1, buzzword: 1 } as const;
   const score = Math.round(checks.reduce((s, c) => s + (c.ok ? weights[c.key] : 0), 0));
@@ -47,9 +47,18 @@ export function checkBullet(text: string, line: number): BulletReport {
 export function resumeHealth(resume: string): HealthReport {
   const lines = resume.split("\n");
   const bullets: BulletReport[] = [];
+  // Only achievement bullets count — skip Skills / Education / Certifications lists and "Label: a, b, c" lines.
+  let section = "";
   lines.forEach((raw, i) => {
+    const line = raw.trim();
+    const heading = line.replace(/^#+\s*/, "");
+    const letters = heading.replace(/[^A-Za-z]/g, "");
+    if (/^#{1,3}\s/.test(line) || (letters.length >= 3 && letters === letters.toUpperCase() && heading.length < 48)) section = heading.toLowerCase();
     const m = raw.match(/^\s*[-•*]\s+(.*)$/);
-    if (m && m[1].trim().split(/\s+/).length >= 3) bullets.push(checkBullet(m[1], i));
+    if (!m || m[1].trim().split(/\s+/).length < 3) return;
+    if (/skill|education|certif|language|interest|hobb|tool|award/.test(section)) return;
+    if (/^[A-Za-z][A-Za-z &/+-]{1,30}:\s/.test(m[1].trim())) return;
+    bullets.push(checkBullet(m[1], i));
   });
   const text = resume.toLowerCase();
   const words = resume.split(/\s+/).filter(Boolean).length;

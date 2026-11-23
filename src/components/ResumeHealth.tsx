@@ -92,7 +92,7 @@ export function ResumeHealth({ value, onChange, savedValue, start }: { value: st
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-[0.92rem] leading-snug text-slate-800">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-bad-soft/70 py-0 text-[0.72rem] text-bad">{c.label.replace("Has a", "No").replace(/^(Strong|Good|Active|No) /, (m) => (m === "No " ? "Has " : "Needs " + m.toLowerCase()))}</span>)}
+                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-bad-soft/70 py-0 text-[0.72rem] text-bad">{c.fail}</span>)}
                   {b.score >= 8 && <span className="chip bg-good-soft py-0 text-[0.72rem] text-good"><Check size={10} /> Strong</span>}
                 </div>
               </div>
