@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, ChevronDown, Copy, Loader2, X } from "lucide-react";
 
 export function CopyButton({ text, label = "Copy", className = "" }: { text: string; label?: string; className?: string }) {
@@ -53,63 +54,106 @@ export function CharCount({ text, max, unit = "chars" }: { text: string; max: nu
   return <span className={`text-[0.8rem] tabular-nums ${n > max ? "text-bad" : "text-faint"}`}>{n}/{max}{unit === "words" ? " words" : ""}</span>;
 }
 
-/** Custom dropdown — replaces native <select>. */
+/**
+ * Custom dropdown — replaces native <select>.
+ * The list is rendered in a portal with fixed positioning, so cards/tables never clip it;
+ * it opens upwards when there isn't room below.
+ */
 export function Menu<T extends string>({
   value,
   options,
   onChange,
   render,
   align = "right",
+  bare,
 }: {
   value: T;
   options: { value: T; label: string; hint?: string }[];
   onChange: (v: T) => void;
   render: (current: { value: T; label: string }) => React.ReactNode;
   align?: "left" | "right";
+  /** Trigger is just the rendered content (e.g. a coloured chip) — no button chrome. */
+  bare?: boolean;
 }) {
   const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top?: number; bottom?: number; left?: number; right?: number } | null>(null);
+  const btn = useRef<HTMLButtonElement>(null);
+  const list = useRef<HTMLDivElement>(null);
+
+  function place() {
+    const r = btn.current?.getBoundingClientRect();
+    if (!r) return;
+    const below = window.innerHeight - r.bottom;
+    const needed = Math.min(options.length * 52 + 16, 320);
+    const vertical = below < needed && r.top > below ? { bottom: window.innerHeight - r.top + 6 } : { top: r.bottom + 6 };
+    const horizontal = align === "right" ? { right: window.innerWidth - r.right } : { left: r.left };
+    setPos({ ...vertical, ...horizontal });
+  }
+
   useEffect(() => {
     if (!open) return;
-    const close = (e: MouseEvent) => !ref.current?.contains(e.target as Node) && setOpen(false);
+    const close = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!btn.current?.contains(t) && !list.current?.contains(t)) setOpen(false);
+    };
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    const shut = () => setOpen(false);
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", esc);
+    window.addEventListener("scroll", shut, true);
+    window.addEventListener("resize", shut);
     return () => {
       document.removeEventListener("mousedown", close);
       document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", shut, true);
+      window.removeEventListener("resize", shut);
     };
   }, [open]);
+
   const current = options.find((o) => o.value === value) ?? options[0];
   return (
-    <div className="relative" ref={ref}>
-      <button type="button" className="btn btn-ghost btn-sm gap-2" onClick={() => setOpen(!open)} aria-haspopup="listbox" aria-expanded={open}>
-        {render(current)} <ChevronDown size={14} className="text-faint" />
+    <>
+      <button
+        ref={btn}
+        type="button"
+        className={bare ? "inline-flex rounded-full" : "btn btn-ghost btn-sm gap-2"}
+        onClick={() => {
+          if (!open) place();
+          setOpen(!open);
+        }}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+      >
+        {render(current)}
+        {!bare && <ChevronDown size={14} className="text-faint" />}
       </button>
-      {open && (
-        <div className={`pop absolute z-50 mt-1.5 min-w-48 overflow-hidden rounded-xl border border-line bg-white p-1 shadow-xl ${align === "right" ? "right-0" : "left-0"}`} role="listbox">
-          {options.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              role="option"
-              aria-selected={o.value === value}
-              onClick={() => {
-                onChange(o.value);
-                setOpen(false);
-              }}
-              className="flex w-full items-center justify-between gap-3 rounded-lg px-2.5 py-2 text-left text-[0.92rem] hover:bg-slate-50"
-            >
-              <span>
-                {o.label}
-                {o.hint && <span className="block text-[0.78rem] text-faint">{o.hint}</span>}
-              </span>
-              {o.value === value && <Check size={14} className="text-brand" />}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+      {open &&
+        pos &&
+        createPortal(
+          <div ref={list} style={{ position: "fixed", ...pos }} className="pop z-[60] min-w-52 overflow-hidden rounded-xl border border-line bg-white p-1 shadow-xl" role="listbox">
+            {options.map((o) => (
+              <button
+                key={o.value}
+                type="button"
+                role="option"
+                aria-selected={o.value === value}
+                onClick={() => {
+                  onChange(o.value);
+                  setOpen(false);
+                }}
+                className={`flex w-full items-center justify-between gap-4 rounded-lg px-3 py-2 text-left text-[0.92rem] transition ${o.value === value ? "bg-brand-soft/60" : "hover:bg-line-2"}`}
+              >
+                <span>
+                  <span className="block font-medium">{o.label}</span>
+                  {o.hint && <span className="block whitespace-nowrap text-[0.78rem] text-muted">{o.hint}</span>}
+                </span>
+                {o.value === value && <Check size={14} className="shrink-0 text-brand" />}
+              </button>
+            ))}
+          </div>,
+          document.body,
+        )}
+    </>
   );
 }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, PlayCircle, Plus, RotateCcw, Search, Shield, Users } from "lucide-react";
+import { Bot, ChevronDown, Gauge, IndianRupee, KeyRound, Pause, Play, PlayCircle, Plus, RotateCcw, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
 import { Kpi } from "@/components/ui";
 import { Menu, Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
@@ -203,7 +203,8 @@ export function AdminUsers({ meId }: { meId: string }) {
                           const body = m === "real" ? <>Switch <b>{name}</b> to <b>Real AI</b>? Their AI use will cost your OpenAI credits (within their monthly limit).</> : m === "demo" ? <>Switch <b>{name}</b> to <b>Demo</b>? They&apos;ll get sample answers instead of real AI — no cost.</> : <>Turn AI <b>off</b> for <b>{name}</b>? AI features will stop working for them until you turn it back on.</>;
                           if ((await ask({ title: `AI: ${label}`, body, confirm: `Switch to ${label}`, danger: m === "off" })) !== null) patch(u.id, { ai_mode: m });
                         }}
-                        render={(c) => <span className={`chip ${MODE_CLS[c.value]}`}>{c.label}</span>}
+                        bare
+                        render={(c) => <span className={`chip gap-1 py-1 pl-3 pr-2 font-semibold transition hover:brightness-95 ${MODE_CLS[c.value]}`}>{c.label}<ChevronDown size={13} className="opacity-60" /></span>}
                       />
                     </td>
                     <td className="px-4 py-3">
