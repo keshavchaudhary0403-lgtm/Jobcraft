@@ -53,7 +53,7 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
   const words = value.split(/\s+/).filter(Boolean).length;
   return (
     <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
-      <div className="flex items-center justify-between border-b border-line px-5 py-3">
+      <div className={`flex items-center justify-between border-b border-line px-5 py-3 ${page ? "sticky top-[3.4rem] z-10 rounded-t-[inherit] bg-white" : ""}`}>
         <span className="font-semibold">Resume</span>
         <span className="flex items-center gap-3">
           <span className="text-[0.82rem] text-faint">{words} words</span>
@@ -70,7 +70,7 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
       {editing ? (
         <textarea
           autoFocus
-          className={`thin-scroll flex-1 resize-none border-0 bg-transparent text-[0.9rem] leading-relaxed text-slate-700 outline-none ${page ? "mx-auto block min-h-[70vh] w-full max-w-[860px] px-8 py-8" : "min-h-[420px] px-5 py-4 xl:min-h-0"}`}
+          className={`thin-scroll flex-1 resize-none border-0 bg-transparent text-[0.9rem] leading-relaxed text-slate-700 outline-none ${page ? "mx-auto block min-h-[70vh] w-full max-w-[860px] overflow-hidden px-8 py-8 [field-sizing:content]" : "min-h-[420px] px-5 py-4 xl:min-h-0"}`}
           value={value}
           onChange={(e) => onChange(e.target.value)}
         />

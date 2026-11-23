@@ -29,7 +29,7 @@ export function ProfileClient({ userId, initial, loginId }: { userId: string; in
         </div>
       </div>
 
-      <ProfileReview key={version} tabs userId={userId} initial={draft} onSaved={() => router.refresh()} />
+      <ProfileReview key={version} tabs userId={userId} initial={draft} baseline={initial} onSaved={() => router.refresh()} />
 
       <Modal open={upload} onClose={() => setUpload(false)} title="Upload new resume">
         <ResumeDrop
