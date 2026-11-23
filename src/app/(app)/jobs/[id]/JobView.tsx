@@ -175,23 +175,23 @@ export function JobView({
             )}
           </div>
 
-          <ol className="grid min-w-0 grid-cols-6 overflow-x-auto">
+          <ol className="flex min-w-0 items-center overflow-x-auto">
             {checklist.map((c, i) => {
               const current = i === currentStep;
               return (
-                <li key={c.label} className="relative flex min-w-[84px] justify-center">
-                  {i < checklist.length - 1 && <span className={`absolute left-1/2 top-[13px] h-0.5 w-full ${c.done ? "bg-brand" : "bg-line"}`} />}
+                <li key={c.label} className="flex min-w-0 flex-1 items-center">
                   <button
                     onClick={c.go}
                     disabled={!analysed && i !== 0}
                     title={c.label === "Applied" && !c.done ? "Mark as applied" : c.label}
-                    className="group relative flex flex-col items-center gap-1.5 px-1 disabled:cursor-default"
+                    className="group flex min-w-0 flex-col items-center gap-1.5 px-1 disabled:cursor-default"
                   >
-                    <span className={`grid h-7 w-7 place-items-center rounded-full text-[0.75rem] font-semibold transition ${c.done ? "bg-brand text-on-brand" : current ? "bg-white text-brand ring-2 ring-brand" : "bg-white text-faint ring-1 ring-line group-enabled:group-hover:ring-brand/40"}`}>
+                    <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.75rem] font-semibold transition ${c.done ? "bg-brand text-on-brand" : current ? "bg-white text-brand ring-2 ring-brand" : "bg-white text-faint ring-1 ring-line group-enabled:group-hover:ring-brand/40"}`}>
                       {c.done ? <Check size={13} strokeWidth={3} /> : i + 1}
                     </span>
                     <span className={`whitespace-nowrap text-[0.76rem] ${c.done ? "text-ink" : current ? "font-semibold text-brand-ink" : "text-muted"}`}>{c.label}</span>
                   </button>
+                  {i < checklist.length - 1 && <span className={`mx-1 mb-5 h-0.5 min-w-4 flex-1 rounded-full ${c.done ? "bg-brand" : "bg-line"}`} />}
                 </li>
               );
             })}
