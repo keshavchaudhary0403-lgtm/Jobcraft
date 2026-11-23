@@ -31,7 +31,7 @@ export async function startSession(kind: SessionKind, formData: FormData) {
     .single();
   if (error) throw new Error(error.message);
 
-  const base = kind === "interview" ? "/interview" : kind === "negotiation" ? "/negotiation" : "/linkedin";
+  const base = kind === "interview" ? "/interview" : "/negotiation";
   redirect(`${base}/${data.id}`);
 }
 

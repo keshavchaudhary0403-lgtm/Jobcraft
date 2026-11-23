@@ -96,8 +96,8 @@ export function AdminUsers({ meId }: { meId: string }) {
             </div>
           </div>
           {budget != null && (
-            <div className="h-2 overflow-hidden rounded-full bg-[#efebe4]">
-              <div className={`h-full ${budgetPct >= 90 ? "bg-warm" : "bg-accent"}`} style={{ width: `${budgetPct}%` }} />
+            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
+              <div className={`h-full ${budgetPct >= 90 ? "bg-bad" : "bg-brand"}`} style={{ width: `${budgetPct}%` }} />
             </div>
           )}
 
@@ -110,7 +110,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   type="button"
                   onClick={() => saveSettings({ ai_model: id })}
                   className={`rounded-xl border p-3 text-left text-sm transition ${
-                    settings.ai_model === id ? "border-accent bg-accent-soft" : "border-line bg-white hover:bg-[#f6f3ee]"
+                    settings.ai_model === id ? "border-brand bg-brand-soft" : "border-line bg-white hover:bg-slate-50"
                   }`}
                 >
                   <div className="font-medium">{m.label}</div>
@@ -156,7 +156,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <>
                   <div className="field flex items-center justify-between bg-[#fbfaf7]">
                     <span className="font-medium">₹{settings.usd_to_inr}</span>
-                    <span className="text-xs text-accent">● live</span>
+                    <span className="text-xs text-brand-ink">● live</span>
                   </div>
                   <p className="mt-1 text-xs text-muted">
                     {settings.fx_source ?? "Live rate"}
@@ -234,15 +234,15 @@ export function AdminUsers({ meId }: { meId: string }) {
               return (
                 <tr key={u.id}>
                   <td className="px-4 py-3">
-                    {u.full_name || "—"} {u.is_admin && <span className="ml-1 rounded bg-accent-soft px-1.5 text-xs text-accent">admin</span>}
-                    {!u.is_active && <span className="ml-1 rounded bg-warm-soft px-1.5 text-xs text-warm">paused</span>}
+                    {u.full_name || "—"} {u.is_admin && <span className="ml-1 rounded bg-brand-soft px-1.5 text-xs text-brand-ink">admin</span>}
+                    {!u.is_active && <span className="ml-1 rounded bg-bad-soft px-1.5 text-xs text-bad">paused</span>}
                   </td>
                   <td className="px-4 py-3 text-muted">
                     {u.phone ? `+${u.phone}` : ""}
                     {u.phone && u.email ? " · " : ""}
                     {u.email ?? ""}
                   </td>
-                  <td className={`px-4 py-3 ${over ? "font-medium text-warm" : ""}`}>
+                  <td className={`px-4 py-3 ${over ? "font-medium text-bad" : ""}`}>
                     {rupees(u.spent_inr)}
                     {limit != null && <span className="text-xs text-muted"> / {rupees(limit)}</span>}
                   </td>
@@ -260,7 +260,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-3 text-xs">
                       <button
-                        className="text-accent hover:underline"
+                        className="text-brand-ink hover:underline"
                         onClick={() => {
                           const pw = prompt(`New password for ${u.full_name || u.phone || u.email}:`);
                           if (pw) patch(u.id, { password: pw });

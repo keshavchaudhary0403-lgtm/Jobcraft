@@ -14,6 +14,10 @@ export type Profile = {
   linkedin_url: string | null;
   extra_notes: string | null;
   monthly_limit_inr: number | null;
+  current_title: string | null;
+  skills: string[] | null;
+  linkedin_result: unknown;
+  onboarded: boolean;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;
@@ -32,6 +36,12 @@ export type Application = {
   applied_on: string | null;
   notes: string | null;
   tailored_resume: string | null;
+  location: string | null;
+  seniority: string | null;
+  analysis: unknown;
+  fit_answers: Record<string, string>;
+  resume_result: unknown;
+  outreach: unknown;
   created_at: string;
   updated_at: string;
 };

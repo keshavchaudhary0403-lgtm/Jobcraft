@@ -144,3 +144,29 @@ export function aiErrorMessage(err: unknown) {
   if (err instanceof OpenAI.APIError) return `AI service error (${err.status ?? "network"}). Please try again.`;
   return "Something went wrong. Please try again.";
 }
+
+/** One structured-output call. Returns parsed JSON + usage. */
+export async function runStructured<T>(opts: {
+  model: ModelId;
+  name: string;
+  schema: object;
+  instructions: string;
+  input: string | OpenAI.Responses.ResponseInputItem[];
+  effort?: "none" | "low" | "medium" | "high";
+  userId: string;
+}): Promise<{ data: T; usage: OpenAI.Responses.ResponseUsage | null | undefined }> {
+  let effort = opts.effort ?? "low";
+  if (effort === "none" && !AI_MODELS[opts.model].noneEffort) effort = "low";
+  const res = await openai().responses.create({
+    model: opts.model,
+    instructions: opts.instructions,
+    input: opts.input,
+    reasoning: { effort },
+    text: { format: { type: "json_schema", name: opts.name, schema: opts.schema as Record<string, unknown>, strict: true } },
+    max_output_tokens: 32000,
+    store: false,
+    safety_identifier: opts.userId,
+  });
+  if (res.status === "incomplete") throw new Error("The AI answer was cut short. Please try again.");
+  return { data: JSON.parse(res.output_text) as T, usage: res.usage };
+}

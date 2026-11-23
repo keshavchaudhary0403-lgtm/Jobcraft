@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
-import { Inter, Fraunces } from "next/font/google";
+import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({ variable: "--font-inter", subsets: ["latin"] });
-const serif = Fraunces({ variable: "--font-serif-display", subsets: ["latin"] });
+const geist = Geist({ variable: "--font-geist", subsets: ["latin"] });
+const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Jobcraft — your AI job search system",
-  description: "Decode JDs, tailor resumes, rewrite LinkedIn, write outreach, practise interviews and salary negotiation.",
+  title: { default: "Jobcraft", template: "%s · Jobcraft" },
+  description: "Your AI job search copilot — tailored resumes, outreach, interview and salary practice.",
 };
 
-export default function RootLayout({ children }: LayoutProps<"/">) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${serif.variable} h-full antialiased`}>
+    <html lang="en" className={`${geist.variable} ${mono.variable} h-full`}>
       <body className="min-h-full font-sans">{children}</body>
     </html>
   );

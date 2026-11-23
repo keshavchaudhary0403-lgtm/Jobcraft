@@ -1,53 +1,38 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { ArrowUp, Mic, Square, Volume2, VolumeX } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { useVoice } from "./useVoice";
-
-export type StepDef = {
-  key: string;
-  n: number;
-  title: string;
-  short: string;
-  when: string;
-  prompt: string;
-};
+import { CopyButton } from "./client-ui";
 
 type Props = {
   sessionId: string;
   initialMessages: Message[];
-  steps?: StepDef[];
-  /** Turn on voice controls (mic + read replies aloud). */
+  /** Voice "call" mode: big mic, replies read aloud. */
   voice?: boolean;
-  /** Small buttons that send a fixed message, e.g. "ready", "stop". */
+  /** One-tap replies, e.g. "Ready". */
   quickReplies?: string[];
-  /** Sent automatically if the session has no messages yet. */
+  /** Hidden instruction sent automatically when the session is empty. */
   autoStart?: { prompt: string; step: string };
-  /** Called after each assistant reply finishes (e.g. to refresh server data). */
-  onReply?: (text: string, step: string | null) => void;
+  suggestions?: string[];
   placeholder?: string;
+  /** Label for the AI side, e.g. "Interviewer". */
+  aiName?: string;
 };
 
 type LocalMsg = Pick<Message, "role" | "content" | "step"> & { id: string; pending?: boolean };
 
-export function ChatPanel({ sessionId, initialMessages, steps, voice, quickReplies, autoStart, onReply, placeholder }: Props) {
+export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, autoStart, suggestions, placeholder, aiName = "Coach" }: Props) {
   const [messages, setMessages] = useState<LocalMsg[]>(initialMessages);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
-  const [openStep, setOpenStep] = useState<StepDef | null>(null);
-  const [draft, setDraft] = useState("");
-  const [speakReplies, setSpeakReplies] = useState(!!voice);
+  const [speakOn, setSpeakOn] = useState(!!voice);
   const bottomRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
   const v = useVoice();
-
-  const doneSteps = useMemo(
-    () => new Set(messages.filter((m) => m.role === "assistant" && m.step).map((m) => m.step!)),
-    [messages],
-  );
-  const nextStep = steps?.find((s) => !doneSteps.has(s.key));
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
@@ -57,10 +42,8 @@ export function ChatPanel({ sessionId, initialMessages, steps, voice, quickRepli
     if (!content.trim() || busy) return;
     setBusy(true);
     v.stopSpeaking();
-    const userMsg: LocalMsg = { id: `u${Date.now()}`, role: "user", content, step };
     const aiId = `a${Date.now()}`;
-    setMessages((m) => [...m, userMsg, { id: aiId, role: "assistant", content: "", step, pending: true }]);
-
+    setMessages((m) => [...m, { id: `u${Date.now()}`, role: "user", content, step }, { id: aiId, role: "assistant", content: "", step, pending: true }]);
     let text = "";
     try {
       const res = await fetch("/api/chat", {
@@ -83,12 +66,11 @@ export function ChatPanel({ sessionId, initialMessages, steps, voice, quickRepli
         }
       }
     } catch {
-      text = text || "⚠️ Network problem. Check your connection and try again.";
+      text = text || "⚠️ Network problem. Try again.";
     }
     setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: text, pending: false } : x)));
     setBusy(false);
-    if (voice && speakReplies && text && !text.startsWith("⚠️")) v.speak(text);
-    onReply?.(text, step);
+    if (voice && speakOn && text && !text.startsWith("⚠️")) v.speak(text);
   }
 
   useEffect(() => {
@@ -99,121 +81,74 @@ export function ChatPanel({ sessionId, initialMessages, steps, voice, quickRepli
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function openPrompt(s: StepDef) {
-    setOpenStep(s);
-    setDraft(s.prompt);
-  }
-
-  function micClick() {
-    if (v.listening) v.stopListening();
-    else v.startListening((t) => send(t));
-  }
+  const visible = messages.filter((m) => !(m.role === "user" && m.step)); // hide backend prompts
+  const state = v.listening ? "listening" : busy ? "thinking" : v.speaking ? "speaking" : "idle";
 
   return (
     <div className="flex flex-col gap-4">
-      {steps && steps.length > 0 && (
-        <div className="card p-3">
-          <div className="flex flex-wrap gap-2">
-            {steps.map((s) => {
-              const done = doneSteps.has(s.key);
-              const isNext = nextStep?.key === s.key;
-              return (
-                <button
-                  key={s.key}
-                  onClick={() => openPrompt(s)}
-                  disabled={busy}
-                  className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm transition ${
-                    openStep?.key === s.key
-                      ? "border-accent bg-accent-soft text-accent"
-                      : isNext
-                        ? "border-accent/50 bg-white hover:bg-accent-soft"
-                        : "border-line bg-white hover:bg-[#f6f3ee]"
-                  }`}
-                >
-                  <span
-                    className={`grid h-5 w-5 place-items-center rounded-full text-[11px] font-semibold ${
-                      done ? "bg-accent text-white" : "bg-[#efebe4] text-muted"
-                    }`}
-                  >
-                    {done ? "✓" : s.n}
-                  </span>
-                  {s.short}
-                </button>
-              );
-            })}
+      {voice && (
+        <div className="card ai-gradient flex flex-col items-center px-6 py-10 fade-up">
+          <VoiceOrb state={state} />
+          <div className="mt-6 h-6 text-center text-sm font-medium text-slate-700">
+            {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
           </div>
-          {openStep && (
-            <div className="mt-3 border-t border-line pt-3">
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <div className="font-medium">
-                    Prompt {openStep.n}: {openStep.title}
-                  </div>
-                  <div className="text-sm text-muted">{openStep.when}</div>
-                </div>
-                <button className="text-sm text-muted hover:text-ink" onClick={() => setOpenStep(null)}>
-                  Close
-                </button>
-              </div>
-              <p className="mt-3 text-xs text-muted">
-                Your resume and this job&apos;s details are attached automatically. Edit the prompt if you like, then run it.
-              </p>
-              <textarea className="field mt-2 font-mono text-xs leading-relaxed" rows={10} value={draft} onChange={(e) => setDraft(e.target.value)} />
-              <div className="mt-2 flex gap-2">
-                <button
-                  className="btn btn-primary"
-                  disabled={busy}
-                  onClick={() => {
-                    const s = openStep;
-                    setOpenStep(null);
-                    send(draft, s.key);
-                  }}
-                >
-                  Run prompt {openStep.n}
-                </button>
-                <button className="btn btn-ghost" onClick={() => setDraft(openStep.prompt)}>
-                  Reset
-                </button>
-              </div>
-            </div>
-          )}
-          {!openStep && nextStep && messages.length === 0 && (
-            <p className="mt-3 text-sm text-muted">
-              Start with <strong className="text-ink">Prompt {nextStep.n}: {nextStep.title}</strong> — click it above.
-            </p>
-          )}
+          <div className="mt-1 min-h-5 max-w-lg text-center text-sm text-muted">{v.listening ? v.transcript : ""}</div>
+          <div className="mt-6 flex items-center gap-3">
+            {v.supported.listen ? (
+              <button
+                onClick={() => (v.listening ? v.stopListening() : v.startListening((t) => send(t)))}
+                disabled={busy}
+                className={`grid h-16 w-16 place-items-center rounded-full text-white shadow-xl transition hover:scale-105 disabled:opacity-40 ${
+                  v.listening ? "bg-bad" : "bg-gradient-to-br from-brand to-navy"
+                }`}
+                aria-label={v.listening ? "Stop and send" : "Answer by voice"}
+              >
+                {v.listening ? <Square size={22} fill="currentColor" /> : <Mic size={26} />}
+              </button>
+            ) : (
+              <p className="text-xs text-muted">Voice works in Chrome, Edge and Safari. You can type below.</p>
+            )}
+            {v.supported.speak && (
+              <button className="btn btn-ghost h-11 w-11 rounded-full p-0" onClick={() => { setSpeakOn(!speakOn); v.stopSpeaking(); }} aria-label="Toggle voice replies">
+                {speakOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+              </button>
+            )}
+          </div>
+          {v.listening && <div className="mt-3 text-xs text-muted">Tap ■ when you finish your answer</div>}
         </div>
       )}
 
-      <div className="flex flex-col gap-4">
-        {messages.map((m) => (
-          <Bubble key={m.id} msg={m} steps={steps} onSpeak={voice ? () => v.speak(m.content) : undefined} />
-        ))}
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Composer */}
-      <div className="sticky bottom-0 -mx-1 bg-gradient-to-t from-paper via-paper to-transparent px-1 pb-3 pt-4">
-        {quickReplies && quickReplies.length > 0 && (
-          <div className="mb-2 flex flex-wrap gap-2">
-            {quickReplies.map((q) => (
-              <button key={q} className="btn btn-ghost py-1 text-xs" disabled={busy} onClick={() => send(q)}>
-                Say “{q}”
+      <div className="flex flex-col gap-3">
+        {visible.length === 0 && !busy && suggestions && (
+          <div className="flex flex-wrap gap-2 fade-up">
+            {suggestions.map((s) => (
+              <button key={s} onClick={() => send(s)} className="chip border border-line bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-brand/40 hover:text-ink">
+                {s}
               </button>
             ))}
           </div>
         )}
-        {v.listening && (
-          <div className="mb-2 rounded-lg bg-warm-soft px-3 py-2 text-sm text-warm">
-            <span className="mr-2 inline-block h-2 w-2 animate-pulse rounded-full bg-warm" />
-            Listening… {v.transcript || "start speaking"}
+        {visible.map((m) => (
+          <Bubble key={m.id} msg={m} aiName={aiName} onSpeak={voice ? () => v.speak(m.content) : undefined} />
+        ))}
+        <div ref={bottomRef} />
+      </div>
+
+      <div className="sticky bottom-0 bg-gradient-to-t from-bg via-bg to-transparent pb-4 pt-3">
+        {quickReplies && quickReplies.length > 0 && (
+          <div className="mb-2 flex gap-2">
+            {quickReplies.map((q) => (
+              <button key={q} className="chip border border-line bg-white px-3 py-1.5 text-sm hover:border-brand/40" disabled={busy} onClick={() => send(q)}>
+                {q}
+              </button>
+            ))}
           </div>
         )}
-        <div className="card flex items-end gap-2 p-2">
+        <div className="card flex items-end gap-2 p-2 focus-within:border-brand/50">
           <textarea
-            className="flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none"
-            rows={Math.min(6, Math.max(1, input.split("\n").length))}
-            placeholder={placeholder ?? "Reply, answer its questions, or ask for changes…"}
+            className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-faint"
+            rows={1}
+            placeholder={placeholder ?? "Message…"}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {
@@ -225,100 +160,71 @@ export function ChatPanel({ sessionId, initialMessages, steps, voice, quickRepli
               }
             }}
           />
-          {voice && v.supported.listen && (
-            <button
-              className={`btn ${v.listening ? "bg-warm text-white" : "btn-ghost"}`}
-              onClick={micClick}
-              disabled={busy}
-              title={v.listening ? "Stop and send" : "Answer by voice"}
-            >
-              {v.listening ? "■ Send" : "🎙 Speak"}
-            </button>
-          )}
           <button
-            className="btn btn-primary"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-ink text-white transition hover:bg-slate-800 disabled:opacity-30"
             disabled={busy || !input.trim()}
             onClick={() => {
               const t = input;
               setInput("");
               send(t);
             }}
+            aria-label="Send"
           >
-            {busy ? "…" : "Send"}
+            <ArrowUp size={18} />
           </button>
         </div>
-        {voice && (
-          <div className="mt-2 flex flex-wrap items-center gap-4 text-xs text-muted">
-            {v.supported.speak && (
-              <label className="flex items-center gap-1.5">
-                <input type="checkbox" checked={speakReplies} onChange={(e) => setSpeakReplies(e.target.checked)} />
-                Read replies aloud
-              </label>
-            )}
-            {v.speaking && (
-              <button className="underline" onClick={v.stopSpeaking}>
-                Stop voice
-              </button>
-            )}
-            {!v.supported.listen && <span>Voice input works in Chrome, Edge and Safari. You can still type.</span>}
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-function Bubble({ msg, steps, onSpeak }: { msg: LocalMsg; steps?: StepDef[]; onSpeak?: () => void }) {
-  const [expanded, setExpanded] = useState(false);
-  const [copied, setCopied] = useState(false);
-  const step = steps?.find((s) => s.key === msg.step);
+function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
+  const active = state !== "idle";
+  const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-teal-400 to-indigo-700";
+  return (
+    <div className="relative grid h-36 w-36 place-items-center">
+      {active && (
+        <>
+          <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${color} opacity-30`} style={{ animation: "ripple 2s ease-out infinite" }} />
+          <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${color} opacity-30`} style={{ animation: "ripple 2s ease-out .7s infinite" }} />
+        </>
+      )}
+      <span
+        className={`relative h-28 w-28 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
+        style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px rgba(30,58,138,.6), inset 0 -10px 30px rgba(255,255,255,.25)" }}
+      />
+    </div>
+  );
+}
 
-  if (msg.role === "user") {
-    const isLibraryPrompt = !!msg.step && msg.content.length > 280;
+function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpeak?: () => void }) {
+  if (msg.role === "user")
     return (
-      <div className="flex justify-end">
-        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-[#efebe4] px-4 py-2.5 text-sm">
-          {isLibraryPrompt && !expanded ? (
-            <button className="text-left" onClick={() => setExpanded(true)}>
-              <span className="font-medium">▸ {step ? `Prompt ${step.n}: ${step.title}` : "Library prompt"}</span>
-              <span className="ml-2 text-xs text-muted">show</span>
-            </button>
-          ) : (
-            <div className="whitespace-pre-wrap">{msg.content}</div>
-          )}
-        </div>
+      <div className="flex justify-end fade-up">
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-sm text-white">{msg.content}</div>
       </div>
     );
-  }
-
   return (
-    <div className="card px-5 py-4">
-      {step && <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-accent">Prompt {step.n} · {step.title}</div>}
-      {msg.pending && !msg.content ? (
-        <div className="flex items-center gap-2 text-sm text-muted">
-          <span className="inline-block h-2 w-2 animate-pulse rounded-full bg-accent" /> Thinking…
-        </div>
-      ) : (
-        <div className="prose-ai">
-          <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content.replace(/===\s*RESUME (START|END)\s*===/g, "---")}</ReactMarkdown>
-        </div>
-      )}
+    <div className="fade-up">
+      <div className="mb-1 text-xs font-medium text-faint">{aiName}</div>
+      <div className="card rounded-2xl rounded-tl-md px-4 py-3">
+        {msg.pending && !msg.content ? (
+          <div className="flex gap-1 py-1.5">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="h-2 w-2 rounded-full bg-brand/60" style={{ animation: `breathe 1s ease-in-out ${i * 0.15}s infinite` }} />
+            ))}
+          </div>
+        ) : (
+          <div className="prose-ai">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+          </div>
+        )}
+      </div>
       {!msg.pending && msg.content && (
-        <div className="mt-3 flex gap-3 text-xs text-muted">
-          <button
-            className="hover:text-ink"
-            onClick={async () => {
-              await navigator.clipboard.writeText(msg.content);
-              setCopied(true);
-              setTimeout(() => setCopied(false), 1500);
-            }}
-          >
-            {copied ? "Copied ✓" : "Copy"}
-          </button>
+        <div className="mt-1.5 flex gap-1">
+          <CopyButton text={msg.content} className="border-0 bg-transparent px-2 py-1 text-faint shadow-none hover:text-ink" />
           {onSpeak && (
-            <button className="hover:text-ink" onClick={onSpeak}>
-              Read aloud
-            </button>
+            <button className="btn-quiet rounded-lg text-xs" onClick={onSpeak}><Volume2 size={13} /></button>
           )}
         </div>
       )}

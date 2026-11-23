@@ -185,7 +185,7 @@ export function buildSystemPrompt(opts: {
 }): string {
   const { profile, app, kind } = opts;
   const lines: string[] = [
-    "You are a job-search coach helping a candidate in India, working through a proven prompt library one step at a time.",
+    "You are Jobcraft, a warm, direct job-search coach for a candidate in India. Keep replies short and practical.",
     "",
     "Ground rules that apply to everything you write:",
     "- Only what's true. Never add a skill, number, employer, date, project or claim the candidate can't back up in a real interview. Reframe what's true; never invent. If you need a fact or number you don't have, ask for it.",
