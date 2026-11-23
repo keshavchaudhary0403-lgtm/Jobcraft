@@ -133,3 +133,75 @@ export function Modal({ open, onClose, title, children, width = 520 }: { open: b
     </div>
   );
 }
+
+/**
+ * Number field that never saves while typing. Save / Cancel appear only when the value changes.
+ * Enter = save, Esc = cancel. Blank = "no value" (null).
+ */
+export function SaveableNumber({
+  value,
+  onSave,
+  placeholder,
+  prefix = "₹",
+  size = "md",
+}: {
+  value: number | null;
+  onSave: (v: number | null) => Promise<unknown> | void;
+  placeholder?: string;
+  prefix?: string;
+  size?: "sm" | "md";
+}) {
+  const original = value == null ? "" : String(value);
+  const [draft, setDraft] = useState(original);
+  const [saving, setSaving] = useState(false);
+  const [err, setErr] = useState("");
+  // Follow the saved value when it changes elsewhere (after save / reload).
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDraft(original);
+  }, [original]);
+
+  const dirty = draft.trim() !== original;
+  async function save() {
+    const t = draft.trim();
+    const n = t === "" ? null : Number(t);
+    if (n != null && (!Number.isFinite(n) || n < 0)) return setErr("Enter 0 or more");
+    setErr("");
+    setSaving(true);
+    await onSave(n);
+    setSaving(false);
+  }
+  const h = size === "sm" ? "h-8 text-[0.88rem]" : "";
+  return (
+    <div>
+      <div className="flex items-center gap-1.5">
+        <div className={`relative ${size === "sm" ? "w-28" : "flex-1"}`}>
+          {prefix && <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.85rem] text-faint">{prefix}</span>}
+          <input
+            type="text"
+            inputMode="decimal"
+            className={`field ${h} ${prefix ? "pl-7" : ""} ${dirty ? "border-brand" : ""}`}
+            placeholder={placeholder}
+            value={draft}
+            onChange={(e) => setDraft(e.target.value.replace(/[^0-9.]/g, ""))}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && dirty) save();
+              if (e.key === "Escape") setDraft(original);
+            }}
+          />
+        </div>
+        {dirty && (
+          <>
+            <button type="button" className={`btn btn-primary ${size === "sm" ? "btn-sm h-8" : ""}`} onClick={save} disabled={saving} title="Save (Enter)">
+              {saving ? <Spinner size={13} /> : <Check size={14} />} Save
+            </button>
+            <button type="button" className="btn-quiet" onClick={() => { setDraft(original); setErr(""); }} title="Cancel (Esc)" aria-label="Cancel">
+              <X size={15} />
+            </button>
+          </>
+        )}
+      </div>
+      {err && <p className="mt-1 text-[0.8rem] text-bad">{err}</p>}
+    </div>
+  );
+}

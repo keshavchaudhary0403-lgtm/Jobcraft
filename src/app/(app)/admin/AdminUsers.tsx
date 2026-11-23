@@ -4,19 +4,19 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Bot, Gauge, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
 import { Kpi } from "@/components/ui";
-import { Modal, Spinner } from "@/components/client-ui";
+import { Modal, SaveableNumber, Spinner } from "@/components/client-ui";
 
 type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; spent_inr: number; created_at: string };
 type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null };
 
 const rupees = (n: number) => `₹${n < 10 ? n.toFixed(2) : Math.round(n).toLocaleString("en-IN")}`;
-const toNum = (v: string) => (v.trim() === "" ? null : Number(v));
 
 export function AdminUsers({ meId }: { meId: string }) {
   const [users, setUsers] = useState<U[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [total, setTotal] = useState(0);
   const [tab, setTab] = useState<"users" | "ai">("users");
+  const [pendingModel, setPendingModel] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
   const [toast, setToast] = useState("");
@@ -173,19 +173,12 @@ export function AdminUsers({ meId }: { meId: string }) {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="relative w-28">
-                        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.85rem] text-faint">₹</span>
-                        <input
-                          key={`${u.id}${u.monthly_limit_inr}`}
-                          type="number"
-                          min={0}
-                          className="field h-8 pl-6 text-[0.88rem]"
-                          placeholder={settings?.default_monthly_limit_inr != null ? `${settings.default_monthly_limit_inr}` : "—"}
-                          defaultValue={u.monthly_limit_inr ?? ""}
-                          onBlur={(e) => toNum(e.target.value) !== u.monthly_limit_inr && patch(u.id, { monthly_limit_inr: toNum(e.target.value) })}
-                          title="Blank = default limit. 0 = no AI."
-                        />
-                      </div>
+                      <SaveableNumber
+                        size="sm"
+                        value={u.monthly_limit_inr}
+                        placeholder={settings?.default_monthly_limit_inr != null ? `${settings.default_monthly_limit_inr}` : "—"}
+                        onSave={(v) => patch(u.id, { monthly_limit_inr: v })}
+                      />
                     </td>
                     <td className="px-4 py-3">{u.is_active ? <span className="chip bg-good-soft text-good">Active</span> : <span className="chip bg-slate-100 text-slate-500">Paused</span>}</td>
                     <td className="px-4 py-3">
@@ -193,8 +186,8 @@ export function AdminUsers({ meId }: { meId: string }) {
                         <button className="btn-quiet" title="Reset password" onClick={() => { const pw = prompt(`New password for ${name}:`); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>
                         {u.id !== meId && (
                           <>
-                            <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={() => patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
-                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={() => patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
+                            <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={() => confirm(u.is_active ? `Pause ${name}? They lose access to AI features until you unpause.` : `Unpause ${name}?`) && patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
+                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={() => confirm(u.is_admin ? `Remove admin access from ${name}?` : `Make ${name} an admin? They can manage users, limits and the AI model.`) && patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
                           </>
                         )}
                       </div>
@@ -213,8 +206,8 @@ export function AdminUsers({ meId }: { meId: string }) {
               <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[0.82rem] font-normal text-muted">Used for everyone</span></div>
               <div className="space-y-2.5">
                 {Object.entries(AI_MODELS).map(([id, m]) => (
-                  <button key={id} data-on={settings.ai_model === id} onClick={() => saveSettings({ ai_model: id })} className="option flex w-full items-center gap-4 p-3.5">
-                    <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${settings.ai_model === id ? "border-brand" : "border-line"}`} />
+                  <button key={id} data-on={(pendingModel ?? settings.ai_model) === id} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex w-full items-center gap-4 p-3.5">
+                    <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${(pendingModel ?? settings.ai_model) === id ? "border-brand" : "border-line"}`} />
                     <span className="flex-1">
                       <span className="block font-medium">{m.label}</span>
                       <span className="block text-[0.85rem] text-muted">{m.note}</span>
@@ -223,6 +216,15 @@ export function AdminUsers({ meId }: { meId: string }) {
                   </button>
                 ))}
               </div>
+              {pendingModel && (
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-3 fade-up">
+                  <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" —")[0]}</b>?</span>
+                  <span className="flex gap-2">
+                    <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
+                    <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); }}>Save</button>
+                  </span>
+                </div>
+              )}
             </section>
             <section className="card p-5">
               <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
@@ -256,14 +258,11 @@ export function AdminUsers({ meId }: { meId: string }) {
   );
 }
 
-function LimitField({ label, value, onSave, hint }: { label: string; value: number | null; onSave: (v: number | null) => void; hint: string }) {
+function LimitField({ label, value, onSave, hint }: { label: string; value: number | null; onSave: (v: number | null) => Promise<unknown> | void; hint: string }) {
   return (
     <div>
       <label className="label">{label}</label>
-      <div className="relative">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">₹</span>
-        <input key={`${value}`} type="number" min={0} className="field pl-7" placeholder="No limit" defaultValue={value ?? ""} onBlur={(e) => toNum(e.target.value) !== value && onSave(toNum(e.target.value))} />
-      </div>
+      <SaveableNumber value={value} onSave={onSave} placeholder="No limit" />
       <p className="mt-1 text-[0.8rem] text-faint">{hint}</p>
     </div>
   );
