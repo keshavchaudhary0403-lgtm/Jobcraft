@@ -32,7 +32,7 @@ function Field({ label, value, onChange, placeholder, wide, area }: { label: str
     <div className={wide ? "sm:col-span-2" : ""}>
       <label className="label">{label}</label>
       {area ? (
-        <textarea className="field" rows={2} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
+        <textarea className="field" rows={3} value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       ) : (
         <input className="field" value={value} placeholder={placeholder} onChange={(e) => onChange(e.target.value)} />
       )}
@@ -53,7 +53,6 @@ export function ProfileReview({
 }) {
   const [d, setD] = useState(initial);
   const [more, setMore] = useState(false);
-  const [showResume, setShowResume] = useState(false);
   const [skill, setSkill] = useState("");
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState("");
@@ -87,76 +86,78 @@ export function ProfileReview({
     onSaved?.();
   }
 
+  const words = (d.master_resume ?? "").split(/\s+/).filter(Boolean).length;
+
   return (
-    <div className="space-y-4 stagger">
-      <section className="card p-5 sm:p-6">
-        <div className="grid gap-4 sm:grid-cols-2">
-          <Field label="Name" value={d.full_name ?? ""} onChange={(v) => set("full_name", v)} />
-          <Field label="Current title" value={d.current_title ?? ""} onChange={(v) => set("current_title", v)} />
-          <Field label="Target role" value={d.target_role ?? ""} onChange={(v) => set("target_role", v)} placeholder="e.g. Product Manager in fintech" />
-          <div className="grid grid-cols-2 gap-4">
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_420px]">
+      <div className="space-y-5 stagger">
+        <section className="card p-6 lg:p-7">
+          <div className="grid gap-x-5 gap-y-4 md:grid-cols-2">
+            <Field label="Name" value={d.full_name ?? ""} onChange={(v) => set("full_name", v)} />
+            <Field label="Current title" value={d.current_title ?? ""} onChange={(v) => set("current_title", v)} />
+            <Field label="Target role" value={d.target_role ?? ""} onChange={(v) => set("target_role", v)} placeholder="e.g. Product Manager in fintech" wide />
             <Field label="Experience" value={d.experience_years ?? ""} onChange={(v) => set("experience_years", v)} placeholder="4 years" />
             <Field label="City" value={d.city ?? ""} onChange={(v) => set("city", v)} />
+            <Field label="Best results (with numbers)" value={d.strongest_proof ?? ""} onChange={(v) => set("strongest_proof", v)} wide area />
           </div>
-          <Field label="Best results (with numbers)" value={d.strongest_proof ?? ""} onChange={(v) => set("strongest_proof", v)} wide area />
-          <div className="sm:col-span-2">
-            <label className="label">Skills</label>
-            <div className="flex flex-wrap gap-2">
-              {d.skills.map((s) => (
-                <span key={s} className="chip bg-slate-100 text-slate-700">
-                  {s}
-                  <button onClick={() => set("skills", d.skills.filter((x) => x !== s))} aria-label={`Remove ${s}`} className="text-faint hover:text-ink">
-                    <X size={12} />
-                  </button>
-                </span>
-              ))}
-              <form
-                className="flex"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  const v = skill.trim();
-                  if (v && !d.skills.includes(v)) set("skills", [...d.skills, v]);
-                  setSkill("");
-                }}
-              >
-                <input className="w-32 rounded-full border border-dashed border-line bg-white px-3 py-1 text-xs outline-none focus:border-brand" placeholder="Add skill" value={skill} onChange={(e) => setSkill(e.target.value)} />
-                <button className="sr-only" aria-label="Add skill"><Plus size={12} /></button>
-              </form>
+        </section>
+
+        <section className="card p-6 lg:p-7">
+          <label className="label">Skills</label>
+          <div className="flex flex-wrap gap-2">
+            {d.skills.map((s) => (
+              <span key={s} className="chip bg-slate-100 py-1 text-slate-700">
+                {s}
+                <button onClick={() => set("skills", d.skills.filter((x) => x !== s))} aria-label={`Remove ${s}`} className="text-faint hover:text-ink">
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+            <form
+              className="flex"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const v = skill.trim();
+                if (v && !d.skills.includes(v)) set("skills", [...d.skills, v]);
+                setSkill("");
+              }}
+            >
+              <input className="w-36 rounded-full border border-dashed border-line bg-white px-3 py-1 text-xs outline-none focus:border-brand" placeholder="+ Add skill" value={skill} onChange={(e) => setSkill(e.target.value)} />
+              <button className="sr-only" aria-label="Add skill"><Plus size={12} /></button>
+            </form>
+          </div>
+
+          <button className="mt-6 flex items-center gap-1 text-sm text-muted hover:text-ink" onClick={() => setMore(!more)}>
+            <ChevronDown size={16} className={`transition ${more ? "rotate-180" : ""}`} /> More details (optional)
+          </button>
+          {more && (
+            <div className="mt-4 grid gap-x-5 gap-y-4 md:grid-cols-2 fade-up">
+              <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA — only for salary practice" />
+              <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} />
+              <Field label="Anything true that's not on your resume" value={d.extra_notes ?? ""} onChange={(v) => set("extra_notes", v)} wide area />
             </div>
-          </div>
+          )}
+        </section>
+
+        <div className="flex items-center gap-3">
+          <button className="btn btn-brand px-6 py-3" onClick={save} disabled={busy || !(d.master_resume ?? "").trim()}>
+            {busy && <Spinner />} {cta}
+          </button>
+          {msg && <span className="text-sm text-muted fade-up">{msg}</span>}
         </div>
-
-        <button className="mt-5 flex items-center gap-1 text-sm text-muted hover:text-ink" onClick={() => setMore(!more)}>
-          <ChevronDown size={16} className={`transition ${more ? "rotate-180" : ""}`} /> More details (optional)
-        </button>
-        {more && (
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 fade-up">
-            <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA — used only for salary practice" />
-            <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} />
-            <Field label="Anything true that's not on your resume" value={d.extra_notes ?? ""} onChange={(v) => set("extra_notes", v)} wide area />
-          </div>
-        )}
-      </section>
-
-      <section className="card p-5 sm:p-6">
-        <button className="flex w-full items-center justify-between text-left" onClick={() => setShowResume(!showResume)}>
-          <span>
-            <span className="font-medium">Resume text</span>
-            <span className="ml-2 text-sm text-muted">{(d.master_resume ?? "").split(/\s+/).filter(Boolean).length} words</span>
-          </span>
-          <ChevronDown size={18} className={`text-muted transition ${showResume ? "rotate-180" : ""}`} />
-        </button>
-        {showResume && (
-          <textarea className="field mt-4 min-h-96 font-mono text-xs leading-relaxed fade-up" value={d.master_resume ?? ""} onChange={(e) => set("master_resume", e.target.value)} />
-        )}
-      </section>
-
-      <div className="flex items-center gap-3">
-        <button className="btn btn-brand px-6" onClick={save} disabled={busy || !(d.master_resume ?? "").trim()}>
-          {busy && <Spinner />} {cta}
-        </button>
-        {msg && <span className="text-sm text-muted fade-up">{msg}</span>}
       </div>
+
+      <section className="card flex flex-col p-5 xl:sticky xl:top-6 xl:h-[calc(100vh-3rem)] fade-up">
+        <div className="mb-3 flex items-center justify-between">
+          <span className="font-medium">Resume text</span>
+          <span className="text-xs text-muted">{words} words</span>
+        </div>
+        <textarea
+          className="field min-h-[420px] flex-1 resize-none font-mono text-[0.72rem] leading-relaxed xl:min-h-[200px]"
+          value={d.master_resume ?? ""}
+          onChange={(e) => set("master_resume", e.target.value)}
+        />
+      </section>
     </div>
   );
 }

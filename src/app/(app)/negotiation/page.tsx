@@ -4,6 +4,7 @@ import { SessionList } from "@/components/SessionList";
 import { startSession } from "@/lib/actions";
 import type { Application, Session } from "@/lib/types";
 import { NegotiationForm } from "./NegotiationForm";
+import { HowItWorks } from "@/components/HowItWorks";
 
 export const metadata = { title: "Salary negotiation" };
 
@@ -18,16 +19,21 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
   const start = startSession.bind(null, "negotiation");
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <>
       <PageHeader title="Salary negotiation" sub="Know if the offer is fair. Then practise asking for more." />
-      <form action={start} className="card mb-8 p-6 fade-up">
-        <NegotiationForm
-          apps={sorted}
-          preselect={preselect}
-          defaults={{ city: profile.city ?? "", current_ctc: profile.current_ctc ?? "", experience: profile.experience_years ?? "", strongest_proof: profile.strongest_proof ?? "" }}
-        />
-      </form>
-      <SessionList sessions={sessions ?? []} base="/negotiation" />
-    </div>
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+        <form action={start} className="card p-7 fade-up">
+          <NegotiationForm
+            apps={sorted}
+            preselect={preselect}
+            defaults={{ city: profile.city ?? "", current_ctc: profile.current_ctc ?? "", experience: profile.experience_years ?? "", strongest_proof: profile.strongest_proof ?? "" }}
+          />
+        </form>
+        <div className="space-y-5 stagger">
+          <HowItWorks steps={["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter out loud — HR pushes back", "Say stop for feedback"]} />
+          <SessionList sessions={sessions ?? []} base="/negotiation" />
+        </div>
+      </div>
+    </>
   );
 }

@@ -85,9 +85,9 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
   const state = v.listening ? "listening" : busy ? "thinking" : v.speaking ? "speaking" : "idle";
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className={voice ? "grid items-start gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "flex flex-col gap-4"}>
       {voice && (
-        <div className="card ai-gradient flex flex-col items-center px-6 py-10 fade-up">
+        <div className="card ai-gradient flex flex-col items-center px-6 py-10 fade-up lg:sticky lg:top-6 lg:py-14">
           <VoiceOrb state={state} />
           <div className="mt-6 h-6 text-center text-sm font-medium text-slate-700">
             {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
@@ -118,6 +118,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         </div>
       )}
 
+      <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3">
         {visible.length === 0 && !busy && suggestions && (
           <div className="flex flex-wrap gap-2 fade-up">
@@ -173,6 +174,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             <ArrowUp size={18} />
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

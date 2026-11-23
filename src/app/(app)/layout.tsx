@@ -10,7 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     <div className="min-h-screen">
       <Nav name={name} isAdmin={profile.is_admin} />
       <main className="lg:pl-64">
-        <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6 lg:px-10 lg:py-10">{children}</div>
+        <div className="mx-auto max-w-[1360px] px-4 py-6 sm:px-6 lg:px-10 lg:py-9">{children}</div>
       </main>
     </div>
   );

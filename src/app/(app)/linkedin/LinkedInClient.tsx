@@ -35,13 +35,14 @@ export function LinkedInClient({ initial, targetRole, url }: { initial: LinkedIn
         <div className={`space-y-5 stagger transition ${busy ? "opacity-50" : ""}`}>
           <section className="card p-6">
             <div className="text-xs font-medium uppercase tracking-wider text-faint">Headline — pick one</div>
-            <div className="mt-3 space-y-3">
+            <div className="mt-3 grid gap-3 lg:grid-cols-3">
               {res.headlines.map((h, i) => (
-                <div key={i} className="group flex items-start gap-3 rounded-xl border border-line p-4 transition hover:border-brand/40">
+                <div key={i} className="flex flex-col rounded-xl border border-line p-4 transition hover:border-brand/40">
+                  <div className="mb-2 text-xs font-medium text-faint">Option {i + 1}</div>
                   <p className="flex-1 text-[0.95rem] leading-relaxed">{h}</p>
-                  <div className="flex shrink-0 flex-col items-end gap-2">
-                    <CharCount text={h} max={220} />
+                  <div className="mt-4 flex items-center justify-between">
                     <CopyButton text={h} />
+                    <CharCount text={h} max={220} />
                   </div>
                 </div>
               ))}

@@ -35,7 +35,7 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   const del = deleteSession.bind(null, id, cfg.back);
 
   return (
-    <div className="mx-auto max-w-3xl">
+    <div>
       <div className="mb-5 flex items-center justify-between">
         <Link href={cfg.back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft size={15} /> {cfg.backLabel}</Link>
         <form action={del}>
