@@ -1,28 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Bot, IndianRupee, KeyRound, Pause, Play, Plus, Search, Shield, Users } from "lucide-react";
 import { AI_MODELS } from "@/lib/models";
+import { StatTile } from "@/components/ui";
+import { Modal, Spinner } from "@/components/client-ui";
 
-type U = {
-  id: string;
-  full_name: string | null;
-  email: string | null;
-  phone: string | null;
-  is_admin: boolean;
-  is_active: boolean;
-  monthly_limit_inr: number | null;
-  spent_inr: number;
-  created_at: string;
-};
-type Settings = {
-  ai_model: string;
-  default_monthly_limit_inr: number | null;
-  total_monthly_limit_inr: number | null;
-  usd_to_inr: number;
-  fx_auto: boolean;
-  fx_updated_at: string | null;
-  fx_source: string | null;
-};
+type U = { id: string; full_name: string | null; email: string | null; phone: string | null; is_admin: boolean; is_active: boolean; monthly_limit_inr: number | null; spent_inr: number; created_at: string };
+type Settings = { ai_model: string; default_monthly_limit_inr: number | null; total_monthly_limit_inr: number | null; usd_to_inr: number; fx_auto: boolean; fx_updated_at: string | null; fx_source: string | null };
 
 const rupees = (n: number) => `₹${n < 10 ? n.toFixed(2) : Math.round(n).toLocaleString("en-IN")}`;
 const toNum = (v: string) => (v.trim() === "" ? null : Number(v));
@@ -31,262 +16,257 @@ export function AdminUsers({ meId }: { meId: string }) {
   const [users, setUsers] = useState<U[]>([]);
   const [settings, setSettings] = useState<Settings | null>(null);
   const [total, setTotal] = useState(0);
-  const [f, setF] = useState({ full_name: "", email: "", phone: "", password: "" });
-  const [msg, setMsg] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [tab, setTab] = useState<"users" | "ai">("users");
+  const [q, setQ] = useState("");
+  const [adding, setAdding] = useState(false);
+  const [toast, setToast] = useState("");
 
   const load = useCallback(async () => {
-    const res = await fetch("/api/admin/users");
-    const data = await res.json();
+    const data = await fetch("/api/admin/users").then((r) => r.json());
     if (data.users) {
       setUsers(data.users);
       setSettings(data.settings);
       setTotal(data.total_spent_inr);
     }
   }, []);
-
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     load();
   }, [load]);
 
-  async function create(e: React.FormEvent) {
-    e.preventDefault();
-    setBusy(true);
-    setMsg("");
-    const res = await fetch("/api/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) });
-    const data = await res.json();
-    setBusy(false);
-    if (data.ok) {
-      setMsg(`Created. Login: ${f.phone || f.email}`);
-      setF({ full_name: "", email: "", phone: "", password: "" });
-      load();
-    } else setMsg(data.error);
-  }
+  const flash = (m: string) => {
+    setToast(m);
+    setTimeout(() => setToast(""), 1800);
+  };
 
   async function patch(id: string, body: Record<string, unknown>) {
-    const res = await fetch("/api/admin/users", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, ...body }) });
-    const data = await res.json();
-    setMsg(data.ok ? "Updated ✓" : data.error);
+    const data = await fetch("/api/admin/users", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id, ...body }) }).then((r) => r.json());
+    flash(data.ok ? "Saved" : data.error);
     load();
   }
-
   async function saveSettings(body: Partial<Settings>) {
-    const res = await fetch("/api/admin/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const data = await res.json();
-    setMsg(data.ok ? "Settings saved ✓" : data.error);
+    const data = await fetch("/api/admin/settings", { method: "PATCH", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) }).then((r) => r.json());
+    flash(data.ok ? "Saved" : data.error);
     load();
   }
 
-  const budget = settings?.total_monthly_limit_inr;
-  const budgetPct = budget ? Math.min(100, (total / budget) * 100) : 0;
+  const shown = useMemo(() => {
+    const t = q.trim().toLowerCase();
+    return t ? users.filter((u) => [u.full_name, u.email, u.phone].some((v) => v?.toLowerCase().includes(t))) : users;
+  }, [users, q]);
+
+  const budget = settings?.total_monthly_limit_inr ?? null;
+  const model = settings ? AI_MODELS[settings.ai_model as keyof typeof AI_MODELS] : null;
 
   return (
-    <div className="space-y-8">
-      {settings && (
-        <section className="card space-y-5 p-5 sm:p-6">
-          <div className="flex flex-wrap items-end justify-between gap-3">
-            <div>
-              <h2 className="font-medium">AI &amp; spending</h2>
-              <p className="text-xs text-muted">Limits reset on the 1st of every month (India time). When a limit is reached, AI features pause for that user.</p>
-            </div>
-            <div className="text-right">
-              <div className="text-2xl font-semibold">{rupees(total)}</div>
-              <div className="text-xs text-muted">spent this month{budget != null ? ` of ${rupees(budget)}` : ""}</div>
-            </div>
-          </div>
-          {budget != null && (
-            <div className="h-2 overflow-hidden rounded-full bg-slate-100">
-              <div className={`h-full ${budgetPct >= 90 ? "bg-bad" : "bg-brand"}`} style={{ width: `${budgetPct}%` }} />
-            </div>
-          )}
+    <>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+        <div>
+          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">Admin</h1>
+          <p className="mt-0.5 text-muted">People, AI model and spending.</p>
+        </div>
+        <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
+      </div>
 
-          <div>
-            <label className="label">AI model (for everyone)</label>
-            <div className="grid gap-2 sm:grid-cols-3">
-              {Object.entries(AI_MODELS).map(([id, m]) => (
-                <button
-                  key={id}
-                  type="button"
-                  onClick={() => saveSettings({ ai_model: id })}
-                  className={`rounded-xl border p-3 text-left text-sm transition ${
-                    settings.ai_model === id ? "border-brand bg-brand-soft" : "border-line bg-white hover:bg-slate-50"
-                  }`}
-                >
-                  <div className="font-medium">{m.label}</div>
-                  <div className="mt-1 text-xs text-muted">{m.note}</div>
-                  <div className="mt-2 text-xs text-muted">
-                    ${m.input} in · ${m.output} out per 1M tokens
-                  </div>
-                </button>
-              ))}
-            </div>
-          </div>
+      <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
+        <StatTile icon={<IndianRupee size={18} />} label="Spent this month" value={rupees(total)} sub={budget != null ? `of ${rupees(budget)} budget` : "No budget cap"} />
+        <StatTile icon={<Users size={18} />} label="Users" value={users.length} sub={`${users.filter((u) => u.is_active).length} active`} />
+        <StatTile icon={<Bot size={18} />} label="AI model" value={<span className="text-[1.05rem]">{model?.label.split(" —")[0] ?? "—"}</span>} sub={model ? `$${model.input} / $${model.output} per 1M tokens` : undefined} />
+        <StatTile icon={<span className="text-[0.95rem] font-semibold">$</span>} label="1 US$" value={settings ? `₹${settings.usd_to_inr}` : "—"} sub={settings?.fx_auto ? "Live rate" : "Fixed rate"} />
+      </div>
 
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div>
-              <label className="label">Default limit per user / month (₹)</label>
-              <input
-                key={`d${settings.default_monthly_limit_inr}`}
-                type="number"
-                min={0}
-                className="field"
-                placeholder="No limit"
-                defaultValue={settings.default_monthly_limit_inr ?? ""}
-                onBlur={(e) => toNum(e.target.value) !== settings.default_monthly_limit_inr && saveSettings({ default_monthly_limit_inr: toNum(e.target.value) })}
-              />
-              <p className="mt-1 text-xs text-muted">Applies to everyone without their own limit — including new users.</p>
-            </div>
-            <div>
-              <label className="label">Total budget, all users / month (₹)</label>
-              <input
-                key={`t${settings.total_monthly_limit_inr}`}
-                type="number"
-                min={0}
-                className="field"
-                placeholder="No limit"
-                defaultValue={settings.total_monthly_limit_inr ?? ""}
-                onBlur={(e) => toNum(e.target.value) !== settings.total_monthly_limit_inr && saveSettings({ total_monthly_limit_inr: toNum(e.target.value) })}
-              />
-              <p className="mt-1 text-xs text-muted">A safety cap for your OpenAI credits.</p>
-            </div>
-            <div>
-              <label className="label">1 US$ = ₹</label>
-              {settings.fx_auto ? (
-                <>
-                  <div className="field flex items-center justify-between bg-[#fbfaf7]">
-                    <span className="font-medium">₹{settings.usd_to_inr}</span>
-                    <span className="text-xs text-brand-ink">● live</span>
-                  </div>
-                  <p className="mt-1 text-xs text-muted">
-                    {settings.fx_source ?? "Live rate"}
-                    {settings.fx_updated_at ? `, updated ${new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}` : ""}
-                    . Refreshes every 6 hours.{" "}
-                    <button type="button" className="underline" onClick={() => saveSettings({ usd_to_inr: settings.usd_to_inr })}>
-                      Set my own
-                    </button>
-                  </p>
-                </>
-              ) : (
-                <>
-                  <input
-                    key={`r${settings.usd_to_inr}`}
-                    type="number"
-                    min={1}
-                    step="0.01"
-                    className="field"
-                    defaultValue={settings.usd_to_inr}
-                    onBlur={(e) => Number(e.target.value) !== settings.usd_to_inr && saveSettings({ usd_to_inr: Number(e.target.value) })}
-                  />
-                  <p className="mt-1 text-xs text-muted">
-                    Fixed rate.{" "}
-                    <button type="button" className="underline" onClick={() => saveSettings({ fx_auto: true })}>
-                      Use live rate
-                    </button>
-                  </p>
-                </>
-              )}
-            </div>
+      <div className="mb-4 flex items-center justify-between gap-3">
+        <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
+          {([["users", "Users"], ["ai", "AI & limits"]] as const).map(([k, l]) => (
+            <button key={k} onClick={() => setTab(k)} className={`h-8 rounded-lg px-3.5 text-[0.9rem] transition ${tab === k ? "bg-white font-medium shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>{l}</button>
+          ))}
+        </div>
+        {tab === "users" && (
+          <div className="relative w-64">
+            <Search size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
+            <input className="field h-9 pl-9" placeholder="Search people" value={q} onChange={(e) => setQ(e.target.value)} />
           </div>
-          {msg && <p className="text-sm text-muted">{msg}</p>}
-        </section>
+        )}
+      </div>
+
+      {tab === "users" ? (
+        <div className="card overflow-hidden fade-up">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-line bg-slate-50/70 text-left text-[0.8rem] text-muted">
+                <th className="px-4 py-2.5 font-medium">Person</th>
+                <th className="px-4 py-2.5 font-medium">Spent this month</th>
+                <th className="px-4 py-2.5 font-medium">Monthly limit</th>
+                <th className="px-4 py-2.5 font-medium">Status</th>
+                <th className="w-px px-4 py-2.5" />
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line-2">
+              {shown.map((u) => {
+                const limit = u.monthly_limit_inr ?? settings?.default_monthly_limit_inr ?? null;
+                const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
+                const name = u.full_name || u.email || (u.phone ? `+${u.phone}` : "—");
+                return (
+                  <tr key={u.id} className="hover:bg-slate-50/50">
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-3">
+                        <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-soft text-[0.75rem] font-semibold text-brand-ink">{name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}</div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5 font-medium">{name}{u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}</div>
+                          <div className="truncate text-[0.82rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ")}</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="tabular-nums">{rupees(u.spent_inr)}</div>
+                      {limit != null && (
+                        <div className="mt-1 h-1 w-24 overflow-hidden rounded-full bg-line-2">
+                          <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+                        </div>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="relative w-28">
+                        <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.85rem] text-faint">₹</span>
+                        <input
+                          key={`${u.id}${u.monthly_limit_inr}`}
+                          type="number"
+                          min={0}
+                          className="field h-8 pl-6 text-[0.88rem]"
+                          placeholder={settings?.default_monthly_limit_inr != null ? `${settings.default_monthly_limit_inr}` : "—"}
+                          defaultValue={u.monthly_limit_inr ?? ""}
+                          onBlur={(e) => toNum(e.target.value) !== u.monthly_limit_inr && patch(u.id, { monthly_limit_inr: toNum(e.target.value) })}
+                          title="Blank = default limit. 0 = no AI."
+                        />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">{u.is_active ? <span className="chip bg-good-soft text-good">Active</span> : <span className="chip bg-slate-100 text-slate-500">Paused</span>}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-1">
+                        <button className="btn-quiet" title="Reset password" onClick={() => { const pw = prompt(`New password for ${name}:`); if (pw) patch(u.id, { password: pw }); }}><KeyRound size={15} /></button>
+                        {u.id !== meId && (
+                          <>
+                            <button className="btn-quiet" title={u.is_active ? "Pause" : "Unpause"} onClick={() => patch(u.id, { is_active: !u.is_active })}>{u.is_active ? <Pause size={15} /> : <Play size={15} />}</button>
+                            <button className={`btn-quiet ${u.is_admin ? "text-brand" : ""}`} title={u.is_admin ? "Remove admin" : "Make admin"} onClick={() => patch(u.id, { is_admin: !u.is_admin })}><Shield size={15} /></button>
+                          </>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+          <div className="border-t border-line px-4 py-2.5 text-[0.8rem] text-faint">Blank limit = default (₹{settings?.default_monthly_limit_inr ?? "—"}). Set 0 to turn off AI for someone.</div>
+        </div>
+      ) : (
+        settings && (
+          <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] fade-up">
+            <section className="card p-5">
+              <div className="font-semibold">AI model</div>
+              <div className="mb-4 text-[0.88rem] text-muted">Used for everyone.</div>
+              <div className="space-y-2.5">
+                {Object.entries(AI_MODELS).map(([id, m]) => (
+                  <button key={id} data-on={settings.ai_model === id} onClick={() => saveSettings({ ai_model: id })} className="option flex w-full items-center gap-4 p-3.5">
+                    <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${settings.ai_model === id ? "border-brand" : "border-line"}`} />
+                    <span className="flex-1">
+                      <span className="block font-medium">{m.label}</span>
+                      <span className="block text-[0.85rem] text-muted">{m.note}</span>
+                    </span>
+                    <span className="text-right text-[0.8rem] tabular-nums text-faint">${m.input} in<br />${m.output} out</span>
+                  </button>
+                ))}
+              </div>
+            </section>
+            <section className="card space-y-4 p-5">
+              <div>
+                <div className="font-semibold">Spending limits</div>
+                <div className="text-[0.88rem] text-muted">Reset on the 1st of each month (India time).</div>
+              </div>
+              <LimitField label="Default per user / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="Applies to everyone without their own limit, including new users." />
+              <LimitField label="Total budget, all users / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
+              <div className="border-t border-line pt-4">
+                <label className="label">Dollar to rupee</label>
+                <div className="flex items-center gap-2">
+                  <div className="field flex items-center justify-between bg-slate-50">
+                    <span className="font-medium tabular-nums">₹{settings.usd_to_inr}</span>
+                    {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-green-600" /> live</span>}
+                  </div>
+                  <button className="btn btn-ghost" onClick={() => (settings.fx_auto ? (() => { const v = prompt("Fixed rate: 1 US$ = ₹", String(settings.usd_to_inr)); if (v && Number(v) > 0) saveSettings({ usd_to_inr: Number(v) }); })() : saveSettings({ fx_auto: true }))}>
+                    {settings.fx_auto ? "Set fixed" : "Use live"}
+                  </button>
+                </div>
+                {settings.fx_auto && settings.fx_updated_at && (
+                  <p className="mt-1 text-[0.8rem] text-faint">{settings.fx_source} · updated {new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · refreshes every 6h</p>
+                )}
+              </div>
+            </section>
+          </div>
+        )
       )}
 
-      <form onSubmit={create} className="card grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
-        <h2 className="font-medium sm:col-span-2">Add a user</h2>
+      <AddUser open={adding} onClose={() => setAdding(false)} onDone={(m) => { flash(m); load(); }} />
+      {toast && <div className="pop fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-ink px-4 py-2.5 text-[0.9rem] text-white shadow-xl">{toast}</div>}
+    </>
+  );
+}
+
+function LimitField({ label, value, onSave, hint }: { label: string; value: number | null; onSave: (v: number | null) => void; hint: string }) {
+  return (
+    <div>
+      <label className="label">{label}</label>
+      <div className="relative">
+        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">₹</span>
+        <input key={`${value}`} type="number" min={0} className="field pl-7" placeholder="No limit" defaultValue={value ?? ""} onBlur={(e) => toNum(e.target.value) !== value && onSave(toNum(e.target.value))} />
+      </div>
+      <p className="mt-1 text-[0.8rem] text-faint">{hint}</p>
+    </div>
+  );
+}
+
+function AddUser({ open, onClose, onDone }: { open: boolean; onClose: () => void; onDone: (msg: string) => void }) {
+  const [f, setF] = useState({ full_name: "", phone: "", email: "", password: "" });
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    setErr("");
+    const data = await fetch("/api/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) }).then((r) => r.json());
+    setBusy(false);
+    if (!data.ok) return setErr(data.error);
+    onDone(`Created — login: ${f.phone || f.email}`);
+    setF({ full_name: "", phone: "", email: "", password: "" });
+    onClose();
+  }
+  return (
+    <Modal open={open} onClose={onClose} title="Add a user">
+      <form onSubmit={submit} className="space-y-3.5">
         <div>
           <label className="label">Name</label>
-          <input className="field" value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
+          <input className="field" autoFocus value={f.full_name} onChange={(e) => setF({ ...f, full_name: e.target.value })} />
         </div>
-        <div>
-          <label className="label">Phone (10 digits, or with country code)</label>
-          <input className="field" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="9876543210" />
-        </div>
-        <div>
-          <label className="label">Email (optional if phone given)</label>
-          <input type="email" className="field" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div>
+            <label className="label">Phone</label>
+            <input className="field" value={f.phone} onChange={(e) => setF({ ...f, phone: e.target.value })} placeholder="98765 43210" />
+          </div>
+          <div>
+            <label className="label">Email <span className="text-faint">· optional</span></label>
+            <input type="email" className="field" value={f.email} onChange={(e) => setF({ ...f, email: e.target.value })} />
+          </div>
         </div>
         <div>
           <label className="label">Password</label>
           <input className="field" required minLength={6} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
+          <p className="mt-1 text-[0.8rem] text-faint">No email or OTP is sent — share the login yourself. They get the default monthly limit.</p>
         </div>
-        <div className="flex items-center gap-3 sm:col-span-2">
-          <button className="btn btn-primary" disabled={busy}>{busy ? "Creating…" : "Create user"}</button>
-          <span className="text-xs text-muted">New users get the default monthly limit.</span>
+        {err && <p className="text-[0.85rem] text-bad">{err}</p>}
+        <div className="flex justify-end gap-2 pt-1">
+          <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
+          <button className="btn btn-primary" disabled={busy || (!f.phone && !f.email)}>{busy && <Spinner />} Create user</button>
         </div>
       </form>
-
-      <div className="card overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="text-left text-xs text-muted">
-            <tr className="border-b border-line">
-              <th className="px-4 py-3 font-medium">Name</th>
-              <th className="px-4 py-3 font-medium">Login</th>
-              <th className="px-4 py-3 font-medium">Spent this month</th>
-              <th className="px-4 py-3 font-medium">Monthly limit (₹)</th>
-              <th className="px-4 py-3 font-medium">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-line">
-            {users.map((u) => {
-              const limit = u.monthly_limit_inr ?? settings?.default_monthly_limit_inr ?? null;
-              const over = limit != null && u.spent_inr >= limit;
-              return (
-                <tr key={u.id}>
-                  <td className="px-4 py-3">
-                    {u.full_name || "—"} {u.is_admin && <span className="ml-1 rounded bg-brand-soft px-1.5 text-xs text-brand-ink">admin</span>}
-                    {!u.is_active && <span className="ml-1 rounded bg-bad-soft px-1.5 text-xs text-bad">paused</span>}
-                  </td>
-                  <td className="px-4 py-3 text-muted">
-                    {u.phone ? `+${u.phone}` : ""}
-                    {u.phone && u.email ? " · " : ""}
-                    {u.email ?? ""}
-                  </td>
-                  <td className={`px-4 py-3 ${over ? "font-medium text-bad" : ""}`}>
-                    {rupees(u.spent_inr)}
-                    {limit != null && <span className="text-xs text-muted"> / {rupees(limit)}</span>}
-                  </td>
-                  <td className="px-4 py-3">
-                    <input
-                      key={`${u.id}${u.monthly_limit_inr}`}
-                      type="number"
-                      min={0}
-                      className="field w-28 py-1.5"
-                      placeholder={settings?.default_monthly_limit_inr != null ? `Default ${settings.default_monthly_limit_inr}` : "Default"}
-                      defaultValue={u.monthly_limit_inr ?? ""}
-                      onBlur={(e) => toNum(e.target.value) !== u.monthly_limit_inr && patch(u.id, { monthly_limit_inr: toNum(e.target.value) })}
-                    />
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-3 text-xs">
-                      <button
-                        className="text-brand-ink hover:underline"
-                        onClick={() => {
-                          const pw = prompt(`New password for ${u.full_name || u.phone || u.email}:`);
-                          if (pw) patch(u.id, { password: pw });
-                        }}
-                      >
-                        Reset password
-                      </button>
-                      {u.id !== meId && (
-                        <>
-                          <button className="hover:underline" onClick={() => patch(u.id, { is_active: !u.is_active })}>
-                            {u.is_active ? "Pause" : "Unpause"}
-                          </button>
-                          <button className="hover:underline" onClick={() => patch(u.id, { is_admin: !u.is_admin })}>
-                            {u.is_admin ? "Remove admin" : "Make admin"}
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        <p className="px-4 py-3 text-xs text-muted">Leave a user&apos;s limit blank to use the default. Set 0 to block AI for that user.</p>
-      </div>
-    </div>
+    </Modal>
   );
 }

@@ -54,8 +54,8 @@ export async function POST(req: Request) {
         .from("applications")
         .update({
           analysis: a,
-          company: a.company || app!.company,
-          role: a.role || app!.role,
+          company: app!.company && app!.company !== "New job" ? app!.company : a.company,
+          role: app!.role && app!.role !== "Analysing…" ? app!.role : a.role,
           company_type: app!.company_type ?? a.company_type,
           location: app!.location ?? a.location,
           seniority: a.seniority,

@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { DEMO, demoStructured } from "./demo";
 
 import { AI_MODELS, type ModelId } from "./models";
 export { AI_MODELS, DEFAULT_MODEL, isModelId, type ModelId } from "./models";
@@ -155,6 +156,7 @@ export async function runStructured<T>(opts: {
   effort?: "none" | "low" | "medium" | "high";
   userId: string;
 }): Promise<{ data: T; usage: OpenAI.Responses.ResponseUsage | null | undefined }> {
+  if (DEMO) return { data: await demoStructured<T>(opts.name), usage: null };
   let effort = opts.effort ?? "low";
   if (effort === "none" && !AI_MODELS[opts.model].noneEffort) effort = "low";
   const res = await openai().responses.create({

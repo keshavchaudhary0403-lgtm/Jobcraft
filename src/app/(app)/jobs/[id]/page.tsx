@@ -3,8 +3,9 @@ import { requireUser } from "@/lib/auth";
 import type { Application, Message, Session } from "@/lib/types";
 import { JobView } from "./JobView";
 
-export default async function JobPage({ params }: { params: Promise<{ id: string }> }) {
+export default async function JobPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ tab?: string }> }) {
   const { id } = await params;
+  const { tab } = await searchParams;
   const { supabase, user } = await requireUser();
   const { data: app } = await supabase.from("applications").select("*").eq("id", id).single<Application>();
   if (!app) notFound();
@@ -29,5 +30,5 @@ export default async function JobPage({ params }: { params: Promise<{ id: string
     supabase.from("sessions").select("*").eq("application_id", id).eq("kind", "interview").order("updated_at", { ascending: false }).returns<Session[]>(),
   ]);
 
-  return <JobView app={app} coachSessionId={session!.id} coachMessages={messages ?? []} interviews={interviews ?? []} />;
+  return <JobView initialTab={tab} app={app} coachSessionId={session!.id} coachMessages={messages ?? []} interviews={interviews ?? []} />;
 }

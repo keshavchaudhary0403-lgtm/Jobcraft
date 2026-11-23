@@ -1,7 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, ClipboardPaste, Mic, Sparkles, UserRound } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { CompanyAvatar, ScoreRing, StatusPill, timeAgo } from "@/components/ui";
+import { StatTile } from "@/components/ui";
+import { JobCard } from "@/components/JobCard";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -12,117 +13,144 @@ function greeting() {
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
+type Move = { href: string; label: string; sub: string };
+
+function nextMoves(apps: Application[], hasLinkedIn: boolean, practised: Set<string>): Move[] {
+  const moves: Move[] = [];
+  for (const a of apps) {
+    const an = a.analysis as Analysis | null;
+    const unanswered = an ? an.questions.filter((q) => !a.fit_answers?.[q]?.trim()).length : 0;
+    if (!an) moves.push({ href: `/jobs/${a.id}`, label: `See your match for ${a.company}`, sub: "Takes about 15 seconds" });
+    else if (unanswered) moves.push({ href: `/jobs/${a.id}`, label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""} for ${a.company}`, sub: "Sharpens your match score" });
+    else if (!a.tailored_resume) moves.push({ href: `/jobs/${a.id}?tab=resume`, label: `Tailor your resume for ${a.company}`, sub: `${an.fit_score * 10}% match today` });
+    else if (!a.outreach) moves.push({ href: `/jobs/${a.id}?tab=outreach`, label: `Message the hiring manager at ${a.company}`, sub: "Connection note + message" });
+    else if (["applied", "interviewing"].includes(a.status) && !practised.has(a.id)) moves.push({ href: `/jobs/${a.id}?tab=practice`, label: `Practise your ${a.company} interview`, sub: "6 questions, by voice" });
+    if (moves.length >= 3) break;
+  }
+  if (moves.length < 3 && !hasLinkedIn) moves.push({ href: "/linkedin", label: "Refresh your LinkedIn", sub: "Headlines recruiters search for" });
+  if (!apps.length) moves.unshift({ href: "/jobs/new", label: "Add your first job", sub: "Paste any job description" });
+  return moves.slice(0, 3);
+}
+
 export default async function Home() {
   const { supabase, profile } = await requireUser();
-  const [{ data: apps }, { count: interviews }, settings, { data: usage }] = await Promise.all([
+  const [{ data: apps }, { data: sessions }, settings, { data: usage }] = await Promise.all([
     supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>(),
-    supabase.from("sessions").select("id", { count: "exact", head: true }).eq("kind", "interview"),
+    supabase.from("sessions").select("application_id, kind").in("kind", ["interview", "negotiation"]),
     getSettings(createServiceClient()),
     supabase.from("usage_events").select("cost_usd").gte("created_at", monthStartIST()),
   ]);
   const list = apps ?? [];
-  const scored = list.map((a) => (a.analysis as Analysis | null)?.fit_score).filter((n): n is number => typeof n === "number");
-  const avg = scored.length ? Math.round((scored.reduce((x, y) => x + y, 0) / scored.length) * 10) / 10 : null;
-  const applied = list.filter((a) => ["applied", "interviewing", "offer", "rejected"].includes(a.status)).length;
-  const active = list.filter((a) => a.status === "interviewing").length;
+  const interviews = (sessions ?? []).filter((s) => s.kind === "interview");
+  const practised = new Set(interviews.map((s) => s.application_id).filter(Boolean) as string[]);
+  const scored = list.filter((a) => a.analysis).map((a) => ({ a, s: (a.analysis as Analysis).fit_score }));
+  const best = scored.sort((x, y) => y.s - x.s)[0];
+  const by = (st: string[]) => list.filter((a) => st.includes(a.status)).length;
+  const pipeline = [
+    { label: "Saved", n: by(["saved"]), cls: "bg-slate-300" },
+    { label: "Applied", n: by(["applied"]), cls: "bg-blue-400" },
+    { label: "Interviewing", n: by(["interviewing"]), cls: "bg-amber-400" },
+    { label: "Offer", n: by(["offer"]), cls: "bg-green-600" },
+  ];
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
-  const pct = limit ? Math.min(100, (spent / limit) * 100) : 0;
+  const moves = nextMoves(list, !!profile.linkedin_result, practised);
   const first = profile.full_name?.split(" ")[0];
 
   return (
     <>
-      <div className="mb-8 fade-up">
-        <h1 className="text-[1.75rem] font-semibold tracking-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
-        <p className="mt-1 text-muted">{profile.target_role ? `Going after: ${profile.target_role}` : "Let's land your next role."}</p>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+        <div>
+          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
+          <p className="mt-0.5 text-muted">{profile.target_role ? `Going after ${profile.target_role}` : "Let's land your next role."}</p>
+        </div>
+        <Link href="/jobs/new" className="btn btn-primary"><Plus size={16} /> Add job</Link>
       </div>
 
-      <Link href="/jobs/new" className="group card card-hover ai-gradient mb-6 flex items-center gap-5 p-6 fade-up">
-        <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-gradient-to-br from-brand to-navy text-white shadow-lg transition group-hover:scale-105">
-          <ClipboardPaste size={24} />
-        </div>
-        <div className="flex-1">
-          <div className="text-lg font-medium">Found a job you like?</div>
-          <div className="text-sm text-muted">Paste the description — get your match, resume and outreach.</div>
-        </div>
-        <ArrowRight className="text-faint transition group-hover:translate-x-1 group-hover:text-ink" />
-      </Link>
-
-      <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4 stagger">
-        {[
-          { label: "Jobs", value: list.length },
-          { label: "Applied", value: applied },
-          { label: "Interviewing", value: active },
-          { label: "Avg. match", value: avg != null ? `${avg}/10` : "—" },
-        ].map((s) => (
-          <div key={s.label} className="card px-5 py-4">
-            <div className="text-2xl font-semibold tracking-tight tabular-nums">{s.value}</div>
-            <div className="text-xs text-muted">{s.label}</div>
-          </div>
-        ))}
+      <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
+        <StatTile icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
+        <StatTile icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
+        <StatTile icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} sub="Mock rounds" />
+        <StatTile icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-        <section>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="font-medium">Recent jobs</h2>
-            {list.length > 0 && <Link href="/jobs" className="text-sm text-muted hover:text-ink">View all</Link>}
-          </div>
-          {list.length === 0 ? (
-            <div className="card flex flex-col items-center px-6 py-12 text-center">
-              <BriefcaseBusiness className="text-faint" />
-              <p className="mt-3 text-sm text-muted">Your jobs will show up here.</p>
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
+        <div className="space-y-5">
+          <section>
+            <div className="mb-3 flex items-center justify-between">
+              <h2 className="font-semibold">Your jobs</h2>
+              {list.length > 0 && <Link href="/jobs" className="text-[0.9rem] text-muted hover:text-ink">View all</Link>}
             </div>
-          ) : (
-            <div className="card divide-y divide-line overflow-hidden stagger">
-              {list.slice(0, 6).map((a) => {
-                const an = a.analysis as Analysis | null;
-                return (
-                  <Link key={a.id} href={`/jobs/${a.id}`} className="flex items-center gap-4 px-5 py-4 transition hover:bg-slate-50">
-                    <CompanyAvatar name={a.company} size={38} />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-medium">{a.role}</div>
-                      <div className="truncate text-xs text-muted">{a.company} · {timeAgo(a.updated_at)}</div>
-                    </div>
-                    <StatusPill status={a.status} />
-                    {an && <ScoreRing score={an.fit_score} size={38} stroke={4} />}
-                  </Link>
-                );
-              })}
-            </div>
+            {list.length === 0 ? (
+              <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">
+                <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white"><ClipboardPaste size={20} /></div>
+                <div className="flex-1">
+                  <div className="font-semibold">Paste a job description</div>
+                  <div className="text-muted">Get your match, a tailored resume and outreach.</div>
+                </div>
+                <ArrowRight size={18} className="text-faint" />
+              </Link>
+            ) : (
+              <div className="grid gap-3 md:grid-cols-2 2xl:grid-cols-3 stagger">
+                {list.slice(0, 6).map((a) => <JobCard key={a.id} a={a} />)}
+              </div>
+            )}
+          </section>
+
+          {list.length > 0 && (
+            <section className="card p-5 fade-up">
+              <div className="mb-4 font-semibold">Your pipeline</div>
+              <div className="grid grid-cols-4 gap-3">
+                {pipeline.map((p) => (
+                  <div key={p.label}>
+                    <div className={`h-1.5 rounded-full ${p.n ? p.cls : "bg-line"}`} />
+                    <div className="mt-2.5 text-[1.25rem] font-semibold tabular-nums">{p.n}</div>
+                    <div className="text-[0.82rem] text-muted">{p.label}</div>
+                  </div>
+                ))}
+              </div>
+            </section>
           )}
-        </section>
+        </div>
 
         <aside className="space-y-4 stagger">
-          <Link href="/interview" className="card card-hover flex items-center gap-3 p-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand-ink"><Mic size={18} /></div>
-            <div className="flex-1">
-              <div className="text-sm font-medium">Practise an interview</div>
-              <div className="text-xs text-muted">{interviews ? `${interviews} done so far` : "By voice, 6 questions"}</div>
+          <div className="dark-card p-5">
+            <div className="flex items-center gap-2 text-[0.85rem] text-teal-200"><Sparkles size={15} /> Jobcraft AI</div>
+            <div className="mt-2 text-[1.15rem] font-semibold">Your next best move</div>
+            <div className="mt-4 space-y-2">
+              {moves.map((m) => (
+                <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">
+                  <div className="min-w-0 flex-1">
+                    <div className="truncate text-[0.92rem] font-medium">{m.label}</div>
+                    <div className="text-[0.78rem] text-white/55">{m.sub}</div>
+                  </div>
+                  <ArrowRight size={15} className="shrink-0 text-white/50" />
+                </Link>
+              ))}
             </div>
-          </Link>
-          <Link href="/linkedin" className="card card-hover flex items-center gap-3 p-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-blue-50 text-blue-700"><Sparkles size={18} /></div>
-            <div className="flex-1">
-              <div className="text-sm font-medium">Polish your LinkedIn</div>
-              <div className="text-xs text-muted">Headlines recruiters search for</div>
-            </div>
-          </Link>
-          <Link href="/profile" className="card card-hover flex items-center gap-3 p-4">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-slate-100 text-slate-600"><UserRound size={18} /></div>
-            <div className="flex-1">
-              <div className="text-sm font-medium">My profile</div>
-              <div className="text-xs text-muted">Resume and details</div>
-            </div>
-          </Link>
+          </div>
+
+          <div className="card p-2">
+            <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
+              <div className="grid h-9 w-9 place-items-center rounded-lg bg-brand-soft text-brand-ink"><Mic size={16} /></div>
+              <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
+              <ArrowRight size={15} className="text-faint" />
+            </Link>
+            <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
+              <div className="grid h-9 w-9 place-items-center rounded-lg bg-mid-soft text-mid"><IndianRupee size={16} /></div>
+              <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
+              <ArrowRight size={15} className="text-faint" />
+            </Link>
+          </div>
+
           {limit != null && (
             <div className="card p-4">
-              <div className="flex items-baseline justify-between text-xs">
-                <span className="font-medium text-slate-700">AI usage this month</span>
+              <div className="flex items-baseline justify-between text-[0.85rem]">
+                <span className="font-medium">AI usage this month</span>
                 <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
               </div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-100">
-                <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line-2">
+                <div className={`h-full rounded-full ${spent / limit >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(Math.min(100, (spent / limit) * 100), 2)}%` }} />
               </div>
             </div>
           )}

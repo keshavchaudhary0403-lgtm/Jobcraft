@@ -87,9 +87,9 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
   return (
     <div className={voice ? "grid items-start gap-6 lg:grid-cols-[380px_minmax(0,1fr)]" : "flex flex-col gap-4"}>
       {voice && (
-        <div className="card ai-gradient flex flex-col items-center px-6 py-10 fade-up lg:sticky lg:top-6 lg:py-14">
+        <div className="card ai-gradient flex flex-col items-center overflow-hidden px-6 py-12 fade-up lg:sticky lg:top-6">
           <VoiceOrb state={state} />
-          <div className="mt-6 h-6 text-center text-sm font-medium text-slate-700">
+          <div className="mt-10 h-6 text-center font-medium text-slate-700">
             {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
           </div>
           <div className="mt-1 min-h-5 max-w-lg text-center text-sm text-muted">{v.listening ? v.transcript : ""}</div>
@@ -184,15 +184,15 @@ function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speak
   const active = state !== "idle";
   const color = state === "listening" ? "from-rose-400 to-rose-600" : "from-teal-400 to-indigo-700";
   return (
-    <div className="relative grid h-36 w-36 place-items-center">
+    <div className="relative grid h-32 w-32 place-items-center">
       {active && (
         <>
-          <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${color} opacity-30`} style={{ animation: "ripple 2s ease-out infinite" }} />
-          <span className={`absolute inset-0 rounded-full bg-gradient-to-br ${color} opacity-30`} style={{ animation: "ripple 2s ease-out .7s infinite" }} />
+          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out infinite" }} />
+          <span className={`absolute inset-4 rounded-full bg-gradient-to-br ${color} opacity-25`} style={{ animation: "ripple 2.2s ease-out .8s infinite" }} />
         </>
       )}
       <span
-        className={`relative h-28 w-28 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
+        className={`relative h-24 w-24 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
         style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px rgba(30,58,138,.6), inset 0 -10px 30px rgba(255,255,255,.25)" }}
       />
     </div>

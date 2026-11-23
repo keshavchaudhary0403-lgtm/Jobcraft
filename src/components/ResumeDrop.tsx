@@ -73,16 +73,16 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
           setDrag(false);
           file(e.dataTransfer.files?.[0]);
         }}
-        className={`group relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed text-center transition ${
-          compact ? "px-6 py-8" : "px-6 py-16"
+        className={`group relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-center transition ${
+          compact ? "px-6 py-7" : "px-6 py-14"
         } ${drag ? "border-brand bg-brand-soft" : "border-line bg-white hover:border-brand/50 hover:bg-[#fbfdfd]"}`}
       >
         <div className="ai-gradient pointer-events-none absolute inset-0 opacity-70" />
-        <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-brand to-navy text-white shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>
+        <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-teal-500 to-navy text-white shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>
           {drag ? <FileText size={compact ? 20 : 24} /> : <UploadCloud size={compact ? 20 : 24} />}
         </div>
-        <div className={`relative font-medium ${compact ? "mt-3" : "mt-5 text-lg"}`}>{drag ? "Drop it here" : "Drop your resume"}</div>
-        <div className="relative mt-1 text-sm text-muted">PDF · or click to browse</div>
+        <div className={`relative font-semibold ${compact ? "mt-3" : "mt-4 text-[1.1rem]"}`}>{drag ? "Drop it here" : "Drop your resume"}</div>
+        <div className="relative mt-0.5 text-muted">PDF up to 8 MB · or click to browse</div>
         <input ref={input} type="file" accept="application/pdf" className="hidden" onChange={(e) => file(e.target.files?.[0])} />
       </div>
       <div className="mt-3 flex items-center justify-center gap-2 text-sm text-muted">

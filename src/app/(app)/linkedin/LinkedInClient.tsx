@@ -1,76 +1,111 @@
 "use client";
 
 import { useState } from "react";
-import { AlertCircle, ExternalLink, Pin, RotateCcw, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { AlertCircle, ExternalLink, MapPin, RotateCcw, Sparkles } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
-import { CharCount, CopyButton, Spinner, Working } from "@/components/client-ui";
+import { CharCount, CopyButton, Spinner } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
 
-export function LinkedInClient({ initial, targetRole, url }: { initial: LinkedInResult | null; targetRole: string; url: string | null }) {
+type Props = { initial: LinkedInResult | null; name: string; title: string; city: string; targetRole: string; url: string | null };
+
+export function LinkedInClient({ initial, name, title, city, targetRole, url }: Props) {
   const [res, setRes] = useState(initial);
-  const [role, setRole] = useState(targetRole);
+  const [pick, setPick] = useState(0);
   const { run, busy, error } = useGenerate<LinkedInResult>("linkedin");
+  const initials = name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase();
 
   async function generate() {
-    const r = await run({ role });
-    if (r) setRes(r);
+    const r = await run({ role: targetRole });
+    if (r) {
+      setRes(r);
+      setPick(0);
+    }
   }
 
-  return (
-    <div className="space-y-5">
-      <div className="card flex flex-wrap items-end gap-3 p-5 fade-up">
-        <div className="min-w-[240px] flex-1">
-          <label className="label">Target role</label>
-          <input className="field" value={role} onChange={(e) => setRole(e.target.value)} placeholder="e.g. Product Manager in fintech" />
-        </div>
-        {url && <a className="btn btn-ghost" href={url} target="_blank" rel="noreferrer">My profile <ExternalLink size={14} /></a>}
-        <button className="btn btn-brand" disabled={busy || !role.trim()} onClick={generate}>
-          {busy ? <Spinner /> : res ? <RotateCcw size={15} /> : <Sparkles size={15} />} {res ? "Rewrite" : "Rewrite my LinkedIn"}
-        </button>
-      </div>
-      {error && <p className="flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
-      {busy && !res && <Working steps={["Finding what recruiters search for…", "Writing headlines…", "Writing your About section…"]} />}
+  const headline = res?.headlines[pick];
 
-      {res && (
-        <div className={`space-y-5 stagger transition ${busy ? "opacity-50" : ""}`}>
-          <section className="card p-6">
-            <div className="text-xs font-medium uppercase tracking-wider text-faint">Headline — pick one</div>
-            <div className="mt-3 grid gap-3 lg:grid-cols-3">
+  return (
+    <>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
+        <div>
+          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">LinkedIn</h1>
+          <p className="mt-0.5 text-muted">
+            Optimised for <span className="font-medium text-ink">{targetRole || "your next role"}</span> ·{" "}
+            <Link href="/profile" className="text-brand-ink hover:underline">change</Link>
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {url && <a className="btn btn-ghost" href={url} target="_blank" rel="noreferrer">Open my profile <ExternalLink size={14} /></a>}
+          <button className="btn btn-brand" disabled={busy} onClick={generate}>
+            {busy ? <Spinner /> : res ? <RotateCcw size={15} /> : <Sparkles size={15} />} {res ? "Rewrite" : "Write my LinkedIn"}
+          </button>
+        </div>
+      </div>
+      {error && <p className="mb-4 flex items-center gap-1.5 text-bad"><AlertCircle size={14} /> {error}</p>}
+
+      <div className={`grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_400px] transition ${busy ? "opacity-60" : ""}`}>
+        {/* Live preview */}
+        <section className="card overflow-hidden fade-up">
+          <div className="h-28 bg-gradient-to-r from-teal-600 via-teal-700 to-navy" />
+          <div className="px-6 pb-6">
+            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-teal-400 to-navy text-2xl font-semibold text-white">{initials}</div>
+            <div className="mt-3 text-[1.35rem] font-semibold">{name}</div>
+            {headline ? (
+              <p key={headline} className="mt-0.5 max-w-2xl leading-snug text-slate-700 fade-up">{headline}</p>
+            ) : (
+              <div className="mt-2 space-y-1.5"><div className={`h-3 w-3/4 rounded ${busy ? "skeleton" : "bg-line-2"}`} /><div className={`h-3 w-1/2 rounded ${busy ? "skeleton" : "bg-line-2"}`} /></div>
+            )}
+            <div className="mt-2 flex items-center gap-1 text-[0.88rem] text-muted">{city && <><MapPin size={13} /> {city}</>}{title && <span className="ml-2">· {title}</span>}</div>
+
+            <div className="mt-6 border-t border-line pt-5">
+              <div className="mb-2 flex items-center justify-between">
+                <span className="font-semibold">About</span>
+                {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
+              </div>
+              {res ? (
+                <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{res.about}</p>
+              ) : (
+                <div className="space-y-2">{[90, 100, 95, 70].map((w, i) => <div key={i} className={`h-3 rounded ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: `${w}%` }} />)}</div>
+              )}
+            </div>
+
+            <div className="mt-6 border-t border-line pt-5">
+              <div className="mb-3 flex items-center justify-between">
+                <span className="font-semibold">Top skills</span>
+                {res && <CopyButton text={res.skills.join(", ")} label="Copy all" />}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {res
+                  ? res.skills.map((s) => <span key={s} className="chip border border-line bg-white px-3 py-1 text-[0.88rem] text-slate-700">{s}</span>)
+                  : [80, 110, 90, 70, 100].map((w, i) => <span key={i} className={`h-7 rounded-full ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: w }} />)}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Headline options */}
+        <aside className="card p-5 xl:sticky xl:top-6 fade-up">
+          <div className="font-semibold">Headline</div>
+          <div className="mb-4 text-[0.88rem] text-muted">{res ? "Pick one to preview it." : "Three options, written with the words recruiters search for."}</div>
+          {res ? (
+            <div className="space-y-2.5">
               {res.headlines.map((h, i) => (
-                <div key={i} className="flex flex-col rounded-xl border border-line p-4 transition hover:border-brand/40">
-                  <div className="mb-2 text-xs font-medium text-faint">Option {i + 1}</div>
-                  <p className="flex-1 text-[0.95rem] leading-relaxed">{h}</p>
-                  <div className="mt-4 flex items-center justify-between">
-                    <CopyButton text={h} />
+                <button key={i} type="button" data-on={pick === i} onClick={() => setPick(i)} className="option w-full p-3.5">
+                  <div className="mb-1.5 flex items-center justify-between text-[0.78rem] text-faint">
+                    <span>Option {i + 1}</span>
                     <CharCount text={h} max={220} />
                   </div>
-                </div>
+                  <div className="leading-snug">{h}</div>
+                </button>
               ))}
+              {headline && <CopyButton text={headline} label="Copy selected" className="mt-1 w-full" />}
             </div>
-          </section>
-          <div className="grid gap-5 md:grid-cols-[1.6fr_1fr]">
-            <section className="card flex flex-col p-6">
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wider text-faint">About</span>
-                <span className="text-xs tabular-nums text-faint">{res.about.trim().split(/\s+/).length}/150 words</span>
-              </div>
-              <p className="mt-3 flex-1 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-slate-700">{res.about}</p>
-              <div className="mt-4"><CopyButton text={res.about} /></div>
-            </section>
-            <section className="card p-6">
-              <div className="flex items-center gap-1.5 text-xs font-medium uppercase tracking-wider text-faint"><Pin size={12} /> Skills to pin</div>
-              <ol className="mt-3 space-y-2">
-                {res.skills.map((s, i) => (
-                  <li key={s} className="flex items-center gap-3 rounded-lg bg-slate-50 px-3 py-2 text-sm">
-                    <span className="text-xs font-semibold tabular-nums text-faint">{i + 1}</span> {s}
-                  </li>
-                ))}
-              </ol>
-              <div className="mt-4"><CopyButton text={res.skills.join(", ")} label="Copy all" /></div>
-            </section>
-          </div>
-        </div>
-      )}
-    </div>
+          ) : (
+            <div className="space-y-2.5">{[0, 1, 2].map((i) => <div key={i} className={`h-[74px] rounded-xl ${busy ? "skeleton" : "border border-dashed border-line"}`} />)}</div>
+          )}
+        </aside>
+      </div>
+    </>
   );
 }

@@ -43,7 +43,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
               <span className="flex items-center gap-2 font-medium"><UserPlus size={16} className="text-brand" /> Connection note</span>
               <CharCount text={o.connection_note} max={250} />
             </div>
-            <p className="mt-4 flex-1 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-slate-700">{o.connection_note}</p>
+            <p className="mt-4 flex-1 whitespace-pre-wrap leading-relaxed text-slate-700">{o.connection_note}</p>
             <div className="mt-5"><CopyButton text={o.connection_note} /></div>
           </div>
           <div className="card flex flex-col p-6">
@@ -51,7 +51,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
               <span className="flex items-center gap-2 font-medium"><Send size={16} className="text-brand" /> Message</span>
               <span className={`text-xs tabular-nums ${words(o.message) > 110 ? "text-bad" : "text-faint"}`}>{words(o.message)}/110 words</span>
             </div>
-            <p className="mt-4 flex-1 whitespace-pre-wrap text-[0.95rem] leading-relaxed text-slate-700">{o.message}</p>
+            <p className="mt-4 flex-1 whitespace-pre-wrap leading-relaxed text-slate-700">{o.message}</p>
             <div className="mt-5"><CopyButton text={o.message} /></div>
           </div>
         </div>

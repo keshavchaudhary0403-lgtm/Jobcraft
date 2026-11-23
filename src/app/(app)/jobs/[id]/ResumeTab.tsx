@@ -53,10 +53,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   if (!md)
     return (
       <div className="card ai-gradient flex flex-col items-center px-6 py-14 text-center fade-up">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-to-br from-brand to-navy text-white shadow-lg"><FileText size={22} /></div>
+        <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white shadow-lg"><FileText size={22} /></div>
         <div className="mt-4 text-lg font-medium">A resume made for this job</div>
         <p className="mt-1 max-w-sm text-sm text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
-        <button className="btn btn-brand mt-6 px-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
+        <button className="btn btn-brand mt-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
         {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
       </div>
     );
@@ -70,15 +70,15 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         <div className="mb-3 flex flex-wrap items-center gap-2">
           {editing ? (
             <>
-              <button className="btn btn-primary px-3 py-1.5 text-xs" onClick={saveEdit}><Check size={14} /> Save</button>
-              <button className="btn btn-ghost px-3 py-1.5 text-xs" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
+              <button className="btn btn-primary btn-sm" onClick={saveEdit}><Check size={14} /> Save</button>
+              <button className="btn btn-ghost btn-sm" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
             </>
           ) : (
             <>
-              <button className="btn btn-primary px-3 py-1.5 text-xs" onClick={download}><Download size={14} /> Download PDF</button>
+              <button className="btn btn-primary btn-sm" onClick={download}><Download size={14} /> Download PDF</button>
               <CopyButton text={md} />
-              <button className="btn btn-ghost px-3 py-1.5 text-xs" onClick={() => setEditing(true)}><Pencil size={14} /> Edit</button>
-              <button className="btn btn-ghost px-3 py-1.5 text-xs" disabled={busy} onClick={() => generate()}>
+              <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={14} /> Edit</button>
+              <button className="btn btn-ghost btn-sm" disabled={busy} onClick={() => generate()}>
                 {busy ? <Spinner size={14} /> : <RotateCcw size={14} />} Regenerate
               </button>
             </>

@@ -5,6 +5,7 @@
  */
 import type { Application, Profile } from "./types";
 
+const CLEAN_RULE = "Field values must be clean text only — never add notes like \"(inferred)\", \"(likely)\" or explanations inside a value.";
 const TRUTH_RULE =
   "Only what's true. Never add a skill, tool, number, employer, date, project or claim the candidate can't back up in a real interview. Reframe what's true; never invent. Simple, clear English. No buzzwords.";
 
@@ -57,6 +58,7 @@ export type ResumeResult = {
 };
 
 export type Outreach = { connection_note: string; message: string };
+export type DetectedJob = { company: string | null; role: string | null; location: string | null; company_type: string | null };
 export type LinkedInResult = { headlines: string[]; about: string; skills: string[] };
 
 // ───────────────────────── Schemas ─────────────────────────
@@ -96,6 +98,7 @@ export const SCHEMAS = {
     missing_numbers: arr(str),
   }),
   outreach: obj({ connection_note: str, message: str }),
+  detect_job: obj({ company: nstr, role: nstr, location: nstr, company_type: nstr }),
   linkedin: obj({ headlines: arr(str), about: str, skills: arr(str) }),
 };
 
@@ -120,7 +123,9 @@ function candidateBlock(p: Profile) {
 }
 
 function jobBlock(a: Application) {
-  return ["=== JOB DESCRIPTION ===", a.job_url && `Listing: ${a.job_url}`, a.jd].filter(Boolean).join("\n");
+  const confirmed = a.company && a.company !== "New job" ? `Company (confirmed by candidate): ${a.company}` : "";
+  const role = a.role && a.role !== "Analysing…" ? `Role (confirmed by candidate): ${a.role}` : "";
+  return ["=== JOB DESCRIPTION ===", confirmed, role, a.job_url && `Listing: ${a.job_url}`, a.jd].filter(Boolean).join("\n");
 }
 
 function answersBlock(a: Application) {
@@ -148,6 +153,12 @@ Use null when the resume doesn't say. ${TRUTH_RULE}`,
         input: extra?.resume_text ?? "",
       };
 
+    case "detect_job":
+      return {
+        instructions: `From this job description, pull out the company name, the job title, the location and the company type (startup / MNC / agency / D2C / marketplace…). Use the exact wording from the text. If something is not stated, return null — do not guess. ${CLEAN_RULE}`,
+        input: extra?.jd ?? "",
+      };
+
     case "analysis":
       return {
         instructions: `You are an experienced recruiter hiring in India. Analyse the job description, then compare the candidate's resume against it. Be brutally honest, not flattering.
@@ -162,7 +173,8 @@ Fill:
 - gaps: the top 3 gaps. status "lacking" = the candidate truly lacks it; "not_shown" = they likely have it but the resume fails to show it; "unsure" = you can't tell.
 - questions: for every "unsure" gap (and anything else you need), a specific question to ask the candidate. Keep each under 25 words.
 If the candidate already answered questions below, use those answers and don't ask again.
-${TRUTH_RULE}`,
+If the company or role is marked "confirmed by candidate", use exactly that.
+${CLEAN_RULE} ${TRUTH_RULE}`,
         input: [candidateBlock(profile), jobBlock(app!), answersBlock(app!)].filter(Boolean).join("\n\n"),
       };
 

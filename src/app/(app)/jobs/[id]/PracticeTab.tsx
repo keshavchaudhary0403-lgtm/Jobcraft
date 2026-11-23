@@ -9,7 +9,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
   return (
     <div className="grid gap-5 md:grid-cols-2 stagger">
       <div className="card flex flex-col p-6">
-        <div className="grid h-11 w-11 place-items-center rounded-2xl bg-gradient-to-br from-brand to-navy text-white"><Mic size={20} /></div>
+        <div className="grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br from-teal-500 to-navy text-white"><Mic size={20} /></div>
         <div className="mt-4 text-lg font-medium">Mock interview</div>
         <p className="mt-1 text-sm text-muted">The hiring manager at {app.company} asks 6 questions by voice, then scores you.</p>
         <form action={start} className="mt-5">
@@ -18,7 +18,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
         </form>
         {interviews.length > 0 && (
           <div className="mt-6 border-t border-line pt-4">
-            <div className="mb-2 text-xs font-medium uppercase tracking-wider text-faint">Past rounds</div>
+            <div className="mb-2 eyebrow">Past rounds</div>
             {interviews.slice(0, 4).map((s, i) => (
               <Link key={s.id} href={`/interview/${s.id}`} className="flex justify-between rounded-lg px-2 py-1.5 text-sm hover:bg-slate-50">
                 <span>Round {interviews.length - i}</span>

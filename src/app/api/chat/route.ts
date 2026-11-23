@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai } from "@/lib/ai";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
+import { DEMO, demoChat } from "@/lib/demo";
 import type { Application, Message, Profile, Session } from "@/lib/types";
 
 export const maxDuration = 300; // seconds — long resume rewrites can take a while
@@ -87,6 +88,14 @@ export async function POST(req: Request) {
     async start(controller) {
       let full = "";
       try {
+        if (DEMO) {
+          const turn = (history ?? []).filter((m) => m.role === "assistant").length;
+          for await (const w of demoChat(session.kind, turn)) {
+            full += w;
+            controller.enqueue(encoder.encode(w));
+          }
+          return;
+        }
         // Role-play turns should feel instant; writing tasks get more thought.
         const effort = roleplay ? (AI_MODELS[model].noneEffort ? "none" : "low") : "medium";
         const stream = openai().responses.stream({

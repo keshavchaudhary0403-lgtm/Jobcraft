@@ -34,7 +34,7 @@ export default function LoginPage() {
 
   return (
     <main className="grid min-h-screen lg:grid-cols-[1.1fr_1fr]">
-      <section className="relative hidden overflow-hidden bg-[#0b1220] p-12 text-white lg:flex lg:flex-col">
+      <section className="relative hidden overflow-hidden bg-side p-12 text-white lg:flex lg:flex-col">
         <div className="pointer-events-none absolute -left-40 -top-40 h-[34rem] w-[34rem] rounded-full bg-teal-500/25 blur-3xl" style={{ animation: "breathe 9s ease-in-out infinite" }} />
         <div className="pointer-events-none absolute -bottom-48 right-[-10rem] h-[36rem] w-[36rem] rounded-full bg-indigo-600/25 blur-3xl" style={{ animation: "breathe 11s ease-in-out infinite" }} />
         <div className="relative"><Logo light /></div>

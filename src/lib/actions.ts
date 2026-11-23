@@ -14,7 +14,7 @@ export async function startSession(kind: SessionKind, formData: FormData) {
 
   const meta: Record<string, string> = {};
   for (const [k, v] of formData.entries()) {
-    if (typeof v === "string" && k !== "application_id" && !k.startsWith("$")) meta[k] = v.trim();
+    if (typeof v === "string" && v.trim() && k !== "application_id" && !k.startsWith("$")) meta[k] = v.trim();
   }
   const applicationId = (formData.get("application_id") as string) || null;
 
