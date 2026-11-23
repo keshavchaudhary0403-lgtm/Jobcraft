@@ -1,7 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
-import { claude, MODEL } from "@/lib/claude";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { aiErrorMessage, checkLimits, logUsage, openai, type ModelId } from "@/lib/ai";
 
 export const maxDuration = 120;
+
+// Copying text out of a PDF is simple work — always use the cheapest model.
+const EXTRACT_MODEL: ModelId = "gpt-6-luna";
 
 /** Upload a resume PDF → get clean plain text back (so users don't have to retype it). */
 export async function POST(req: Request) {
@@ -11,6 +14,12 @@ export async function POST(req: Request) {
   } = await supabase.auth.getUser();
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
 
+  const { data: profile } = await supabase.from("profiles").select("is_active, monthly_limit_inr").eq("id", user.id).single();
+  if (!profile?.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
+  const admin = createServiceClient();
+  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
+
   const form = await req.formData();
   const file = form.get("file");
   if (!(file instanceof File)) return Response.json({ error: "No file" }, { status: 400 });
@@ -19,27 +28,28 @@ export async function POST(req: Request) {
 
   const data = Buffer.from(await file.arrayBuffer()).toString("base64");
   try {
-    const res = await claude().messages.create({
-      model: MODEL,
-      max_tokens: 16000,
-      output_config: { effort: "low" },
-      messages: [
+    const res = await openai().responses.create({
+      model: EXTRACT_MODEL,
+      reasoning: { effort: "none" },
+      store: false,
+      safety_identifier: user.id,
+      input: [
         {
           role: "user",
           content: [
-            { type: "document", source: { type: "base64", media_type: "application/pdf", data } },
+            { type: "input_file", filename: file.name || "resume.pdf", file_data: `data:application/pdf;base64,${data}` },
             {
-              type: "text",
+              type: "input_text",
               text: "Convert this resume to clean plain text. Keep every word, number, date and section exactly as written — do not summarise, rewrite or add anything. Use simple section headings in CAPS and '- ' for bullet points. Output only the resume text.",
             },
           ],
         },
       ],
     });
-    const text = res.content.map((b) => (b.type === "text" ? b.text : "")).join("").trim();
-    return Response.json({ text });
+    await logUsage(admin, { userId: user.id, feature: "resume_import", model: EXTRACT_MODEL, usage: res.usage });
+    return Response.json({ text: res.output_text.trim() });
   } catch (err) {
     console.error("resume extract", err);
-    return Response.json({ error: "Could not read that PDF. Paste the text instead." }, { status: 500 });
+    return Response.json({ error: `${aiErrorMessage(err)} You can paste the text instead.` }, { status: 500 });
   }
 }

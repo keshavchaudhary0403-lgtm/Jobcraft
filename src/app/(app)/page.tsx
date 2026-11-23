@@ -2,6 +2,8 @@ import Link from "next/link";
 import { requireUser, profileGaps } from "@/lib/auth";
 import { PageHeader, StatusPill, timeAgo } from "@/components/ui";
 import { STATUSES, type Application } from "@/lib/types";
+import { createServiceClient } from "@/lib/supabase/server";
+import { getSettings, monthStartIST } from "@/lib/ai";
 
 export default async function Dashboard() {
   const { supabase, profile } = await requireUser();
@@ -14,6 +16,12 @@ export default async function Dashboard() {
     .from("sessions")
     .select("id", { count: "exact", head: true })
     .eq("kind", "interview");
+
+  const settings = await getSettings(createServiceClient());
+  const { data: usage } = await supabase.from("usage_events").select("cost_usd").gte("created_at", monthStartIST());
+  const spentInr = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
+  const limitInr = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
+  const usedPct = limitInr ? Math.min(100, (spentInr / limitInr) * 100) : 0;
 
   const gaps = profileGaps(profile);
   const counts = Object.fromEntries(STATUSES.map((s) => [s, (apps ?? []).filter((a) => a.status === s).length]));
@@ -39,6 +47,21 @@ export default async function Dashboard() {
           <span className="font-medium text-warm">Finish your details first →</span>{" "}
           <span className="text-ink/80">Add {gaps.join(", ")}. Every prompt uses them — the output is only as good as what you put in.</span>
         </Link>
+      )}
+
+      {limitInr != null && (
+        <div className="mb-6 card px-5 py-4">
+          <div className="flex items-baseline justify-between text-sm">
+            <span className="font-medium">AI usage this month</span>
+            <span className="text-muted">
+              ₹{spentInr.toFixed(spentInr < 10 ? 2 : 0)} of ₹{limitInr}
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[#efebe4]">
+            <div className={`h-full ${usedPct >= 90 ? "bg-warm" : "bg-accent"}`} style={{ width: `${usedPct}%` }} />
+          </div>
+          {usedPct >= 100 && <p className="mt-2 text-xs text-warm">Limit reached — AI features resume on the 1st, or ask your admin.</p>}
+        </div>
       )}
 
       <div className="mb-10 grid grid-cols-2 gap-3 sm:grid-cols-4">

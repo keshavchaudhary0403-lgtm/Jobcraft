@@ -16,7 +16,7 @@ const items = [
 export function Nav({ name, isAdmin }: { name: string; isAdmin: boolean }) {
   const path = usePathname();
   const [open, setOpen] = useState(false);
-  const all = isAdmin ? [...items, { href: "/admin", label: "Admin · users", icon: "⚙" }] : items;
+  const all = isAdmin ? [...items, { href: "/admin", label: "Admin · users & AI", icon: "⚙" }] : items;
 
   const isActive = (href: string) => (href === "/" ? path === "/" : path.startsWith(href));
 

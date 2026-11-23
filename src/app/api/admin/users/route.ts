@@ -1,25 +1,21 @@
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/admin";
 import { normalisePhone, placeholderEmail } from "@/lib/phone";
-
-async function requireAdmin() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) return null;
-  const { data } = await supabase.from("profiles").select("is_admin").eq("id", user.id).single();
-  return data?.is_admin ? user : null;
-}
+import { getSettings, spendByUser } from "@/lib/ai";
 
 export async function GET() {
   if (!(await requireAdmin())) return Response.json({ error: "Admins only" }, { status: 403 });
   const admin = createServiceClient();
   const { data, error } = await admin
     .from("profiles")
-    .select("id, full_name, email, phone, is_admin, is_active, created_at")
+    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, created_at")
     .order("created_at", { ascending: false });
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  return Response.json({ users: data });
+  const settings = await getSettings(admin);
+  const spend = await spendByUser(admin, settings.usd_to_inr);
+  const users = data.map((u) => ({ ...u, spent_inr: spend[u.id] ?? 0 }));
+  const total_spent_inr = Object.values(spend).reduce((a, b) => a + b, 0);
+  return Response.json({ users, settings, total_spent_inr });
 }
 
 /** Create a user: name + (email and/or phone) + password. No email/OTP is sent. */
@@ -56,11 +52,12 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const me = await requireAdmin();
   if (!me) return Response.json({ error: "Admins only" }, { status: 403 });
-  const { id, password, is_active, is_admin } = (await req.json()) as {
+  const { id, password, is_active, is_admin, monthly_limit_inr } = (await req.json()) as {
     id: string;
     password?: string;
     is_active?: boolean;
     is_admin?: boolean;
+    monthly_limit_inr?: number | null; // null = use default
   };
   const admin = createServiceClient();
   if (password) {
@@ -68,7 +65,13 @@ export async function PATCH(req: Request) {
     const { error } = await admin.auth.admin.updateUserById(id, { password });
     if (error) return Response.json({ error: error.message }, { status: 400 });
   }
-  const patch: Record<string, boolean> = {};
+  const patch: Record<string, boolean | number | null> = {};
+  if (monthly_limit_inr !== undefined) {
+    if (monthly_limit_inr !== null && !(Number(monthly_limit_inr) >= 0)) {
+      return Response.json({ error: "Limit must be 0 or more." }, { status: 400 });
+    }
+    patch.monthly_limit_inr = monthly_limit_inr === null ? null : Number(monthly_limit_inr);
+  }
   if (typeof is_active === "boolean" && id !== me.id) patch.is_active = is_active;
   if (typeof is_admin === "boolean" && id !== me.id) patch.is_admin = is_admin;
   if (Object.keys(patch).length) {

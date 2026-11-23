@@ -13,6 +13,7 @@ export type Profile = {
   strongest_proof: string | null;
   linkedin_url: string | null;
   extra_notes: string | null;
+  monthly_limit_inr: number | null;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;

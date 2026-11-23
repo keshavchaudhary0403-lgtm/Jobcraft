@@ -8,7 +8,7 @@ export default async function AdminPage() {
   if (!profile.is_admin) redirect("/");
   return (
     <>
-      <PageHeader eyebrow="Admin" title="Users">
+      <PageHeader eyebrow="Admin" title="Users & AI spending">
         Create logins with an email or phone number and a password. No email or OTP is sent — share the login with the person directly.
       </PageHeader>
       <AdminUsers meId={profile.id} />

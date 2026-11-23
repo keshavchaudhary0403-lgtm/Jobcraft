@@ -1,6 +1,5 @@
-import Anthropic from "@anthropic-ai/sdk";
-import { createClient } from "@/lib/supabase/server";
-import { claude, MODEL } from "@/lib/claude";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai } from "@/lib/ai";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
 import type { Application, Message, Profile, Session } from "@/lib/types";
 
@@ -28,6 +27,11 @@ export async function POST(req: Request) {
   ]);
   if (!session || !profile) return Response.json({ error: "Session not found" }, { status: 404 });
   if (!profile.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
+
+  const admin = createServiceClient();
+  const limits = await checkLimits(admin, user.id, profile.monthly_limit_inr);
+  if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
+  const model = limits.settings.model;
 
   let app: Application | null = null;
   if (session.application_id) {
@@ -65,10 +69,11 @@ export async function POST(req: Request) {
     .returns<Message[]>();
 
   // Merge consecutive same-role turns so roles always alternate.
-  const messages: Anthropic.MessageParam[] = [];
+  const messages: { role: "user" | "assistant"; content: string }[] = [];
   for (const m of history ?? []) {
+    if (m.role === "assistant" && m.content.startsWith("⚠️")) continue; // skip error notes
     const last = messages[messages.length - 1];
-    if (last && last.role === m.role) last.content = `${last.content as string}\n\n${m.content}`;
+    if (last && last.role === m.role) last.content = `${last.content}\n\n${m.content}`;
     else messages.push({ role: m.role, content: m.content });
   }
 
@@ -82,37 +87,33 @@ export async function POST(req: Request) {
     async start(controller) {
       let full = "";
       try {
-        const stream = claude().beta.messages.stream({
-          model: MODEL,
-          max_tokens: 32000,
-          system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-          messages,
-          // Role-play turns should feel instant; writing tasks get more thought.
-          output_config: { effort: roleplay ? "low" : "medium" },
-          betas: ["server-side-fallback-2026-07-01"],
-          fallbacks: "default",
+        // Role-play turns should feel instant; writing tasks get more thought.
+        const effort = roleplay ? (AI_MODELS[model].noneEffort ? "none" : "low") : "medium";
+        const stream = openai().responses.stream({
+          model,
+          instructions: system,
+          input: messages,
+          reasoning: { effort },
+          max_output_tokens: 32000,
+          prompt_cache_key: sessionId, // same session → cached resume/JD → cheaper
+          safety_identifier: user.id,
+          store: false,
         });
         for await (const event of stream) {
-          if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-            full += event.delta.text;
-            controller.enqueue(encoder.encode(event.delta.text));
+          if (event.type === "response.output_text.delta" || event.type === "response.refusal.delta") {
+            full += event.delta;
+            controller.enqueue(encoder.encode(event.delta));
           }
         }
-        const final = await stream.finalMessage();
-        if (final.stop_reason === "refusal") {
-          const note = "\n\n_(The AI declined to answer this one. Try rephrasing.)_";
+        const final = await stream.finalResponse();
+        await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: final.usage });
+        if (final.status === "incomplete") {
+          const note = "\n\n_(The answer was cut short. Say “continue” to get the rest.)_";
           full += note;
           controller.enqueue(encoder.encode(note));
         }
       } catch (err) {
-        const msg =
-          err instanceof Anthropic.RateLimitError
-            ? "Too many requests right now — wait a minute and try again."
-            : err instanceof Anthropic.AuthenticationError
-              ? "The AI key is not configured correctly (ANTHROPIC_API_KEY)."
-              : err instanceof Anthropic.APIError
-                ? `AI service error (${err.status ?? "network"}). Please try again.`
-                : "Something went wrong. Please try again.";
+        const msg = aiErrorMessage(err);
         console.error("chat error", err);
         const note = `${full ? "\n\n" : ""}⚠️ ${msg}`;
         full += note;

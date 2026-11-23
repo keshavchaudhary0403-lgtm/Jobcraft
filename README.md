@@ -10,9 +10,9 @@ After that, every prompt is filled in from those details, so nobody has to re-ty
 | LinkedIn profile | 4 | Headlines, About section and skills, built from the master resume |
 | Interview practice | 6 | Voice mock interview: 6 questions, then a score. Every run starts a fresh session |
 | Salary negotiation | 7 | Market check, then a voice role-play with HR |
-| Admin · users | — | Create users (phone and/or email + password), reset passwords, pause users |
+| Admin · users & AI | — | Create users, reset passwords, pause users. Choose the AI model and set **monthly ₹ spend limits** (default per user, per-user overrides, and a total budget) |
 
-Built with Next.js 16, Supabase (auth + Postgres with Row Level Security), and Claude (`claude-opus-5-5`).
+Built with Next.js 16, Supabase (auth + Postgres with Row Level Security), and the OpenAI API (default model `gpt-6.1-terra`; switchable in Admin).
 Voice uses the browser's built-in speech features (Chrome, Edge, Safari), so it adds no extra cost.
 
 ## Setup (about 15 minutes)
@@ -46,7 +46,7 @@ The Admin page avoids this.)
 
 ### 4. Run locally
 ```bash
-cp .env.example .env.local   # fill in the 3 Supabase values + ANTHROPIC_API_KEY
+cp .env.example .env.local   # fill in the 3 Supabase values + OPENAI_API_KEY
 npm install
 npm run dev                  # http://localhost:3000
 ```
@@ -64,16 +64,26 @@ npm run dev                  # http://localhost:3000
 - Users can change their own password under *My details*. Admins can reset anyone's password.
 - Phone-only users get an internal placeholder email (`<phone>@phone.jobcraft.invalid`). It never receives mail.
 
-## Costs
-The app calls Claude with **your** `ANTHROPIC_API_KEY`, so you pay for every user's usage.
-To estimate: one full workspace run (prompts 1–5) is a few cents. The resume and JD are prompt-cached between turns, which cuts repeat cost.
-To use a cheaper model, set `ANTHROPIC_MODEL` (for example `claude-sonnet-5-5`). You can pause any user from the Admin page.
+## AI costs and spend limits
+All AI calls use **your** `OPENAI_API_KEY`. Every call is logged in `usage_events` with its tokens and cost.
+Limits are set in **Admin · users & AI**, in ₹, and reset on the 1st of each month (India time):
+- **Default limit per user.** Applies to every user without their own limit, including users added later. The starting value is ₹100.
+- **Per-user limit.** Overrides the default for one person. Set 0 to block that person's AI use, or leave it blank to use the default.
+- **Total budget.** A cap for all users combined, to protect your OpenAI credits. The starting value is ₹1,000.
+
+When a user reaches a limit, their AI features pause, with a clear message, until the next month. The check runs before each AI call, so a single reply can go slightly past the limit.
+
+Rough cost per user action with GPT-6.1 Terra: a full workspace run (prompts 1–5) is about ₹5–8, and a mock interview is about ₹2–4. GPT-6 Luna is about 10× cheaper.
+Prices are set in `src/lib/models.ts`. Update them there if OpenAI changes its prices.
+
+**Existing projects:** run `supabase/002_usage_limits.sql` once in the SQL Editor. (`schema.sql` already includes it.)
 
 ## Project map
 ```
 supabase/schema.sql            tables, RLS, triggers
 src/lib/prompts.ts             the 7 library prompts + "candidate file" system prompt
-src/app/api/chat/route.ts      streaming Claude chat (saves every turn)
+src/app/api/chat/route.ts      streaming AI chat (saves every turn, logs cost, enforces limits)
+src/lib/ai.ts · models.ts      OpenAI client, model prices, spend limits
 src/app/api/auth/login         email-or-phone + password login
 src/app/api/admin/users        admin: create / reset / pause users
 src/app/api/resume/extract     resume PDF → text
