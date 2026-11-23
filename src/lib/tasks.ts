@@ -40,15 +40,37 @@ export type Analysis = {
   seniority: string | null;
   hiring_contact: string | null;
   summary: string;
-  top_skills: { skill: string; why: string; match: "strong" | "partial" | "missing" }[];
+  top_skills: {
+    skill: string;
+    why: string;
+    match: "strong" | "partial" | "missing";
+    /** Exact words from the resume that show it (null if nothing does). Newer analyses only. */
+    evidence?: string | null;
+    /** What the resume doesn't show yet (null when strong). */
+    gap_note?: string | null;
+    /** One concrete, truthful way to show it (null when strong). */
+    how_to_show?: string | null;
+  }[];
   ats_keywords: string[];
+  /** ATS keywords that don't appear on the resume yet. */
+  keywords_missing?: string[];
   real_problem: string;
   unwritten_expectations: string[];
   fit_score: number;
   fit_verdict: string;
   fit_reasoning: string;
-  gaps: { gap: string; status: "lacking" | "not_shown" | "unsure"; explanation: string }[];
+  gaps: {
+    gap: string;
+    status: "lacking" | "not_shown" | "unsure";
+    explanation: string;
+    /** Honest plan to close or handle this gap. */
+    how_to_close?: string;
+    /** The question that would settle this gap (unsure / missing numbers), else null. */
+    question?: string | null;
+  }[];
   questions: string[];
+  /** Answers this score was based on (added by the server). */
+  scored_with?: Record<string, string>;
 };
 
 export type ResumeResult = {
@@ -82,14 +104,15 @@ export const SCHEMAS = {
     seniority: nstr,
     hiring_contact: nstr,
     summary: str,
-    top_skills: arr(obj({ skill: str, why: str, match: { type: "string", enum: ["strong", "partial", "missing"] } })),
+    top_skills: arr(obj({ skill: str, why: str, match: { type: "string", enum: ["strong", "partial", "missing"] }, evidence: nstr, gap_note: nstr, how_to_show: nstr })),
     ats_keywords: arr(str),
+    keywords_missing: arr(str),
     real_problem: str,
     unwritten_expectations: arr(str),
     fit_score: { type: "integer" },
     fit_verdict: str,
     fit_reasoning: str,
-    gaps: arr(obj({ gap: str, status: { type: "string", enum: ["lacking", "not_shown", "unsure"] }, explanation: str })),
+    gaps: arr(obj({ gap: str, status: { type: "string", enum: ["lacking", "not_shown", "unsure"] }, explanation: str, how_to_close: str, question: nstr })),
     questions: arr(str),
   }),
   resume: obj({
@@ -161,18 +184,28 @@ Use null when the resume doesn't say. ${TRUTH_RULE}`,
 
     case "analysis":
       return {
-        instructions: `You are an experienced recruiter hiring in India. Analyse the job description, then compare the candidate's resume against it. Be brutally honest, not flattering.
+        instructions: `You are a senior recruiter at a top hiring firm in India, screening this candidate for a client. First decode the job description, then compare the candidate's resume against it, line by line. Be brutally honest, not flattering — but always specific and useful, so the candidate knows exactly what to do next.
 Fill:
 - company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C… or null), location, seniority, hiring_contact (the hiring manager or recruiter if the JD names one — e.g. "reports to Ananya Rao, Head of Growth" → "Ananya Rao, Head of Growth"; else null).
 - summary: one short line on what this role is.
-- top_skills: the 5 most important skills or experiences, ranked by how heavily the JD emphasises them. "why": a few words. "match": how well the resume shows it.
+- top_skills: the 5 most important skills or experiences, ranked by how heavily the JD emphasises them. For each:
+  - why: a few words on why it matters for this role.
+  - match: "strong" = the resume clearly proves it; "partial" = related experience but not this exactly, or no proof/numbers; "missing" = nothing on the resume shows it.
+  - evidence: the exact words from the resume that show it (a short quote, max ~20 words), or null if nothing does. Quote only — never paraphrase or invent.
+  - gap_note: for partial/missing, one sentence on precisely what the resume doesn't show yet (e.g. "Shows vendor management, but not selecting or training partners"). null when strong.
+  - how_to_show: for partial/missing, one concrete, truthful step — e.g. "If you trained partners at HooLiv, add how many and what changed", or "Lead with your vendor onboarding at X in your summary". Never suggest claiming something unproven. null when strong.
 - ats_keywords: the 3 keywords most likely used to filter resumes for this role in an ATS.
+- keywords_missing: which of those ats_keywords (exact same text) do NOT appear on the resume today. Empty if all appear.
 - real_problem: one short paragraph — what problem is this company really trying to solve with this hire?
 - unwritten_expectations: 3 things NOT written in the JD that this company almost certainly expects.
-- fit_score: 0–10, honest. fit_verdict: a few words. fit_reasoning: 2–3 sentences.
-- gaps: the top 3 gaps. status "lacking" = the candidate truly lacks it; "not_shown" = they likely have it but the resume fails to show it; "unsure" = you can't tell.
-- questions: for every "unsure" gap (and anything else you need), a specific question to ask the candidate. Keep each under 25 words.
-If the candidate already answered questions below, use those answers and don't ask again.
+- fit_score: 0–10, honest. fit_verdict: a few words. fit_reasoning: 2–3 sentences a recruiter would tell the candidate directly.
+- gaps: the top 3 gaps between what they want and what the resume shows. For each:
+  - status: "lacking" = the candidate truly lacks it; "not_shown" = they very likely have it but the resume fails to show it; "unsure" = you can't tell without asking.
+  - explanation: one or two sentences on why it's a gap for THIS role.
+  - how_to_close: an honest plan. lacking → how to handle it truthfully (bridge with closest real experience, address it in the interview, or a quick way to build it). not_shown → exactly what to add to the resume and where. unsure → what answer would change your view.
+  - question: for "unsure" (and "not_shown" when you need numbers), ONE specific question that settles it, under 25 words; else null.
+- questions: every question from gaps (same exact text), plus any other you truly need. Keep each under 25 words.
+If the candidate already answered questions below, use those answers as true facts: update the score, statuses and evidence accordingly, and don't ask those questions again.
 If the company or role is marked "confirmed by candidate", use exactly that.
 ${CLEAN_RULE} ${TRUTH_RULE}`,
         input: [candidateBlock(profile), jobBlock(app!), answersBlock(app!)].filter(Boolean).join("\n\n"),

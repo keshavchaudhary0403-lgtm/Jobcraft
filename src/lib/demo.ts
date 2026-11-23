@@ -29,13 +29,14 @@ export const FIXTURES: Record<string, unknown> = {
     hiring_contact: null,
     summary: "Own partner quality and operational excellence for a set of cities.",
     top_skills: [
-      { skill: "Multi-city operations", why: "Main focus of the role", match: "strong" },
-      { skill: "Partner selection and training", why: "Called the crux of the role", match: "partial" },
-      { skill: "Team and project leadership", why: "Lead people and projects", match: "strong" },
-      { skill: "Service quality improvement", why: "Central growth track", match: "partial" },
-      { skill: "Cross-functional execution", why: "Works across teams", match: "strong" },
+      { skill: "Multi-city operations", why: "Main focus of the role", match: "strong", evidence: "Ran partner operations across 4 cities with 320 service partners", gap_note: null, how_to_show: null },
+      { skill: "Partner selection and training", why: "Called the crux of the role", match: "partial", evidence: "Cut partner churn from 18% to 9% in two quarters", gap_note: "Shows you kept partners, but not how you chose or trained them.", how_to_show: "If you set up partner onboarding or training at QuickNest, add how many partners and what improved." },
+      { skill: "Team and project leadership", why: "Lead people and projects", match: "strong", evidence: "Led a team of 14 city executives", gap_note: null, how_to_show: null },
+      { skill: "Service quality improvement", why: "Central growth track", match: "partial", evidence: null, gap_note: "No ratings, complaints or quality scores on the resume.", how_to_show: "Add one quality number you moved — ratings, complaint rate or repeat rate — if you tracked it." },
+      { skill: "Cross-functional execution", why: "Works across teams", match: "strong", evidence: "Led a team of 14 city executives with weekly quality reviews", gap_note: null, how_to_show: null },
     ],
     ats_keywords: ["Operations Management", "Partner Management", "Operational Excellence"],
+    keywords_missing: ["Operational Excellence"],
     real_problem:
       "They need someone who can raise service quality city by city — choosing better partners, training them, and holding the bar — while still growing the category.",
     unwritten_expectations: [
@@ -48,9 +49,9 @@ export const FIXTURES: Record<string, unknown> = {
     fit_reasoning:
       "Multi-city ownership and team leadership match well. The resume shows partner churn results but not how partners were selected and trained, which is the core of this role.",
     gaps: [
-      { gap: "Partner selection and training", status: "not_shown", explanation: "You likely did this, but the resume doesn't say how." },
-      { gap: "Service quality metrics", status: "unsure", explanation: "No ratings, complaints or quality scores are mentioned." },
-      { gap: "Category growth projects", status: "lacking", explanation: "No product or offering launches appear on the resume." },
+      { gap: "Partner selection and training", status: "not_shown", explanation: "You likely did this, but the resume doesn't say how.", how_to_close: "Add a bullet under QuickNest on how you selected and trained partners — with the number trained and the result.", question: "Did you set up how new partners were selected or trained? How many?" },
+      { gap: "Service quality metrics", status: "unsure", explanation: "No ratings, complaints or quality scores are mentioned.", how_to_close: "If you tracked ratings or complaints, one real before/after number would close this gap.", question: "Did you track ratings or complaints? What changed?" },
+      { gap: "Category growth projects", status: "lacking", explanation: "No product or offering launches appear on the resume.", how_to_close: "Don't claim it. In the interview, bridge with your city expansion work and show how you'd approach a launch.", question: null },
     ],
     questions: ["Did you set up how new partners were selected or trained? How many?", "Did you track ratings or complaints? What changed?"],
   },

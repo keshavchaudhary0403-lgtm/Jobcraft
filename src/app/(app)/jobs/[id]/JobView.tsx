@@ -23,7 +23,7 @@ import type { Analysis } from "@/lib/tasks";
 import { CompanyAvatar, MatchChip, Panel, STATUS_META, StatusPill } from "@/components/ui";
 import { Menu, Modal, useAsk } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
-import { Overview } from "./Overview";
+import { Overview, questionList } from "./Overview";
 import { ResumeTab } from "./ResumeTab";
 import { OutreachTab } from "./OutreachTab";
 import { PracticeTab } from "./PracticeTab";
@@ -74,10 +74,16 @@ export function JobView({
     router.push("/jobs");
   }
 
-  const unanswered = a ? a.questions.filter((q) => !app.fit_answers?.[q]?.trim()).length : 0;
+  const qs = questionList(a);
+  const unanswered = qs.filter((q) => !app.fit_answers?.[q]?.trim()).length;
+  const [askAt, setAskAt] = useState<number | null>(null);
+  const openQuestions = () => {
+    setTab("overview");
+    setAskAt(Math.max(0, qs.findIndex((q) => !app.fit_answers?.[q]?.trim())));
+  };
   const checklist = [
     { label: "Match analysed", done: analysed, go: () => setTab("overview") },
-    { label: "Questions answered", done: analysed && unanswered === 0, go: () => setTab("overview") },
+    { label: "Questions answered", done: analysed && unanswered === 0, go: () => (unanswered ? openQuestions() : setTab("overview")) },
     { label: "Resume tailored", done: !!app.tailored_resume, go: () => setTab("resume") },
     { label: "Outreach written", done: !!app.outreach, go: () => setTab("outreach") },
     {
@@ -91,7 +97,7 @@ export function JobView({
   const next: { label: string; sub: string; go: () => void } | null = !analysed
     ? null
     : unanswered
-      ? { label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`, sub: "Sharpens your match score", go: () => setTab("overview") }
+      ? { label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`, sub: "Sharpens your match score", go: openQuestions }
       : !app.tailored_resume
         ? { label: "Tailor your resume", sub: "Built around what they want", go: () => setTab("resume") }
         : !app.outreach
@@ -184,7 +190,7 @@ export function JobView({
             />
           </div>
 
-          {tab === "overview" && <Overview app={app} onUpdate={patchLocal} />}
+          {tab === "overview" && <Overview app={app} onUpdate={patchLocal} askAt={askAt} onAsk={setAskAt} onGo={(t) => setTab(t)} />}
           {tab === "resume" && <ResumeTab app={app} onUpdate={patchLocal} />}
           {tab === "outreach" && <OutreachTab app={app} onUpdate={patchLocal} />}
           {tab === "practice" && <PracticeTab app={app} interviews={interviews} />}
@@ -208,7 +214,7 @@ export function JobView({
                 <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
-                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Open questions</span><span className="font-medium">{unanswered}</span></div>
+                  <button onClick={unanswered ? openQuestions : undefined} disabled={!unanswered} className="flex w-full justify-between px-5 py-2.5 text-left transition enabled:hover:bg-line-2/60"><span className="text-muted">Open questions</span><span className={`font-medium ${unanswered ? "text-brand-ink" : ""}`}>{unanswered ? `${unanswered} · Answer` : "0"}</span></button>
                 </div>
               </>
             ) : (
