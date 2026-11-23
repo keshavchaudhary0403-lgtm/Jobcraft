@@ -48,10 +48,10 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   return (
     <div>
       <div className="mb-5 flex items-center justify-between">
-        <Link href={cfg.back} className="inline-flex items-center gap-1.5 text-sm text-muted hover:text-ink"><ArrowLeft size={15} /> {cfg.backLabel}</Link>
+        <Link href={cfg.back} className="inline-flex items-center gap-1.5 text-[14px] text-muted hover:text-ink"><ArrowLeft size={15} /> {cfg.backLabel}</Link>
         <DeleteSessionButton action={del} />
       </div>
-      <h1 className="mb-5 text-xl font-bold tracking-tight">{session.title}</h1>
+      <h1 className="mb-5 text-[20px] font-semibold">{session.title}</h1>
       {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
       {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
       <PracticeModes

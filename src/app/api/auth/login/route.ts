@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { looksLikeEmail, normalisePhone } from "@/lib/phone";
-import { rateLimited } from "@/lib/rate-limit";
+import { clientIp, overLimit } from "@/lib/rate-limit";
 
 const GENERIC = "Wrong email/phone or password.";
 
@@ -10,15 +10,19 @@ const GENERIC = "Wrong email/phone or password.";
  * so no SMS provider / OTP is needed.
  */
 export async function POST(req: Request) {
-  if (rateLimited(req, "login", 10, 5 * 60_000)) {
-    return Response.json({ error: "Too many attempts. Wait a few minutes and try again." }, { status: 429 });
-  }
   const { identifier, password } = (await req.json()) as { identifier?: string; password?: string };
   if (!identifier?.trim() || !password) {
     return Response.json({ error: "Enter your email or phone and password." }, { status: 400 });
   }
-  const supabase = await createClient();
   const id = identifier.trim();
+  // Per IP (stops one machine guessing) and per account (stops guessing spread across many IPs).
+  const ip = clientIp(req);
+  const account = id.toLowerCase().replace(/[^a-z0-9@.+]/g, "");
+  const [ipBlocked, accountBlocked] = await Promise.all([overLimit(`login:ip:${ip}`, 10, 300), overLimit(`login:acct:${account}`, 8, 900)]);
+  if (ipBlocked || accountBlocked) {
+    return Response.json({ error: "Too many attempts. Wait a few minutes and try again." }, { status: 429 });
+  }
+  const supabase = await createClient();
 
   let credentials: { email: string; password: string } | { phone: string; password: string };
 

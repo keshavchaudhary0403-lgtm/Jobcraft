@@ -48,7 +48,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
   return (
     <>
       <div className="border-b border-line px-5 py-4">
-        <div className="font-bold">Which offer?</div>
+        <div className="text-[20px] font-semibold leading-[25px]">Which offer?</div>
       </div>
       <div className="space-y-5 p-5">
         <JobPicker
@@ -82,8 +82,8 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
             <label className="label flex justify-between">
               <span>Market range</span>
               <span className="flex gap-1.5 font-normal">
-                <a className="pill-link h-6 px-2.5 text-[0.78rem]" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
-                <a className="pill-link h-6 px-2.5 text-[0.78rem]" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
+                <a className="pill-link h-6 px-2.5 text-[12px]" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
+                <a className="pill-link h-6 px-2.5 text-[12px]" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
               </span>
             </label>
             <div className="relative">
@@ -95,10 +95,10 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
 
         <div className={`overflow-hidden rounded-xl border transition ${edit ? "border-brand/40" : "border-line"}`}>
           <div className="flex items-center justify-between gap-3 border-b border-line bg-line-2/50 px-4 py-2.5">
-            <span className="font-bold">Your details</span>
+            <span className="text-[16px] font-semibold">Your details</span>
             {edit ? (
               <span className="flex items-center gap-2">
-                {saveMsg && <span className="text-[0.82rem] text-bad">{saveMsg}</span>}
+                {saveMsg && <span className="text-[12px] text-bad">{saveMsg}</span>}
                 {complete(saved) && <button type="button" className="btn btn-ghost btn-sm" onClick={cancel}>Cancel</button>}
                 <button type="button" className="btn btn-primary btn-sm" disabled={saving || !complete(vals) || !dirty && complete(saved)} onClick={save}>
                   {saving ? <Spinner size={13} /> : <Check size={14} />} Save
@@ -106,7 +106,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
               </span>
             ) : (
               <span className="flex items-center gap-3">
-                {justSaved && <span className="flex items-center gap-1 text-[0.82rem] text-good"><Check size={13} /> Saved to your profile</span>}
+                {justSaved && <span className="flex items-center gap-1 text-[12px] text-good"><Check size={13} /> Saved to your profile</span>}
                 <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEdit(true)}>
                   <Pencil size={13} /> Edit
                 </button>
@@ -124,7 +124,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
               <div><label className="label">Experience</label><input className="field" value={vals.experience} onChange={(e) => setVals({ ...vals, experience: e.target.value })} placeholder="5 years" /></div>
               <div><label className="label">City</label><input className="field" value={vals.city} onChange={(e) => setVals({ ...vals, city: e.target.value })} /></div>
               <div className="sm:col-span-3"><label className="label">Best results (with numbers)</label><textarea className="field" rows={3} value={vals.strongest_proof} onChange={(e) => setVals({ ...vals, strongest_proof: e.target.value })} /></div>
-              <p className="text-[0.8rem] text-muted sm:col-span-3">Saving also updates My profile.</p>
+              <p className="text-[12px] text-muted sm:col-span-3">Saving also updates My profile.</p>
             </div>
           ) : (
             <div className="divide-y divide-line">
@@ -135,21 +135,21 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
                   ["City", saved.city],
                 ].map(([k, v]) => (
                   <div key={k} className="px-4 py-3">
-                    <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
+                    <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
                     <div className="mt-0.5 font-medium">{v || "—"}</div>
                   </div>
                 ))}
               </div>
               <div className="px-4 py-3">
-                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">Best results</div>
-                <p className="mt-0.5 leading-relaxed text-slate-800">{saved.strongest_proof || "—"}</p>
+                <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">Best results</div>
+                <p className="mt-0.5 leading-[1.43] text-slate-800">{saved.strongest_proof || "—"}</p>
               </div>
             </div>
           )}
         </div>
       </div>
       <div className="flex items-center justify-end gap-3 border-t border-line bg-slate-50/60 px-5 py-3.5">
-        {edit && <span className="mr-auto text-[0.85rem] text-muted">Save your details to continue</span>}
+        {edit && <span className="mr-auto text-[14px] text-muted">Save your details to continue</span>}
         <button className="btn btn-brand" disabled={edit}>Start practice</button>
       </div>
     </>

@@ -24,7 +24,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
         <form action={start} className="card overflow-hidden fade-up">
           <div className="border-b border-line px-5 py-4">
-            <div className="font-bold">Which job is the interview for?</div>
+            <div className="text-[20px] font-semibold leading-[25px]">Which job is the interview for?</div>
           </div>
           <div className="p-5">
             <JobPicker

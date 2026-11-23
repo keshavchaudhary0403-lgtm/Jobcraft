@@ -5,7 +5,7 @@ export function PageHeader({ title, sub, action }: { title: string; sub?: string
   return (
     <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
       <div>
-        <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{title}</h1>
+        <h1 className="text-[24px] font-semibold leading-tight">{title}</h1>
         {sub && <p className="mt-0.5 text-muted">{sub}</p>}
       </div>
       {action && <div className="flex items-center gap-2">{action}</div>}
@@ -65,7 +65,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
       </svg>
       {label && (
         <div className="absolute text-center leading-none">
-          <span className="font-semibold tracking-tight" style={{ fontSize: size * 0.3, color }}>{score}</span>
+          <span className="font-semibold" style={{ fontSize: size * 0.3, color }}>{score}</span>
           <span className="text-faint" style={{ fontSize: size * 0.13 }}>/10</span>
         </div>
       )}
@@ -79,7 +79,7 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
   return (
     <div
-      className="grid shrink-0 place-items-center font-bold"
+      className="grid shrink-0 place-items-center font-semibold"
       style={{
         width: size,
         height: size,
@@ -102,9 +102,9 @@ export function StatTile({ icon, label, value, sub, tone = "sky", href, interact
     <Tag href={href as string} className={`card flex h-full items-center gap-3.5 p-4 ${href || interactive ? "card-hover cursor-pointer" : ""}`}>
       <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${TONES[tone]}`}>{icon}</div>
       <div className="min-w-0">
-        <div className="text-[0.82rem] text-muted">{label}</div>
-        <div className="text-[1.45rem] font-semibold leading-tight tracking-tight tabular-nums">{value}</div>
-        {sub && <div className="truncate text-[0.78rem] text-faint" title={sub}>{sub}</div>}
+        <div className="text-[12px] text-muted">{label}</div>
+        <div className="text-[20px] font-semibold leading-tight tabular-nums">{value}</div>
+        {sub && <div className="truncate text-[12px] text-faint" title={sub}>{sub}</div>}
       </div>
     </Tag>
   );
@@ -167,8 +167,8 @@ export function Panel({
       <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
         {icon && <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">{icon}</span>}
         <div className="min-w-0 flex-1">
-          <div className="font-bold leading-tight">{title}</div>
-          {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
+          <div className="text-[20px] font-semibold leading-[25px]">{title}</div>
+          {sub && <div className="text-[12px] text-muted">{sub}</div>}
         </div>
         {action}
       </div>
@@ -179,7 +179,7 @@ export function Panel({
 
 /** Sub-heading inside a card. */
 export function SubLabel({ children }: { children: React.ReactNode }) {
-  return <div className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
+  return <div className="mb-1.5 text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
 }
 
 /**
@@ -212,19 +212,19 @@ export function Kpi({
   const body = (
     <>
       <div className="flex items-center justify-between">
-        <span className="text-[0.86rem] font-medium text-muted">{label}</span>
+        <span className="text-[14px] font-medium text-muted">{label}</span>
         <span className={`grid h-8 w-8 place-items-center rounded-xl ${TONES[tone]}`}>{icon}</span>
       </div>
       <div className="mt-2 flex items-baseline gap-1.5">
-        <span className="text-[1.7rem] font-semibold leading-none tracking-tight tabular-nums">{value}</span>
-        {unit && <span className="text-[0.9rem] text-muted">{unit}</span>}
+        <span className="text-[24px] font-semibold leading-none tabular-nums">{value}</span>
+        {unit && <span className="text-[14px] text-muted">{unit}</span>}
       </div>
       {progress && (
         <div className="mt-3">
           <div className="h-1.5 overflow-hidden rounded-full bg-line-2">
             <div className={`h-full rounded-full transition-all duration-700 ${progress.limit && pct >= 90 ? "bg-bad" : progress.limit && pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, progress.value > 0 ? 3 : 0)}%` }} />
           </div>
-          {progress.caption && <div className="mt-1.5 text-[0.8rem] text-muted">{progress.caption}</div>}
+          {progress.caption && <div className="mt-1.5 text-[12px] text-muted">{progress.caption}</div>}
         </div>
       )}
       {breakdown && (
@@ -232,14 +232,14 @@ export function Kpi({
           <div className="flex h-1.5 gap-0.5 overflow-hidden rounded-full bg-line-2">
             {total > 0 && breakdown.filter((b) => b.n).map((b) => <div key={b.label} className={b.cls} style={{ width: `${(b.n / total) * 100}%` }} />)}
           </div>
-          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[0.78rem] text-muted">
+          <div className="mt-1.5 flex flex-wrap gap-x-3 gap-y-0.5 text-[12px] text-muted">
             {(breakdown.some((b) => b.n) ? breakdown.filter((b) => b.n) : breakdown.slice(0, 1)).map((b) => (
               <span key={b.label} className="flex items-center gap-1"><span className={`h-1.5 w-1.5 rounded-full ${b.cls}`} />{b.n} {b.label}</span>
             ))}
           </div>
         </div>
       )}
-      {note && <div className="mt-2 text-[0.8rem] text-muted">{note}</div>}
+      {note && <div className="mt-2 text-[12px] text-muted">{note}</div>}
     </>
   );
   const cls = "card flex h-full flex-col p-4";

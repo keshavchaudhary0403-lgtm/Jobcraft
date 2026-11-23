@@ -36,17 +36,17 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
         </button>
       </div>
 
-      {error && <p className="flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
+      {error && <p className="flex items-center gap-1.5 text-[14px] text-bad"><AlertCircle size={14} /> {error}</p>}
       {busy && !o && <Working steps={["Finding a real challenge they face…", "Matching it to your strongest result…", "Keeping it short and human…"]} />}
 
       {o && (
         <div className={`grid items-start gap-4 md:grid-cols-2 stagger transition ${busy ? "opacity-50" : ""}`}>
           <Panel title="Connection note" icon={<UserPlus size={15} />} action={<CharCount text={o.connection_note} max={250} />} className="flex flex-col" bodyClass="flex flex-1 flex-col p-5">
-            <p className="flex-1 whitespace-pre-wrap leading-relaxed text-slate-800">{o.connection_note}</p>
+            <p className="flex-1 whitespace-pre-wrap leading-[1.43] text-slate-800">{o.connection_note}</p>
             <div className="mt-5"><CopyButton text={o.connection_note} /></div>
           </Panel>
           <Panel title="Message" icon={<Send size={15} />} action={<CharCount text={o.message} max={110} unit="words" />} className="flex flex-col" bodyClass="flex flex-1 flex-col p-5">
-            <p className="flex-1 whitespace-pre-wrap leading-relaxed text-slate-800">{o.message}</p>
+            <p className="flex-1 whitespace-pre-wrap leading-[1.43] text-slate-800">{o.message}</p>
             <div className="mt-5"><CopyButton text={o.message} /></div>
           </Panel>
         </div>

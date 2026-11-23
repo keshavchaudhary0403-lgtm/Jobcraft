@@ -20,7 +20,7 @@ export function ProfileClient({ userId, initial, loginId, isDemo }: { userId: st
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">My profile</h1>
+          <h1 className="text-[24px] font-semibold leading-tight">My profile</h1>
           <p className="mt-0.5 text-muted">Signed in as {loginId}</p>
         </div>
         <div className="flex gap-2">
@@ -51,7 +51,7 @@ export function ProfileClient({ userId, initial, loginId, isDemo }: { userId: st
             setUpload(false);
           }}
         />
-        <p className="mt-3 text-[0.85rem] text-muted">Your details will refill from it. Review, then save.</p>
+        <p className="mt-3 text-[14px] text-muted">Your details will refill from it. Review, then save.</p>
       </Modal>
       <PasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
     </>
@@ -74,7 +74,7 @@ function PasswordModal({ open, onClose }: { open: boolean; onClose: () => void }
     <Modal open={open} onClose={onClose} title="Change password" width={420}>
       <form onSubmit={change} className="space-y-3">
         <input type="password" autoFocus className="field" placeholder="New password" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {msg && <p className="text-[0.85rem] text-bad">{msg}</p>}
+        {msg && <p className="text-[14px] text-bad">{msg}</p>}
         <div className="flex justify-end gap-2">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" disabled={!pw}>Update</button>

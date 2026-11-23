@@ -37,9 +37,9 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
   if (paste)
     return (
       <div className="card p-4 fade-up">
-        <textarea className="field min-h-64 font-mono text-xs" placeholder="Paste your resume text…" value={text} onChange={(e) => setText(e.target.value)} />
+        <textarea className="field min-h-64 font-mono text-[12px]" placeholder="Paste your resume text…" value={text} onChange={(e) => setText(e.target.value)} />
         <div className="mt-3 flex items-center justify-between">
-          <button className="btn-quiet rounded-lg text-sm" onClick={() => setPaste(false)}>Upload a PDF instead</button>
+          <button className="btn-quiet rounded-lg text-[14px]" onClick={() => setPaste(false)}>Upload a PDF instead</button>
           <button
             className="btn btn-primary"
             disabled={text.trim().length < 100}
@@ -52,7 +52,7 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
             Continue
           </button>
         </div>
-        {err && <p className="mt-2 text-sm text-bad">{err}</p>}
+        {err && <p className="mt-2 text-[14px] text-bad">{err}</p>}
       </div>
     );
 
@@ -81,15 +81,15 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
         <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-ink text-on-brand shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>
           {drag ? <FileText size={compact ? 20 : 24} /> : <UploadCloud size={compact ? 20 : 24} />}
         </div>
-        <div className={`relative font-semibold ${compact ? "mt-3" : "mt-4 text-[1.1rem]"}`}>{drag ? "Drop it here" : "Drop your resume"}</div>
+        <div className={`relative font-semibold ${compact ? "mt-3" : "mt-4 text-[16px]"}`}>{drag ? "Drop it here" : "Drop your resume"}</div>
         <div className="relative mt-0.5 text-muted">PDF up to 8 MB · or click to browse</div>
         <input ref={input} type="file" accept="application/pdf" className="hidden" onChange={(e) => file(e.target.files?.[0])} />
       </div>
-      <div className="mt-3 flex items-center justify-center gap-2 text-sm text-muted">
+      <div className="mt-3 flex items-center justify-center gap-2 text-[14px] text-muted">
         No PDF?
         <button className="pill-link" onClick={() => setPaste(true)}>Paste text instead</button>
       </div>
-      {err && <p className="mt-2 text-center text-sm text-bad">{err}</p>}
+      {err && <p className="mt-2 text-center text-[14px] text-bad">{err}</p>}
     </div>
   );
 }

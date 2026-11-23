@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { aiLimited } from "@/lib/rate-limit";
 import { currentUser } from "@/lib/current-user";
 import { checkLimits, openai } from "@/lib/ai";
 import { buildPrompt, buildSystemPrompt, type NegotiationInputs } from "@/lib/prompts";
@@ -26,6 +27,7 @@ export async function POST(req: Request) {
   if (profile.ai_mode !== "real") return Response.json({ error: "Realistic voice needs Real AI on your account." }, { status: 403 });
 
   const admin = createServiceClient();
+  if (await aiLimited(user.id, "voice")) return Response.json({ error: "That's a lot of calls in an hour — take a break and try again later." }, { status: 429 });
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
 

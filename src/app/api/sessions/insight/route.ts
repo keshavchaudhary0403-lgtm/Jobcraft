@@ -1,4 +1,5 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { TOO_FAST, aiLimited } from "@/lib/rate-limit";
 import { currentUser } from "@/lib/current-user";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { INSIGHT_SCHEMAS, buildInsight } from "@/lib/tasks";
@@ -33,6 +34,7 @@ export async function POST(req: Request) {
   }
 
   const admin = createServiceClient();
+  if (await aiLimited(user.id, "insight")) return Response.json({ error: TOO_FAST }, { status: 429 });
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const { instructions, input } = buildInsight(kind, { profile, app, transcript, offer: session.meta });

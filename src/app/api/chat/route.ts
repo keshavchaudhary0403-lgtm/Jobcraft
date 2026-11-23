@@ -1,4 +1,5 @@
 import { currentUser } from "@/lib/current-user";
+import { TOO_FAST, aiLimited } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai } from "@/lib/ai";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
@@ -29,6 +30,7 @@ export async function POST(req: Request) {
   if (!profile.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
 
   const admin = createServiceClient();
+  if (await aiLimited(user.id, "chat")) return Response.json({ error: TOO_FAST }, { status: 429 });
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ error: limits.error }, { status: 402 });
   const model = limits.settings.model;

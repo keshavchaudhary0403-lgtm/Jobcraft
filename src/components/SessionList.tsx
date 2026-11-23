@@ -12,7 +12,7 @@ export function SessionList({ sessions, base }: { sessions: Session[]; base: str
         {sessions.map((s) => (
           <Link key={s.id} href={`${base}/${s.id}`} className="flex items-center justify-between gap-3 px-5 py-3 transition hover:bg-line-2/60">
             <span className="line-clamp-2 font-medium leading-snug">{s.title}</span>
-            <span className="flex shrink-0 items-center gap-2 text-[0.82rem] text-muted">{timeAgo(s.updated_at)} <ChevronRight size={14} /></span>
+            <span className="flex shrink-0 items-center gap-2 text-[12px] text-muted">{timeAgo(s.updated_at)} <ChevronRight size={14} /></span>
           </Link>
         ))}
       </div>

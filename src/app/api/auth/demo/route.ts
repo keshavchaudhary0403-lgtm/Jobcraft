@@ -1,6 +1,6 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { DEMO_EMAIL, seedDemo } from "@/lib/demo-account";
-import { rateLimited } from "@/lib/rate-limit";
+import { clientIp, overLimit } from "@/lib/rate-limit";
 
 const DAY = 24 * 3600 * 1000;
 
@@ -13,7 +13,8 @@ export async function GET() {
 
 /** Sign the visitor into the shared demo account — no password needed. */
 export async function POST(req: Request) {
-  if (rateLimited(req, "demo", 8, 10 * 60_000)) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
+  const [ipBlocked, allBlocked] = await Promise.all([overLimit(`demo:ip:${clientIp(req)}`, 8, 600), overLimit("demo:all", 300, 3600)]);
+  if (ipBlocked || allBlocked) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });
   const admin = createServiceClient();
   const { data: settings } = await admin.from("app_settings").select("demo_enabled, demo_reset_at").eq("id", 1).maybeSingle();
   if (!settings?.demo_enabled) return Response.json({ error: "The demo is switched off right now." }, { status: 403 });

@@ -31,10 +31,10 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
       {dialog}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
-          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">LinkedIn</h1>
+          <h1 className="text-[24px] font-semibold leading-tight">LinkedIn</h1>
           <p className="mt-0.5 text-muted">
             Optimised for <span className="font-medium text-ink">{targetRole || "your next role"}</span>
-            <Link href="/profile" className="pill-link ml-2 h-6 px-2.5 text-[0.78rem]">Change</Link>
+            <Link href="/profile" className="pill-link ml-2 h-6 px-2.5 text-[12px]">Change</Link>
           </p>
         </div>
         <div className="flex gap-2">
@@ -51,14 +51,14 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         <section className="card overflow-hidden fade-up">
           <div className="h-28 bg-gradient-to-r from-brand via-brand to-brand-2" />
           <div className="px-6 pb-6">
-            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-brand to-brand-2 text-2xl font-semibold text-white">{initials}</div>
-            <div className="mt-3 text-[1.35rem] font-semibold">{name}</div>
+            <div className="-mt-11 grid h-[88px] w-[88px] place-items-center rounded-full border-4 border-white bg-gradient-to-br from-brand to-brand-2 text-[24px] font-semibold text-white">{initials}</div>
+            <div className="mt-3 text-[20px] font-semibold">{name}</div>
             {headline ? (
               <p key={headline} className="mt-0.5 max-w-2xl leading-snug text-slate-700 fade-up">{headline}</p>
             ) : (
               <div className="mt-2 space-y-1.5"><div className={`h-3 w-3/4 rounded ${busy ? "skeleton" : "bg-line-2"}`} /><div className={`h-3 w-1/2 rounded ${busy ? "skeleton" : "bg-line-2"}`} /></div>
             )}
-            <div className="mt-2 flex items-center gap-1 text-[0.88rem] text-muted">{city && <><MapPin size={13} /> {city}</>}{title && <span className="ml-2">· {title}</span>}</div>
+            <div className="mt-2 flex items-center gap-1 text-[14px] text-muted">{city && <><MapPin size={13} /> {city}</>}{title && <span className="ml-2">· {title}</span>}</div>
 
             <div className="mt-6 border-t border-line pt-5">
               <div className="mb-2 flex items-center justify-between">
@@ -66,7 +66,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                 {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
               </div>
               {res ? (
-                <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{res.about}</p>
+                <p className="whitespace-pre-wrap leading-[1.43] text-slate-700">{res.about}</p>
               ) : (
                 <div className="space-y-2">{[90, 100, 95, 70].map((w, i) => <div key={i} className={`h-3 rounded ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: `${w}%` }} />)}</div>
               )}
@@ -79,7 +79,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
               </div>
               <div className="flex flex-wrap gap-2">
                 {res
-                  ? res.skills.map((s) => <span key={s} className="chip border border-line bg-white px-3 py-1 text-[0.88rem] text-slate-700">{s}</span>)
+                  ? res.skills.map((s) => <span key={s} className="chip border border-line bg-white px-3 py-1 text-[14px] text-slate-700">{s}</span>)
                   : [80, 110, 90, 70, 100].map((w, i) => <span key={i} className={`h-7 rounded-full ${busy ? "skeleton" : "bg-line-2"}`} style={{ width: w }} />)}
               </div>
             </div>
@@ -93,7 +93,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             <div className="space-y-2.5">
               {res.headlines.map((h, i) => (
                 <button key={i} type="button" data-on={pick === i} onClick={() => setPick(i)} className="option w-full p-3.5">
-                  <div className="mb-1.5 flex items-center justify-between text-[0.78rem] text-faint">
+                  <div className="mb-1.5 flex items-center justify-between text-[12px] text-faint">
                     <span>Option {i + 1}</span>
                     <CharCount text={h} max={220} />
                   </div>
@@ -141,8 +141,8 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
       <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
         <span className="grid h-7 w-7 place-items-center rounded-lg bg-brand-soft text-brand"><ListChecks size={15} /></span>
         <div className="flex-1">
-          <div className="font-bold">Update your LinkedIn — about 5 minutes</div>
-          <div className="text-[0.8rem] text-muted">Recruiters search by headline and skills, so these steps matter most.</div>
+          <div className="font-semibold">Update your LinkedIn — about 5 minutes</div>
+          <div className="text-[12px] text-muted">Recruiters search by headline and skills, so these steps matter most.</div>
         </div>
         <span className={`chip ${n === STEPS.length ? "bg-good-soft text-good" : "bg-line-2 text-muted"}`}>{n} of {STEPS.length} done</span>
         {url && <a href={url} target="_blank" rel="noreferrer" className="btn btn-ghost btn-sm">Open LinkedIn <ExternalLink size={13} /></a>}
@@ -160,7 +160,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
             </button>
             <div className="min-w-0 flex-1">
               <div className={`font-semibold ${done[it.k] ? "text-muted line-through decoration-line" : ""}`}>{i + 1}. {it.title}</div>
-              <div className="text-[0.88rem] text-muted">{it.how}</div>
+              <div className="text-[14px] text-muted">{it.how}</div>
             </div>
             {it.action}
           </div>

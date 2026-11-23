@@ -127,7 +127,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
     <div className="space-y-4">
       {dialog}
       {busy && (
-        <div className="flex items-center gap-2.5 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 text-[0.92rem] text-brand-ink fade-up">
+        <div className="flex items-center gap-2.5 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 text-[14px] text-brand-ink fade-up">
           <Spinner size={15} /> Re-scoring with your latest answers…
         </div>
       )}
@@ -143,18 +143,18 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
           <div className="grid gap-5 p-5 md:grid-cols-2 md:divide-x md:divide-line">
             <div>
               <SubLabel>The real problem they&apos;re hiring for</SubLabel>
-              <p className="leading-relaxed text-slate-800">{a.real_problem}</p>
+              <p className="leading-[1.43] text-slate-800">{a.real_problem}</p>
             </div>
             <div className="md:pl-5">
               <SubLabel>Why this score</SubLabel>
-              <p className="leading-relaxed text-slate-800">{a.fit_reasoning}</p>
+              <p className="leading-[1.43] text-slate-800">{a.fit_reasoning}</p>
             </div>
           </div>
           <div className="p-5">
             <SubLabel>Expected, but not written</SubLabel>
             <div className="mt-2 grid gap-2.5 md:grid-cols-3">
               {a.unwritten_expectations.map((x, i) => (
-                <div key={x} className={`rounded-xl p-3 text-[0.9rem] leading-snug text-slate-800 ${TILE[i % 3]}`}>
+                <div key={x} className={`rounded-xl p-3 text-[14px] leading-snug text-slate-800 ${TILE[i % 3]}`}>
                   <Lightbulb size={14} className="mb-1.5 opacity-60" />
                   {x}
                 </div>
@@ -162,7 +162,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 p-5">
-            <span className="mr-1 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">ATS keywords</span>
+            <span className="mr-1 text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">ATS keywords</span>
             {a.ats_keywords.map((k) =>
               a.keywords_missing && missingKw.has(k) ? (
                 <span key={k} title="Not on your resume yet — add it where it's true" className="chip border border-dashed border-mid/50 bg-mid-soft/50 px-3 text-mid">
@@ -175,7 +175,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
               ),
             )}
             {a.keywords_missing && a.keywords_missing.length > 0 && (
-              <span className="text-[0.82rem] text-muted">· {a.keywords_missing.length} missing from your resume</span>
+              <span className="text-[12px] text-muted">· {a.keywords_missing.length} missing from your resume</span>
             )}
           </div>
         </Panel>
@@ -202,10 +202,10 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                   aria-expanded={isOpen}
                   className={`flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-line-2/60 ${isOpen ? "bg-line-2/40" : ""}`}
                 >
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-semibold text-muted">{i + 1}</span>
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[12px] font-semibold text-muted">{i + 1}</span>
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold leading-snug">{s.skill}</div>
-                    <div className="text-[0.84rem] text-muted">{s.why}</div>
+                    <div className="text-[14px] text-muted">{s.why}</div>
                   </div>
                   <span className={`chip shrink-0 ${m.cls}`}><m.icon size={12} /> {m.label}</span>
                   <ChevronDown size={16} className={`shrink-0 text-faint transition-transform ${isOpen ? "rotate-180" : ""}`} />
@@ -214,7 +214,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                   <div className="grid gap-3 bg-line-2/40 px-5 pb-4 pl-14 fade-up md:grid-cols-2">
                     {s.evidence === undefined ? (
                       <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-3.5 md:col-span-2">
-                        <p className="flex-1 text-[0.9rem] text-slate-700">This job was analysed before these details existed. Refresh to see where this shows on your resume, what&apos;s missing and how to fix it.</p>
+                        <p className="flex-1 text-[14px] text-slate-700">This job was analysed before these details existed. Refresh to see where this shows on your resume, what&apos;s missing and how to fix it.</p>
                         <button className="btn btn-primary btn-sm" onClick={refresh}><RotateCcw size={13} /> Refresh analysis</button>
                       </div>
                     ) : (
@@ -222,16 +222,16 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <div className="rounded-xl border border-line bg-white p-3.5">
                           <SubLabel>On your resume</SubLabel>
                           {s.evidence ? (
-                            <p className="flex gap-2 text-[0.92rem] leading-relaxed text-slate-800">
+                            <p className="flex gap-2 text-[14px] leading-[1.43] text-slate-800">
                               <MessageSquareQuote size={15} className="mt-0.5 shrink-0 text-brand-2" />
                               <span>&ldquo;{s.evidence}&rdquo;</span>
                             </p>
                           ) : (
-                            <p className="text-[0.92rem] text-muted">Nothing on your resume shows this yet.</p>
+                            <p className="text-[14px] text-muted">Nothing on your resume shows this yet.</p>
                           )}
                         </div>
                         {s.match === "strong" ? (
-                          <div className="rounded-xl border border-good/20 bg-good-soft/60 p-3.5 text-[0.92rem] text-slate-800">
+                          <div className="rounded-xl border border-good/20 bg-good-soft/60 p-3.5 text-[14px] text-slate-800">
                             <SubLabel>Verdict</SubLabel>
                             Clearly proven — keep it near the top of your resume for this job.
                           </div>
@@ -240,13 +240,13 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                             {s.gap_note && (
                               <>
                                 <SubLabel>What&apos;s missing</SubLabel>
-                                <p className="text-[0.92rem] leading-relaxed text-slate-800">{s.gap_note}</p>
+                                <p className="text-[14px] leading-[1.43] text-slate-800">{s.gap_note}</p>
                               </>
                             )}
                             {s.how_to_show && (
                               <>
                                 <div className="mt-3"><SubLabel>How to show it</SubLabel></div>
-                                <p className="text-[0.92rem] leading-relaxed text-slate-800">{s.how_to_show}</p>
+                                <p className="text-[14px] leading-[1.43] text-slate-800">{s.how_to_show}</p>
                               </>
                             )}
                             <button className="btn btn-ghost btn-sm mt-3" onClick={() => onGo("resume")}><FileText size={13} /> Fix in resume</button>
@@ -273,7 +273,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0 flex-1">
                     <div className="font-semibold">{g.gap}</div>
-                    <p className="mt-0.5 text-[0.9rem] text-muted">{g.explanation}</p>
+                    <p className="mt-0.5 text-[14px] text-muted">{g.explanation}</p>
                   </div>
                   {qi >= 0 ? (
                     <button className={`chip transition hover:brightness-95 ${m.cls}`} title={ans ? "Edit your answer" : "Answer the question"} onClick={() => onAsk(qi)}>
@@ -286,7 +286,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 {g.how_to_close && (
                   <div className="mt-3 rounded-xl bg-line-2/60 p-3.5">
                     <SubLabel>How to close it</SubLabel>
-                    <p className="text-[0.92rem] leading-relaxed text-slate-800">{g.how_to_close}</p>
+                    <p className="text-[14px] leading-[1.43] text-slate-800">{g.how_to_close}</p>
                   </div>
                 )}
                 {(qi >= 0 || g.status === "not_shown") && (
@@ -295,13 +295,13 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                       ans ? (
                         <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-good/25 bg-good-soft/50 px-3.5 py-2.5">
                           <CheckCircle2 size={15} className="shrink-0 text-good" />
-                          <span className="line-clamp-1 flex-1 text-[0.9rem] text-slate-700">{ans}</span>
+                          <span className="line-clamp-1 flex-1 text-[14px] text-slate-700">{ans}</span>
                           <button className="btn btn-ghost btn-sm shrink-0" onClick={() => onAsk(qi)}><Pencil size={12} /> Edit answer</button>
                         </div>
                       ) : (
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 rounded-xl border border-info/25 bg-info-soft/50 px-3.5 py-2.5">
                           <CircleHelp size={15} className="shrink-0 text-info" />
-                          <span className="min-w-0 flex-1 text-[0.9rem] font-medium text-slate-800">{gq}</span>
+                          <span className="min-w-0 flex-1 text-[14px] font-medium text-slate-800">{gq}</span>
                           <button className="btn btn-primary btn-sm" onClick={() => onAsk(qi)}>Answer</button>
                         </div>
                       )
@@ -338,7 +338,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="font-medium leading-snug text-slate-800">{q}</div>
-                      <div className={`mt-0.5 line-clamp-1 text-[0.86rem] ${ans ? "text-muted" : "text-faint"}`}>{ans || "Not answered yet"}</div>
+                      <div className={`mt-0.5 line-clamp-1 text-[14px] ${ans ? "text-muted" : "text-faint"}`}>{ans || "Not answered yet"}</div>
                     </div>
                     <span className={`shrink-0 ${ans ? "btn btn-ghost btn-sm" : "btn btn-primary btn-sm"}`}>{ans ? <><Pencil size={12} /> Edit</> : <>Answer <ArrowRight size={13} /></>}</span>
                   </button>
@@ -357,7 +357,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                   <button className={`btn ${answered === questions.length ? "btn-primary" : "btn-ghost"}`} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
                     {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score with my answers
                   </button>
-                  <span className="text-[0.84rem] text-muted">
+                  <span className="text-[14px] text-muted">
                     {!answered ? "Answer at least one to re-score." : changedSinceScore ? "Your score doesn't include your latest answers yet." : "Score is up to date with your answers."}
                   </span>
                 </div>
@@ -470,19 +470,19 @@ function AnswerFlowInner({
       </div>
 
       {gap && (
-        <div className="mb-3 flex flex-wrap items-center gap-2 text-[0.84rem] text-muted">
+        <div className="mb-3 flex flex-wrap items-center gap-2 text-[14px] text-muted">
           <span className="chip bg-info-soft text-info"><CircleHelp size={12} /> About: {gap.gap}</span>
           <span className="line-clamp-1">{gap.explanation}</span>
         </div>
       )}
-      <h3 className="text-[1.2rem] font-bold leading-snug tracking-tight text-ink">{q}</h3>
-      <p className="mt-1 text-[0.88rem] text-muted">Be specific: what you did, how many, and what changed. Only what&apos;s true — it goes into your resume and outreach.</p>
+      <h3 className="text-[20px] font-semibold leading-snug text-ink">{q}</h3>
+      <p className="mt-1 text-[14px] text-muted">Be specific: what you did, how many, and what changed. Only what&apos;s true — it goes into your resume and outreach.</p>
 
       <div className="relative mt-4">
         <textarea
           key={q}
           autoFocus
-          className="field min-h-[200px] pb-12 text-[1rem] leading-relaxed [field-sizing:content]"
+          className="field min-h-[200px] pb-12 text-[16px] leading-[1.43] [field-sizing:content]"
           placeholder="e.g. Yes — I set up how we chose new partners, onboarded about 40 in three months and trained them on our quality checklist. Complaints dropped from 12% to 5%."
           value={draft[q] ?? ""}
           onChange={(e) => setDraft({ ...draft, [q]: e.target.value })}
@@ -499,14 +499,14 @@ function AnswerFlowInner({
               {v.listening ? <><Square size={12} fill="currentColor" /> Stop</> : <><Mic size={13} /> Speak your answer</>}
             </button>
           ) : <span />}
-          <span className="text-[0.78rem] tabular-nums text-faint">{(draft[q] ?? "").trim().split(/\s+/).filter(Boolean).length} words</span>
+          <span className="text-[12px] tabular-nums text-faint">{(draft[q] ?? "").trim().split(/\s+/).filter(Boolean).length} words</span>
         </div>
       </div>
-      {v.listening && v.transcript && <p className="mt-2 text-[0.88rem] italic text-muted">{v.transcript}</p>}
+      {v.listening && v.transcript && <p className="mt-2 text-[14px] italic text-muted">{v.transcript}</p>}
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-line pt-4">
         <button className="btn btn-ghost" disabled={i === 0 || saving} onClick={() => go(i - 1)}><ArrowLeft size={15} /> Back</button>
-        <span className="mr-auto pl-1 text-[0.84rem] text-muted">{saving ? "Saving…" : `${done} of ${questions.length} answered · saved as you go`}</span>
+        <span className="mr-auto pl-1 text-[14px] text-muted">{saving ? "Saving…" : `${done} of ${questions.length} answered · saved as you go`}</span>
         {!last ? (
           <button className="btn btn-primary" disabled={saving} onClick={() => go(i + 1)}>
             {draft[q]?.trim() ? "Next" : "Skip"} <ArrowRight size={15} />

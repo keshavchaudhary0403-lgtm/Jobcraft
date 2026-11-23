@@ -21,7 +21,7 @@ export function Logo({ size = 28, light = false }: { size?: number; light?: bool
   return (
     <span className="inline-flex items-center gap-2.5">
       <LogoMark size={size} inverse={light} />
-      <span className={`text-[1.15rem] font-semibold tracking-tight ${light ? "text-white" : "text-ink"}`}>Jobcraft</span>
+      <span className={`text-[16px] font-semibold ${light ? "text-white" : "text-ink"}`}>Jobcraft</span>
     </span>
   );
 }

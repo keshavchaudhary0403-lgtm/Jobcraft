@@ -29,19 +29,19 @@ export function kindOf(line: string, nonBlankIdx: number): Kind {
 }
 
 export const KIND_CLS: Record<Kind, string> = {
-  name: "text-[1.15em] font-semibold tracking-tight text-ink",
-  heading: "mb-1 mt-5 border-b border-line pb-1 text-[0.72rem] font-semibold uppercase tracking-[0.12em] text-brand",
-  contact: "text-[0.85rem] text-muted",
+  name: "text-[1.15em] font-semibold text-ink",
+  heading: "mb-1 mt-5 border-b border-line pb-1 text-[12px] font-semibold uppercase tracking-[0.12em] text-brand",
+  contact: "text-[14px] text-muted",
   role: "mt-3 font-semibold text-ink",
   company: "mt-3 font-medium text-ink",
   text: "my-1",
 };
 
 const MD_CLS: Record<Exclude<Md, null> | "text", string> = {
-  h1: "mb-0.5 text-[1.6rem] font-bold tracking-tight text-ink",
-  h2: "mb-2 mt-5 border-b border-line pb-1 text-[0.74rem] font-bold uppercase tracking-[0.14em] text-brand",
+  h1: "mb-0.5 text-[24px] font-semibold text-ink",
+  h2: "mb-2 mt-5 border-b border-line pb-1 text-[12px] font-semibold uppercase tracking-[0.14em] text-brand",
   h3: "mt-2.5 font-semibold text-ink",
-  em: "text-[0.86rem] text-muted",
+  em: "text-[14px] text-muted",
   text: "my-0.5",
 };
 
@@ -198,12 +198,12 @@ export function DocEditor({ value, onChange, mode = "plain", className = "", too
             disabled={!current}
             onMouseDown={(e) => e.preventDefault()}
             onClick={() => setFormat(f)}
-            className={`flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[0.82rem] font-medium transition disabled:opacity-40 ${curFormat === f ? "bg-brand-soft text-brand-ink" : "text-muted hover:bg-line-2 hover:text-ink"}`}
+            className={`flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[12px] font-medium transition disabled:opacity-40 ${curFormat === f ? "bg-brand-soft text-brand-ink" : "text-muted hover:bg-line-2 hover:text-ink"}`}
           >
             <Icon size={13} /> {l}
           </button>
         ))}
-        <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · type “- ” for a bullet</span>
+        <span className="ml-auto hidden pr-1 text-[12px] text-faint md:block">Enter = new line · type “- ” for a bullet</span>
       </div>
 
       <div>
