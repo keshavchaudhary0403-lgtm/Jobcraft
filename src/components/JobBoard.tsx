@@ -17,7 +17,7 @@ const COLUMNS: { key: string; label: string; statuses: Status[]; hint: string }[
   { key: "closed", label: "Closed", statuses: ["rejected", "withdrawn"], hint: "Rejected or withdrawn" },
 ];
 
-/** Kanban view of the pipeline — drag a job to change its stage. */
+/** Kanban view of the pipeline - drag a job to change its stage. */
 export function JobBoard({ apps }: { apps: Application[] }) {
   const router = useRouter();
   const [items, setItems] = useState(apps);

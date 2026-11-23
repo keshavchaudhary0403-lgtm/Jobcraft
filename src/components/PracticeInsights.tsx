@@ -68,7 +68,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
         <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-good"><ThumbsUp size={13} /> Strongest moments</div>
         <ul className="space-y-2">
           {r.strongest.map((x, i) => (
-            <li key={i} className="text-[0.88rem] leading-snug"><b className="font-semibold">{x.moment}</b> <span className="text-muted">— {x.why}</span></li>
+            <li key={i} className="text-[0.88rem] leading-snug"><b className="font-semibold">{x.moment}</b> <span className="text-muted">- {x.why}</span></li>
           ))}
         </ul>
       </div>
@@ -123,7 +123,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
   }, []);
 
   if (busy && !o)
-    return <div className="card flex items-center gap-3 p-5 text-muted"><Spinner /> Checking your offer against the market…</div>;
+    return <div className="card flex items-center gap-3 p-5 text-muted"><Spinner /> Checking your offer against the market...</div>;
   if (!o)
     return (
       <div className="card space-y-3 p-5">
@@ -150,7 +150,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
       </div>
       <div className="mx-5 rounded-2xl bg-side px-4 py-3.5 text-cream">
         <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Realistic counter</div>
-        <div className="font-display text-[1.6rem] font-bold leading-tight">{o.counter_low} – {o.counter_high}</div>
+        <div className="font-display text-[1.6rem] font-bold leading-tight">{o.counter_low} - {o.counter_high}</div>
       </div>
       <div className="px-5 py-4">
         <SubLabel>Say this first</SubLabel>
@@ -167,7 +167,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
             </details>
           ))}
         </div>
-        <p className="mt-3 text-[0.76rem] text-faint">Check the market number yourself on AmbitionBox or Glassdoor — this is a starting point.</p>
+        <p className="mt-3 text-[0.76rem] text-faint">Check the market number yourself on AmbitionBox or Glassdoor - this is a starting point.</p>
       </div>
     </div>
   );

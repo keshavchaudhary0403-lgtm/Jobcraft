@@ -36,7 +36,7 @@ export function speakable(md: string) {
 
 /**
  * Browser speech-to-text + text-to-speech. Works in Chrome, Edge and Safari.
- * Free — no extra API needed.
+ * Free - no extra API needed.
  */
 export function useVoice() {
   const [supported, setSupported] = useState({ listen: false, speak: false });

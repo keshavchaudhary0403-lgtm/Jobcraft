@@ -3,7 +3,7 @@
 import { Trash2 } from "lucide-react";
 import { useAsk } from "./client-ui";
 
-/** Deletes a practice session — only after an app-styled confirmation. */
+/** Deletes a practice session - only after an app-styled confirmation. */
 export function DeleteSessionButton({ action }: { action: () => Promise<void> }) {
   const [ask, dialog] = useAsk();
   return (

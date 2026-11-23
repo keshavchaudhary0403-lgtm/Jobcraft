@@ -1,4 +1,4 @@
-// No imports — runs instantly in the browser, no AI cost.
+// No imports - runs instantly in the browser, no AI cost.
 
 /**
  * Resume health, following the PDF's Prompt 3 rules:
@@ -19,12 +19,12 @@ const NUMBER = /(\d|₹|\$|%|\b(one|two|three|four|five|six|seven|eight|nine|ten
 const PASSIVE = /\b(was|were|been|being)\s+\w+(ed|en)\b/i;
 
 const TIPS: Record<BulletCheck["key"], string> = {
-  number: "Add a real number — how many, how much, how fast, or by what %.",
-  verb: "Start with a strong action verb (Led, Built, Cut, Grew…).",
-  length: "Keep it to one or two lines — about 10 to 35 words.",
+  number: "Add a real number - how many, how much, how fast, or by what %.",
+  verb: "Start with a strong action verb (Led, Built, Cut, Grew...).",
+  length: "Keep it to one or two lines - about 10 to 35 words.",
   active: "Say what you did, not what was done ('Cut costs', not 'Costs were cut').",
   filler: "Remove filler words like 'various', 'successfully', 'responsible for'.",
-  buzzword: "Drop buzzwords — show it with a result instead.",
+  buzzword: "Drop buzzwords - show it with a result instead.",
 };
 
 export function checkBullet(text: string, line: number): BulletReport {
@@ -47,7 +47,7 @@ export function checkBullet(text: string, line: number): BulletReport {
 export function resumeHealth(resume: string): HealthReport {
   const lines = resume.split("\n");
   const bullets: BulletReport[] = [];
-  // Only achievement bullets count — skip Skills / Education / Certifications lists and "Label: a, b, c" lines.
+  // Only achievement bullets count - skip Skills / Education / Certifications lists and "Label: a, b, c" lines.
   let section = "";
   lines.forEach((raw, i) => {
     const line = raw.trim();
@@ -66,10 +66,10 @@ export function resumeHealth(resume: string): HealthReport {
   const doc: DocCheck[] = [
     { label: "Email and phone at the top", ok: has(/[\w.+-]+@[\w-]+\.\w+/) && has(/(\+?\d[\d\s-]{8,})/), tip: "Put your email and phone in the first lines so recruiters (and ATS) can find them." },
     { label: "Clear sections", ok: /experience/.test(text) && /education/.test(text) && /skill/.test(text), tip: "Use plain headings: Summary, Experience, Education, Skills." },
-    { label: "Short summary at the top", ok: /summary|profile|objective/.test(text), tip: "Add a 2–3 line summary that says who you are and your best result." },
-    { label: "Right length (1–2 pages)", ok: words >= 250 && words <= 900, tip: words < 250 ? "Too short — add your key results for each role." : "Too long — cut older or less relevant bullets." },
-    { label: "Plain text, no tables or columns", ok: !/\t|│|┃|║/.test(resume), tip: "Avoid tables and multi-column layouts — ATS reads them out of order." },
-    { label: "Bullets for each role", ok: bullets.length >= 4, tip: "Write your experience as bullets — one achievement per line." },
+    { label: "Short summary at the top", ok: /summary|profile|objective/.test(text), tip: "Add a 2-3 line summary that says who you are and your best result." },
+    { label: "Right length (1-2 pages)", ok: words >= 250 && words <= 900, tip: words < 250 ? "Too short - add your key results for each role." : "Too long - cut older or less relevant bullets." },
+    { label: "Plain text, no tables or columns", ok: !/\t|│|┃|║/.test(resume), tip: "Avoid tables and multi-column layouts - ATS reads them out of order." },
+    { label: "Bullets for each role", ok: bullets.length >= 4, tip: "Write your experience as bullets - one achievement per line." },
   ];
   const bulletAvg = bullets.length ? bullets.reduce((s, b) => s + b.score, 0) / bullets.length : 0;
   const docScore = doc.filter((d) => d.ok).length / doc.length;

@@ -3,7 +3,7 @@
  *
  * Each prompt is filled automatically from the user's saved Profile and the
  * Application (job). The resume + job description travel in the system prompt
- * as a "candidate file", so every prompt works even if the user jumps steps —
+ * as a "candidate file", so every prompt works even if the user jumps steps -
  * the same effect as "keep one chat open" in the original workflow.
  */
 import type { Application, Profile } from "./types";
@@ -45,7 +45,7 @@ export const STEP_META: Record<StepKey, { n: number; title: string; short: strin
     n: 3,
     title: "The Resume Tailor",
     short: "Tailor resume",
-    when: "Rewrite your resume for this job — honestly. It will ask for numbers instead of inventing them.",
+    when: "Rewrite your resume for this job - honestly. It will ask for numbers instead of inventing them.",
   },
   linkedin: {
     n: 4,
@@ -57,7 +57,7 @@ export const STEP_META: Record<StepKey, { n: number; title: string; short: strin
     n: 5,
     title: "The Value-Led Outreach",
     short: "Outreach",
-    when: "After you've found the hiring person — your connection note and message.",
+    when: "After you've found the hiring person - your connection note and message.",
   },
   mock_interview: {
     n: 6,
@@ -177,7 +177,7 @@ Important: I will verify the market number myself. Treat your own salary knowled
   }
 }
 
-/** The "candidate file" — stable context sent as the system prompt for every session. */
+/** The "candidate file" - stable context sent as the system prompt for every session. */
 export function buildSystemPrompt(opts: {
   profile: Profile;
   app?: Application | null;
@@ -227,9 +227,9 @@ export function buildSystemPrompt(opts: {
     if (an?.real_problem) {
       lines.push(
         "",
-        "--- RECRUITER NOTES (from the screening — use them; in an interview, probe the gaps with real follow-ups) ---",
+        "--- RECRUITER NOTES (from the screening - use them; in an interview, probe the gaps with real follow-ups) ---",
         `Real problem this hire solves: ${an.real_problem}`,
-        ...(an.gaps ?? []).map((g) => `Gap (${g.status.replace("_", " ")}): ${g.gap} — ${g.explanation}`),
+        ...(an.gaps ?? []).map((g) => `Gap (${g.status.replace("_", " ")}): ${g.gap} - ${g.explanation}`),
       );
     }
     const answers = Object.entries(app.fit_answers ?? {}).filter(([, v]) => v?.trim());

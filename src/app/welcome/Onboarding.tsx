@@ -90,7 +90,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
               </aside>
             </div>
           ) : (
-            <ProfileReview userId={userId} initial={draft} cta="Looks good — continue" onSaved={() => router.push("/jobs/new")} />
+            <ProfileReview userId={userId} initial={draft} cta="Looks good - continue" onSaved={() => router.push("/jobs/new")} />
           )}
         </div>
       </main>

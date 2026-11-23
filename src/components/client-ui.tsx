@@ -55,7 +55,7 @@ export function CharCount({ text, max, unit = "chars" }: { text: string; max: nu
 }
 
 /**
- * Custom dropdown — replaces native <select>.
+ * Custom dropdown - replaces native <select>.
  * The list is rendered in a portal with fixed positioning, so cards/tables never clip it;
  * it opens upwards when there isn't room below.
  */
@@ -72,7 +72,7 @@ export function Menu<T extends string>({
   onChange: (v: T) => void;
   render: (current: { value: T; label: string }) => React.ReactNode;
   align?: "left" | "right";
-  /** Trigger is just the rendered content (e.g. a coloured chip) — no button chrome. */
+  /** Trigger is just the rendered content (e.g. a coloured chip) - no button chrome. */
   bare?: boolean;
 }) {
   const [open, setOpen] = useState(false);

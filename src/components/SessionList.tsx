@@ -7,7 +7,7 @@ const POS = { below: { t: "Below market", c: "bg-clay-soft text-clay" }, at: { t
 
 /** Past practice sessions, each with its result (interview score or offer position) at a glance. */
 export function SessionList({ sessions, base, empty }: { sessions: Session[]; base: string; empty?: string }) {
-  if (!sessions.length) return <p className="px-1 py-6 text-center text-[0.9rem] text-muted">{empty ?? "Nothing yet — your sessions show up here."}</p>;
+  if (!sessions.length) return <p className="px-1 py-6 text-center text-[0.9rem] text-muted">{empty ?? "Nothing yet - your sessions show up here."}</p>;
   return (
     <ul className="space-y-1.5">
       {sessions.map((s) => {
@@ -20,7 +20,7 @@ export function SessionList({ sessions, base, empty }: { sessions: Session[]; ba
               {typeof score === "number" ? (
                 <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-[1rem] font-bold ${score >= 8 ? "bg-good-soft text-good" : score >= 6 ? "bg-mustard-soft text-[#8a6414]" : "bg-clay-soft text-clay"}`}>{score}</span>
               ) : (
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-line text-[0.78rem] text-faint">—</span>
+                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border-[1.5px] border-dashed border-line text-[0.78rem] text-faint">-</span>
               )}
               <span className="min-w-0 flex-1">
                 <span className="line-clamp-1 text-[0.92rem] font-semibold">{s.title}</span>

@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { currentUser } from "@/lib/current-user";
 import { overLimit } from "@/lib/rate-limit";
 
-/** Sites that block automated reading — the user pastes the description instead. */
+/** Sites that block automated reading - the user pastes the description instead. */
 const BLOCKED = /(^|\.)(linkedin\.com|naukri\.com|indeed\.(com|co\.in)|glassdoor\.(com|co\.in))$/i;
 
 function privateIp(ip: string) {
@@ -17,7 +17,7 @@ function privateIp(ip: string) {
   return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
 }
 
-/** Only public http(s) hosts — never internal addresses (SSRF protection). */
+/** Only public http(s) hosts - never internal addresses (SSRF protection). */
 async function safeUrl(raw: string): Promise<URL | string> {
   let u: URL;
   try {
@@ -27,7 +27,7 @@ async function safeUrl(raw: string): Promise<URL | string> {
   }
   if (!["http:", "https:"].includes(u.protocol) || u.username || u.password) return "Only normal web links work.";
   if (u.port && !["80", "443"].includes(u.port)) return "Only normal web links work.";
-  if (BLOCKED.test(u.hostname)) return `${u.hostname.replace(/^www\./, "")} doesn't let apps read its job pages — copy the description and paste it below.`;
+  if (BLOCKED.test(u.hostname)) return `${u.hostname.replace(/^www\./, "")} doesn't let apps read its job pages - copy the description and paste it below.`;
   if (/^(localhost|.*\.local|.*\.internal)$/i.test(u.hostname)) return "That link isn't reachable.";
   try {
     const addrs = await lookup(u.hostname, { all: true });
@@ -80,7 +80,7 @@ export async function POST(req: Request) {
   const supabase = await createClient();
   const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Please log in again." }, { status: 401 });
-  if (await overLimit(`jobfetch:${user.id}`, 20, 600)) return Response.json({ error: "Too many links in a short time — wait a few minutes." }, { status: 429 });
+  if (await overLimit(`jobfetch:${user.id}`, 20, 600)) return Response.json({ error: "Too many links in a short time - wait a few minutes." }, { status: 429 });
   const { url } = (await req.json()) as { url?: string };
   if (!url?.trim()) return Response.json({ error: "Paste a link first." }, { status: 400 });
 

@@ -33,8 +33,8 @@ const MATCH = {
   missing: { icon: XCircle, cls: "bg-clay-soft text-clay", label: "Missing" },
 };
 const GAP = {
-  lacking: { label: "Missing", cls: "bg-clay-soft text-clay", icon: XCircle, hint: "You don't have this yet — handle it honestly." },
-  not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-[#8a6414]", icon: EyeOff, hint: "You likely have it — your resume doesn't show it." },
+  lacking: { label: "Missing", cls: "bg-clay-soft text-clay", icon: XCircle, hint: "You don't have this yet - handle it honestly." },
+  not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-[#8a6414]", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
   unsure: { label: "Needs your answer", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
 };
 const TILE = ["bg-ocean-soft text-[#2a525a]", "bg-mustard-soft text-[#6e4f0f]", "bg-plum-soft text-[#7a3f22]"];
@@ -69,7 +69,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
       onUpdate({
         analysis: res,
         company: app.company && app.company !== "New job" ? app.company : res.company,
-        role: app.role && app.role !== "Analysing…" ? app.role : res.role,
+        role: app.role && app.role !== "Analysing..." ? app.role : res.role,
         location: app.location ?? res.location,
         company_type: app.company_type ?? res.company_type,
       });
@@ -89,7 +89,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
     onUpdate({ fit_answers: next });
   }
 
-  if (busy && !a) return <Working steps={["Reading the job description…", "Finding what they really want…", "Comparing it with your resume…", "Scoring your fit…"]} />;
+  if (busy && !a) return <Working steps={["Reading the job description...", "Finding what they really want...", "Comparing it with your resume...", "Scoring your fit..."]} />;
   if (error && !a)
     return (
       <div className="card flex flex-col items-center p-10 text-center">
@@ -131,7 +131,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
       {dialog}
       {busy && (
         <div className="flex items-center gap-2.5 rounded-2xl bg-clay-soft px-4 py-3 text-[0.92rem] font-medium text-clay fade-up">
-          <Spinner size={15} /> Re-scoring with your latest answers…
+          <Spinner size={15} /> Re-scoring with your latest answers...
         </div>
       )}
 
@@ -176,7 +176,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
               <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">ATS keywords</span>
               <div className="mt-2 flex items-center gap-4">
                 <Ring value={kwTotal ? kwHave / kwTotal : 0} label={`${kwHave}/${kwTotal}`} />
-                <p className="text-[0.86rem] leading-snug text-muted">{a.keywords_missing ? (kwTotal - kwHave ? `${kwTotal - kwHave} missing — add them where true.` : "All on your resume.") : "Words the screening software looks for."}</p>
+                <p className="text-[0.86rem] leading-snug text-muted">{a.keywords_missing ? (kwTotal - kwHave ? `${kwTotal - kwHave} missing - add them where true.` : "All on your resume.") : "Words the screening software looks for."}</p>
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {a.ats_keywords.map((k) => {
@@ -468,14 +468,14 @@ function AnswerFlowInner({
         </div>
       )}
       <h3 className="text-[1.2rem] font-bold leading-snug tracking-tight text-ink">{q}</h3>
-      <p className="mt-1 text-[0.88rem] text-muted">Be specific: what you did, how many, and what changed. Only what&apos;s true — it goes into your resume and outreach.</p>
+      <p className="mt-1 text-[0.88rem] text-muted">Be specific: what you did, how many, and what changed. Only what&apos;s true - it goes into your resume and outreach.</p>
 
       <div className="relative mt-4">
         <textarea
           key={q}
           autoFocus
           className="field min-h-[200px] pb-12 text-[1rem] leading-relaxed [field-sizing:content]"
-          placeholder="e.g. Yes — I set up how we chose new partners, onboarded about 40 in three months and trained them on our quality checklist. Complaints dropped from 12% to 5%."
+          placeholder="e.g. Yes - I set up how we chose new partners, onboarded about 40 in three months and trained them on our quality checklist. Complaints dropped from 12% to 5%."
           value={draft[q] ?? ""}
           onChange={(e) => setDraft({ ...draft, [q]: e.target.value })}
           onKeyDown={(e) => {
@@ -498,7 +498,7 @@ function AnswerFlowInner({
 
       <div className="mt-6 flex flex-wrap items-center gap-2 border-t border-line pt-4">
         <button className="btn btn-ghost" disabled={i === 0 || saving} onClick={() => go(i - 1)}><ArrowLeft size={15} /> Back</button>
-        <span className="mr-auto pl-1 text-[0.84rem] text-muted">{saving ? "Saving…" : `${done} of ${questions.length} answered · saved as you go`}</span>
+        <span className="mr-auto pl-1 text-[0.84rem] text-muted">{saving ? "Saving..." : `${done} of ${questions.length} answered · saved as you go`}</span>
         {!last ? (
           <button className="btn btn-primary" disabled={saving} onClick={() => go(i + 1)}>
             {draft[q]?.trim() ? "Next" : "Skip"} <ArrowRight size={15} />

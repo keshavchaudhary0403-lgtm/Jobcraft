@@ -8,7 +8,7 @@ const display = Bricolage_Grotesque({ variable: "--font-bricolage", subsets: ["l
 
 export const metadata: Metadata = {
   title: { default: "Jobcraft", template: "%s · Jobcraft" },
-  description: "Your AI job search copilot — tailored resumes, outreach, interview and salary practice.",
+  description: "Your AI job search copilot - tailored resumes, outreach, interview and salary practice.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

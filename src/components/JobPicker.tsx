@@ -22,7 +22,7 @@ export function JobPicker({
   otherLabel?: string;
   otherFields: React.ReactNode;
   onPick?: (id: string) => void;
-  /** Slim vertical list instead of tiles — for narrow columns. */
+  /** Slim vertical list instead of tiles - for narrow columns. */
   compact?: boolean;
 }) {
   const initial = apps.find((a) => a.id === preselect)?.id ?? apps[0]?.id ?? "";

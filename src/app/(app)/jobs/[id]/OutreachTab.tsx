@@ -78,7 +78,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
       {/* Right: the messages */}
       <div className="min-w-0">
         {busy && !o ? (
-          <Working steps={["Finding a real challenge they face…", "Matching it to your strongest result…", "Keeping it short and human…"]} />
+          <Working steps={["Finding a real challenge they face...", "Matching it to your strongest result...", "Keeping it short and human..."]} />
         ) : o ? (
           <div className={`grid items-stretch gap-5 md:grid-cols-2 stagger transition ${busy ? "opacity-50" : ""}`}>
             {meters.map((m) => {
@@ -93,7 +93,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
                   <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-line-2"><div className={`h-full rounded-full ${over ? "bg-bad" : "bg-good"}`} style={{ width: `${Math.min(100, (m.used / m.max) * 100)}%` }} /></div>
                   <p className="mt-4 flex-1 whitespace-pre-wrap rounded-2xl bg-line-2/60 p-4 leading-relaxed">{m.text}</p>
                   <div className="mt-4 flex items-center justify-between">
-                    <span className={`text-[0.8rem] font-medium ${over ? "text-bad" : "text-good"}`}>{over ? "Over the limit — trim it" : "Within LinkedIn’s limit"}</span>
+                    <span className={`text-[0.8rem] font-medium ${over ? "text-bad" : "text-good"}`}>{over ? "Over the limit - trim it" : "Within LinkedIn's limit"}</span>
                     <CopyButton text={m.text} />
                   </div>
                 </section>
@@ -118,7 +118,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
                   {x.lines.map((w, i) => <span key={i} className="block h-2.5 rounded-full bg-line-2" style={{ width: `${w}%` }} />)}
                 </div>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-line-2"><div className="h-full rounded-full bg-line" style={{ width: `${x.bar}%` }} /></div>
-                <p className="mt-2 text-[0.8rem] text-muted">Written from your strongest result — appears here once you click <b className="text-ink">Write messages</b>.</p>
+                <p className="mt-2 text-[0.8rem] text-muted">Written from your strongest result - appears here once you click <b className="text-ink">Write messages</b>.</p>
               </div>
             ))}
           </div>

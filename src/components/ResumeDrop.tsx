@@ -32,12 +32,12 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
     send(fd);
   }
 
-  if (busy) return <Working steps={["Reading your resume…", "Picking out your experience and results…", "Filling in your profile…"]} />;
+  if (busy) return <Working steps={["Reading your resume...", "Picking out your experience and results...", "Filling in your profile..."]} />;
 
   if (paste)
     return (
       <div className="card p-4 fade-up">
-        <textarea className="field min-h-64 font-mono text-xs" placeholder="Paste your resume text…" value={text} onChange={(e) => setText(e.target.value)} />
+        <textarea className="field min-h-64 font-mono text-xs" placeholder="Paste your resume text..." value={text} onChange={(e) => setText(e.target.value)} />
         <div className="mt-3 flex items-center justify-between">
           <button className="btn-quiet rounded-lg text-sm" onClick={() => setPaste(false)}>Upload a PDF instead</button>
           <button

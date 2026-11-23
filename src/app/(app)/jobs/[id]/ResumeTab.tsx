@@ -51,7 +51,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     setTimeout(() => w.print(), 200);
   }
 
-  if (busy && !md) return <Working steps={["Reading what this role values…", "Reordering your experience…", "Rewriting bullets with real results…", "Checking it stays one page and ATS-safe…"]} />;
+  if (busy && !md) return <Working steps={["Reading what this role values...", "Reordering your experience...", "Rewriting bullets with real results...", "Checking it stays one page and ATS-safe..."]} />;
 
   if (!md)
     return (
@@ -59,7 +59,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         <div>
           <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-clay">Step 3 · Resume</span>
           <h3 className="mt-2 text-[2rem] font-bold leading-tight">A resume made for this job<span className="text-clay">.</span></h3>
-          <p className="mt-2 max-w-md text-muted">Reordered and reworded around what they want — using only what&apos;s true, one page, ATS-safe.</p>
+          <p className="mt-2 max-w-md text-muted">Reordered and reworded around what they want - using only what&apos;s true, one page, ATS-safe.</p>
           <button className="btn btn-clay mt-6 h-11" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
           {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
         </div>

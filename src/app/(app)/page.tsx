@@ -115,7 +115,7 @@ export default async function Home() {
             </Link>
             <Link href="/profile" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
               <div className="text-[0.8rem] text-white/55">AI left</div>
-              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "—"}</div>
+              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "-"}</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${limit ? Math.max(2, Math.min(100, 100 - (spent / limit) * 100)) : 0}%` }} /></div>
             </Link>
           </div>
@@ -147,7 +147,7 @@ export default async function Home() {
           <span className="grid h-14 w-14 place-items-center rounded-full bg-clay text-white"><Plus size={24} /></span>
           <span className="flex-1">
             <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
-            <span className="block text-muted">Paste the description — Jobcraft decodes it, scores your fit, tailors your resume and writes to the hiring manager.</span>
+            <span className="block text-muted">Paste the description - Jobcraft decodes it, scores your fit, tailors your resume and writes to the hiring manager.</span>
           </span>
         </Link>
       ) : (
@@ -190,8 +190,8 @@ export default async function Home() {
           <aside className="space-y-5 xl:pt-[2.35rem] fade-up">
             <section className="card p-5">
               <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Pipeline</div>
-              <div className="mt-1 flex items-center">
-                <div className="-my-5 -ml-3 -mr-9 shrink-0 scale-[.7]"><StatusDonut counts={counts} total={all.length} /></div>
+              <div className="mt-1 flex items-center gap-5">
+                <div className="-mt-3 shrink-0"><StatusDonut counts={counts} total={all.length} size={110} /></div>
                 <ul className="min-w-0 flex-1 space-y-1.5 text-[0.88rem]">
                   {STATUSES.filter((s) => counts[s]).map((s) => (
                     <li key={s}><Link href={`/jobs?status=${s}`} className="flex items-center gap-2 hover:text-brand"><span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} /><span className="flex-1 capitalize">{s}</span><b className="tabular-nums">{counts[s]}</b></Link></li>

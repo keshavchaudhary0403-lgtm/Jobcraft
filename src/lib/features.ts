@@ -1,4 +1,4 @@
-// No imports — safe in browser components.
+// No imports - safe in browser components.
 
 /** AI features the admin can switch off or limit per person. `def` = built-in default limit. */
 export const FEATURES = {

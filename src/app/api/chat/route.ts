@@ -6,7 +6,7 @@ import { buildSystemPrompt, extractResume } from "@/lib/prompts";
 import { DEMO, demoChat } from "@/lib/demo";
 import type { Application, Message, Profile, Session } from "@/lib/types";
 
-export const maxDuration = 300; // seconds — long resume rewrites can take a while
+export const maxDuration = 300; // seconds - long resume rewrites can take a while
 
 export async function POST(req: Request) {
   const supabase = await createClient();
@@ -50,7 +50,7 @@ export async function POST(req: Request) {
       id: "",
       company: session.meta.company ?? "",
       role: session.meta.role ?? "",
-      jd: session.meta.jd || "(No job description given — use the role and company type.)",
+      jd: session.meta.jd || "(No job description given - use the role and company type.)",
       company_type: session.meta.company_type ?? null,
     } as Application;
   }
@@ -119,7 +119,7 @@ export async function POST(req: Request) {
         const final = await stream.finalResponse();
         await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: final.usage });
         if (final.status === "incomplete") {
-          const note = "\n\n_(The answer was cut short. Say “continue” to get the rest.)_";
+          const note = "\n\n_(The answer was cut short. Say \"continue\" to get the rest.)_";
           full += note;
           controller.enqueue(encoder.encode(note));
         }

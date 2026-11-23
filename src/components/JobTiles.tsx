@@ -62,13 +62,13 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
 
 export const STATUS_HEX: Record<Status, string> = { saved: "#e2a92c", applied: "#3b6e78", interviewing: "#a65a32", offer: "#2f7a52", rejected: "#e0653f", withdrawn: "#a39e92" };
 
-export function StatusDonut({ counts, total }: { counts: Record<Status, number>; total: number }) {
-  const size = 170, stroke = 22, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+export function StatusDonut({ counts, total, size = 170 }: { counts: Record<Status, number>; total: number; size?: number }) {
+  const stroke = Math.round(size * 0.13), r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const present = STATUSES.filter((s) => counts[s]);
   const gap = present.length > 1 ? 4 : 0;
   const segs = present.map((s, i) => ({ s, len: (counts[s] / total) * c, start: present.slice(0, i).reduce((t, x) => t + (counts[x] / total) * c, 0) }));
   return (
-    <div className="relative mx-auto mt-3 grid place-items-center" style={{ width: size, height: size }}>
+    <div className="relative mx-auto mt-3 grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         {segs.map(({ s, len, start }) => (
@@ -76,7 +76,7 @@ export function StatusDonut({ counts, total }: { counts: Record<Status, number>;
         ))}
       </svg>
       <div className="absolute text-center">
-        <div className="font-display text-[2.4rem] font-bold leading-none tabular-nums">{total}</div>
+        <div className="font-display font-bold leading-none tabular-nums" style={{ fontSize: size * 0.2 }}>{total}</div>
         <div className="text-[0.76rem] text-muted">job{total === 1 ? "" : "s"}</div>
       </div>
     </div>
@@ -93,7 +93,7 @@ export function MiniDonut({ value }: { value: number | null }) {
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
       </svg>
-      <span className="absolute font-display text-[1.05rem] font-bold tabular-nums">{value ?? "—"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
+      <span className="absolute font-display text-[1.05rem] font-bold tabular-nums">{value ?? "-"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
     </div>
   );
 }

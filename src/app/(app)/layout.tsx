@@ -17,7 +17,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             {profile.is_demo && (
               <div className="mb-5 flex flex-wrap items-center gap-x-2 gap-y-1 rounded-2xl border border-mustard/40 bg-mustard-soft px-4 py-2.5 text-[0.88rem] text-[#6e4f0f]">
                 <span className="font-semibold">You&apos;re exploring the demo.</span>
-                <span>Sample data{profile.ai_mode === "demo" ? " and sample AI answers" : ""} — feel free to click around.</span>
+                <span>Sample data{profile.ai_mode === "demo" ? " and sample AI answers" : ""} - feel free to click around.</span>
               </div>
             )}
             {children}

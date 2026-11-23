@@ -91,9 +91,9 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
           <VoiceOrb state={state} />
           <div className="min-w-0 flex-1">
             <div className="font-display text-[1.35rem] font-bold leading-tight">
-              {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
+              {state === "listening" ? "Listening..." : state === "thinking" ? `${aiName} is thinking...` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
             </div>
-            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/65">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud — or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
+            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/65">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
           </div>
           <div className="flex items-center gap-2">
             {v.supported.speak && (
@@ -146,7 +146,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
           <textarea
             className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-faint"
             rows={1}
-            placeholder={placeholder ?? "Message…"}
+            placeholder={placeholder ?? "Message..."}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

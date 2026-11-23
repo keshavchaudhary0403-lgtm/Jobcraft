@@ -4,7 +4,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkLimits, logUsage, runStructured, type ModelId } from "@/lib/ai";
 import { buildTask, SCHEMAS, type DetectedJob } from "@/lib/tasks";
 
-// Reading a title and company name is simple — always use the cheapest model.
+// Reading a title and company name is simple - always use the cheapest model.
 const DETECT_MODEL: ModelId = "gpt-6-luna";
 
 /** Paste a JD → company / role / location suggestions for the user to confirm. */

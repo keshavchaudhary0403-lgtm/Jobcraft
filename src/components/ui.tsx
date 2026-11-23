@@ -73,7 +73,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   );
 }
 
-// Soft tinted monograms (like app icons) — never loud solid blocks.
+// Soft tinted monograms (like app icons) - never loud solid blocks.
 const AVATAR_HUES = [14, 38, 150, 205, 285, 162, 26, 340];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
   const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
@@ -129,7 +129,7 @@ export function timeAgo(iso: string) {
   return new Date(iso).toLocaleDateString("en-IN", { day: "numeric", month: "short" });
 }
 
-/** 0–100: how complete the candidate file is. */
+/** 0-100: how complete the candidate file is. */
 export function profileStrength(p: { master_resume: string | null; target_role: string | null; strongest_proof: string | null; skills: string[] | null; current_ctc: string | null; linkedin_url: string | null; city: string | null }) {
   const checks = [
     [!!p.master_resume && p.master_resume.length > 300, 40],
@@ -182,8 +182,8 @@ export function SubLabel({ children }: { children: React.ReactNode }) {
 }
 
 /**
- * KPI card: label + icon, big value, and context — a progress bar against a limit/goal,
- * or a stacked breakdown — so the number answers "am I on track?".
+ * KPI card: label + icon, big value, and context - a progress bar against a limit/goal,
+ * or a stacked breakdown - so the number answers "am I on track?".
  */
 export function Kpi({
   icon,

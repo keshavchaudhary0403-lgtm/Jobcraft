@@ -11,7 +11,7 @@ export async function GET() {
   return Response.json({ enabled: !!data?.demo_enabled });
 }
 
-/** Sign the visitor into the shared demo account — no password needed. */
+/** Sign the visitor into the shared demo account - no password needed. */
 export async function POST(req: Request) {
   const [ipBlocked, allBlocked] = await Promise.all([overLimit(`demo:ip:${clientIp(req)}`, 8, 600), overLimit("demo:all", 300, 3600)]);
   if (ipBlocked || allBlocked) return Response.json({ error: "Too many tries. Wait a few minutes." }, { status: 429 });

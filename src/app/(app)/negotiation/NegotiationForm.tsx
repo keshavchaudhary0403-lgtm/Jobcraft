@@ -7,7 +7,7 @@ import { Spinner } from "@/components/client-ui";
 import type { Application } from "@/lib/types";
 import { JobPicker } from "@/components/JobPicker";
 
-/** First one or two numbers in a salary string ("9 LPA", "8–12 LPA"). */
+/** First one or two numbers in a salary string ("9 LPA", "8-12 LPA"). */
 const nums = (s: string) => (s.replace(/,/g, "").match(/\d+(\.\d+)?/g) ?? []).map(Number).filter((n) => n > 0);
 
 type Defaults = { city: string; current_ctc: string; experience: string; strongest_proof: string };
@@ -80,7 +80,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
             otherFields={
               <div className="grid gap-2">
                 <input name="role" className="field" placeholder="Role offered" />
-                <input name="company_type" className="field" placeholder="Company type (startup, MNC…)" />
+                <input name="company_type" className="field" placeholder="Company type (startup, MNC...)" />
               </div>
             }
           />
@@ -93,7 +93,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
           )}
           <div className="mt-auto flex items-start gap-3 rounded-2xl bg-good-soft px-4 py-3 text-[0.86rem] text-good">
             <IndianRupee size={16} className="mt-0.5 shrink-0" />
-            <span>{apps.some((x) => x.status === "offer") ? "Offers are listed first. Check each one before you reply." : "No offer yet? Practise anyway — the first ask is the hardest."}</span>
+            <span>{apps.some((x) => x.status === "offer") ? "Offers are listed first. Check each one before you reply." : "No offer yet? Practise anyway - the first ask is the hardest."}</span>
           </div>
         </div>
 
@@ -101,7 +101,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
           <StepHead n={2} title="Is it fair?" />
           <div className="grid gap-4 sm:grid-cols-2">
             <BigInput label="Offered CTC" name="offered_ctc" placeholder="9 LPA" value={offered} onChange={setOffered} />
-            <BigInput label="Market range" name="market_range" placeholder="8–12 LPA" value={market} onChange={setMarket} />
+            <BigInput label="Market range" name="market_range" placeholder="8-12 LPA" value={market} onChange={setMarket} />
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.8rem] text-muted">
             Look up the market on
@@ -137,7 +137,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
                 {[["Current CTC", saved.current_ctc], ["Experience", saved.experience], ["City", saved.city]].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between gap-3 rounded-2xl bg-line-2/70 px-4 py-2.5">
                     <span className="text-[0.8rem] text-muted">{k}</span>
-                    <span className="truncate font-display text-[1.1rem] font-bold" title={v}>{v || "—"}</span>
+                    <span className="truncate font-display text-[1.1rem] font-bold" title={v}>{v || "-"}</span>
                   </div>
                 ))}
               </div>
@@ -153,7 +153,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
         <section className="dark-card flex flex-col p-6">
           <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">How the talk plays out</div>
           <ol className="mt-4 flex-1 space-y-3">
-            {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter — HR pushes back", "Say stop for feedback"].map((t, i) => (
+            {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say stop for feedback"].map((t, i) => (
               <li key={t} className="flex items-center gap-3">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
                 <span className="text-[0.95rem] text-cream/90">{t}</span>
@@ -190,7 +190,7 @@ function BigInput({ label, name, placeholder, value, onChange }: { label: string
   );
 }
 
-/** Where the offer sits against the market range — drawn live as the numbers are typed. */
+/** Where the offer sits against the market range - drawn live as the numbers are typed. */
 function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: number }) {
   const ready = !!(offered && lo && hi && hi >= lo);
   const L = ready ? lo! : 8, H = ready ? hi! : 12, O = ready ? offered! : 9;
@@ -198,11 +198,11 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
   const max = Math.max(O, H) * 1.15;
   const pct = (v: number) => ((v - min) / (max - min)) * 100;
   const pos = !ready ? null : O < L ? "below" : O > H ? "above" : "at";
-  const P = { below: { t: "Below market", c: "text-clay", d: "Push for the range — you have room." }, at: { t: "At market", c: "text-[#8a6414]", d: "Fair. Aim for the top of the range." }, above: { t: "Above market", c: "text-good", d: "Strong offer. Negotiate the extras." } } as const;
+  const P = { below: { t: "Below market", c: "text-clay", d: "Push for the range - you have room." }, at: { t: "At market", c: "text-[#8a6414]", d: "Fair. Aim for the top of the range." }, above: { t: "Above market", c: "text-good", d: "Strong offer. Negotiate the extras." } } as const;
   return (
     <div className={ready ? "" : "opacity-45"}>
       <div className="flex items-baseline justify-between">
-        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example — type your numbers"}</span>
+        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example - type your numbers"}</span>
         {pos && <span className={`font-display text-[1.3rem] font-bold ${P[pos].c}`}>{P[pos].t}</span>}
       </div>
       <div className="relative mt-9 h-4 rounded-full bg-line">

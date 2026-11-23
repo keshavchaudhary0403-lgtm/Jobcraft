@@ -162,11 +162,11 @@ export function AdminUsers({ meId }: { meId: string }) {
 
   const voiceOnCount = users.filter((u) => u.voice_enabled).length;
   const chapterSub: Record<Section, string> = {
-    overview: settings ? `${rupees(total)} spent` : "…",
+    overview: settings ? `${rupees(total)} spent` : "...",
     people: `${users.length} ${users.length === 1 ? "person" : "people"}`,
-    ai: model ? model.label.split(" —")[0] : "…",
+    ai: model ? model.label.split(" -")[0] : "...",
     features: `Voice on for ${voiceOnCount}`,
-    demo: settings ? (settings.demo_enabled ? "On" : "Off") : "…",
+    demo: settings ? (settings.demo_enabled ? "On" : "Off") : "...",
   };
 
   return (
@@ -238,7 +238,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(nameOf(u))}</div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 truncate font-display text-[1.1rem] font-bold leading-tight">{nameOf(u)}{u.is_admin && <Shield size={14} className="shrink-0 text-brand" aria-label="Admin" />}</div>
-                          <div className="truncate text-[0.8rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "—"}</div>
+                          <div className="truncate text-[0.8rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "-"}</div>
                         </div>
                         <SpendRing pct={limit != null ? pct : null} />
                       </div>
@@ -275,7 +275,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                       <button key={id} data-on={on} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex flex-col gap-2 p-4">
                         <span className="flex w-full items-center gap-2">
                           <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${on ? "border-brand" : "border-line"}`} />
-                          <span className="flex-1 font-semibold">{m.label.split(" —")[0]}</span>
+                          <span className="flex-1 font-semibold">{m.label.split(" -")[0]}</span>
                           {id === settings.ai_model && <span className="chip bg-good-soft text-good">Live</span>}
                         </span>
                         <span className="text-[0.82rem] leading-snug text-muted">{m.note}</span>
@@ -286,7 +286,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 </div>
                 {pendingModel && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-4 py-3 fade-up">
-                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" —")[0]}</b>?</span>
+                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?</span>
                     <span className="flex gap-2">
                       <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
                       <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); }}>Save</button>
@@ -387,7 +387,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <p className={`mt-3 max-w-lg text-[0.95rem] leading-relaxed ${settings.demo_enabled ? "text-white/75" : "text-muted"}`}>
                   {settings.demo_enabled
                     ? <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Sample data resets every day.</>
-                    : <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account — no sign-up, no password.</>}
+                    : <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account - no sign-up, no password.</>}
                 </p>
                 <div className="mt-6 flex flex-wrap gap-2">
                   <button
@@ -524,7 +524,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
           <div className="grid h-11 w-11 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(name)}</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 font-display text-[1.2rem] font-bold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
-            <div className="truncate text-[0.84rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || (u.is_demo ? "Shared demo account" : "—")}</div>
+            <div className="truncate text-[0.84rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || (u.is_demo ? "Shared demo account" : "-")}</div>
           </div>
           <button className="btn-quiet" onClick={close} aria-label="Close"><X size={17} /></button>
         </header>
@@ -590,7 +590,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
               <p className="text-[0.88rem] text-muted">You can&apos;t pause yourself or remove your own admin access.</p>
             ) : (
               <>
-                <Row label="Active" hint={d.is_active ? "Can log in and use Jobcraft" : "Paused — can't use AI features"}>
+                <Row label="Active" hint={d.is_active ? "Can log in and use Jobcraft" : "Paused - can't use AI features"}>
                   <Switch on={d.is_active} onChange={(v) => setD({ ...d, is_active: v })} />
                 </Row>
                 {!u.is_demo && (
@@ -684,7 +684,7 @@ function AddUser({ open, onClose, onDone }: { open: boolean; onClose: () => void
     const data = await fetch("/api/admin/users", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(f) }).then((r) => r.json());
     setBusy(false);
     if (!data.ok) return setErr(data.error);
-    onDone(`Created — login: ${f.phone || f.email}`);
+    onDone(`Created - login: ${f.phone || f.email}`);
     setF({ full_name: "", phone: "", email: "", password: "" });
     onClose();
   }
@@ -708,7 +708,7 @@ function AddUser({ open, onClose, onDone }: { open: boolean; onClose: () => void
         <div>
           <label className="label">Password</label>
           <input className="field" required minLength={6} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <p className="mt-1 text-[0.8rem] text-faint">No email or OTP is sent — share the login yourself. They get the default limits; change them in People.</p>
+          <p className="mt-1 text-[0.8rem] text-faint">No email or OTP is sent - share the login yourself. They get the default limits; change them in People.</p>
         </div>
         {err && <p className="text-[0.85rem] text-bad">{err}</p>}
         <div className="flex justify-end gap-2 pt-1">
@@ -785,11 +785,11 @@ function AdminOverview({
   if (budget != null)
     insights.push(
       projected > budget
-        ? { tone: "warn", text: <>At this pace you&apos;ll spend <b>{rupees(projected)}</b> this month — over your <b>{rupees(budget)}</b> budget.</>, go: () => go("ai") }
+        ? { tone: "warn", text: <>At this pace you&apos;ll spend <b>{rupees(projected)}</b> this month - over your <b>{rupees(budget)}</b> budget.</>, go: () => go("ai") }
         : { tone: "good", text: <>On track: about <b>{rupees(projected)}</b> by month end, {Math.round((projected / budget) * 100)}% of your {rupees(budget)} budget.</> },
     );
   if (features[0] && total > 0)
-    insights.push({ tone: "info", text: <><b>{SPEND_LABEL[features[0][0]] ?? features[0][0]}</b> is your biggest cost — {Math.round((features[0][1] / total) * 100)}% of spend.</>, go: () => go("features") });
+    insights.push({ tone: "info", text: <><b>{SPEND_LABEL[features[0][0]] ?? features[0][0]}</b> is your biggest cost - {Math.round((features[0][1] / total) * 100)}% of spend.</>, go: () => go("features") });
   if (nearest && nearest.limit)
     insights.push({
       tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? "warn" : "info",
@@ -816,7 +816,7 @@ function AdminOverview({
           {[
             { label: "Projected by month end", value: rupees(projected), sub: `Day ${today} of ${daysInMonth}`, warn: budget != null && projected > budget, go: () => go("ai") },
             { label: "Active this month", value: `${stats.active}/${users.length}`, sub: "Used AI at least once", go: () => go("people") },
-            { label: "Per active person", value: stats.active ? rupees(total / stats.active) : "—", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, go: () => go("people") },
+            { label: "Per active person", value: stats.active ? rupees(total / stats.active) : "-", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, go: () => go("people") },
           ].map((k) => (
             <button key={k.label} onClick={k.go} className="rounded-2xl bg-white/[.07] p-4 text-left transition hover:bg-white/[.12]">
               <div className="text-[0.78rem] text-white/55">{k.label}</div>
@@ -980,7 +980,7 @@ function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth={stroke} />
         {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "#f0a27f" : "#e2a92c"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
       </svg>
-      <span className="absolute font-display text-[1.4rem] font-bold tabular-nums">{budget != null ? `${Math.round(pct * 100)}%` : "—"}</span>
+      <span className="absolute font-display text-[1.4rem] font-bold tabular-nums">{budget != null ? `${Math.round(pct * 100)}%` : "-"}</span>
     </div>
   );
 }

@@ -119,31 +119,31 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           <Field label="Experience" value={d.experience_years ?? ""} onChange={(v) => set("experience_years", v)} placeholder="4 years" />
           <Field label="Target role" value={d.target_role ?? ""} onChange={(v) => set("target_role", v)} placeholder="e.g. Product Manager in fintech" wide />
           <Field label="City" value={d.city ?? ""} onChange={(v) => set("city", v)} />
-          {tabs && <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA — salary practice only" />}
-          {tabs && <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/…" wide />}
+          {tabs && <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA - salary practice only" />}
+          {tabs && <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/..." wide />}
         </div>
       </Section>
   );
   const notesS = (
-      <Section n="04" title="Not on your resume" sub="Anything true the AI should know — side projects, results, context.">
+      <Section n="04" title="Not on your resume" sub="Anything true the AI should know - side projects, results, context.">
         <textarea className="field h-full min-h-[140px]" rows={5} value={d.extra_notes ?? ""} onChange={(e) => set("extra_notes", e.target.value)} />
       </Section>
   );
   const bestS = (
-      <Section n="02" title="Best results" sub="1–2 wins with real numbers. Used in outreach and salary talks.">
+      <Section n="02" title="Best results" sub="1-2 wins with real numbers. Used in outreach and salary talks.">
         <textarea className="field h-full min-h-[120px]" rows={4} value={d.strongest_proof ?? ""} onChange={(e) => set("strongest_proof", e.target.value)} />
       </Section>
   );
   const skillsS = (
-      <Section n="03" title="Skills" sub={`${d.skills.length} skill${d.skills.length === 1 ? "" : "s"} — recruiters search these.`}>
+      <Section n="03" title="Skills" sub={`${d.skills.length} skill${d.skills.length === 1 ? "" : "s"} - recruiters search these.`}>
         {skillsBox}
       </Section>
   );
   const optionalS = (
       <Section n="04" title="Optional" sub="Only used where it helps.">
         <div className="grid gap-4">
-          <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA — only for salary practice" />
-          <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/…" />
+          <Field label="Current CTC" value={d.current_ctc ?? ""} onChange={(v) => set("current_ctc", v)} placeholder="₹6.5 LPA - only for salary practice" />
+          <Field label="LinkedIn URL" value={d.linkedin_url ?? ""} onChange={(v) => set("linkedin_url", v)} placeholder="linkedin.com/in/..." />
           <Field label="Anything true that's not on your resume" value={d.extra_notes ?? ""} onChange={(v) => set("extra_notes", v)} area />
         </div>
       </Section>
@@ -217,7 +217,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
                 {facts.map((f) => (
                   <div key={f.label}>
                     <dt className="flex items-center gap-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-faint">{f.icon}{f.label}</dt>
-                    <dd className={`font-medium ${f.v ? "" : "text-faint"}`}>{f.v || "—"}</dd>
+                    <dd className={`font-medium ${f.v ? "" : "text-faint"}`}>{f.v || "-"}</dd>
                   </div>
                 ))}
               </dl>
@@ -225,7 +225,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           </div>
           <div className="flex items-center gap-4">
             <Ring value={strength} label="Profile" color="var(--color-clay)" />
-            <Ring value={health ?? 0} label="Resume" color={health == null ? "var(--line)" : health >= 80 ? "var(--color-good)" : health >= 60 ? "var(--color-mustard)" : "var(--color-clay)"} text={health == null ? "—" : undefined} />
+            <Ring value={health ?? 0} label="Resume" color={health == null ? "var(--line)" : health >= 80 ? "var(--color-good)" : health >= 60 ? "var(--color-mustard)" : "var(--color-clay)"} text={health == null ? "-" : undefined} />
           </div>
         </section>
 

@@ -34,7 +34,7 @@ const TABS = [
 ] as const;
 type Tab = (typeof TABS)[number]["key"];
 
-const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "—");
+const fmtDate = (d: string | null) => (d ? new Date(d).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" }) : "-");
 
 export function JobView({
   app: initial,
@@ -108,7 +108,7 @@ export function JobView({
   ];
   const cur = steps.findIndex((x) => !x.done);
   const chapters: { key: Tab; label: string; sub: string; done: boolean }[] = [
-    { key: "overview", label: "Match", sub: !analysed ? "Reading the job…" : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
+    { key: "overview", label: "Match", sub: !analysed ? "Reading the job..." : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
     { key: "resume", label: "Resume", sub: app.tailored_resume ? "Tailored" : "Not tailored yet", done: !!app.tailored_resume },
     { key: "outreach", label: "Outreach", sub: app.outreach ? "Written" : "Not written yet", done: !!app.outreach },
     { key: "practice", label: "Practice", sub: `${interviews.length} round${interviews.length === 1 ? "" : "s"} done`, done: interviews.length > 0 },
@@ -116,8 +116,8 @@ export function JobView({
   const facts = [
     ["Added", fmtDate(app.created_at)],
     ["Applied", fmtDate(app.applied_on)],
-    ["Company", app.company_type ?? "—"],
-    ["Level", a?.seniority ?? "—"],
+    ["Company", app.company_type ?? "-"],
+    ["Level", a?.seniority ?? "-"],
   ];
 
   return (
@@ -185,7 +185,7 @@ export function JobView({
                 )}
               </>
             ) : (
-              <div className="grid h-[150px] w-[150px] place-items-center text-center text-[0.9rem] text-muted">Reading the job…</div>
+              <div className="grid h-[150px] w-[150px] place-items-center text-center text-[0.9rem] text-muted">Reading the job...</div>
             )}
           </div>
         </div>
@@ -290,7 +290,7 @@ export function JobView({
               <button className="btn-quiet" onClick={() => setCoach(false)} aria-label="Close"><X size={16} /></button>
             </div>
             <div className="thin-scroll flex-1 overflow-y-auto px-5 pt-4">
-              <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job…" suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
+              <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job..." suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
             </div>
           </div>
           <style>{`@keyframes slide-in { from { transform: translateX(32px); opacity: 0 } }`}</style>

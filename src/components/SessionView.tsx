@@ -77,7 +77,7 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
                 aiName={cfg.ai}
                 quickReplies={cfg.quick}
                 autoStart={{ prompt, step: cfg.step }}
-                placeholder="Or type your answer…"
+                placeholder="Or type your answer..."
               />
             }
           />

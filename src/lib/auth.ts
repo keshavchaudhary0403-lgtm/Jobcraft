@@ -9,7 +9,7 @@ import type { Profile } from "@/lib/types";
  */
 export const requireUser = cache(async () => {
   const supabase = await createClient();
-  // getClaims verifies the session token locally (signing keys) — no extra network hop.
+  // getClaims verifies the session token locally (signing keys) - no extra network hop.
   const { data } = await supabase.auth.getClaims();
   const id = data?.claims?.sub;
   if (!id) redirect("/login");
@@ -19,7 +19,7 @@ export const requireUser = cache(async () => {
   return { supabase, user, profile };
 });
 
-/** How complete the candidate file is — prompts are only as good as the inputs. */
+/** How complete the candidate file is - prompts are only as good as the inputs. */
 export function profileGaps(p: Profile) {
   const gaps: string[] = [];
   if (!p.full_name) gaps.push("your name");

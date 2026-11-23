@@ -116,7 +116,7 @@ export async function checkLimits(admin: SupabaseClient, userId: string, profile
   if (limit != null) {
     const spentInr = (await sumCost(admin, userId)) * s.usd_to_inr;
     if (spentInr >= limit) {
-      return { error: `You've used your AI limit for this month (₹${limit}). It resets on the 1st — or ask your admin to raise it.`, settings: s, demo: false };
+      return { error: `You've used your AI limit for this month (₹${limit}). It resets on the 1st - or ask your admin to raise it.`, settings: s, demo: false };
     }
   }
   if (s.total_monthly_limit_inr != null) {
@@ -189,5 +189,16 @@ export async function runStructured<T>(opts: {
     safety_identifier: opts.userId,
   });
   if (res.status === "incomplete") throw new Error("The AI answer was cut short. Please try again.");
-  return { data: JSON.parse(res.output_text) as T, usage: res.usage };
+  return { data: humanise(JSON.parse(res.output_text)) as T, usage: res.usage };
+}
+
+/** Strip typographic tells (long dashes, curly quotes, ellipsis characters) from AI text. */
+export function humaniseText(t: string) {
+  return t.replace(/\s*[\u2014\u2013]\s*/g, (m) => (/\s/.test(m) ? " - " : "-")).replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'").replace(/\u2026/g, "...");
+}
+function humanise(v: unknown): unknown {
+  if (typeof v === "string") return humaniseText(v);
+  if (Array.isArray(v)) return v.map(humanise);
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, humanise(x)]));
+  return v;
 }

@@ -5,9 +5,9 @@
  */
 import type { Application, Profile } from "./types";
 
-const CLEAN_RULE = "Field values must be clean text only — never add notes like \"(inferred)\", \"(likely)\" or explanations inside a value.";
+const CLEAN_RULE = "Field values must be clean text only - never add notes like \"(inferred)\", \"(likely)\" or explanations inside a value.";
 const TRUTH_RULE =
-  "Only what's true. Never add a skill, tool, number, employer, date, project or claim the candidate can't back up in a real interview. Reframe what's true; never invent. Simple, clear English. No buzzwords.";
+  "Only what's true. Never add a skill, tool, number, employer, date, project or claim the candidate can't back up in a real interview. Reframe what's true; never invent. Simple, clear English. No buzzwords. Write like a person, not an AI: never use em dashes or en dashes (use a comma, a full stop or a plain hyphen), no curly quotes, no ellipsis characters.";
 
 const str = { type: "string" } as const;
 const nstr = { type: ["string", "null"] } as const;
@@ -156,7 +156,7 @@ function candidateBlock(p: Profile) {
 
 function jobBlock(a: Application) {
   const confirmed = a.company && a.company !== "New job" ? `Company (confirmed by candidate): ${a.company}` : "";
-  const role = a.role && a.role !== "Analysing…" ? `Role (confirmed by candidate): ${a.role}` : "";
+  const role = a.role && a.role !== "Analysing..." ? `Role (confirmed by candidate): ${a.role}` : "";
   return ["=== JOB DESCRIPTION ===", confirmed, role, a.job_url && `Listing: ${a.job_url}`, a.jd].filter(Boolean).join("\n");
 }
 
@@ -179,7 +179,7 @@ export function buildTask(
 - resume_text: the full resume as clean plain text. Keep every word, number and date exactly. Section headings in CAPS, bullets as "- ".
 - target_role: the most likely next role plus industry, e.g. "Digital Marketing Manager in e-commerce / D2C".
 - experience_years: e.g. "about 4 years", from the dates.
-- strongest_proof: the 1–2 strongest results that have real numbers, copied faithfully, one line.
+- strongest_proof: the 1-2 strongest results that have real numbers, copied faithfully, one line.
 - skills: up to 12 skills or tools actually named in the resume.
 Use null when the resume doesn't say. ${TRUTH_RULE}`,
         input: extra?.resume_text ?? "",
@@ -187,28 +187,28 @@ Use null when the resume doesn't say. ${TRUTH_RULE}`,
 
     case "detect_job":
       return {
-        instructions: `From this job description, pull out the company name, the job title, the location and the company type (startup / MNC / agency / D2C / marketplace…). Use the exact wording from the text. If something is not stated, return null — do not guess. ${CLEAN_RULE}`,
+        instructions: `From this job description, pull out the company name, the job title, the location and the company type (startup / MNC / agency / D2C / marketplace...). Use the exact wording from the text. If something is not stated, return null - do not guess. ${CLEAN_RULE}`,
         input: extra?.jd ?? "",
       };
 
     case "analysis":
       return {
-        instructions: `You are a senior recruiter at a top hiring firm in India, screening this candidate for a client. First decode the job description, then compare the candidate's resume against it, line by line. Be brutally honest, not flattering — but always specific and useful, so the candidate knows exactly what to do next.
+        instructions: `You are a senior recruiter at a top hiring firm in India, screening this candidate for a client. First decode the job description, then compare the candidate's resume against it, line by line. Be brutally honest, not flattering - but always specific and useful, so the candidate knows exactly what to do next.
 Fill:
-- company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C… or null), location, seniority, hiring_contact (the hiring manager or recruiter if the JD names one — e.g. "reports to Ananya Rao, Head of Growth" → "Ananya Rao, Head of Growth"; else null).
-- hiring_titles: the 2–3 most likely job titles of the person who would hire for this role at this company (the hiring manager this role reports to, e.g. "Head of Category", "Regional Operations Director") — titles someone could search on LinkedIn. Do not include generic recruiter titles.
+- company, role (from the JD; best guess if missing), company_type (startup / MNC / agency / D2C... or null), location, seniority, hiring_contact (the hiring manager or recruiter if the JD names one - e.g. "reports to Ananya Rao, Head of Growth" → "Ananya Rao, Head of Growth"; else null).
+- hiring_titles: the 2-3 most likely job titles of the person who would hire for this role at this company (the hiring manager this role reports to, e.g. "Head of Category", "Regional Operations Director") - titles someone could search on LinkedIn. Do not include generic recruiter titles.
 - summary: one short line on what this role is.
 - top_skills: the 5 most important skills or experiences, ranked by how heavily the JD emphasises them. For each:
   - why: a few words on why it matters for this role.
   - match: "strong" = the resume clearly proves it; "partial" = related experience but not this exactly, or no proof/numbers; "missing" = nothing on the resume shows it.
-  - evidence: the exact words from the resume that show it (a short quote, max ~20 words), or null if nothing does. Quote only — never paraphrase or invent.
+  - evidence: the exact words from the resume that show it (a short quote, max ~20 words), or null if nothing does. Quote only - never paraphrase or invent.
   - gap_note: for partial/missing, one sentence on precisely what the resume doesn't show yet (e.g. "Shows vendor management, but not selecting or training partners"). null when strong.
-  - how_to_show: for partial/missing, one concrete, truthful step — e.g. "If you trained partners at HooLiv, add how many and what changed", or "Lead with your vendor onboarding at X in your summary". Never suggest claiming something unproven. null when strong.
+  - how_to_show: for partial/missing, one concrete, truthful step - e.g. "If you trained partners at HooLiv, add how many and what changed", or "Lead with your vendor onboarding at X in your summary". Never suggest claiming something unproven. null when strong.
 - ats_keywords: the 3 keywords most likely used to filter resumes for this role in an ATS.
 - keywords_missing: which of those ats_keywords (exact same text) do NOT appear on the resume today. Empty if all appear.
-- real_problem: one short paragraph — what problem is this company really trying to solve with this hire?
+- real_problem: one short paragraph - what problem is this company really trying to solve with this hire?
 - unwritten_expectations: 3 things NOT written in the JD that this company almost certainly expects.
-- fit_score: 0–10, honest. fit_verdict: a few words. fit_reasoning: 2–3 sentences a recruiter would tell the candidate directly.
+- fit_score: 0-10, honest. fit_verdict: a few words. fit_reasoning: 2-3 sentences a recruiter would tell the candidate directly.
 - gaps: the top 3 gaps between what they want and what the resume shows. For each:
   - status: "lacking" = the candidate truly lacks it; "not_shown" = they very likely have it but the resume fails to show it; "unsure" = you can't tell without asking.
   - explanation: one or two sentences on why it's a gap for THIS role.
@@ -229,7 +229,7 @@ ${CLEAN_RULE} ${TRUTH_RULE}`,
 2. Reorder and rewrite bullet points so the most relevant experience for THIS role comes first.
 3. Naturally include these keywords only where genuinely true: ${a?.ats_keywords?.join(", ") || "the JD's key terms"}.
 4. Every bullet: action verb + what they did + measurable result. If a number is missing, keep the bullet honest without a number and add a question to missing_numbers asking for it. Never invent numbers.
-5. One page, simple formatting, no tables, no graphics, no photo — ATS-safe.
+5. One page, simple formatting, no tables, no graphics, no photo - ATS-safe.
 6. Simple, clear English.
 resume_markdown: the full resume in Markdown (# Name, contact line, ## section headings, "- " bullets).
 changes: every change you made and why, so the candidate can verify each is true.
@@ -239,7 +239,7 @@ missing_numbers: questions for numbers that would make bullets stronger (empty i
           jobBlock(app!),
           answersBlock(app!),
           extra?.numbers && `=== NUMBERS THE CANDIDATE JUST GAVE ===\n${extra.numbers}`,
-          extra?.untrue && `=== CHANGES THE CANDIDATE SAYS ARE NOT TRUE — undo or correct each one; never repeat these claims ===\n${extra.untrue}`,
+          extra?.untrue && `=== CHANGES THE CANDIDATE SAYS ARE NOT TRUE - undo or correct each one; never repeat these claims ===\n${extra.untrue}`,
         ]
           .filter(Boolean)
           .join("\n\n"),
@@ -248,7 +248,7 @@ missing_numbers: questions for numbers that would make bullets stronger (empty i
 
     case "outreach":
       return {
-        instructions: `Write LinkedIn outreach to the person hiring for this role${extra?.contact ? ` (${extra.contact})` : " (hiring manager or recruiter)"}. Goal: show the candidate understands THEIR business and can solve a real problem — not just list history.
+        instructions: `Write LinkedIn outreach to the person hiring for this role${extra?.contact ? ` (${extra.contact})` : " (hiring manager or recruiter)"}. Goal: show the candidate understands THEIR business and can solve a real problem - not just list history.
 connection_note: under 250 characters, two short lines: one warm, specific, concrete line about their company or work; one friendly line saying they'd love to connect and follow what they're building. Do NOT pitch or mention the job.
 message: under 110 words, for after they accept or as a cold InMail:
 - one short warm opening line of genuine interest in the role;
@@ -272,7 +272,7 @@ NO abstract theory, NO lecturing, NO buzzwords, NO flattery, NO hedging. ${TRUTH
         instructions: `Rewrite the candidate's LinkedIn for the target role: ${extra?.role || profile.target_role || "their next role"}.
 headlines: 3 options, each under 220 characters, leading with the exact terms a recruiter would type to find someone for this role. No buzzwords like "passionate", "dynamic", "results-driven".
 about: under 150 words, first person. The first 2 lines must work as a hook on their own (LinkedIn hides the rest). End with what they're looking for. Use line breaks between short paragraphs.
-skills: the top 5 skills to add and pin — what recruiters in this field actually search and filter by — only if true from the resume.
+skills: the top 5 skills to add and pin - what recruiters in this field actually search and filter by - only if true from the resume.
 ${TRUTH_RULE}`,
         input: candidateBlock(profile),
       };
@@ -321,10 +321,10 @@ export function buildInsight(
   if (kind === "interview_report")
     return {
       instructions: `You were the hiring manager in the mock interview below. The interview is over. Give the candidate honest feedback, in simple English, like a senior interviewer who wants them to get the job:
-- score: 0–10 for the interview as a whole. Be honest, not flattering.
+- score: 0-10 for the interview as a whole. Be honest, not flattering.
 - verdict: one short line (e.g. "Strong on results, vague on how").
-- strongest: their 2–3 strongest moments — quote or closely paraphrase what they actually said, and why it worked.
-- weakest: their weakest answers (2–3). For each: the question, the exact reason it was weak, and what a 9/10 answer would have sounded like — written in the candidate's voice, using ONLY facts from their resume and answers (never invent numbers; say "[your number]" where a number is needed).
+- strongest: their 2-3 strongest moments - quote or closely paraphrase what they actually said, and why it worked.
+- weakest: their weakest answers (2-3). For each: the question, the exact reason it was weak, and what a 9/10 answer would have sounded like - written in the candidate's voice, using ONLY facts from their resume and answers (never invent numbers; say "[your number]" where a number is needed).
 - next_focus: the one thing to practise before the real interview.
 If the interview is very short, base it on what's there and say so in the verdict. ${TRUTH_RULE}`,
       input: [candidateBlock(ctx.profile), ctx.app?.jd ? jobBlock(ctx.app) : "", "=== INTERVIEW TRANSCRIPT ===", ctx.transcript ?? ""].filter(Boolean).join("\n\n"),
@@ -332,9 +332,9 @@ If the interview is very short, base it on what's there and say so in the verdic
   const o = ctx.offer ?? {};
   return {
     instructions: `You are a salary negotiation coach in India. The candidate has an offer. In simple English:
-- position: is the offer below, at, or above the market range they found? Reason it out in reasoning (2–3 sentences), using their market data, current CTC, experience and strongest proof. Treat your own salary knowledge as a rough guide only.
-- counter_low / counter_high: a realistic counter range (e.g. "₹10.5 LPA") — not a fantasy number.
-- opening_line: the exact first thing they should say to HR when countering — warm, confident, one or two sentences, using their strongest proof.
+- position: is the offer below, at, or above the market range they found? Reason it out in reasoning (2-3 sentences), using their market data, current CTC, experience and strongest proof. Treat your own salary knowledge as a rough guide only.
+- counter_low / counter_high: a realistic counter range (e.g. "₹10.5 LPA") - not a fantasy number.
+- opening_line: the exact first thing they should say to HR when countering - warm, confident, one or two sentences, using their strongest proof.
 - objections: the 3 pushbacks HR is most likely to give, each with a short, confident reply (hr_says / you_say).
 ${TRUTH_RULE}`,
     input: [

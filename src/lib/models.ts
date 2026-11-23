@@ -1,4 +1,4 @@
-// No imports here — safe to use in browser components.
+// No imports here - safe to use in browser components.
 
 /**
  * Models the admin can pick. Prices are USD per 1M tokens, from OpenAI's pricing page (Nov 2026).
@@ -6,7 +6,7 @@
  */
 export const AI_MODELS = {
   "gpt-6-luna": {
-    label: "GPT-6 Luna — cheapest",
+    label: "GPT-6 Luna - cheapest",
     note: "Lowest cost. Fine for practice chats; writing is plainer.",
     input: 0.1,
     cached: 0.01,
@@ -14,7 +14,7 @@ export const AI_MODELS = {
     noneEffort: true,
   },
   "gpt-6.1-terra": {
-    label: "GPT-6.1 Terra — recommended",
+    label: "GPT-6.1 Terra - recommended",
     note: "Clear, natural writing at a low price. Best balance for resumes and outreach.",
     input: 1.0,
     cached: 0.05,
@@ -22,7 +22,7 @@ export const AI_MODELS = {
     noneEffort: true,
   },
   "gpt-6.2-sol": {
-    label: "GPT-6.2 Sol — higher quality",
+    label: "GPT-6.2 Sol - higher quality",
     note: "Smarter, about 2× Terra's cost.",
     input: 2.0,
     cached: 0.1,
@@ -45,7 +45,7 @@ export const REALTIME_PRICE = { textIn: 0.6, textOut: 2.4, audioIn: 10, audioOut
 export const TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
 
 export const VOICES = [
-  { id: "marin", label: "Marin", note: "Warm, natural — recommended" },
+  { id: "marin", label: "Marin", note: "Warm, natural - recommended" },
   { id: "cedar", label: "Cedar", note: "Calm, deeper" },
   { id: "coral", label: "Coral", note: "Bright, friendly" },
   { id: "sage", label: "Sage", note: "Measured, professional" },

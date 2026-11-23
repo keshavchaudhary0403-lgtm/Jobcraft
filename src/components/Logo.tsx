@@ -1,7 +1,7 @@
 import { useId } from "react";
 
 export function LogoMark({ size = 28, inverse = false }: { size?: number; inverse?: boolean }) {
-  const id = useId(); // unique gradient id — shared ids break when one copy is hidden
+  const id = useId(); // unique gradient id - shared ids break when one copy is hidden
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden>
       <defs>

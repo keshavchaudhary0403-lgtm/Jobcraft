@@ -41,7 +41,7 @@ export default function NewJob() {
     });
     setF((x) => ({ ...x, ...next }));
     setAuto((x) => ({ ...x, ...flags }));
-    setFetchMsg({ ok: true, text: "Description added from the link — check it reads right." });
+    setFetchMsg({ ok: true, text: "Description added from the link - check it reads right." });
   }
   const lastDetected = useRef("");
   const edited = useRef<Set<keyof Fields>>(new Set());
@@ -135,7 +135,7 @@ export default function NewJob() {
     <div className="space-y-6">
       <header className="pt-2 fade-up">
         <h1 className="text-[2.6rem] font-bold leading-none">Add a job<span className="text-clay">.</span></h1>
-        <p className="mt-2 text-[1rem] text-muted">Paste a link or the description. We pick out the company and role — you confirm.</p>
+        <p className="mt-2 text-[1rem] text-muted">Paste a link or the description. We pick out the company and role - you confirm.</p>
       </header>
 
       <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
@@ -148,7 +148,7 @@ export default function NewJob() {
                 <Link2 size={15} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint" />
                 <input
                   className="field h-11 bg-card pl-9"
-                  placeholder="Company careers page, Lever, Greenhouse…"
+                  placeholder="Company careers page, Lever, Greenhouse..."
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   onKeyDown={(e) => {
@@ -173,7 +173,7 @@ export default function NewJob() {
             autoFocus
             required
             className="thin-scroll block h-[min(60vh,600px)] w-full resize-none border-0 bg-transparent px-5 py-3 text-[0.97rem] leading-relaxed outline-none placeholder:text-faint"
-            placeholder="Paste the full job description here (LinkedIn, Naukri, any site)…"
+            placeholder="Paste the full job description here (LinkedIn, Naukri, any site)..."
             value={jd}
             onChange={(e) => setJd(e.target.value)}
           />
@@ -184,7 +184,7 @@ export default function NewJob() {
           <div className="dark-card p-5">
             <div className="flex items-center justify-between">
               <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Preview</span>
-              {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/70"><Spinner size={13} /> Reading…</span>}
+              {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/70"><Spinner size={13} /> Reading...</span>}
             </div>
             <div className="mt-3 flex items-center gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-mustard font-display text-[1.2rem] font-bold text-side">{(f.company.trim()[0] ?? "?").toUpperCase()}</span>
@@ -204,7 +204,7 @@ export default function NewJob() {
             {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
             {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
             {detField("location", "Location", <MapPin size={15} />, "Optional")}
-            {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role — they weren&apos;t in the text.</p>}
+            {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role - they weren&apos;t in the text.</p>}
             {err && <p className="text-[0.85rem] text-bad">{err}</p>}
             <button className="btn btn-clay h-12 w-full text-[1rem]" disabled={busy || !ready}>
               {busy ? <Spinner /> : <Sparkles size={15} />} Analyse job <ArrowRight size={15} />

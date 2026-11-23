@@ -6,9 +6,9 @@ import { checkBullet, resumeHealth, type BulletReport } from "@/lib/resume-healt
 import { Modal } from "./client-ui";
 
 const GRADE = {
-  strong: { label: "Strong — recruiter ready", cls: "text-good" },
-  good: { label: "Good — a few fixes to go", cls: "text-brand-ink" },
-  fair: { label: "Fair — fix the bullets below", cls: "text-mid" },
+  strong: { label: "Strong - recruiter ready", cls: "text-good" },
+  good: { label: "Good - a few fixes to go", cls: "text-brand-ink" },
+  fair: { label: "Fair - fix the bullets below", cls: "text-mid" },
   weak: { label: "Needs work", cls: "text-bad" },
 };
 
@@ -49,7 +49,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
               <TrendingUp size={13} /> {base} → {report.score} <span className="font-normal">({delta > 0 ? "+" : ""}{delta})</span>
             </div>
           )}
-          {unsaved !== 0 && <div className="mt-1.5 text-[0.78rem] text-muted">{unsaved > 0 ? `+${unsaved}` : unsaved} from unsaved edits — save to keep</div>}
+          {unsaved !== 0 && <div className="mt-1.5 text-[0.78rem] text-muted">{unsaved > 0 ? `+${unsaved}` : unsaved} from unsaved edits - save to keep</div>}
         </div>
 
         {/* ATS-safe checks */}
@@ -112,7 +112,7 @@ function FixBullet({ bullet, onClose, onApply }: { bullet: BulletReport; onClose
   const live = checkBullet(t, bullet.line);
   return (
     <Modal open onClose={onClose} title="Strengthen this bullet" width={640}>
-      <p className="mb-3 text-[0.9rem] text-muted">Only add what&apos;s true — you&apos;ll be asked about it in interviews. Use the format: <b className="font-semibold text-ink">action verb + what you did + measurable result</b>.</p>
+      <p className="mb-3 text-[0.9rem] text-muted">Only add what&apos;s true - you&apos;ll be asked about it in interviews. Use the format: <b className="font-semibold text-ink">action verb + what you did + measurable result</b>.</p>
       <textarea autoFocus className="field min-h-[110px] text-[1rem] leading-relaxed [field-sizing:content]" value={t} onChange={(e) => setT(e.target.value)} />
       <div className="mt-3 flex flex-wrap items-center gap-1.5">
         <span className={`mr-1 grid h-7 w-9 place-items-center rounded-lg text-[0.85rem] font-bold tabular-nums ${live.score >= 8 ? "bg-good-soft text-good" : live.score >= 6 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>{live.score}</span>

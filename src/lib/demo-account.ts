@@ -3,10 +3,10 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { FIXTURES } from "./demo";
 import type { ParsedResume } from "./tasks";
 
-/** The shared demo account. Nobody knows its password — visitors get in via "Explore the demo". */
+/** The shared demo account. Nobody knows its password - visitors get in via "Explore the demo". */
 export const DEMO_EMAIL = "demo@demo.jobcraft.invalid";
 
-const JD_UC = `Senior Category Manager — Urban Company (Gurugram)
+const JD_UC = `Senior Category Manager - Urban Company (Gurugram)
 
 About the role
 You will own partner quality and operational excellence for a set of cities in our home services category.
@@ -22,7 +22,7 @@ What we're looking for
 - Proven results improving partner or service quality
 - Comfort with data (Excel/SQL) and clear written updates for leadership`;
 
-const JD_NEST = `Operations Lead — Nestaway (Bengaluru)
+const JD_NEST = `Operations Lead - Nestaway (Bengaluru)
 
 We're hiring an Operations Lead to run move-ins, maintenance and vendor partners across 3 cities.
 
@@ -48,7 +48,7 @@ export async function ensureDemoUser(admin: SupabaseClient): Promise<string> {
   });
   let id = data.user?.id;
   if (error || !id) {
-    // Already exists in auth (e.g. profile flag lost) — look it up.
+    // Already exists in auth (e.g. profile flag lost) - look it up.
     const { data: list } = await admin.auth.admin.listUsers({ perPage: 1000 });
     id = list?.users.find((u) => u.email === DEMO_EMAIL)?.id;
     if (!id) throw new Error(error?.message ?? "Could not create the demo account");
@@ -130,7 +130,7 @@ export async function seedDemo(admin: SupabaseClient, id: string) {
         fit_verdict: "Strong fit; show turnaround results",
         fit_reasoning: "Multi-city partner operations and team leadership match closely. The resume shows churn results but not turnaround time or SLA improvements, which this role measures.",
         gaps: [
-          { gap: "Turnaround time results", status: "not_shown", explanation: "You likely tracked it, but the resume has no numbers on speed.", how_to_close: "Add one turnaround number under QuickNest — e.g. average job completion time before and after your changes.", question: null },
+          { gap: "Turnaround time results", status: "not_shown", explanation: "You likely tracked it, but the resume has no numbers on speed.", how_to_close: "Add one turnaround number under QuickNest - e.g. average job completion time before and after your changes.", question: null },
           { gap: "Real-estate experience", status: "lacking", explanation: "Your background is home services, not rental housing.", how_to_close: "Don't stretch it. Bridge in the interview: both businesses run on reliable on-ground partners and fast fixes.", question: null },
           { gap: "Rate negotiation", status: "unsure", explanation: "No vendor rate or SLA negotiation is mentioned.", how_to_close: "If you negotiated partner rates or SLAs, say what you agreed and what it saved.", question: "Did you negotiate rates or SLAs with partners? What changed?" },
         ],

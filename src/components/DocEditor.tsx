@@ -203,7 +203,7 @@ export function DocEditor({ value, onChange, mode = "plain", className = "", too
             <Icon size={13} /> {l}
           </button>
         ))}
-        <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · type “- ” for a bullet</span>
+        <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · type &quot;- &quot; for a bullet</span>
       </div>
 
       <div>

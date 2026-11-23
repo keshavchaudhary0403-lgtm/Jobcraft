@@ -36,7 +36,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
 
   const seen = useRef(turns.length);
   useEffect(() => {
-    // Follow new captions during a call — but don't jump the page on first load.
+    // Follow new captions during a call - but don't jump the page on first load.
     if (turns.length > seen.current) bottom.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
     seen.current = turns.length;
   }, [turns]);
@@ -73,8 +73,8 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
       case "input_audio_buffer.speech_started": {
         setSpeaking("you");
         const id = String(e.item_id ?? `u${Date.now()}`);
-        upsert(id, "user", "…", true);
-        // The reply may finish before this transcript does — make the reply wait for it.
+        upsert(id, "user", "...", true);
+        // The reply may finish before this transcript does - make the reply wait for it.
         userWaits.current.push(new Promise<string>((res) => pendingUser.current.set(id, res)));
         break;
       }
@@ -167,7 +167,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
       };
       peer.onconnectionstatechange = () => {
         if (peer.connectionState === "failed" || peer.connectionState === "disconnected") {
-          setError("The call dropped. Your transcript so far is saved — start again to continue.");
+          setError("The call dropped. Your transcript so far is saved - start again to continue.");
           end();
         }
       };
@@ -227,7 +227,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
             {live && kind === "interview" && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
           </div>
           <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">
-            {status === "connecting" ? "Connecting…" : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening…" : muted ? "You're muted" : "Your turn — just talk"}
+            {status === "connecting" ? "Connecting..." : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
           </div>
           <p className="mt-0.5 text-[0.84rem] text-cream/65">
             {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
@@ -269,7 +269,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
               ) : (
                 <div key={t.id} className="max-w-[90%] fade-up">
                   <div className="mb-1 text-[0.8rem] font-semibold text-faint">{aiName}</div>
-                  <div className={`rounded-[18px] rounded-tl-md px-4 py-3 text-[0.95rem] leading-relaxed ${t.live ? "text-muted" : ""}`} style={{ background: "var(--color-cream)" }}>{t.text || "…"}</div>
+                  <div className={`rounded-[18px] rounded-tl-md px-4 py-3 text-[0.95rem] leading-relaxed ${t.live ? "text-muted" : ""}`} style={{ background: "var(--color-cream)" }}>{t.text || "..."}</div>
                 </div>
               ),
             )}
