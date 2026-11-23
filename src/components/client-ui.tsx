@@ -166,8 +166,8 @@ export function Modal({ open, onClose, title, children, width = 520 }: { open: b
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={onClose}>
-      <div className="pop w-full rounded-2xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
+    <div data-modal className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={onClose}>
+      <div className="pop w-full rounded-3xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
           <div className="font-semibold">{title}</div>
           <button className="btn-quiet" onClick={onClose} aria-label="Close"><X size={16} /></button>

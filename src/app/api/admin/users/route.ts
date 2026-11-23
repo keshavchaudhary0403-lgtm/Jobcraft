@@ -16,10 +16,21 @@ export async function GET() {
   const spend = await spendByUser(admin, settings.usd_to_inr);
   const users = data.map((u) => ({ ...u, spent_inr: spend[u.id] ?? 0 }));
   const total_spent_inr = Object.values(spend).reduce((a, b) => a + b, 0);
-  const { data: ev } = await admin.from("usage_events").select("feature, cost_usd").gte("created_at", monthStartIST());
+  const { data: ev } = await admin.from("usage_events").select("feature, cost_usd, user_id, created_at").gte("created_at", monthStartIST());
   const by_feature: Record<string, number> = {};
-  for (const r of ev ?? []) by_feature[r.feature] = (by_feature[r.feature] ?? 0) + Number(r.cost_usd) * settings.usd_to_inr;
-  return Response.json({ users, settings, total_spent_inr, by_feature });
+  const daily: Record<string, number> = {};
+  const calls: Record<string, number> = {};
+  const active = new Set<string>();
+  for (const r of ev ?? []) {
+    const inr = Number(r.cost_usd) * settings.usd_to_inr;
+    by_feature[r.feature] = (by_feature[r.feature] ?? 0) + inr;
+    calls[r.feature] = (calls[r.feature] ?? 0) + 1;
+    // India date of the event
+    const day = new Date(new Date(r.created_at).getTime() + 5.5 * 3600 * 1000).toISOString().slice(0, 10);
+    daily[day] = (daily[day] ?? 0) + inr;
+    active.add(r.user_id);
+  }
+  return Response.json({ users, settings, total_spent_inr, by_feature, daily, calls, active_users: active.size, events: ev?.length ?? 0 });
 }
 
 /** Create a user: name + (email and/or phone) + password. No email/OTP is sent. */

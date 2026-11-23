@@ -9,6 +9,9 @@ import {
   IndianRupee,
   KeyRound,
   LayoutDashboard,
+  Lightbulb,
+  TrendingUp,
+  UserCheck,
   PlayCircle,
   Plus,
   RotateCcw,
@@ -89,6 +92,7 @@ export function AdminUsers({ meId }: { meId: string }) {
   const [settings, setSettings] = useState<Settings | null>(null);
   const [total, setTotal] = useState(0);
   const [byFeature, setByFeature] = useState<Record<string, number>>({});
+  const [stats, setStats] = useState<{ daily: Record<string, number>; calls: Record<string, number>; active: number; events: number }>({ daily: {}, calls: {}, active: 0, events: 0 });
   const [section, setSectionRaw] = useState<Section>("overview");
   const [openId, setOpenId] = useState<string | null>(null);
   const [pendingModel, setPendingModel] = useState<string | null>(null);
@@ -116,6 +120,7 @@ export function AdminUsers({ meId }: { meId: string }) {
       setSettings(data.settings);
       setTotal(data.total_spent_inr);
       setByFeature(data.by_feature ?? {});
+      setStats({ daily: data.daily ?? {}, calls: data.calls ?? {}, active: data.active_users ?? 0, events: data.events ?? 0 });
     }
   }, []);
   useEffect(() => {
@@ -194,91 +199,16 @@ export function AdminUsers({ meId }: { meId: string }) {
           {!settings ? (
             <div className="space-y-3"><div className="skeleton h-28 rounded-2xl" /><div className="skeleton h-64 rounded-2xl" /></div>
           ) : section === "overview" ? (
-            <div className="space-y-5 fade-up">
-              <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-                <button className="text-left" onClick={() => setSection("ai")}>
-                  <Kpi
-                    icon={<IndianRupee size={16} />}
-                    label="AI spend this month"
-                    value={rupees(total)}
-                    progress={budget != null ? { value: total, max: budget, limit: true, caption: `of ${rupees(budget)} total budget` } : undefined}
-                    note={budget == null ? "No total budget set" : undefined}
-                  />
-                </button>
-                <button className="text-left" onClick={() => top && setOpenId(top.u.id)}>
-                  <Kpi
-                    tone="rose"
-                    icon={<Gauge size={16} />}
-                    label="Closest to their limit"
-                    value={top ? rupees(top.u.spent_inr) : "—"}
-                    progress={top && top.limit != null ? { value: top.u.spent_inr, max: top.limit, limit: true, caption: `${nameOf(top.u)} · limit ${rupees(top.limit)}` } : undefined}
-                    note={!top ? "No AI use yet this month" : top.limit == null ? `${nameOf(top.u)} · no limit` : undefined}
-                  />
-                </button>
-                <button className="text-left" onClick={() => setSection("people")}>
-                  <Kpi
-                    tone="sun"
-                    icon={<Users size={16} />}
-                    label="People"
-                    value={users.length}
-                    breakdown={[
-                      { label: "active", n: users.filter((u) => u.is_active).length, cls: "bg-brand" },
-                      { label: "paused", n: users.filter((u) => !u.is_active).length, cls: "bg-[#d6d0ea]" },
-                    ]}
-                  />
-                </button>
-                <button className="text-left" onClick={() => setSection("ai")}>
-                  <Kpi
-                    tone="lilac"
-                    icon={<Bot size={16} />}
-                    label="AI model"
-                    value={<span className="text-[1.25rem]">{model?.label.split(" —")[0] ?? "—"}</span>}
-                    note={<>Default limit <b className="font-semibold text-ink">{settings.default_monthly_limit_inr != null ? rupees(settings.default_monthly_limit_inr) : "none"}</b> per person · $1 = ₹{settings.usd_to_inr}</>}
-                  />
-                </button>
-              </div>
-
-              <div className="grid items-start gap-4 xl:grid-cols-2">
-                <Panel title="Spend by feature" sub="This month, all people" icon={<IndianRupee size={15} />}>
-                  {Object.keys(byFeature).length === 0 ? (
-                    <p className="text-muted">No AI use yet this month.</p>
-                  ) : (
-                    <div className="space-y-3">
-                      {Object.entries(byFeature)
-                        .sort((a, b) => b[1] - a[1])
-                        .map(([f, v]) => {
-                          const max = Math.max(...Object.values(byFeature));
-                          return (
-                            <div key={f}>
-                              <div className="flex justify-between text-[0.9rem]">
-                                <span>{SPEND_LABEL[f] ?? f}</span>
-                                <span className="tabular-nums text-muted">{rupees(v)}</span>
-                              </div>
-                              <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-line-2">
-                                <div className="h-full rounded-full bg-brand" style={{ width: `${Math.max(3, (v / max) * 100)}%` }} />
-                              </div>
-                            </div>
-                          );
-                        })}
-                    </div>
-                  )}
-                </Panel>
-
-                <Panel title="At a glance" icon={<LayoutDashboard size={15} />} bodyClass="divide-y divide-line">
-                  {[
-                    { label: "Realistic voice", value: `${users.filter((u) => u.voice_enabled).length} of ${users.length} people`, go: () => setSection("features") },
-                    { label: "AI switched off", value: `${users.filter((u) => u.ai_mode === "off").length} people`, go: () => setSection("people") },
-                    { label: "Custom feature limits", value: `${users.filter((u) => u.feature_limits && Object.keys(u.feature_limits).length).length} people`, go: () => setSection("people") },
-                    { label: "Demo login", value: settings.demo_enabled ? "On" : "Off", go: () => setSection("demo") },
-                  ].map((r) => (
-                    <button key={r.label} onClick={r.go} className="flex w-full items-center justify-between px-5 py-3 text-left transition hover:bg-line-2/60">
-                      <span className="text-muted">{r.label}</span>
-                      <span className="flex items-center gap-2 font-semibold">{r.value} <ChevronRight size={15} className="text-faint" /></span>
-                    </button>
-                  ))}
-                </Panel>
-              </div>
-            </div>
+            <AdminOverview
+              users={users}
+              settings={settings}
+              total={total}
+              byFeature={byFeature}
+              stats={stats}
+              limitOf={limitOf}
+              onPerson={setOpenId}
+              go={setSection}
+            />
           ) : section === "people" ? (
             <div className="space-y-4 fade-up">
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -543,7 +473,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
     onClose();
   }
   useEffect(() => {
-    const esc = (e: KeyboardEvent) => e.key === "Escape" && !document.querySelector("[role=dialog]") && close();
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && !document.querySelector("[data-modal]") && close();
     document.addEventListener("keydown", esc);
     return () => document.removeEventListener("keydown", esc);
   });
@@ -583,9 +513,9 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
   const defMonthly = settings.default_monthly_limit_inr;
 
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-slate-900/30 backdrop-blur-[2px]" onMouseDown={close}>
-      <aside className="flex h-full w-full max-w-[520px] flex-col bg-bg shadow-2xl fade-up" onMouseDown={(e) => e.stopPropagation()} role="complementary" aria-label={`${name} settings`}>
-        <header className="flex items-center gap-3 border-b border-line bg-white px-5 py-4">
+    <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={close}>
+      <div className="pop flex max-h-[88vh] w-full max-w-[640px] flex-col overflow-hidden rounded-3xl bg-bg shadow-2xl" onMouseDown={(e) => e.stopPropagation()} aria-label={`${name} settings`}>
+        <header className="flex items-center gap-3 border-b border-line bg-white px-6 py-4">
           <div className="grid h-10 w-10 place-items-center rounded-full bg-brand-soft text-[0.85rem] font-semibold text-brand-ink">{initials(name)}</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 text-[1.05rem] font-semibold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
@@ -594,7 +524,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
           <button className="btn-quiet" onClick={close} aria-label="Close"><X size={17} /></button>
         </header>
 
-        <div className="flex-1 space-y-4 overflow-y-auto p-5">
+        <div className="flex-1 space-y-4 overflow-y-auto p-6">
           <Block title="AI" sub="What powers this person's AI features.">
             <div className="grid grid-cols-3 gap-2">
               {AI_MODES.map((m) => (
@@ -679,12 +609,12 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
           </Block>
         </div>
 
-        <footer className="flex items-center gap-3 border-t border-line bg-white px-5 py-3.5">
+        <footer className="flex items-center gap-3 border-t border-line bg-white px-6 py-3.5">
           <span className={`flex-1 text-[0.86rem] ${err ? "text-bad" : "text-muted"}`}>{err || (dirty ? "Unsaved changes" : "No changes")}</span>
           <button className="btn btn-ghost" onClick={close}>Cancel</button>
           <button className="btn btn-primary" disabled={!dirty || saving} onClick={save}>{saving && <Spinner size={14} />} Save</button>
         </footer>
-      </aside>
+      </div>
     </div>
   );
 }
@@ -784,4 +714,238 @@ function Switch({ on, onChange, disabled, title }: { on: boolean; onChange: (v: 
       <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-all ${on ? "left-[22px]" : "left-0.5"}`} />
     </button>
   );
+}
+
+
+/* ─────────────────────────── Overview ─────────────────────────── */
+
+function AdminOverview({
+  users,
+  settings,
+  total,
+  byFeature,
+  stats,
+  limitOf,
+  onPerson,
+  go,
+}: {
+  users: U[];
+  settings: Settings;
+  total: number;
+  byFeature: Record<string, number>;
+  stats: { daily: Record<string, number>; calls: Record<string, number>; active: number; events: number };
+  limitOf: (u: U) => number | null;
+  onPerson: (id: string) => void;
+  go: (s: Section) => void;
+}) {
+  // India "today" and month geometry (fixed for this view)
+  const [nowMs] = useState(() => Date.now());
+  const nowIst = new Date(nowMs + 5.5 * 3600 * 1000);
+  const y = nowIst.getUTCFullYear();
+  const m = nowIst.getUTCMonth();
+  const today = nowIst.getUTCDate();
+  const daysInMonth = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
+  const projected = today > 0 ? (total / today) * daysInMonth : total;
+  const budget = settings.total_monthly_limit_inr;
+  const monthName = nowIst.toLocaleString("en-IN", { month: "long", timeZone: "UTC" });
+
+  const days = Array.from({ length: daysInMonth }, (_, i) => {
+    const d = i + 1;
+    const key = `${y}-${String(m + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+    return { d, key, v: stats.daily[key] ?? 0, future: d > today };
+  });
+  const features = Object.entries(byFeature).sort((a, b) => b[1] - a[1]);
+  const people = users
+    .map((u) => ({ u, limit: limitOf(u) }))
+    .sort((a, b) => b.u.spent_inr - a.u.spent_inr);
+  const idle = users.filter((u) => u.is_active && u.spent_inr === 0 && !u.is_demo).length;
+  const nearest = people.filter((p) => p.limit).sort((a, b) => b.u.spent_inr / (b.limit as number) - a.u.spent_inr / (a.limit as number))[0];
+
+  const insights: { tone: "good" | "warn" | "info"; text: React.ReactNode; go?: () => void }[] = [];
+  if (budget != null)
+    insights.push(
+      projected > budget
+        ? { tone: "warn", text: <>At this pace you&apos;ll spend <b>{rupees(projected)}</b> this month — over your <b>{rupees(budget)}</b> budget.</>, go: () => go("ai") }
+        : { tone: "good", text: <>On track: about <b>{rupees(projected)}</b> by month end, {Math.round((projected / budget) * 100)}% of your {rupees(budget)} budget.</> },
+    );
+  if (features[0] && total > 0)
+    insights.push({ tone: "info", text: <><b>{SPEND_LABEL[features[0][0]] ?? features[0][0]}</b> is your biggest cost — {Math.round((features[0][1] / total) * 100)}% of spend.</>, go: () => go("features") });
+  if (nearest && nearest.limit)
+    insights.push({
+      tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? "warn" : "info",
+      text: <><b>{nameOf(nearest.u)}</b> has used {Math.round((nearest.u.spent_inr / nearest.limit) * 100)}% of their {rupees(nearest.limit)} limit.</>,
+      go: () => onPerson(nearest.u.id),
+    });
+  if (idle > 0) insights.push({ tone: "info", text: <>{idle} {idle === 1 ? "person hasn't" : "people haven't"} used any AI this month.</>, go: () => go("people") });
+  const voiceOn = users.filter((u) => u.voice_enabled).length;
+  insights.push({ tone: "info", text: <>Realistic voice is on for <b>{voiceOn}</b> of {users.length} people.</>, go: () => go("features") });
+
+  return (
+    <div className="space-y-5 fade-up">
+      {/* Headline numbers */}
+      <div className="grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
+        <button className="text-left" onClick={() => go("ai")}>
+          <Kpi
+            icon={<IndianRupee size={16} />}
+            label={`Spent in ${monthName}`}
+            value={rupees(total)}
+            progress={budget != null ? { value: total, max: budget, limit: true, caption: `${Math.round((total / budget) * 100)}% of ${rupees(budget)} budget` } : undefined}
+            note={budget == null ? "No total budget set" : undefined}
+          />
+        </button>
+        <button className="text-left" onClick={() => go("ai")}>
+          <Kpi
+            tone="rose"
+            icon={<TrendingUp size={16} />}
+            label="Projected by month end"
+            value={rupees(projected)}
+            progress={budget != null ? { value: projected, max: budget, limit: true, caption: `At today's pace · day ${today} of ${daysInMonth}` } : undefined}
+            note={budget == null ? `At today's pace · day ${today} of ${daysInMonth}` : undefined}
+          />
+        </button>
+        <button className="text-left" onClick={() => go("people")}>
+          <Kpi
+            tone="sun"
+            icon={<UserCheck size={16} />}
+            label="Active this month"
+            value={stats.active}
+            unit={`of ${users.length}`}
+            progress={{ value: stats.active, max: Math.max(users.length, 1), caption: "Used AI at least once" }}
+          />
+        </button>
+        <button className="text-left" onClick={() => go("people")}>
+          <Kpi
+            tone="lilac"
+            icon={<Users size={16} />}
+            label="Average per active person"
+            value={stats.active ? rupees(total / stats.active) : "—"}
+            note={<>{stats.events.toLocaleString("en-IN")} AI requests this month</>}
+          />
+        </button>
+      </div>
+
+      {/* Daily spend + insights */}
+      <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.7fr)_minmax(0,1fr)]">
+        <Panel title="Daily AI spend" sub={`${monthName} · India time`} icon={<TrendingUp size={15} />}>
+          <DailyBars days={days} />
+        </Panel>
+        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="divide-y divide-line">
+          {insights.map((x, i) => {
+            const Tag = x.go ? "button" : "div";
+            return (
+              <Tag key={i} onClick={x.go} className={`flex w-full items-start gap-3 px-5 py-3 text-left text-[0.9rem] leading-snug ${x.go ? "transition hover:bg-line-2/60" : ""}`}>
+                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${x.tone === "warn" ? "bg-orange-400" : x.tone === "good" ? "bg-good" : "bg-brand-2"}`} />
+                <span className="flex-1 text-slate-700">{x.text}</span>
+                {x.go && <ChevronRight size={15} className="mt-0.5 shrink-0 text-faint" />}
+              </Tag>
+            );
+          })}
+        </Panel>
+      </div>
+
+      {/* Breakdown by feature and by person */}
+      <div className="grid items-start gap-4 xl:grid-cols-2">
+        <Panel title="Where the money goes" sub="Spend by feature this month" icon={<IndianRupee size={15} />}>
+          {features.length === 0 ? (
+            <p className="text-muted">No AI use yet this month.</p>
+          ) : (
+            <div className="space-y-3.5">
+              {features.map(([f, v]) => (
+                <div key={f} title={`${SPEND_LABEL[f] ?? f}: ${rupees(v)} · ${stats.calls[f] ?? 0} requests`}>
+                  <div className="flex items-baseline justify-between gap-3 text-[0.9rem]">
+                    <span className="font-medium">{SPEND_LABEL[f] ?? f}</span>
+                    <span className="tabular-nums text-muted">
+                      <b className="font-semibold text-ink">{rupees(v)}</b> · {total ? Math.round((v / total) * 100) : 0}% · {stats.calls[f] ?? 0} req
+                    </span>
+                  </div>
+                  <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-line-2">
+                    <div className="h-full rounded-full bg-brand transition-all duration-700" style={{ width: `${Math.max(2, (v / features[0][1]) * 100)}%` }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </Panel>
+
+        <Panel title="People and their limits" sub="Spend this month against each person's limit" icon={<Users size={15} />} bodyClass="divide-y divide-line">
+          {people.map(({ u, limit }) => {
+            const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
+            const level = !limit ? "No limit" : pct >= 90 ? "Almost out" : pct >= 70 ? "Getting close" : "Fine";
+            return (
+              <button key={u.id} onClick={() => onPerson(u.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-line-2/60">
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.72rem] font-semibold text-brand-ink">{initials(nameOf(u))}</div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline justify-between gap-2 text-[0.9rem]">
+                    <span className="truncate font-medium">{nameOf(u)}</span>
+                    <span className="shrink-0 tabular-nums text-muted">{rupees(u.spent_inr)}{limit != null && <> / {rupees(limit)}</>}</span>
+                  </div>
+                  {limit != null && (
+                    <div className="mt-1.5 flex items-center gap-2">
+                      <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line-2">
+                        <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-orange-400" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+                      </div>
+                      <span className={`w-24 shrink-0 text-right text-[0.75rem] ${pct >= 90 ? "text-bad" : pct >= 70 ? "text-mid" : "text-muted"}`}>{level}</span>
+                    </div>
+                  )}
+                </div>
+                <ChevronRight size={15} className="shrink-0 text-faint" />
+              </button>
+            );
+          })}
+        </Panel>
+      </div>
+    </div>
+  );
+}
+
+/** One bar per day of the month (single hue). Hover any day for its exact spend. */
+function DailyBars({ days }: { days: { d: number; key: string; v: number; future: boolean }[] }) {
+  const [hover, setHover] = useState<number | null>(null);
+  const max = Math.max(...days.map((x) => x.v), 0);
+  const top = max > 0 ? niceCeil(max) : 1;
+  const ticks = [top, top / 2, 0];
+  const h = hover != null ? days[hover] : null;
+  return (
+    <div>
+      <div className="mb-3 flex h-6 items-baseline gap-2 text-[0.9rem]">
+        {h ? (
+          <>
+            <span className="font-semibold tabular-nums">{rupees(h.v)}</span>
+            <span className="text-muted">on {new Date(h.key + "T00:00:00Z").toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" })}{h.future ? " (upcoming)" : ""}</span>
+          </>
+        ) : (
+          <span className="text-muted">Hover a day to see its spend</span>
+        )}
+      </div>
+      <div className="flex gap-2">
+        <div className="flex h-44 w-11 shrink-0 flex-col justify-between text-right text-[0.72rem] tabular-nums text-faint">
+          {ticks.map((t) => <span key={t} className="-translate-y-1/2 first:translate-y-0 last:translate-y-0">{rupees(t)}</span>)}
+        </div>
+        <div className="relative h-44 flex-1">
+          {ticks.map((t, i) => (
+            <div key={t} className="pointer-events-none absolute inset-x-0 border-t border-dashed border-line" style={{ top: `${(i / (ticks.length - 1)) * 100}%` }} />
+          ))}
+          <div className="absolute inset-0 flex items-end gap-[2px]" onMouseLeave={() => setHover(null)}>
+            {days.map((x, i) => (
+              <div key={x.key} className="flex h-full flex-1 items-end" onMouseEnter={() => setHover(i)}>
+                <div
+                  className={`w-full rounded-t-[4px] transition-all duration-500 ${x.future ? "bg-transparent" : hover === i ? "bg-brand-ink" : "bg-brand"}`}
+                  style={{ height: x.v > 0 ? `${Math.max(2, (x.v / top) * 100)}%` : x.future ? "0%" : "2px", opacity: x.v > 0 || x.future ? 1 : 0.25 }}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div className="ml-[52px] mt-1.5 flex justify-between text-[0.72rem] tabular-nums text-faint">
+        {[1, 8, 15, 22, days.length].map((d) => <span key={d}>{d}</span>)}
+      </div>
+    </div>
+  );
+}
+
+function niceCeil(v: number) {
+  const p = Math.pow(10, Math.floor(Math.log10(v)));
+  const n = v / p;
+  return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
 }
