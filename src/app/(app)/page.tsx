@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
+import { ArrowRight, BarChart3, BriefcaseBusiness, ClipboardPaste, IndianRupee, Mic, Plus, Send, Sparkles, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { StatTile } from "@/components/ui";
 import { JobCard } from "@/components/JobCard";
@@ -99,7 +99,7 @@ export default async function Home() {
 
           {list.length > 0 && (
             <section className="card p-5 fade-up">
-              <div className="mb-4 font-semibold">Your pipeline</div>
+              <div className="card-head"><span className="ico"><BarChart3 size={15} /></span>Your pipeline</div>
               <div className="grid grid-cols-4 gap-3">
                 {pipeline.map((p) => (
                   <div key={p.label}>

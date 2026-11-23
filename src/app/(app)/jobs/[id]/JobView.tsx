@@ -9,6 +9,7 @@ import {
   ChevronRight,
   ExternalLink,
   FileText,
+  ListChecks,
   MapPin,
   MessageCircle,
   Pencil,
@@ -19,7 +20,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { CompanyAvatar, MatchChip, STATUS_META, StatusPill } from "@/components/ui";
+import { CompanyAvatar, MatchChip, Panel, STATUS_META, StatusPill } from "@/components/ui";
 import { Menu, Modal } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview } from "./Overview";
@@ -137,7 +138,7 @@ export function JobView({
               ["Seniority", a?.seniority ?? "—"],
             ].map(([k, v]) => (
               <div key={k}>
-                <div className="text-[0.78rem] text-faint">{k}</div>
+                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
                 <div className="font-medium">{v}</div>
               </div>
             ))}
@@ -184,11 +185,10 @@ export function JobView({
 
         {/* ── Right: AI summary ── */}
         <aside className="space-y-4 xl:sticky xl:top-6 stagger">
-          <div className="card p-5">
-            <div className="flex items-center gap-2 font-semibold"><Sparkles size={16} className="text-brand" /> AI Summary</div>
+          <Panel title="AI Summary" icon={<Sparkles size={15} />}>
             {a ? (
               <>
-                <div className="mt-3 flex items-baseline gap-2">
+                <div className="flex items-baseline gap-2">
                   <span className="text-[2.4rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
                   <span className="text-muted">/100</span>
                   <span className={`ml-auto chip ${a.fit_score >= 7 ? "bg-good-soft text-good" : a.fit_score >= 5 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>
@@ -198,16 +198,16 @@ export function JobView({
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
                   <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
                 </div>
-                <div className="mt-4 space-y-2 text-[0.9rem]">
-                  <div className="flex justify-between"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
-                  <div className="flex justify-between"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
-                  <div className="flex justify-between"><span className="text-muted">Open questions</span><span className="font-medium">{unanswered}</span></div>
+                <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
+                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
+                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
+                  <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Open questions</span><span className="font-medium">{unanswered}</span></div>
                 </div>
               </>
             ) : (
-              <div className="mt-3 space-y-2"><div className="skeleton h-9 w-24" /><div className="skeleton h-2 w-full" /><div className="skeleton h-3 w-3/4" /></div>
+              <div className="space-y-2"><div className="skeleton h-9 w-24" /><div className="skeleton h-2 w-full" /><div className="skeleton h-3 w-3/4" /></div>
             )}
-          </div>
+          </Panel>
 
           {next && (
             <div className="dark-card p-5">
@@ -220,8 +220,7 @@ export function JobView({
             </div>
           )}
 
-          <div className="card p-5">
-            <div className="mb-3 font-semibold">Checklist</div>
+          <Panel title="Checklist" icon={<ListChecks size={15} />}>
             <ol className="relative space-y-3">
               <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
               {checklist.map((c) => (
@@ -233,7 +232,7 @@ export function JobView({
                 </li>
               ))}
             </ol>
-          </div>
+          </Panel>
         </aside>
       </div>
 

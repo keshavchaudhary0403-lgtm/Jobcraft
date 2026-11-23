@@ -127,9 +127,10 @@ export default function NewJob() {
           />
         </div>
 
-        <aside className="card space-y-4 p-5 lg:sticky lg:top-6 fade-up">
-          <div className="flex items-center justify-between">
-            <span className="font-semibold">Job details</span>
+        <aside className="card space-y-4 p-5 lg:sticky lg:top-6 fade-up [&>.card-head]:mb-0">
+          <div className="card-head !mb-4">
+            <span className="ico"><Building2 size={15} /></span>
+            <span className="flex-1">Job details</span>
             {detecting && <span className="flex items-center gap-1.5 text-[0.82rem] text-muted"><Spinner size={13} /> Reading…</span>}
           </div>
           {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}

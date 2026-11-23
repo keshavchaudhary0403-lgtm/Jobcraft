@@ -5,6 +5,7 @@ import { AlertCircle, Search, Send, Sparkles, UserPlus, RotateCcw } from "lucide
 import type { Application } from "@/lib/types";
 import type { Outreach } from "@/lib/tasks";
 import { CharCount, CopyButton, Spinner, Working } from "@/components/client-ui";
+import { Panel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
 
 export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
@@ -24,7 +25,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
     <div className="space-y-5">
       <div className="card flex flex-wrap items-end gap-3 p-5 fade-up">
         <div className="min-w-[220px] flex-1">
-          <label className="label">Who are you writing to? (optional)</label>
+          <label className="label">Who are you writing to? <span className="text-faint">· optional</span></label>
           <input className="field" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="e.g. Priya Sharma, Head of Growth" />
         </div>
         <a href={search} target="_blank" rel="noreferrer" className="btn btn-ghost"><Search size={15} /> Find on LinkedIn</a>
@@ -37,23 +38,15 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
       {busy && !o && <Working steps={["Finding a real challenge they face…", "Matching it to your strongest result…", "Keeping it short and human…"]} />}
 
       {o && (
-        <div className={`grid gap-5 md:grid-cols-2 stagger transition ${busy ? "opacity-50" : ""}`}>
-          <div className="card flex flex-col p-6">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 font-medium"><UserPlus size={16} className="text-brand" /> Connection note</span>
-              <CharCount text={o.connection_note} max={250} />
-            </div>
-            <p className="mt-4 flex-1 whitespace-pre-wrap leading-relaxed text-slate-700">{o.connection_note}</p>
+        <div className={`grid items-start gap-4 md:grid-cols-2 stagger transition ${busy ? "opacity-50" : ""}`}>
+          <Panel title="Connection note" icon={<UserPlus size={15} />} action={<CharCount text={o.connection_note} max={250} />} className="flex flex-col" bodyClass="flex flex-1 flex-col p-5">
+            <p className="flex-1 whitespace-pre-wrap leading-relaxed text-slate-800">{o.connection_note}</p>
             <div className="mt-5"><CopyButton text={o.connection_note} /></div>
-          </div>
-          <div className="card flex flex-col p-6">
-            <div className="flex items-center justify-between">
-              <span className="flex items-center gap-2 font-medium"><Send size={16} className="text-brand" /> Message</span>
-              <span className={`text-xs tabular-nums ${words(o.message) > 110 ? "text-bad" : "text-faint"}`}>{words(o.message)}/110 words</span>
-            </div>
-            <p className="mt-4 flex-1 whitespace-pre-wrap leading-relaxed text-slate-700">{o.message}</p>
+          </Panel>
+          <Panel title="Message" icon={<Send size={15} />} action={<CharCount text={o.message} max={110} unit="words" />} className="flex flex-col" bodyClass="flex flex-1 flex-col p-5">
+            <p className="flex-1 whitespace-pre-wrap leading-relaxed text-slate-800">{o.message}</p>
             <div className="mt-5"><CopyButton text={o.message} /></div>
-          </div>
+          </Panel>
         </div>
       )}
     </div>

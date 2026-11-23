@@ -162,8 +162,7 @@ export function AdminUsers({ meId }: { meId: string }) {
         settings && (
           <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] fade-up">
             <section className="card p-5">
-              <div className="font-semibold">AI model</div>
-              <div className="mb-4 text-[0.88rem] text-muted">Used for everyone.</div>
+              <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[0.82rem] font-normal text-muted">Used for everyone</span></div>
               <div className="space-y-2.5">
                 {Object.entries(AI_MODELS).map(([id, m]) => (
                   <button key={id} data-on={settings.ai_model === id} onClick={() => saveSettings({ ai_model: id })} className="option flex w-full items-center gap-4 p-3.5">
@@ -178,10 +177,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               </div>
             </section>
             <section className="card space-y-4 p-5">
-              <div>
-                <div className="font-semibold">Spending limits</div>
-                <div className="text-[0.88rem] text-muted">Reset on the 1st of each month (India time).</div>
-              </div>
+              <div className="card-head !mb-1"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
               <LimitField label="Default per user / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="Applies to everyone without their own limit, including new users." />
               <LimitField label="Total budget, all users / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
               <div className="border-t border-line pt-4">

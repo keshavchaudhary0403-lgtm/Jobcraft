@@ -3,11 +3,12 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AlertCircle, Check, ChevronDown, Download, FileText, Hash, Pencil, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, Check, ChevronDown, Download, FileText, Hash, ListChecks, Pencil, RotateCcw, Sparkles } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
 import { CopyButton, Spinner, Working } from "@/components/client-ui";
+import { Panel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
 
 export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
@@ -94,15 +95,14 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </div>
 
-      <aside className="order-1 grid gap-4 md:grid-cols-2 stagger empty:hidden">
+      <aside className="order-1 grid items-start gap-4 md:grid-cols-2 stagger empty:hidden">
         {missing.length > 0 && (
-          <div className="card p-5">
-            <div className="flex items-center gap-2 font-medium"><Hash size={16} className="text-brand" /> Add real numbers</div>
-            <div className="mt-4 space-y-3">
+          <Panel title="Add real numbers" icon={<Hash size={15} />}>
+            <div className="space-y-3.5">
               {missing.map((q) => (
                 <div key={q}>
-                  <label className="mb-1 block text-xs text-slate-700">{q}</label>
-                  <input className="field py-2 text-sm" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} />
+                  <label className="mb-1.5 block font-medium text-slate-800">{q}</label>
+                  <input className="field" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="Skip if you don't know" />
                 </div>
               ))}
             </div>
@@ -120,26 +120,27 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             >
               {busy ? <Spinner /> : <Sparkles size={15} />} Update resume
             </button>
-          </div>
+          </Panel>
         )}
         {!!r?.changes?.length && (
-          <div className="card p-5">
-            <button className="flex w-full items-center justify-between font-medium" onClick={() => setShowChanges(!showChanges)}>
-              <span>What changed <span className="text-sm font-normal text-muted">· {r.changes.length}</span></span>
-              <ChevronDown size={16} className={`text-muted transition ${showChanges ? "rotate-180" : ""}`} />
-            </button>
-            <p className="mt-1 text-xs text-muted">Check each one is true.</p>
-            {showChanges && (
-              <ul className="mt-3 space-y-3 fade-up">
-                {r.changes.map((c, i) => (
-                  <li key={i} className="text-sm">
-                    <div className="font-medium text-slate-800">{c.change}</div>
-                    <div className="text-xs text-muted">{c.why}</div>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
+          <Panel
+            title={<>What changed <span className="font-normal text-muted">· {r.changes.length}</span></>}
+            sub="Check each one is true"
+            icon={<ListChecks size={15} />}
+            action={
+              <button className="btn-quiet" onClick={() => setShowChanges(!showChanges)} aria-label="Show changes">
+                <ChevronDown size={16} className={`transition ${showChanges ? "rotate-180" : ""}`} />
+              </button>
+            }
+            bodyClass={showChanges ? "divide-y divide-line" : "hidden"}
+          >
+            {r.changes.map((c, i) => (
+              <div key={i} className="px-5 py-3">
+                <div className="font-medium text-slate-800">{c.change}</div>
+                <div className="text-[0.85rem] text-muted">{c.why}</div>
+              </div>
+            ))}
+          </Panel>
         )}
       </aside>
     </div>

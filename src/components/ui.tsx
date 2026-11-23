@@ -141,3 +141,41 @@ export function profileStrength(p: { master_resume: string | null; target_role: 
   ] as const;
   return checks.reduce((t, [ok, w]) => t + (ok ? w : 0), 0);
 }
+
+/** Standard section card: clear header (icon + title + divider) then body. Used across the app. */
+export function Panel({
+  title,
+  icon,
+  action,
+  sub,
+  children,
+  className = "",
+  bodyClass = "p-5",
+}: {
+  title: React.ReactNode;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  sub?: React.ReactNode;
+  children: React.ReactNode;
+  className?: string;
+  bodyClass?: string;
+}) {
+  return (
+    <section className={`card overflow-hidden ${className}`}>
+      <div className="flex items-center gap-2.5 border-b border-line bg-line-2/40 px-5 py-3">
+        {icon && <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-brand-soft text-brand">{icon}</span>}
+        <div className="min-w-0 flex-1">
+          <div className="font-semibold leading-tight">{title}</div>
+          {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
+        </div>
+        {action}
+      </div>
+      <div className={bodyClass}>{children}</div>
+    </section>
+  );
+}
+
+/** Sub-heading inside a card. */
+export function SubLabel({ children }: { children: React.ReactNode }) {
+  return <div className="mb-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{children}</div>;
+}

@@ -6,6 +6,7 @@ import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner, Working } from "@/components/client-ui";
+import { Panel, SubLabel } from "@/components/ui";
 import { useGenerate } from "@/components/useGenerate";
 
 const MATCH = {
@@ -66,90 +67,76 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
   return (
     <div className={`space-y-4 stagger transition ${busy ? "opacity-60" : ""}`}>
       {/* AI-extracted insights */}
-      <section className="card p-5">
-        <div className="flex items-center justify-between">
+      <Panel title="AI-extracted insights" icon={<Sparkles size={15} />} action={<span className="chip hidden bg-brand-soft text-brand sm:inline-flex">{a.fit_verdict}</span>} bodyClass="divide-y divide-line">
+        <div className="grid gap-5 p-5 md:grid-cols-2 md:divide-x md:divide-line">
           <div>
-            <div className="flex items-center gap-2 font-semibold"><Sparkles size={16} className="text-brand" /> AI-extracted insights</div>
+            <SubLabel>The real problem they&apos;re hiring for</SubLabel>
+            <p className="leading-relaxed text-slate-800">{a.real_problem}</p>
           </div>
-          <span className="chip bg-brand-soft text-brand">{a.fit_verdict}</span>
-        </div>
-        <div className="mt-4 grid gap-4 md:grid-cols-2">
-          <div>
-            <div className="text-[0.8rem] text-faint">The real problem they&apos;re hiring for</div>
-            <p className="mt-1 leading-relaxed text-slate-800">{a.real_problem}</p>
-          </div>
-          <div>
-            <div className="text-[0.8rem] text-faint">Why this score</div>
-            <p className="mt-1 leading-relaxed text-slate-800">{a.fit_reasoning}</p>
+          <div className="md:pl-5">
+            <SubLabel>Why this score</SubLabel>
+            <p className="leading-relaxed text-slate-800">{a.fit_reasoning}</p>
           </div>
         </div>
-        <div className="mt-4 text-[0.8rem] text-faint">Expected, but not written</div>
-        <div className="mt-1.5 grid gap-2.5 md:grid-cols-3">
-          {a.unwritten_expectations.map((x, i) => (
-            <div key={x} className={`rounded-xl p-3 text-[0.9rem] leading-snug text-slate-800 ${TILE[i % 3]}`}>
-              <Lightbulb size={14} className="mb-1.5 opacity-60" />
-              {x}
-            </div>
-          ))}
+        <div className="p-5">
+          <SubLabel>Expected, but not written</SubLabel>
+          <div className="mt-2 grid gap-2.5 md:grid-cols-3">
+            {a.unwritten_expectations.map((x, i) => (
+              <div key={x} className={`rounded-xl p-3 text-[0.9rem] leading-snug text-slate-800 ${TILE[i % 3]}`}>
+                <Lightbulb size={14} className="mb-1.5 opacity-60" />
+                {x}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-[0.8rem] text-faint">ATS keywords</span>
-          {a.ats_keywords.map((k) => <span key={k} className="chip bg-white px-3 text-brand ring-1 ring-brand/25">{k}</span>)}
+        <div className="flex flex-wrap items-center gap-2 p-5">
+          <span className="mr-1 text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">ATS keywords</span>
+          {a.ats_keywords.map((k) => <span key={k} className="chip bg-card px-3 text-brand ring-1 ring-brand/25">{k}</span>)}
         </div>
-      </section>
+      </Panel>
 
-      <div className="grid gap-4 2xl:grid-cols-2">
+      <div className="grid items-start gap-4 2xl:grid-cols-2">
         {/* What they want */}
-        <section className="card p-5">
-          <div className="mb-3 flex items-center gap-2 font-semibold"><Target size={16} className="text-brand" /> What they want</div>
-          <ul className="space-y-1">
-            {a.top_skills.map((s, i) => {
-              const m = MATCH[s.match];
-              return (
-                <li key={s.skill} className="flex items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-line-2">
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-semibold text-muted">{i + 1}</span>
-                  <div className="min-w-0 flex-1">
-                    <div className="font-medium leading-snug">{s.skill}</div>
-                    <div className="text-[0.82rem] text-faint">{s.why}</div>
-                  </div>
-                  <span className={`chip shrink-0 ${m.cls}`}><m.icon size={12} /> {m.label}</span>
-                </li>
-              );
-            })}
-          </ul>
-        </section>
+        <Panel title="What they want" icon={<Target size={15} />} bodyClass="divide-y divide-line">
+          {a.top_skills.map((s, i) => {
+            const m = MATCH[s.match];
+            return (
+              <div key={s.skill} className="flex items-center gap-3 px-5 py-3 transition hover:bg-line-2/60">
+                <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-semibold text-muted">{i + 1}</span>
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium leading-snug">{s.skill}</div>
+                  <div className="text-[0.84rem] text-muted">{s.why}</div>
+                </div>
+                <span className={`chip shrink-0 ${m.cls}`}><m.icon size={12} /> {m.label}</span>
+              </div>
+            );
+          })}
+        </Panel>
 
         {/* Gaps */}
-        <section className="card p-5">
-          <div className="mb-3 font-semibold">Gaps to close</div>
-          <div className="space-y-2.5">
-            {a.gaps.map((g) => {
-              const m = GAP[g.status];
-              return (
-                <div key={g.gap} className="rounded-xl bg-line-2 p-3.5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <span className="font-medium">{g.gap}</span>
-                    <span className={`chip ${m.cls}`}><m.icon size={12} /> {m.label}</span>
-                  </div>
-                  <p className="mt-1 text-[0.88rem] text-muted">{g.explanation}</p>
+        <Panel title="Gaps to close" icon={<AlertCircle size={15} />} bodyClass="divide-y divide-line">
+          {a.gaps.map((g) => {
+            const m = GAP[g.status];
+            return (
+              <div key={g.gap} className="px-5 py-3.5">
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-medium">{g.gap}</span>
+                  <span className={`chip ${m.cls}`}><m.icon size={12} /> {m.label}</span>
                 </div>
-              );
-            })}
-          </div>
-        </section>
+                <p className="mt-1 text-[0.88rem] text-muted">{g.explanation}</p>
+              </div>
+            );
+          })}
+        </Panel>
       </div>
 
       {/* Questions */}
       {a.questions.length > 0 && (
-        <section className="card border-brand/25 p-5">
-          <div className="flex items-center gap-2">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-sun text-brand"><CircleHelp size={15} /></span>
-            <span className="font-semibold">Answer a few questions to sharpen your score</span>
-          </div>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
+        <Panel title="Answer a few questions to sharpen your score" icon={<CircleHelp size={15} />}>
+          <div className="grid gap-4 md:grid-cols-2">
             {a.questions.map((q) => (
               <div key={q}>
-                <label className="mb-1.5 block text-slate-700">{q}</label>
+                <label className="mb-1.5 block font-medium text-slate-800">{q}</label>
                 <textarea className="field" rows={2} value={answers[q] ?? ""} onChange={(e) => setAnswers({ ...answers, [q]: e.target.value })} placeholder="Your honest answer" />
               </div>
             ))}
@@ -158,7 +145,7 @@ export function Overview({ app, onUpdate }: { app: Application; onUpdate: (p: Pa
             {busy ? <Spinner /> : <RotateCcw size={15} />} Save &amp; re-score
           </button>
           {error && <p className="mt-2 text-bad">{error}</p>}
-        </section>
+        </Panel>
       )}
     </div>
   );

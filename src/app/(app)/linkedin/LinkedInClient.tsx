@@ -86,7 +86,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
 
         {/* Headline options */}
         <aside className="card p-5 xl:sticky xl:top-6 fade-up">
-          <div className="mb-3 font-semibold">Headline</div>
+          <div className="card-head"><span className="ico"><Sparkles size={15} /></span>Headline options</div>
           {res ? (
             <div className="space-y-2.5">
               {res.headlines.map((h, i) => (
