@@ -33,8 +33,8 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         <div>
           <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">LinkedIn</h1>
           <p className="mt-0.5 text-muted">
-            Optimised for <span className="font-medium text-ink">{targetRole || "your next role"}</span> ·{" "}
-            <Link href="/profile" className="text-brand-ink hover:underline">change</Link>
+            Optimised for <span className="font-medium text-ink">{targetRole || "your next role"}</span>
+            <Link href="/profile" className="pill-link ml-2 h-6 px-2.5 text-[0.78rem]">Change</Link>
           </p>
         </div>
         <div className="flex gap-2">

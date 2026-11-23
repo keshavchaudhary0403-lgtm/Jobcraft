@@ -87,7 +87,7 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
       </div>
       <div className="mt-3 flex items-center justify-center gap-2 text-sm text-muted">
         No PDF?
-        <button className="font-medium text-brand-ink hover:underline" onClick={() => setPaste(true)}>Paste text</button>
+        <button className="pill-link" onClick={() => setPaste(true)}>Paste text instead</button>
       </div>
       {err && <p className="mt-2 text-center text-sm text-bad">{err}</p>}
     </div>

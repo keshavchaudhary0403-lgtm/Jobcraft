@@ -14,6 +14,7 @@ import {
   FileText,
   Lightbulb,
   Mic,
+  Pencil,
   MessageSquareQuote,
   RotateCcw,
   Sparkles,
@@ -103,6 +104,14 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
   if (!a) return null;
 
   const questions = questionList(a);
+  // Older analyses had no per-gap question: link "unsure" gaps to the questions in order.
+  const legacy = !a.gaps.some((g) => g.question !== undefined);
+  const gapQuestion = (g: Analysis["gaps"][number]): string | null => {
+    if (!legacy) return g.question?.trim() || null;
+    if (g.status !== "unsure") return null;
+    const n = a.gaps.filter((x) => x.status === "unsure").indexOf(g);
+    return a.questions[n]?.trim() || null;
+  };
   const answered = questions.filter((q) => answers[q]?.trim()).length;
   const scored = a.scored_with ?? {};
   const changedSinceScore = questions.some((q) => (answers[q]?.trim() ?? "") !== (scored[q]?.trim() ?? ""));
@@ -204,10 +213,10 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 {isOpen && (
                   <div className="grid gap-3 bg-line-2/40 px-5 pb-4 pl-14 fade-up md:grid-cols-2">
                     {s.evidence === undefined ? (
-                      <p className="text-[0.9rem] text-muted md:col-span-2">
-                        This job was analysed before details were available.{" "}
-                        <button className="font-semibold text-brand-ink hover:underline" onClick={refresh}>Refresh the analysis</button> to see where it shows on your resume and how to fix it.
-                      </p>
+                      <div className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-white p-3.5 md:col-span-2">
+                        <p className="flex-1 text-[0.9rem] text-slate-700">This job was analysed before these details existed. Refresh to see where this shows on your resume, what&apos;s missing and how to fix it.</p>
+                        <button className="btn btn-primary btn-sm" onClick={refresh}><RotateCcw size={13} /> Refresh analysis</button>
+                      </div>
                     ) : (
                       <>
                         <div className="rounded-xl border border-line bg-white p-3.5">
@@ -256,8 +265,9 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         <Panel title="Gaps to close" sub="Where your resume falls short for this job — and what to do about each." icon={<AlertCircle size={15} />} bodyClass="divide-y divide-line">
           {a.gaps.map((g) => {
             const m = GAP[g.status];
-            const qi = g.question ? questions.indexOf(g.question.trim()) : -1;
-            const ans = g.question ? answers[g.question.trim()]?.trim() : "";
+            const gq = gapQuestion(g);
+            const qi = gq ? questions.indexOf(gq) : -1;
+            const ans = gq ? answers[gq]?.trim() : "";
             return (
               <div key={g.gap} className="px-5 py-4">
                 <div className="flex flex-wrap items-start justify-between gap-2">
@@ -265,7 +275,13 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     <div className="font-semibold">{g.gap}</div>
                     <p className="mt-0.5 text-[0.9rem] text-muted">{g.explanation}</p>
                   </div>
-                  <span className={`chip ${m.cls}`} title={m.hint}><m.icon size={12} /> {m.label}</span>
+                  {qi >= 0 ? (
+                    <button className={`chip transition hover:brightness-95 ${m.cls}`} title={ans ? "Edit your answer" : "Answer the question"} onClick={() => onAsk(qi)}>
+                      <m.icon size={12} /> {ans ? "Answered" : m.label} <ArrowRight size={11} />
+                    </button>
+                  ) : (
+                    <span className={`chip ${m.cls}`} title={m.hint}><m.icon size={12} /> {m.label}</span>
+                  )}
                 </div>
                 {g.how_to_close && (
                   <div className="mt-3 rounded-xl bg-line-2/60 p-3.5">
@@ -280,12 +296,12 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <div className="flex min-w-0 flex-1 items-center gap-3 rounded-xl border border-good/25 bg-good-soft/50 px-3.5 py-2.5">
                           <CheckCircle2 size={15} className="shrink-0 text-good" />
                           <span className="line-clamp-1 flex-1 text-[0.9rem] text-slate-700">{ans}</span>
-                          <button className="shrink-0 text-[0.85rem] font-semibold text-brand-ink hover:underline" onClick={() => onAsk(qi)}>Edit answer</button>
+                          <button className="btn btn-ghost btn-sm shrink-0" onClick={() => onAsk(qi)}><Pencil size={12} /> Edit answer</button>
                         </div>
                       ) : (
                         <div className="flex min-w-0 flex-1 flex-wrap items-center gap-3 rounded-xl border border-info/25 bg-info-soft/50 px-3.5 py-2.5">
                           <CircleHelp size={15} className="shrink-0 text-info" />
-                          <span className="min-w-0 flex-1 text-[0.9rem] font-medium text-slate-800">{g.question}</span>
+                          <span className="min-w-0 flex-1 text-[0.9rem] font-medium text-slate-800">{gq}</span>
                           <button className="btn btn-primary btn-sm" onClick={() => onAsk(qi)}>Answer</button>
                         </div>
                       )
@@ -320,7 +336,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     <div className="font-medium leading-snug text-slate-800">{q}</div>
                     <div className={`mt-0.5 line-clamp-1 text-[0.86rem] ${ans ? "text-muted" : "text-faint"}`}>{ans || "Not answered yet"}</div>
                   </div>
-                  <span className="shrink-0 text-[0.85rem] font-semibold text-brand-ink">{ans ? "Edit" : "Answer"}</span>
+                  <span className={`shrink-0 ${ans ? "btn btn-ghost btn-sm" : "btn btn-primary btn-sm"}`}>{ans ? <><Pencil size={12} /> Edit</> : <>Answer <ArrowRight size={13} /></>}</span>
                 </button>
               );
             })}
@@ -405,7 +421,7 @@ function AnswerFlowInner({
   const [saving, setSaving] = useState(false);
   const v = useVoice();
   const q = questions[i];
-  const gap = gaps.find((g) => g.question?.trim() === q);
+  const gap = gaps.find((g) => g.question?.trim() === q) ?? (gaps.some((g) => g.question !== undefined) ? undefined : gaps.filter((g) => g.status === "unsure")[i]);
   const last = i === questions.length - 1;
   const done = questions.filter((x) => draft[x]?.trim()).length;
 

@@ -110,7 +110,7 @@ export default async function Home() {
           <section>
             <div className="mb-3 flex items-center justify-between">
               <h2 className="font-bold">Your jobs</h2>
-              {list.length > 0 && <Link href="/jobs" className="text-[0.9rem] text-muted hover:text-ink">View all</Link>}
+              {list.length > 0 && <Link href="/jobs" className="pill-link">View all <ArrowRight size={12} /></Link>}
             </div>
             {list.length === 0 ? (
               <Link href="/jobs/new" className="card card-hover ai-gradient flex items-center gap-4 p-6">

@@ -218,7 +218,7 @@ export function JobView({
                 <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
-                  <button onClick={unanswered ? openQuestions : undefined} disabled={!unanswered} className="flex w-full justify-between px-5 py-2.5 text-left transition enabled:hover:bg-line-2/60"><span className="text-muted">Open questions</span><span className={`font-medium ${unanswered ? "text-brand-ink" : ""}`}>{unanswered ? `${unanswered} · Answer` : "0"}</span></button>
+                  <div className="flex items-center justify-between px-5 py-2"><span className="text-muted">Open questions</span><span className="flex items-center gap-2"><span className="font-medium">{unanswered}</span>{unanswered > 0 && <button onClick={openQuestions} className="pill-link">Answer <ArrowRight size={12} /></button>}</span></div>
                 </div>
               </>
             ) : (

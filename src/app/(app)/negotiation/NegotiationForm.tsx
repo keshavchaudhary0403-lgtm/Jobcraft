@@ -81,9 +81,9 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
           <div>
             <label className="label flex justify-between">
               <span>Market range</span>
-              <span className="flex gap-2.5 font-normal">
-                <a className="flex items-center gap-0.5 text-brand-ink hover:underline" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
-                <a className="flex items-center gap-0.5 text-brand-ink hover:underline" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
+              <span className="flex gap-1.5 font-normal">
+                <a className="pill-link h-6 px-2.5 text-[0.78rem]" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
+                <a className="pill-link h-6 px-2.5 text-[0.78rem]" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
               </span>
             </label>
             <div className="relative">
