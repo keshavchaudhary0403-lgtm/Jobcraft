@@ -39,7 +39,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
       <form action={start} className="grid items-stretch gap-5 fade-up lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <section className="card flex flex-col p-6">
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">1</span>
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-side text-[0.8rem] font-bold text-cream">1</span>
             <h2 className="flex-1 text-[1.2rem] font-bold leading-none">Pick the job</h2>
           </div>
           <JobPicker
@@ -67,7 +67,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
           <ol className="mt-4 flex-1 space-y-3">
             {STEPS.map((t, i) => (
               <li key={t} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 text-[0.9rem] font-bold text-mustard">{i + 1}</span>
                 <span className="text-[0.95rem] text-cream/90">{t}</span>
               </li>
             ))}

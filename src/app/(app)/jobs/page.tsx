@@ -96,7 +96,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
               <Link href="/jobs/new" className={`flex min-h-[170px] items-center justify-center gap-4 rounded-[22px] border-[1.5px] border-dashed border-line text-muted transition hover:border-clay hover:text-clay ${shown.length % 2 === 0 ? "md:col-span-2" : "flex-col"}`}>
                 <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
                 <span className={shown.length % 2 === 0 ? "" : "text-center"}>
-                  <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
+                  <span className="block text-[1.15rem] font-bold text-ink">Add another job</span>
                   <span className="block text-[0.86rem]">Paste a link or a description — we decode it in seconds.</span>
                 </span>
               </Link>

@@ -137,13 +137,13 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
                 {[["Current CTC", saved.current_ctc], ["Experience", saved.experience], ["City", saved.city]].map(([k, v]) => (
                   <div key={k} className="flex items-center justify-between gap-3 rounded-2xl bg-line-2/70 px-4 py-2.5">
                     <span className="text-[0.8rem] text-muted">{k}</span>
-                    <span className="truncate font-display text-[1.1rem] font-bold" title={v}>{v || "—"}</span>
+                    <span className="truncate text-[1.1rem] font-bold" title={v}>{v || "—"}</span>
                   </div>
                 ))}
               </div>
               <div className="flex flex-col rounded-2xl p-4" style={{ background: "var(--color-mustard-soft)" }}>
                 <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-[#8a6414]">Your strongest proof</div>
-                <p className="mt-1.5 font-display text-[1.05rem] font-semibold leading-snug">&ldquo;{saved.strongest_proof || "Add a result with a number"}&rdquo;</p>
+                <p className="mt-1.5 text-[1.05rem] font-semibold leading-snug">&ldquo;{saved.strongest_proof || "Add a result with a number"}&rdquo;</p>
                 <p className="mt-auto pt-2 text-[0.78rem] text-[#8a6414]/80">You&apos;ll use this to justify your counter.</p>
               </div>
             </div>
@@ -155,7 +155,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
           <ol className="mt-4 flex-1 space-y-3">
             {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter — HR pushes back", "Say stop for feedback"].map((t, i) => (
               <li key={t} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 text-[0.9rem] font-bold text-mustard">{i + 1}</span>
                 <span className="text-[0.95rem] text-cream/90">{t}</span>
               </li>
             ))}
@@ -171,7 +171,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
 function StepHead({ n, title, action }: { n: number; title: string; action?: React.ReactNode }) {
   return (
     <div className="mb-4 flex items-center gap-2.5">
-      <span className="grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">{n}</span>
+      <span className="grid h-7 w-7 place-items-center rounded-full bg-side text-[0.8rem] font-bold text-cream">{n}</span>
       <h2 className="flex-1 text-[1.2rem] font-bold leading-none">{title}</h2>
       {action}
     </div>

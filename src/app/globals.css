@@ -60,7 +60,8 @@ input:focus-visible, textarea:focus-visible, select:focus-visible, [contentedita
 .option:focus-visible { border-color: var(--brand); }
 html { font-size: 14px; -webkit-font-smoothing: antialiased; }
 body { background: var(--color-bg); color: var(--color-ink); font-family: var(--font-sans); font-size: 13.5px; line-height: 1.55; }
-h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+h1, .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
+h2, h3 { letter-spacing: -0.01em; }
 
 @layer components {
 /* Surfaces */
@@ -72,7 +73,7 @@ h1, h2, h3, .font-display { font-family: var(--font-display); letter-spacing: -0
 
 .card-head {
   display: flex; align-items: center; gap: .6rem; margin: -1.25rem -1.25rem 1.1rem; padding: .8rem 1.25rem;
-  border-bottom: 1px solid var(--line); border-radius: 22px 22px 0 0; font-weight: 700; font-family: var(--font-display);
+  border-bottom: 1px solid var(--line); border-radius: 22px 22px 0 0; font-weight: 600;
   background: transparent;
 }
 .card-head .ico { display: grid; place-items: center; width: 1.85rem; height: 1.85rem; border-radius: 999px; background: var(--color-clay-soft); color: var(--color-clay); flex-shrink: 0; }

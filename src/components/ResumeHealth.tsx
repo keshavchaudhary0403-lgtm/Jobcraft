@@ -56,7 +56,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
         <div className="min-w-0">
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
-              <h2 className="text-[1.3rem] font-bold leading-tight">ATS-safe checks</h2>
+              <h2 className="font-sans text-[1.05rem] font-semibold leading-tight tracking-normal">ATS-safe checks</h2>
               <div className="text-[0.84rem] text-muted">Checked live against what recruiters and ATS look for. Free, no AI.</div>
             </div>
             <span className="chip bg-good-soft text-good">{report.doc.filter((d) => d.ok).length} of {report.doc.length} passed</span>
@@ -80,7 +80,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
       <div className="border-t border-line">
         <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4">
           <div>
-            <div className="font-display text-[1.15rem] font-bold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
+            <div className="text-[1.02rem] font-semibold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
             <div className="text-[0.8rem] text-muted">Each is scored out of 10: a number, a strong verb, length, active voice, no filler, no buzzwords.</div>
           </div>
           {report.bullets.length > 0 && <button className="pill-link" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only weak ones" : `Show all ${report.bullets.length}`}</button>}
@@ -88,7 +88,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
         <div className={`grid gap-px bg-line ${compact ? "" : "lg:grid-cols-2"}`}>
           {list.map((b) => (
             <div key={b.line} className="flex items-start gap-3 bg-card px-6 py-3.5">
-              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-[#8a6414]" : "bg-clay-soft text-clay"}`}>{b.score}</span>
+              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-[#8a6414]" : "bg-clay-soft text-clay"}`}>{b.score}</span>
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-[0.92rem] leading-snug text-ink">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">

@@ -209,7 +209,7 @@ export function JobView({
           {next && (
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-5 py-3.5">
               <div>
-                <div className="font-display text-[1.1rem] font-bold">{next.label}</div>
+                <div className="text-[1.1rem] font-bold">{next.label}</div>
                 <div className="text-[0.86rem] text-muted">{next.sub}</div>
               </div>
               <button onClick={next.go} className="btn btn-clay h-11">Do it now <ArrowRight size={15} /></button>
@@ -229,9 +229,9 @@ export function JobView({
               disabled={!analysed && c.key !== "overview"}
               className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 text-left transition disabled:opacity-40 ${on ? "border-side bg-side text-cream" : "border-line bg-card hover:border-brand/40"}`}
             >
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.9rem] font-bold ${on ?"bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
               <span className="min-w-0">
-                <span className="block font-display text-[1.1rem] font-bold leading-tight">{c.label}</span>
+                <span className="block text-[1.1rem] font-bold leading-tight">{c.label}</span>
                 <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>
               </span>
             </button>

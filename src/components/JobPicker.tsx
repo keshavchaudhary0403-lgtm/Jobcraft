@@ -46,7 +46,7 @@ export function JobPicker({
                   <span className="block truncate text-[0.92rem] font-semibold" title={a.role}>{a.role}</span>
                   <span className={`block truncate text-[0.76rem] ${on ? "text-cream/60" : "text-muted"}`}>{a.company}{a.status === "offer" ? " · Offer" : ""}</span>
                 </span>
-                {an && <span className={`font-display text-[1rem] font-bold tabular-nums ${on ? "text-mustard" : ""}`}>{an.fit_score * 10}%</span>}
+                {an && <span className={`text-[1rem] font-bold tabular-nums ${on ? "text-mustard" : ""}`}>{an.fit_score * 10}%</span>}
               </button>
             );
           })}
@@ -77,9 +77,9 @@ export function JobPicker({
                 <span className={`min-w-0 flex-1 truncate text-[0.84rem] ${on ? "text-cream/70" : "text-muted"}`}>{a.company}</span>
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${on ? "bg-mustard text-side" : "border-[1.5px] border-line"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
               </span>
-              <span className="mt-3 line-clamp-2 font-display text-[1.05rem] font-bold leading-snug" title={a.role}>{a.role}</span>
+              <span className="mt-3 line-clamp-2 text-[1.05rem] font-bold leading-snug" title={a.role}>{a.role}</span>
               <span className="mt-auto flex items-center gap-2 pt-3 text-[0.78rem]">
-                {an && <span className={`font-display text-[1.1rem] font-bold ${on ? "text-mustard" : "text-ink"}`}>{an.fit_score * 10}%<span className={`ml-1 font-sans text-[0.8rem] font-normal ${on ? "text-cream/60" : "text-muted"}`}>fit</span></span>}
+                {an && <span className={`text-[1.1rem] font-bold ${on ? "text-mustard" : "text-ink"}`}>{an.fit_score * 10}%<span className={`ml-1 font-sans text-[0.8rem] font-normal ${on ? "text-cream/60" : "text-muted"}`}>fit</span></span>}
                 {a.status === "offer" && <span className="chip bg-good-soft py-0 text-good">Offer</span>}
               </span>
             </button>

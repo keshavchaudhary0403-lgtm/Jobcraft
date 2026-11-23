@@ -49,9 +49,9 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
             const done = i < step;
             return (
               <li key={s.title} className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 ${on ? "border-side bg-side text-cream" : "border-line bg-card"}`}>
-                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{done ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.9rem] font-bold ${on ?"bg-cream text-side" : done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{done ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
                 <span className="min-w-0">
-                  <span className="block font-display text-[1.05rem] font-bold leading-tight">{s.title}</span>
+                  <span className="block text-[1.05rem] font-bold leading-tight">{s.title}</span>
                   <span className={`block text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{s.sub}</span>
                 </span>
               </li>

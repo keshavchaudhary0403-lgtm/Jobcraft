@@ -36,7 +36,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
         <div className="mx-auto grid h-[120px] w-[120px] place-items-center rounded-full border-[10px] border-dashed border-line">
           <span className="font-display text-[1.8rem] font-bold text-faint">?<span className="text-[0.9rem]">/10</span></span>
         </div>
-        <div className="mt-4 font-display text-[1.25rem] font-bold">Your scorecard</div>
+        <div className="mt-4 text-[1.25rem] font-bold">Your scorecard</div>
         <p className="mt-1 text-[0.88rem] text-muted">
           {answers < 2 ? "Answer at least two questions to get an honest score and what a 9/10 answer sounds like." : "Done? Get your score, best moments and fixes for the weakest answers."}
         </p>
@@ -59,7 +59,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
         </div>
         <div className="min-w-0">
           <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Scorecard</div>
-          <div className="mt-1 font-display text-[1.1rem] font-bold leading-snug">{r.verdict}</div>
+          <div className="mt-1 text-[1.1rem] font-bold leading-snug">{r.verdict}</div>
         </div>
       </div>
       <div className="mx-5 flex items-start gap-2 rounded-2xl bg-clay-soft px-3.5 py-3 text-[0.88rem]"><Target size={15} className="mt-0.5 shrink-0 text-clay" /> <span><b className="font-semibold">Work on next:</b> {r.next_focus}</span></div>

@@ -98,7 +98,7 @@ export default async function Home() {
             <ScoreRing value={score} parts={parts} />
             <div>
               <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/50">Search score</div>
-              <div className="font-display text-[1.25rem] font-bold text-brand-2">{word}</div>
+              <div className="text-[1.25rem] font-bold text-brand-2">{word}</div>
             </div>
           </Link>
 
@@ -123,7 +123,7 @@ export default async function Home() {
         {gain > 0 && (
           <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-7 py-3.5 transition hover:bg-white/[.08]">
             <span className="flex items-center gap-3"><span className="rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Biggest lift</span><span className="font-semibold text-cream">{lift.lift}</span></span>
-            <span className="flex items-center gap-2 font-display text-[1.1rem] font-bold text-mustard">+{gain} points <ArrowRight size={16} /></span>
+            <span className="flex items-center gap-2 text-[1.1rem] font-bold text-mustard">+{gain} points <ArrowRight size={16} /></span>
           </Link>
         )}
       </section>
@@ -134,7 +134,7 @@ export default async function Home() {
           <Link key={x.href} href={x.href} className="group flex items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
             <span className="min-w-0">
-              <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
+              <span className="block text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
               <span className="block truncate text-[0.78rem] text-muted">{x.hint}</span>
             </span>
           </Link>
@@ -154,7 +154,7 @@ export default async function Home() {
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
           <section className="fade-up">
             <div className="mb-3 flex items-end justify-between">
-              <h2 className="text-[1.6rem] font-bold leading-none">Your jobs</h2>
+              <h2 className="font-display text-[1.6rem] font-bold leading-none">Your jobs</h2>
               <Link href="/jobs" className="inline-flex items-center gap-1 text-[0.92rem] font-semibold text-brand hover:underline">All {all.length} <ArrowRight size={14} /></Link>
             </div>
             <div className="grid gap-5 md:grid-cols-2 stagger">
@@ -163,7 +163,7 @@ export default async function Home() {
                 <Link href="/jobs/new" className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-[22px] border-[1.5px] border-dashed border-line text-center text-muted transition hover:border-clay hover:text-clay">
                   <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
                   <span>
-                    <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
+                    <span className="block text-[1.15rem] font-bold text-ink">Add another job</span>
                     <span className="block text-[0.84rem]">Five or more keeps your search moving.</span>
                   </span>
                 </Link>
@@ -174,7 +174,7 @@ export default async function Home() {
                     <span className="grid h-11 w-11 place-items-center rounded-full bg-plum text-white"><Mic size={19} /></span>
                     <span>
                       <span className="block text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-plum">Practise while you wait</span>
-                      <span className="block font-display text-[1.15rem] font-bold">Mock interview</span>
+                      <span className="block text-[1.15rem] font-bold">Mock interview</span>
                     </span>
                   </span>
                   <span className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < interviews.length ? "bg-plum" : "bg-white"}`} />)}</span>

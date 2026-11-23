@@ -24,13 +24,13 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
           <span className="grid h-12 w-12 place-items-center rounded-full bg-plum text-white"><Mic size={21} /></span>
           <div>
             <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-plum">Mock interview</div>
-            <h3 className="text-[1.4rem] font-bold leading-tight">{app.company.replace(/\(.*?\)/g, "").trim()}&apos;s hiring manager</h3>
+            <h3 className="font-display text-[1.4rem] font-bold leading-tight">{app.company.replace(/\(.*?\)/g, "").trim()}&apos;s hiring manager</h3>
           </div>
         </div>
         <div className="mt-5 grid grid-cols-3 gap-2 text-center">
           {[["6", "questions"], ["Voice", "or chat"], ["/10", "honest score"]].map(([v, l]) => (
             <div key={l} className="rounded-2xl bg-white/70 px-2 py-3">
-              <div className="font-display text-[1.15rem] font-bold">{v}</div>
+              <div className="text-[1.15rem] font-bold">{v}</div>
               <div className="text-[0.8rem] text-muted">{l}</div>
             </div>
           ))}
@@ -49,7 +49,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
       <section className="card flex flex-col p-6">
         <div className="flex items-baseline justify-between">
           <h3 className="text-[1.25rem] font-bold">Your rounds</h3>
-          {best != null && <span className="text-[0.82rem] text-muted">Best <b className="font-display text-ink">{best}/10</b></span>}
+          {best != null && <span className="text-[0.82rem] text-muted">Best <b className="font-semibold text-ink">{best}/10</b></span>}
         </div>
         {rounds.length ? (
           <>
@@ -85,7 +85,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
       {/* Salary */}
       <section className="card flex flex-col p-6" style={{ background: "var(--color-mustard-soft)" }}>
         <span className="grid h-12 w-12 place-items-center rounded-full bg-mustard text-side"><IndianRupee size={21} /></span>
-        <h3 className="mt-4 text-[1.35rem] font-bold leading-tight">Salary talk</h3>
+        <h3 className="font-display mt-4 text-[1.35rem] font-bold leading-tight">Salary talk</h3>
         <p className="mt-1 text-[0.9rem] text-[#6e4f0f]">{app.status === "offer" ? "You have an offer — check it against the market, then practise with HR." : "When the offer comes: check it, then rehearse the call."}</p>
         <Link href={`/negotiation?app=${app.id}`} className="btn btn-primary mt-auto h-11 w-full">{app.status === "offer" ? "Check my offer" : "Practise anyway"} <ArrowRight size={16} /></Link>
       </section>

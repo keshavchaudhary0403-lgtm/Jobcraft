@@ -89,7 +89,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                   {res
                     ? res.skills.map((s, i) => (
                         <li key={s} className="flex items-center gap-2.5 rounded-2xl border-[1.5px] border-line px-3 py-2 text-[0.9rem] font-medium">
-                          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard-soft font-display text-[0.78rem] font-bold text-[#8a6414]">{i + 1}</span>{s}
+                          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard-soft text-[0.78rem] font-bold text-[#8a6414]">{i + 1}</span>{s}
                         </li>
                       ))
                     : [0, 1, 2, 3, 4].map((i) => <li key={i} className={`h-10 rounded-2xl ${busy ? "skeleton" : "bg-line-2"}`} />)}
@@ -120,7 +120,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                   return (
                     <button key={i} type="button" onClick={() => setPick(i)} className={`w-full rounded-[18px] border-[1.5px] p-3.5 text-left transition ${on ? "border-side bg-side text-cream" : "border-line hover:border-brand/40"}`}>
                       <div className="mb-1.5 flex items-center gap-2 text-[0.8rem]">
-                        <span className={`grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
+                        <span className={`grid h-6 w-6 place-items-center rounded-full font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
                         <span className={`ml-auto ${on ? "text-cream/60" : ""}`}><CharCount text={h} max={220} /></span>
                       </div>
                       <div className="text-[0.9rem] leading-snug">{h}</div>
@@ -171,7 +171,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
             <circle cx="28" cy="28" r="23" fill="none" stroke="var(--line-2)" strokeWidth="6" />
             <circle cx="28" cy="28" r="23" fill="none" stroke="var(--color-good)" strokeWidth="6" strokeLinecap="round" strokeDasharray={2 * Math.PI * 23} strokeDashoffset={2 * Math.PI * 23 * (1 - n / STEPS.length)} style={{ transition: "stroke-dashoffset .6s ease" }} />
           </svg>
-          <span className="absolute font-display text-[0.95rem] font-bold">{n}/{STEPS.length}</span>
+          <span className="absolute text-[0.95rem] font-bold">{n}/{STEPS.length}</span>
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-[1.2rem] font-bold leading-tight">Put it live</h2>

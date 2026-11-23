@@ -39,7 +39,7 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
   return (
     <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
       <div className={`flex items-center justify-between border-b border-line px-6 py-3.5 ${page ? "sticky top-[6.4rem] z-10 rounded-t-[inherit] bg-card" : ""}`}>
-        <span className="font-display text-[1.2rem] font-bold">Your master resume</span>
+        <span className="text-[1.05rem] font-semibold">Your master resume</span>
         <span className="flex items-center gap-3">
           <span className="text-[0.82rem] text-faint">{words} words</span>
           {editing ? (
