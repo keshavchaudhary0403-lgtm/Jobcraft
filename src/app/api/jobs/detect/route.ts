@@ -1,3 +1,4 @@
+import { currentUser } from "@/lib/current-user";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkLimits, logUsage, runStructured, type ModelId } from "@/lib/ai";
 import { buildTask, SCHEMAS, type DetectedJob } from "@/lib/tasks";
@@ -8,9 +9,7 @@ const DETECT_MODEL: ModelId = "gpt-6-luna";
 /** Paste a JD → company / role / location suggestions for the user to confirm. */
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
   const { jd } = (await req.json()) as { jd?: string };
   if (!jd || jd.trim().split(/\s+/).length < 30) return Response.json({ data: null });

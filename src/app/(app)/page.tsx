@@ -47,10 +47,10 @@ export default async function Home() {
   const best = scored.sort((x, y) => y.s - x.s)[0];
   const by = (st: string[]) => list.filter((a) => st.includes(a.status)).length;
   const pipeline = [
-    { label: "Saved", n: by(["saved"]), cls: "bg-[#d6d0ea]" },
-    { label: "Applied", n: by(["applied"]), cls: "bg-[#b9a6f2]" },
-    { label: "Interviewing", n: by(["interviewing"]), cls: "bg-[#8a6fe0]" },
-    { label: "Offer", n: by(["offer"]), cls: "bg-brand" },
+    { key: "saved", label: "Saved", n: by(["saved"]), cls: "bg-[#d6d0ea]" },
+    { key: "applied", label: "Applied", n: by(["applied"]), cls: "bg-[#b9a6f2]" },
+    { key: "interviewing", label: "Interviewing", n: by(["interviewing"]), cls: "bg-[#8a6fe0]" },
+    { key: "offer", label: "Offer", n: by(["offer"]), cls: "bg-brand" },
   ];
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
@@ -68,10 +68,10 @@ export default async function Home() {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <StatTile icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
-        <StatTile tone="sun" icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
-        <StatTile tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} />
-        <StatTile tone="rose" icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
+        <StatTile href="/jobs" icon={<BriefcaseBusiness size={18} />} label="Jobs tracked" value={list.length} sub={`${by(["saved"])} not applied yet`} />
+        <StatTile href="/jobs?status=applied" tone="sun" icon={<Send size={18} />} label="Applied" value={by(["applied", "interviewing", "offer", "rejected"])} sub={`${by(["interviewing"])} interviewing`} />
+        <StatTile href="/interview" tone="lilac" icon={<Mic size={18} />} label="Interviews practised" value={interviews.length} />
+        <StatTile href={best ? `/jobs/${best.a.id}` : "/jobs/new"} tone="rose" icon={<Target size={18} />} label="Best match" value={best ? `${best.s * 10}%` : "—"} sub={best ? best.a.company : "Add a job to see"} />
       </div>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_340px]">
@@ -102,11 +102,11 @@ export default async function Home() {
               <div className="card-head"><span className="ico"><BarChart3 size={15} /></span>Your pipeline</div>
               <div className="grid grid-cols-4 gap-3">
                 {pipeline.map((p) => (
-                  <div key={p.label}>
+                  <Link key={p.label} href={`/jobs?status=${p.key}`} className="-m-2 rounded-xl p-2 transition hover:bg-line-2">
                     <div className={`h-1.5 rounded-full ${p.n ? p.cls : "bg-line"}`} />
                     <div className="mt-2.5 text-[1.25rem] font-semibold tabular-nums">{p.n}</div>
                     <div className="text-[0.82rem] text-muted">{p.label}</div>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </section>

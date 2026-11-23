@@ -68,10 +68,10 @@ export function AdminUsers({ meId }: { meId: string }) {
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 xl:grid-cols-4 stagger">
-        <StatTile icon={<IndianRupee size={18} />} label="Spent this month" value={rupees(total)} sub={budget != null ? `of ${rupees(budget)} budget` : "No budget cap"} />
-        <StatTile tone="sun" icon={<Users size={18} />} label="Users" value={users.length} sub={`${users.filter((u) => u.is_active).length} active`} />
-        <StatTile tone="lilac" icon={<Bot size={18} />} label="AI model" value={<span className="text-[1.05rem]">{model?.label.split(" —")[0] ?? "—"}</span>} sub={model ? `$${model.input} / $${model.output} per 1M tokens` : undefined} />
-        <StatTile tone="mint" icon={<span className="text-[0.95rem] font-semibold">$</span>} label="1 US$" value={settings ? `₹${settings.usd_to_inr}` : "—"} sub={settings?.fx_auto ? "Live rate" : "Fixed rate"} />
+        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive icon={<IndianRupee size={18} />} label="Spent this month" value={rupees(total)} sub={budget != null ? `of ${rupees(budget)} budget` : "No budget cap"} /></button>
+        <button className="text-left" onClick={() => setTab("users")}><StatTile interactive tone="sun" icon={<Users size={18} />} label="Users" value={users.length} sub={`${users.filter((u) => u.is_active).length} active`} /></button>
+        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive tone="lilac" icon={<Bot size={18} />} label="AI model" value={<span className="text-[1.05rem]">{model?.label.split(" —")[0] ?? "—"}</span>} sub={model ? `$${model.input} / $${model.output} per 1M tokens` : undefined} /></button>
+        <button className="text-left" onClick={() => setTab("ai")}><StatTile interactive tone="mint" icon={<span className="text-[0.95rem] font-semibold">$</span>} label="1 US$" value={settings ? `₹${settings.usd_to_inr}` : "—"} sub={settings?.fx_auto ? "Live rate" : "Fixed rate"} /></button>
       </div>
 
       <div className="mb-4 flex items-center justify-between gap-3">

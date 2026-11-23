@@ -1,18 +1,23 @@
+import { cache } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile } from "@/lib/types";
 
-/** Use in server components/pages: returns supabase client, user and profile, or redirects to /login. */
-export async function requireUser() {
+/**
+ * Logged-in user + profile for server pages. Cached per request, so the layout and
+ * the page share one lookup instead of repeating it.
+ */
+export const requireUser = cache(async () => {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) redirect("/login");
-  const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();
+  // getClaims verifies the session token locally (signing keys) — no extra network hop.
+  const { data } = await supabase.auth.getClaims();
+  const id = data?.claims?.sub;
+  if (!id) redirect("/login");
+  const { data: profile } = await supabase.from("profiles").select("*").eq("id", id).single<Profile>();
   if (!profile) redirect("/login?e=noprofile");
+  const user = { id, email: (data!.claims.email as string | undefined) ?? profile.email ?? undefined };
   return { supabase, user, profile };
-}
+});
 
 /** How complete the candidate file is — prompts are only as good as the inputs. */
 export function profileGaps(p: Profile) {

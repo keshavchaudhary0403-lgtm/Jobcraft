@@ -1,3 +1,4 @@
+import { currentUser } from "@/lib/current-user";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai } from "@/lib/ai";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
@@ -8,9 +9,7 @@ export const maxDuration = 300; // seconds — long resume rewrites can take a w
 
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
 
   const { sessionId, content, step } = (await req.json()) as {

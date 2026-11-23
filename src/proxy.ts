@@ -25,10 +25,9 @@ export async function proxy(request: NextRequest) {
     },
   );
 
-  // Refreshes the session cookie if needed.
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // Refreshes the session cookie if needed; verifies the token locally (no network hop).
+  const { data } = await supabase.auth.getClaims();
+  const user = data?.claims?.sub ? { id: data.claims.sub } : null;
 
   const path = request.nextUrl.pathname;
   const isPublic = PUBLIC_PATHS.some((p) => path.startsWith(p));
@@ -50,5 +49,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
+  matcher: ["/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp|ico)$).*)"],
 };

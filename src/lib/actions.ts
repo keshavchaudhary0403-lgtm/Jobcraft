@@ -1,15 +1,14 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { currentUser } from "@/lib/current-user";
 import { createClient } from "@/lib/supabase/server";
 import type { SessionKind } from "@/lib/types";
 
 /** Create a new AI session (a fresh "chat") and open it. */
 export async function startSession(kind: SessionKind, formData: FormData) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) redirect("/login");
 
   const meta: Record<string, string> = {};

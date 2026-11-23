@@ -74,12 +74,16 @@ export function JobView({
 
   const unanswered = a ? a.questions.filter((q) => !app.fit_answers?.[q]?.trim()).length : 0;
   const checklist = [
-    { label: "Match analysed", done: analysed },
-    { label: "Questions answered", done: analysed && unanswered === 0 },
-    { label: "Resume tailored", done: !!app.tailored_resume },
-    { label: "Outreach written", done: !!app.outreach },
-    { label: "Applied", done: ["applied", "interviewing", "offer"].includes(app.status) },
-    { label: "Interview practised", done: interviews.length > 0 },
+    { label: "Match analysed", done: analysed, go: () => setTab("overview") },
+    { label: "Questions answered", done: analysed && unanswered === 0, go: () => setTab("overview") },
+    { label: "Resume tailored", done: !!app.tailored_resume, go: () => setTab("resume") },
+    { label: "Outreach written", done: !!app.outreach, go: () => setTab("outreach") },
+    {
+      label: "Applied",
+      done: ["applied", "interviewing", "offer"].includes(app.status),
+      go: () => app.status === "saved" && update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }),
+    },
+    { label: "Interview practised", done: interviews.length > 0, go: () => setTab("practice") },
   ];
 
   const next: { label: string; sub: string; go: () => void } | null = !analysed
@@ -221,14 +225,21 @@ export function JobView({
           )}
 
           <Panel title="Checklist" icon={<ListChecks size={15} />}>
-            <ol className="relative space-y-3">
+            <ol className="relative space-y-1.5">
               <span className="absolute bottom-2 left-[9px] top-2 w-px bg-line" />
               {checklist.map((c) => (
-                <li key={c.label} className="relative flex items-center gap-3 text-[0.9rem]">
+                <li key={c.label}>
+                  <button
+                    onClick={c.go}
+                    disabled={!analysed && c.label !== "Match analysed"}
+                    title={c.label === "Applied" && !c.done ? "Mark as applied" : undefined}
+                    className="relative -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-lg px-2 py-1 text-left text-[0.9rem] transition hover:bg-line-2 disabled:cursor-default disabled:hover:bg-transparent"
+                  >
                   <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-on-brand" : "border-2 border-line bg-white"}`}>
                     {c.done && <Check size={11} strokeWidth={3} />}
                   </span>
                   <span className={c.done ? "text-ink" : "text-muted"}>{c.label}</span>
+                  </button>
                 </li>
               ))}
             </ol>

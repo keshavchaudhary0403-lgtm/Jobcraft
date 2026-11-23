@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Status } from "@/lib/types";
 
 export function PageHeader({ title, sub, action }: { title: string; sub?: string; action?: React.ReactNode }) {
@@ -95,16 +96,17 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
 }
 
 const TONES = { sky: "bg-sky text-[#3b47b0]", sun: "bg-sun text-brand", lilac: "bg-lilac text-[#4b3fb3]", rose: "bg-rose text-[#6b3a8f]", mint: "bg-brand-soft text-brand" };
-export function StatTile({ icon, label, value, sub, tone = "sky" }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES }) {
+export function StatTile({ icon, label, value, sub, tone = "sky", href, interactive }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES; href?: string; interactive?: boolean }) {
+  const Tag = href ? Link : "div";
   return (
-    <div className="card card-hover flex items-center gap-3.5 p-4">
+    <Tag href={href as string} className={`card flex h-full items-center gap-3.5 p-4 ${href || interactive ? "card-hover cursor-pointer" : ""}`}>
       <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-2xl ${TONES[tone]}`}>{icon}</div>
       <div className="min-w-0">
         <div className="text-[0.82rem] text-muted">{label}</div>
         <div className="text-[1.45rem] font-semibold leading-tight tracking-tight tabular-nums">{value}</div>
         {sub && <div className="truncate text-[0.78rem] text-faint">{sub}</div>}
       </div>
-    </div>
+    </Tag>
   );
 }
 

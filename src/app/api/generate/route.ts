@@ -1,3 +1,4 @@
+import { currentUser } from "@/lib/current-user";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { buildTask, SCHEMAS, type Analysis, type LinkedInResult, type Outreach, type ResumeResult } from "@/lib/tasks";
@@ -9,9 +10,7 @@ type Body = { task: "analysis" | "resume" | "outreach" | "linkedin"; application
 
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
 
   const { task, applicationId, extra } = (await req.json()) as Body;

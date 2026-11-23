@@ -1,3 +1,4 @@
+import { currentUser } from "@/lib/current-user";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { buildTask, SCHEMAS, type ParsedResume } from "@/lib/tasks";
@@ -8,9 +9,7 @@ export const maxDuration = 120;
 /** Drop a resume (PDF or pasted text) → structured details to review. Nothing is saved here. */
 export async function POST(req: Request) {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single<Profile>();
