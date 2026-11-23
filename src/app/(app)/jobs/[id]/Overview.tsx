@@ -266,7 +266,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                   <Ring value={pct / 100} label={`${answered}/${questions.length}`} dark />
                   <div className="min-w-0 flex-1">
                     <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/55">Recruiter&apos;s questions</div>
-                    <div className="text-[1.15rem] font-bold leading-snug">
+                    <div className="font-display text-[1.15rem] font-bold leading-snug">
                       {answered === questions.length ? "All answered" : `${questions.length - answered} still open`}
                     </div>
                     <div className="text-[0.8rem] text-white/60">{!answered ? "Answer one to re-score." : changedSinceScore ? "Score doesn't include your latest answers." : "Score is up to date."}</div>
@@ -321,7 +321,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${m.cls}`}><m.icon size={15} /></span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-                        <span className="text-[1.02rem] font-bold leading-snug">{g.gap}</span>
+                        <span className="font-display text-[1.02rem] font-bold leading-snug">{g.gap}</span>
                         <span className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted">{m.label}</span>
                       </div>
                       {g.how_to_close ? (
@@ -372,7 +372,7 @@ function Ring({ value, label, dark }: { value: number; label: string; dark?: boo
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.12)" : "var(--line-2)"} strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "var(--color-mustard)" : "var(--brand)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} style={{ transition: "stroke-dashoffset .8s ease" }} />
       </svg>
-      <span className="absolute text-[1rem] font-bold tabular-nums">{label}</span>
+      <span className="absolute font-display text-[1rem] font-bold tabular-nums">{label}</span>
     </div>
   );
 }

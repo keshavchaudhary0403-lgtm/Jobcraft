@@ -110,7 +110,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
                 <div className="flex items-center gap-3">
                   <span className={`grid h-10 w-10 place-items-center rounded-full ${x.tone}`}>{x.icon}</span>
                   <span>
-                    <span className="block text-[1.1rem] font-bold">{x.title}</span>
+                    <span className="block font-display text-[1.1rem] font-bold">{x.title}</span>
                     <span className="block text-[0.8rem] text-muted">{x.limit}</span>
                   </span>
                 </div>

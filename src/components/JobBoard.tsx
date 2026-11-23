@@ -61,7 +61,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
               <header className="mb-2 px-1.5 pt-1">
                 <div className="flex items-center gap-2">
                   <span className={`h-2 w-2 rounded-full ${meta.dot}`} />
-                  <span className="text-[1.05rem] font-bold">{col.label}</span>
+                  <span className="font-display text-[1.05rem] font-bold">{col.label}</span>
                   <span className="ml-auto grid h-6 min-w-6 place-items-center rounded-full bg-side px-1.5 text-[0.78rem] font-bold tabular-nums text-cream">{list.length}</span>
                 </div>
                 <div className="mt-0.5 text-[0.78rem] text-faint">{col.hint}</div>
@@ -86,7 +86,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                         <span className="min-w-0 flex-1 truncate text-[0.84rem] font-medium" title={a.company}>{a.company}</span>
                         <GripVertical size={14} className="shrink-0 text-faint opacity-0 transition group-hover:opacity-100" />
                       </div>
-                      <div className="mt-2 line-clamp-2 text-[1rem] font-bold leading-snug">{a.role}</div>
+                      <div className="mt-2 line-clamp-2 font-display text-[1rem] font-bold leading-snug">{a.role}</div>
                       <div className="mt-2 flex flex-wrap items-center gap-1.5">
                         {an ? <MatchChip score={an.fit_score} /> : <span className="chip bg-line-2 text-muted">Not analysed</span>}
                         {a.tailored_resume && <span className="chip bg-brand-soft text-brand-ink">Resume</span>}

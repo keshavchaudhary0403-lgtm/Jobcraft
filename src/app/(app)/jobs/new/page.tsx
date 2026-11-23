@@ -187,10 +187,10 @@ export default function NewJob() {
               {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/70"><Spinner size={13} /> Reading…</span>}
             </div>
             <div className="mt-3 flex items-center gap-3">
-              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-mustard text-[1.2rem] font-bold text-side">{(f.company.trim()[0] ?? "?").toUpperCase()}</span>
+              <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-mustard font-display text-[1.2rem] font-bold text-side">{(f.company.trim()[0] ?? "?").toUpperCase()}</span>
               <div className="min-w-0">
                 <div className="truncate text-[0.9rem] text-cream/70">{f.company || "Company"}</div>
-                <div className="line-clamp-2 text-[1.25rem] font-bold leading-tight">{f.role || "Role"}</div>
+                <div className="line-clamp-2 font-display text-[1.25rem] font-bold leading-tight">{f.role || "Role"}</div>
               </div>
             </div>
             <div className="mt-3 flex flex-wrap gap-1.5 text-[0.76rem]">
@@ -212,7 +212,7 @@ export default function NewJob() {
             <ol className="grid grid-cols-4 gap-1 border-t border-line pt-4 text-center text-[0.78rem] text-muted">
               {["Decode", "Fit score", "Resume", "Outreach"].map((x, i) => (
                 <li key={x}>
-                  <span className="mx-auto mb-1 grid h-6 w-6 place-items-center rounded-full bg-line-2 text-[0.78rem] font-bold text-ink">{i + 1}</span>
+                  <span className="mx-auto mb-1 grid h-6 w-6 place-items-center rounded-full bg-line-2 font-display text-[0.78rem] font-bold text-ink">{i + 1}</span>
                   {x}
                 </li>
               ))}

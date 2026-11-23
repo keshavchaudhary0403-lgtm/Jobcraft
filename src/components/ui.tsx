@@ -166,7 +166,7 @@ export function Panel({
       <div className="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
         {icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-clay-soft text-clay">{icon}</span>}
         <div className="min-w-0 flex-1">
-          <div className="text-[1.05rem] font-bold leading-tight">{title}</div>
+          <div className="font-display text-[1.05rem] font-bold leading-tight">{title}</div>
           {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
         </div>
         {action}

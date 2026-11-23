@@ -65,9 +65,9 @@ export default function LoginPage() {
           {/* Product preview */}
           <div className="mt-10 max-w-[560px] rounded-[26px] bg-cream p-6 text-side shadow-[0_40px_80px_-40px_rgba(0,0,0,.6)] fade-up">
             <div className="flex items-center gap-4">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-[hsl(14_55%_90%)] text-[1.2rem] font-bold text-[hsl(14_45%_30%)]">A</span>
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-[hsl(14_55%_90%)] font-display text-[1.2rem] font-bold text-[hsl(14_45%_30%)]">A</span>
               <div className="min-w-0 flex-1">
-                <div className="text-[1.25rem] font-bold leading-tight">Senior Product Manager</div>
+                <div className="font-display text-[1.25rem] font-bold leading-tight">Senior Product Manager</div>
                 <div className="text-[0.88rem] text-muted">Acme · Bengaluru</div>
               </div>
               <div className="relative grid h-[68px] w-[68px] place-items-center">
@@ -75,7 +75,7 @@ export default function LoginPage() {
                   <circle cx="34" cy="34" r="28" fill="none" stroke="#e6ddcf" strokeWidth="8" />
                   <circle cx="34" cy="34" r="28" fill="none" stroke="#2f7a52" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 28} strokeDashoffset={2 * Math.PI * 28 * 0.22} />
                 </svg>
-                <span className="absolute text-[1.05rem] font-bold">78%</span>
+                <span className="absolute font-display text-[1.05rem] font-bold">78%</span>
               </div>
             </div>
             <ol className="mt-6 grid grid-cols-7">
@@ -93,7 +93,7 @@ export default function LoginPage() {
             {FEATURES.map(({ icon: Icon, title, sub }, i) => (
               <div key={title} className="fade-up rounded-2xl border border-white/12 bg-white/[.06] p-4" style={{ animationDelay: `${0.15 + i * 0.1}s` }}>
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-clay text-white"><Icon size={16} /></span>
-                <div className="mt-3 text-[1rem] font-bold leading-tight">{title}</div>
+                <div className="mt-3 font-display text-[1rem] font-bold leading-tight">{title}</div>
                 <div className="mt-0.5 text-[0.8rem] text-cream/60">{sub}</div>
               </div>
             ))}
@@ -104,7 +104,7 @@ export default function LoginPage() {
       <section className="flex items-center justify-center p-6 lg:p-12">
         <form onSubmit={submit} className="w-full max-w-[460px] fade-up">
           <div className="mb-10 lg:hidden"><Logo /></div>
-          <h2 className="font-display text-[2.8rem] font-bold leading-none">Welcome back<span className="text-clay">.</span></h2>
+          <h2 className="text-[2.8rem] font-bold leading-none">Welcome back<span className="text-clay">.</span></h2>
           <p className="mt-3 text-[1.02rem] text-muted">Log in with your email or phone.</p>
           <div className="mt-9 space-y-5">
             <div>
@@ -125,7 +125,7 @@ export default function LoginPage() {
             <button type="button" onClick={demo} disabled={demoBusy} className="mt-8 flex w-full items-center gap-4 rounded-[22px] border-[1.5px] border-dashed border-clay/50 bg-clay-soft/40 p-4 text-left transition hover:border-clay hover:bg-clay-soft">
               <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-clay text-white">{demoBusy ? <Spinner /> : <PlayCircle size={20} />}</span>
               <span className="flex-1">
-                <span className="block text-[1.1rem] font-bold">Explore the demo</span>
+                <span className="block font-display text-[1.1rem] font-bold">Explore the demo</span>
                 <span className="block text-[0.84rem] text-muted">No sign-up. Sample data you can play with.</span>
               </span>
               <ArrowRight size={18} className="text-clay" />

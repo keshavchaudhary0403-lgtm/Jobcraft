@@ -58,7 +58,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
       <div className="card grid items-center gap-8 overflow-hidden p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_240px] fade-up">
         <div>
           <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-clay">Step 3 · Resume</span>
-          <h3 className="font-display mt-2 text-[2rem] font-bold leading-tight">A resume made for this job<span className="text-clay">.</span></h3>
+          <h3 className="mt-2 text-[2rem] font-bold leading-tight">A resume made for this job<span className="text-clay">.</span></h3>
           <p className="mt-2 max-w-md text-muted">Reordered and reworded around what they want — using only what&apos;s true, one page, ATS-safe.</p>
           <button className="btn btn-clay mt-6 h-11" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
           {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
@@ -71,7 +71,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             ["04", "You check every change", "bg-good-soft text-good"],
           ].map(([n, t, c]) => (
             <li key={n} className="flex items-center gap-3">
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.85rem] font-bold ${c}`}>{n}</span>
+              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.85rem] font-bold ${c}`}>{n}</span>
               <span className="font-medium">{t}</span>
             </li>
           ))}
@@ -218,7 +218,7 @@ function TruthRing({ value }: { value: number }) {
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-good)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} />
       </svg>
-      <span className="absolute text-[0.8rem] font-bold">{Math.round(value * 100)}%</span>
+      <span className="absolute font-display text-[0.8rem] font-bold">{Math.round(value * 100)}%</span>
     </div>
   );
 }

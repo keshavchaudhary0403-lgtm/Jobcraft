@@ -34,14 +34,14 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
           <span className={`chip ${st.cls}`}>{st.label}</span>
         </div>
         <div className="mt-4 flex items-start justify-between gap-4">
-          <h2 className="font-display line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>
+          <h2 className="line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>
           <MiniDonut value={m} />
         </div>
       </Link>
 
       <div className="mt-auto border-t border-line px-6 py-4">
         <div className="flex items-center justify-between text-[0.8rem]">
-          <span className="text-muted">Step <b className="font-semibold text-ink">{Math.min(done + 1, 7)}</b> of 7</span>
+          <span className="text-muted">Step <b className="font-display text-ink">{Math.min(done + 1, 7)}</b> of 7</span>
           {next && <span className="font-semibold text-clay">{steps[cur].label}</span>}
         </div>
         <div className="mt-2 flex gap-1">
@@ -93,7 +93,7 @@ export function MiniDonut({ value }: { value: number | null }) {
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
       </svg>
-      <span className="absolute text-[1.05rem] font-bold tabular-nums">{value ?? "—"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
+      <span className="absolute font-display text-[1.05rem] font-bold tabular-nums">{value ?? "—"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
     </div>
   );
 }

@@ -192,7 +192,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               >
                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}><Icon size={16} /></span>
                 <span className="min-w-0">
-                  <span className="block text-[1.05rem] font-bold leading-tight">{label}</span>
+                  <span className="block font-display text-[1.05rem] font-bold leading-tight">{label}</span>
                   <span className={`block truncate text-[0.78rem] ${on ? "text-cream/65" : "text-muted"}`}>{String(i + 1).padStart(2, "0")} · {chapterSub[key]}</span>
                 </span>
               </button>
@@ -237,7 +237,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                       <div className="flex items-start gap-3">
                         <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(nameOf(u))}</div>
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-1.5 truncate text-[1.1rem] font-bold leading-tight">{nameOf(u)}{u.is_admin && <Shield size={14} className="shrink-0 text-brand" aria-label="Admin" />}</div>
+                          <div className="flex items-center gap-1.5 truncate font-display text-[1.1rem] font-bold leading-tight">{nameOf(u)}{u.is_admin && <Shield size={14} className="shrink-0 text-brand" aria-label="Admin" />}</div>
                           <div className="truncate text-[0.8rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "—"}</div>
                         </div>
                         <SpendRing pct={limit != null ? pct : null} />
@@ -251,7 +251,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                       </div>
                       <div className="mt-auto flex items-baseline justify-between border-t border-line pt-3 mt-4 text-[0.86rem]">
                         <span className="text-muted">This month</span>
-                        <span className="tabular-nums"><b className="text-[1.05rem]">{rupees(u.spent_inr)}</b> <span className="text-muted">/ {limit != null ? rupees(limit) : "no limit"}</span></span>
+                        <span className="tabular-nums"><b className="font-display text-[1.05rem]">{rupees(u.spent_inr)}</b> <span className="text-muted">/ {limit != null ? rupees(limit) : "no limit"}</span></span>
                       </div>
                     </button>
                   );
@@ -259,7 +259,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 {!q && (
                   <button onClick={() => setAdding(true)} className="flex min-h-[170px] flex-col items-center justify-center gap-2 rounded-[22px] border-[1.5px] border-dashed border-clay/50 text-clay transition hover:border-clay hover:bg-clay-soft/50">
                     <span className="grid h-11 w-11 place-items-center rounded-full bg-clay text-white"><Plus size={20} /></span>
-                    <span className="text-[1.05rem] font-bold">Add a person</span>
+                    <span className="font-display text-[1.05rem] font-bold">Add a person</span>
                   </button>
                 )}
               </div>
@@ -298,7 +298,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
                 {budget != null && (
                   <div className="mb-5 rounded-2xl p-4" style={{ background: "var(--color-cream)" }}>
-                    <div className="flex items-baseline justify-between text-[0.86rem]"><span className="text-muted">Used this month</span><span className="tabular-nums"><b className="text-[1.25rem]">{rupees(total)}</b> <span className="text-muted">of {rupees(budget)}</span></span></div>
+                    <div className="flex items-baseline justify-between text-[0.86rem]"><span className="text-muted">Used this month</span><span className="tabular-nums"><b className="font-display text-[1.25rem]">{rupees(total)}</b> <span className="text-muted">of {rupees(budget)}</span></span></div>
                     <div className="mt-2 h-2.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${total / budget >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(2, Math.min(100, (total / budget) * 100))}%` }} /></div>
                   </div>
                 )}
@@ -333,13 +333,13 @@ export function AdminUsers({ meId }: { meId: string }) {
           ) : section === "features" ? (
             <div className="space-y-5 fade-up">
               <div>
-                <h2 className="font-display text-[1.45rem] font-bold leading-none">Default feature limits</h2>
+                <h2 className="text-[1.45rem] font-bold leading-none">Default feature limits</h2>
                 <p className="mt-1.5 text-[0.9rem] text-muted">For everyone unless set on a person. Blank = built-in default · 0 = off. On top of each monthly ₹ limit.</p>
               </div>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {FEATURE_KEYS.map((f) => (
                   <div key={f} className="card flex flex-col p-5">
-                    <div className="text-[1.1rem] font-bold leading-tight">{FEATURES[f].label}</div>
+                    <div className="font-display text-[1.1rem] font-bold leading-tight">{FEATURES[f].label}</div>
                     <div className="mt-1 flex-1 text-[0.84rem] leading-snug text-muted">{FEATURES[f].desc}</div>
                     <div className="mt-4 flex items-center gap-2">
                       <SaveableNumber
@@ -356,7 +356,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               </div>
               <section className="card grid gap-5 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
                 <div>
-                  <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="font-display text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
+                  <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
                   <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live AI interviewer and HR manager that listens and talks back ({REALTIME_MODEL}). About <b className="text-ink">₹1.5 per minute</b>, counted in each person&apos;s limit. Needs Real AI.</p>
                   <div className="mt-4 font-display text-[2rem] font-bold leading-none">{voiceOnCount}<span className="text-[1rem] font-medium text-muted"> of {users.length} people on</span></div>
                   <button className="mt-2 text-[0.86rem] font-semibold text-brand hover:underline" onClick={() => setSection("people")}>Switch it per person →</button>
@@ -523,7 +523,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
         <header className="flex items-center gap-3 border-b border-line bg-card px-6 py-4">
           <div className="grid h-11 w-11 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(name)}</div>
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-[1.2rem] font-bold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
+            <div className="flex items-center gap-1.5 font-display text-[1.2rem] font-bold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
             <div className="truncate text-[0.84rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || (u.is_demo ? "Shared demo account" : "—")}</div>
           </div>
           <button className="btn-quiet" onClick={close} aria-label="Close"><X size={17} /></button>
@@ -643,7 +643,7 @@ function Block({ title, sub, children }: { title: string; sub?: string; children
   return (
     <section className="card p-4">
       <div className="mb-3">
-        <div className="text-[1.05rem] font-bold">{title}</div>
+        <div className="font-display text-[1.05rem] font-bold">{title}</div>
         {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}
       </div>
       {children}
@@ -859,7 +859,7 @@ function AdminOverview({
                     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
                     <span className="flex-1 truncate font-medium">{SPEND_LABEL[f] ?? f}</span>
                     <span className="tabular-nums text-muted">{total ? Math.round((v / total) * 100) : 0}%</span>
-                    <b className="w-16 text-right font-semibold tabular-nums">{rupees(v)}</b>
+                    <b className="w-16 text-right font-display tabular-nums">{rupees(v)}</b>
                   </li>
                 ))}
               </ul>
