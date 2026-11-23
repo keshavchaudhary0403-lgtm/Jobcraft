@@ -308,7 +308,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                     <div className="flex items-center gap-2">
                       <div className="field flex items-center justify-between bg-slate-50">
                         <span className="font-medium tabular-nums">₹{settings.usd_to_inr}</span>
-                        {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-green-600" /> live</span>}
+                        {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-brand" /> live</span>}
                       </div>
                       <button
                         className="btn btn-ghost"

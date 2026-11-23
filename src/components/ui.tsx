@@ -17,7 +17,7 @@ export const STATUS_META: Record<Status, { label: string; cls: string; dot: stri
   saved: { label: "Saved", cls: "bg-slate-100 text-slate-600", dot: "bg-slate-400" },
   applied: { label: "Applied", cls: "bg-info-soft text-info", dot: "bg-blue-500" },
   interviewing: { label: "Interviewing", cls: "bg-mid-soft text-mid", dot: "bg-orange-500" },
-  offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-green-600" },
+  offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-brand" },
   rejected: { label: "Rejected", cls: "bg-bad-soft text-bad", dot: "bg-orange-600" },
   withdrawn: { label: "Withdrawn", cls: "bg-slate-100 text-slate-500", dot: "bg-slate-300" },
 };

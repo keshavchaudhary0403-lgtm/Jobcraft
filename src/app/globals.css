@@ -21,8 +21,9 @@
   --color-side: var(--side);
   --color-side-2: var(--side-2);
   --color-navy: var(--brand-ink);
-  --color-good: #12805c;
-  --color-good-soft: #e3f7ee;
+  /* Positive states use the indigo theme (no green in Jobcraft) */
+  --color-good: #4a2fa6;
+  --color-good-soft: #ebe5fb;
   --color-mid: #b0501a;
   --color-mid-soft: #fdeee6;
   --color-bad: #d6264f;
