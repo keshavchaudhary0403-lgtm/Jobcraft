@@ -89,7 +89,7 @@ export function AdminUsers({ meId }: { meId: string }) {
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
-          <h1 className="text-[24px] font-semibold leading-tight">Admin</h1>
+          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">Admin</h1>
         </div>
         <button className="btn btn-primary" onClick={() => setAdding(true)}><Plus size={16} /> Add user</button>
       </div>
@@ -131,7 +131,7 @@ export function AdminUsers({ meId }: { meId: string }) {
             tone="lilac"
             icon={<Bot size={16} />}
             label="AI model"
-            value={<span className="text-[20px]">{model?.label.split(" —")[0] ?? "—"}</span>}
+            value={<span className="text-[1.25rem]">{model?.label.split(" —")[0] ?? "—"}</span>}
             note={
               <>
                 Default limit <b className="font-semibold text-ink">{settings?.default_monthly_limit_inr != null ? rupees(settings.default_monthly_limit_inr) : "none"}</b> per user · $1 = ₹{settings?.usd_to_inr ?? "—"}
@@ -144,7 +144,7 @@ export function AdminUsers({ meId }: { meId: string }) {
       <div className="mb-4 flex items-center justify-between gap-3">
         <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
           {([["users", "Users"], ["ai", "AI & limits"]] as const).map(([k, l]) => (
-            <button key={k} onClick={() => setTab(k)} className={`h-8 rounded-lg px-3.5 text-[14px] font-semibold transition ${tab === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>{l}</button>
+            <button key={k} onClick={() => setTab(k)} className={`h-8 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${tab === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>{l}</button>
           ))}
         </div>
         {tab === "users" && (
@@ -159,7 +159,7 @@ export function AdminUsers({ meId }: { meId: string }) {
         <div className="card overflow-x-auto fade-up">
           <table className="w-full min-w-[880px]">
             <thead>
-              <tr className="border-b border-line bg-slate-50/70 text-left text-[12px] text-muted">
+              <tr className="border-b border-line bg-slate-50/70 text-left text-[0.8rem] text-muted">
                 <th className="px-4 py-2.5 font-medium">Person</th>
                 <th className="px-4 py-2.5 font-medium">Spent this month</th>
                 <th className="px-4 py-2.5 font-medium">AI</th>
@@ -178,10 +178,10 @@ export function AdminUsers({ meId }: { meId: string }) {
                   <tr key={u.id} className="hover:bg-slate-50/50">
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-3">
-                        <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-soft text-[12px] font-semibold text-brand-ink">{name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}</div>
+                        <div className="grid h-8 w-8 place-items-center rounded-full bg-brand-soft text-[0.75rem] font-semibold text-brand-ink">{name.split(" ").map((w) => w[0]).slice(0, 2).join("").toUpperCase()}</div>
                         <div className="min-w-0">
-                          <div className="flex items-center gap-1.5 font-medium">{name}{u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}{u.is_demo && <span className="chip bg-sky py-0 text-[12px] text-[#3a4fa0]">Demo login</span>}</div>
-                          <div className="truncate text-[12px] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ")}</div>
+                          <div className="flex items-center gap-1.5 font-medium">{name}{u.is_admin && <Shield size={13} className="text-brand" aria-label="Admin" />}{u.is_demo && <span className="chip bg-sky py-0 text-[0.72rem] text-[#3a4fa0]">Demo login</span>}</div>
+                          <div className="truncate text-[0.82rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ")}</div>
                         </div>
                       </div>
                     </td>
@@ -246,28 +246,28 @@ export function AdminUsers({ meId }: { meId: string }) {
               })}
             </tbody>
           </table>
-          <div className="border-t border-line px-4 py-2.5 text-[12px] text-faint">Blank limit = default (₹{settings?.default_monthly_limit_inr ?? "—"}). Set 0 to turn off AI for someone.</div>
+          <div className="border-t border-line px-4 py-2.5 text-[0.8rem] text-faint">Blank limit = default (₹{settings?.default_monthly_limit_inr ?? "—"}). Set 0 to turn off AI for someone.</div>
         </div>
       ) : (
         settings && (
           <div className="grid items-start gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)] fade-up">
             <section className="card p-5">
-              <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[12px] font-normal text-muted">Used for everyone</span></div>
+              <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[0.82rem] font-normal text-muted">Used for everyone</span></div>
               <div className="space-y-2.5">
                 {Object.entries(AI_MODELS).map(([id, m]) => (
                   <button key={id} data-on={(pendingModel ?? settings.ai_model) === id} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex w-full items-center gap-4 p-3.5">
                     <span className={`h-4 w-4 shrink-0 rounded-full border-[5px] ${(pendingModel ?? settings.ai_model) === id ? "border-brand" : "border-line"}`} />
                     <span className="flex-1">
                       <span className="block font-medium">{m.label}</span>
-                      <span className="block text-[14px] text-muted">{m.note}</span>
+                      <span className="block text-[0.85rem] text-muted">{m.note}</span>
                     </span>
-                    <span className="text-right text-[12px] tabular-nums text-faint">${m.input} in<br />${m.output} out</span>
+                    <span className="text-right text-[0.8rem] tabular-nums text-faint">${m.input} in<br />${m.output} out</span>
                   </button>
                 ))}
               </div>
               {pendingModel && (
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-brand-soft px-4 py-3 fade-up">
-                  <span className="text-[14px]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" —")[0]}</b>?</span>
+                  <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" —")[0]}</b>?</span>
                   <span className="flex gap-2">
                     <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
                     <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); }}>Save</button>
@@ -276,7 +276,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               )}
             </section>
             <section className="card p-5">
-              <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[12px] font-normal text-muted">Resets on the 1st</span></div>
+              <div className="card-head"><span className="ico"><IndianRupee size={15} /></span><span className="flex-1">Spending limits</span><span className="text-[0.82rem] font-normal text-muted">Resets on the 1st</span></div>
               <div className="space-y-4">
               <LimitField label="Default per user / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="Applies to everyone without their own limit, including new users." />
               <LimitField label="Total budget, all users / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
@@ -285,7 +285,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <div className="flex items-center gap-2">
                   <div className="field flex items-center justify-between bg-slate-50">
                     <span className="font-medium tabular-nums">₹{settings.usd_to_inr}</span>
-                    {settings.fx_auto && <span className="flex items-center gap-1 text-[12px] text-good"><span className="h-1.5 w-1.5 rounded-full bg-green-600" /> live</span>}
+                    {settings.fx_auto && <span className="flex items-center gap-1 text-[0.8rem] text-good"><span className="h-1.5 w-1.5 rounded-full bg-green-600" /> live</span>}
                   </div>
                   <button className="btn btn-ghost" onClick={async () => {
                     if (!settings.fx_auto) return saveSettings({ fx_auto: true });
@@ -296,7 +296,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   </button>
                 </div>
                 {settings.fx_auto && settings.fx_updated_at && (
-                  <p className="mt-1 text-[12px] text-faint">{settings.fx_source} · updated {new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · refreshes every 6h</p>
+                  <p className="mt-1 text-[0.8rem] text-faint">{settings.fx_source} · updated {new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })} · refreshes every 6h</p>
                 )}
               </div>
               </div>
@@ -308,7 +308,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <span className={`chip ${settings.demo_enabled ? "bg-good-soft text-good" : "bg-slate-100 text-slate-500"}`}>{settings.demo_enabled ? "On" : "Off"}</span>
               </div>
               <div className="flex flex-wrap items-center justify-between gap-4">
-                <p className="max-w-xl text-[14px] text-slate-700">
+                <p className="max-w-xl text-[0.92rem] text-slate-700">
                   {settings.demo_enabled ? (
                     <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Its AI mode is{" "}
                     <b>{AI_MODES.find((m) => m.value === demoUser?.ai_mode)?.label ?? "Demo"}</b> — change it in the Users tab.</>
@@ -342,9 +342,9 @@ export function AdminUsers({ meId }: { meId: string }) {
               <div className="card-head">
                 <span className="ico"><AudioLines size={15} /></span>
                 <span className="flex-1">Realistic voice</span>
-                <span className="text-[12px] font-normal text-muted">{users.filter((u) => u.voice_enabled).length} of {users.length} users on · switch per person in Users</span>
+                <span className="text-[0.82rem] font-normal text-muted">{users.filter((u) => u.voice_enabled).length} of {users.length} users on · switch per person in Users</span>
               </div>
-              <p className="mb-4 max-w-2xl text-[14px] text-slate-700">
+              <p className="mb-4 max-w-2xl text-[0.92rem] text-slate-700">
                 A live AI interviewer and HR manager that listens and talks back naturally ({REALTIME_MODEL}). About <b>$0.016 / ₹1.5 per minute</b>, counted in each person&apos;s monthly limit. Needs Real AI.
               </p>
               <div className="grid gap-2 sm:grid-cols-3 xl:grid-cols-5">
@@ -359,7 +359,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                     }}
                   >
                     <span className="block font-semibold">{v.label}</span>
-                    <span className="block text-[12px] text-muted">{v.note}</span>
+                    <span className="block text-[0.8rem] text-muted">{v.note}</span>
                   </button>
                 ))}
               </div>
@@ -370,7 +370,7 @@ export function AdminUsers({ meId }: { meId: string }) {
 
       {dialog}
       <AddUser open={adding} onClose={() => setAdding(false)} onDone={(m) => { flash(m); load(); }} />
-      {toast && <div className="pop fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-ink px-4 py-2.5 text-[14px] text-white shadow-xl">{toast}</div>}
+      {toast && <div className="pop fixed bottom-5 left-1/2 z-50 -translate-x-1/2 rounded-xl bg-ink px-4 py-2.5 text-[0.9rem] text-white shadow-xl">{toast}</div>}
     </>
   );
 }
@@ -380,7 +380,7 @@ function LimitField({ label, value, onSave, hint }: { label: string; value: numb
     <div>
       <label className="label">{label}</label>
       <SaveableNumber value={value} onSave={onSave} placeholder="No limit" />
-      <p className="mt-1 text-[12px] text-faint">{hint}</p>
+      <p className="mt-1 text-[0.8rem] text-faint">{hint}</p>
     </div>
   );
 }
@@ -420,9 +420,9 @@ function AddUser({ open, onClose, onDone }: { open: boolean; onClose: () => void
         <div>
           <label className="label">Password</label>
           <input className="field" required minLength={6} value={f.password} onChange={(e) => setF({ ...f, password: e.target.value })} />
-          <p className="mt-1 text-[12px] text-faint">No email or OTP is sent — share the login yourself. They get the default monthly limit.</p>
+          <p className="mt-1 text-[0.8rem] text-faint">No email or OTP is sent — share the login yourself. They get the default monthly limit.</p>
         </div>
-        {err && <p className="text-[14px] text-bad">{err}</p>}
+        {err && <p className="text-[0.85rem] text-bad">{err}</p>}
         <div className="flex justify-end gap-2 pt-1">
           <button type="button" className="btn btn-ghost" onClick={onClose}>Cancel</button>
           <button className="btn btn-primary" disabled={busy || (!f.phone && !f.email)}>{busy && <Spinner />} Create user</button>

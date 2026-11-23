@@ -25,8 +25,8 @@ function Section({ title, sub, children }: { title: string; sub?: string; childr
   return (
     <section className="card">
       <div className="border-b border-line px-5 py-3.5">
-        <div className="text-[20px] font-semibold leading-[25px]">{title}</div>
-        {sub && <div className="text-[14px] text-muted">{sub}</div>}
+        <div className="font-bold">{title}</div>
+        {sub && <div className="text-[0.85rem] text-muted">{sub}</div>}
       </div>
       <div className="p-5">{children}</div>
     </section>
@@ -117,7 +117,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
                 setSkill("");
               }}
             >
-              <input className="h-[1.95rem] w-36 rounded-full border border-dashed border-line bg-white px-3 text-[14px] outline-none focus:border-brand" placeholder="+ Add skill" value={skill} onChange={(e) => setSkill(e.target.value)} />
+              <input className="h-[1.95rem] w-36 rounded-full border border-dashed border-line bg-white px-3 text-[0.85rem] outline-none focus:border-brand" placeholder="+ Add skill" value={skill} onChange={(e) => setSkill(e.target.value)} />
               <button className="sr-only" aria-label="Add skill"><Plus size={12} /></button>
             </form>
           </div>
@@ -139,7 +139,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           <button className="btn btn-brand" onClick={save} disabled={busy || !(d.master_resume ?? "").trim()}>
             {busy && <Spinner />} {cta}
           </button>
-          <span className="text-[14px] text-muted">{msg || (dirty ? "Unsaved changes" : "")}</span>
+          <span className="text-[0.88rem] text-muted">{msg || (dirty ? "Unsaved changes" : "")}</span>
         </div>
   );
   const resumeUI = <ResumePreview page={tabs} value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />;
@@ -150,13 +150,13 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         <div className="sticky top-0 z-20 -mx-1 flex flex-wrap items-center justify-between gap-3 bg-bg/90 px-1 py-2 backdrop-blur">
         <div className="inline-flex gap-1 rounded-xl bg-line-2 p-1">
           {([["details", "Details", UserRound], ["resume", "Resume", FileText]] as const).map(([k, l, Icon]) => (
-            <button key={k} onClick={() => setView(k)} className={`flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[14px] font-semibold transition ${view === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
+            <button key={k} onClick={() => setView(k)} className={`flex h-8 items-center gap-1.5 rounded-lg px-3.5 text-[0.9rem] font-semibold transition ${view === k ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`}>
               <Icon size={14} /> {l}
             </button>
           ))}
         </div>
           <div className="flex items-center gap-2">
-            <span className={`text-[14px] ${msg && msg !== "Saved" ? "text-bad" : msg ? "text-good" : "text-muted"}`}>{msg || (dirty ? "Unsaved changes" : "All changes saved")}</span>
+            <span className={`text-[0.86rem] ${msg && msg !== "Saved" ? "text-bad" : msg ? "text-good" : "text-muted"}`}>{msg || (dirty ? "Unsaved changes" : "All changes saved")}</span>
             {dirty && <button className="btn btn-ghost btn-sm" onClick={() => setD(saved)} disabled={busy}>Discard</button>}
             <button className="btn btn-primary btn-sm" onClick={save} disabled={busy || !dirty || !(d.master_resume ?? "").trim()}>
               {busy ? <Spinner size={13} /> : null} {cta}

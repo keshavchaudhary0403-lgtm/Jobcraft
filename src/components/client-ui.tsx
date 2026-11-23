@@ -51,7 +51,7 @@ export function Working({ steps, className = "" }: { steps: string[]; className?
 
 export function CharCount({ text, max, unit = "chars" }: { text: string; max: number; unit?: "chars" | "words" }) {
   const n = unit === "words" ? text.trim().split(/\s+/).filter(Boolean).length : text.length;
-  return <span className={`text-[12px] tabular-nums ${n > max ? "text-bad" : "text-faint"}`}>{n}/{max}{unit === "words" ? " words" : ""}</span>;
+  return <span className={`text-[0.8rem] tabular-nums ${n > max ? "text-bad" : "text-faint"}`}>{n}/{max}{unit === "words" ? " words" : ""}</span>;
 }
 
 /**
@@ -141,11 +141,11 @@ export function Menu<T extends string>({
                   onChange(o.value);
                   setOpen(false);
                 }}
-                className={`flex w-full items-center justify-between gap-4 rounded-lg px-3 py-2 text-left text-[14px] transition ${o.value === value ? "bg-brand-soft/60" : "hover:bg-line-2"}`}
+                className={`flex w-full items-center justify-between gap-4 rounded-lg px-3 py-2 text-left text-[0.92rem] transition ${o.value === value ? "bg-brand-soft/60" : "hover:bg-line-2"}`}
               >
                 <span>
                   <span className="block font-medium">{o.label}</span>
-                  {o.hint && <span className="block whitespace-nowrap text-[12px] text-muted">{o.hint}</span>}
+                  {o.hint && <span className="block whitespace-nowrap text-[0.78rem] text-muted">{o.hint}</span>}
                 </span>
                 {o.value === value && <Check size={14} className="shrink-0 text-brand" />}
               </button>
@@ -169,7 +169,7 @@ export function Modal({ open, onClose, title, children, width = 520 }: { open: b
     <div className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={onClose}>
       <div className="pop w-full rounded-2xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-          <div className="text-[20px] font-semibold leading-[25px]">{title}</div>
+          <div className="font-semibold">{title}</div>
           <button className="btn-quiet" onClick={onClose} aria-label="Close"><X size={16} /></button>
         </div>
         <div className="p-5">{children}</div>
@@ -215,12 +215,12 @@ export function SaveableNumber({
     await onSave(n);
     setSaving(false);
   }
-  const h = size === "sm" ? "h-8 text-[14px]" : "";
+  const h = size === "sm" ? "h-8 text-[0.88rem]" : "";
   return (
     <div>
       <div className="flex items-center gap-1.5">
         <div className={`relative ${size === "sm" ? "w-28" : "flex-1"}`}>
-          {prefix && <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[14px] text-faint">{prefix}</span>}
+          {prefix && <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[0.85rem] text-faint">{prefix}</span>}
           <input
             type="text"
             inputMode="decimal"
@@ -245,7 +245,7 @@ export function SaveableNumber({
           </>
         )}
       </div>
-      {err && <p className="mt-1 text-[12px] text-bad">{err}</p>}
+      {err && <p className="mt-1 text-[0.8rem] text-bad">{err}</p>}
     </div>
   );
 }
@@ -285,7 +285,7 @@ function AskDialog({ opts, onDone }: { opts: AskOpts; onDone: (v: string | null)
           if (!blocked) onDone(opts.input ? v.trim() : "");
         }}
       >
-        {opts.body && <div className="text-[14px] leading-[1.43] text-slate-700">{opts.body}</div>}
+        {opts.body && <div className="text-[0.95rem] leading-relaxed text-slate-700">{opts.body}</div>}
         {opts.input && (
           <div className={opts.body ? "mt-4" : ""}>
             <label className="label">{opts.input.label}</label>

@@ -115,7 +115,7 @@ export function JobView({
   return (
     <div>
       {dialog}
-      <div className="mb-4 flex items-center gap-1.5 text-[14px] text-muted">
+      <div className="mb-4 flex items-center gap-1.5 text-[0.88rem] text-muted">
         <Link href="/jobs" className="hover:text-ink">Jobs</Link>
         <ChevronRight size={14} className="text-faint" />
         <span className="truncate text-ink">{app.role}</span>
@@ -126,9 +126,9 @@ export function JobView({
         <aside className="card overflow-hidden fade-up xl:sticky xl:top-6">
           <div className="flex flex-col items-center px-5 pb-5 pt-6 text-center">
             <CompanyAvatar name={app.company} size={64} />
-            <div className="mt-3 text-[16px] font-semibold leading-snug">{app.role}</div>
+            <div className="mt-3 text-[1.08rem] font-semibold leading-snug">{app.role}</div>
             <div className="mt-0.5 text-muted">{app.company}</div>
-            {app.location && <div className="mt-1 flex items-center gap-1 text-[14px] text-faint"><MapPin size={12} /> {app.location}</div>}
+            {app.location && <div className="mt-1 flex items-center gap-1 text-[0.85rem] text-faint"><MapPin size={12} /> {app.location}</div>}
             <div className="mt-3 flex flex-wrap justify-center gap-1.5">
               <StatusPill status={app.status} />
               {a && <MatchChip score={a.fit_score} />}
@@ -142,12 +142,12 @@ export function JobView({
               ].map(({ label, icon: Icon, cls, on }) => (
                 <button key={label} onClick={on} className="group flex flex-col items-center gap-1.5">
                   <span className={`grid h-10 w-10 place-items-center rounded-xl transition group-hover:-translate-y-0.5 ${cls}`}><Icon size={17} /></span>
-                  <span className="text-[12px] text-muted">{label}</span>
+                  <span className="text-[0.75rem] text-muted">{label}</span>
                 </button>
               ))}
             </div>
           </div>
-          <div className="space-y-3 border-t border-line bg-line-2/60 px-5 py-4 text-[14px]">
+          <div className="space-y-3 border-t border-line bg-line-2/60 px-5 py-4 text-[0.88rem]">
             {[
               ["Added", fmtDate(app.created_at)],
               ["Applied on", fmtDate(app.applied_on)],
@@ -155,7 +155,7 @@ export function JobView({
               ["Seniority", a?.seniority ?? "—"],
             ].map(([k, v]) => (
               <div key={k}>
-                <div className="text-[12px] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
+                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.08em] text-muted">{k}</div>
                 <div className="font-medium">{v}</div>
               </div>
             ))}
@@ -176,7 +176,7 @@ export function JobView({
                   key={key}
                   onClick={() => setTab(key)}
                   disabled={!analysed && key !== "overview"}
-                  className={`font-semibold h-9 rounded-full px-4 text-[14px] font-medium transition disabled:opacity-40 ${
+                  className={`font-semibold h-9 rounded-full px-4 text-[0.92rem] font-medium transition disabled:opacity-40 ${
                     tab === key ? "bg-brand text-on-brand shadow-[0_6px_16px_-8px_color-mix(in_srgb,var(--brand)_70%,transparent)]" : "bg-white text-slate-600 ring-1 ring-line hover:text-ink"
                   }`}
                 >
@@ -206,7 +206,7 @@ export function JobView({
             {a ? (
               <>
                 <div className="flex items-baseline gap-2">
-                  <span className="text-[32px] font-semibold leading-none">{a.fit_score * 10}</span>
+                  <span className="text-[2.4rem] font-semibold leading-none tracking-tight">{a.fit_score * 10}</span>
                   <span className="text-muted">/100</span>
                   <span className={`ml-auto chip ${a.fit_score >= 7 ? "bg-good-soft text-good" : a.fit_score >= 5 ? "bg-mid-soft text-mid" : "bg-bad-soft text-bad"}`}>
                     {a.fit_score >= 7 ? "Strong fit" : a.fit_score >= 5 ? "Fair fit" : "Stretch"}
@@ -215,7 +215,7 @@ export function JobView({
                 <div className="mt-3 h-2 overflow-hidden rounded-full bg-line-2">
                   <div className="h-full rounded-full bg-gradient-to-r from-brand to-brand transition-all duration-1000" style={{ width: `${a.fit_score * 10}%` }} />
                 </div>
-                <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[14px]">
+                <div className="-mx-5 mt-4 divide-y divide-line border-t border-line text-[0.9rem]">
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Skills you show</span><span className="font-medium">{strong} of {a.top_skills.length}</span></div>
                   <div className="flex justify-between px-5 py-2.5"><span className="text-muted">Gaps</span><span className="font-medium">{a.gaps.length}</span></div>
                   <div className="flex items-center justify-between px-5 py-2"><span className="text-muted">Open questions</span><span className="flex items-center gap-2"><span className="font-medium">{unanswered}</span>{unanswered > 0 && <button onClick={openQuestions} className="pill-link">Answer <ArrowRight size={12} /></button>}</span></div>
@@ -228,9 +228,9 @@ export function JobView({
 
           {next && (
             <div className="dark-card p-5">
-              <div className="text-[12px] text-white/70">Recommended next action</div>
-              <div className="mt-1 text-[16px] font-semibold">{next.label}</div>
-              <div className="text-[14px] text-white/65">{next.sub}</div>
+              <div className="text-[0.82rem] text-white/70">Recommended next action</div>
+              <div className="mt-1 text-[1.08rem] font-semibold">{next.label}</div>
+              <div className="text-[0.85rem] text-white/65">{next.sub}</div>
               <button onClick={next.go} className="btn btn-sm mt-4 w-full bg-brand text-on-brand hover:opacity-90">
                 Do it now <ArrowRight size={14} />
               </button>
@@ -246,7 +246,7 @@ export function JobView({
                     onClick={c.go}
                     disabled={!analysed && c.label !== "Match analysed"}
                     title={c.label === "Applied" && !c.done ? "Mark as applied" : undefined}
-                    className="relative -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-lg px-2 py-1 text-left text-[14px] transition hover:bg-line-2 disabled:cursor-default disabled:hover:bg-transparent"
+                    className="relative -mx-2 flex w-[calc(100%+1rem)] items-center gap-3 rounded-lg px-2 py-1 text-left text-[0.9rem] transition hover:bg-line-2 disabled:cursor-default disabled:hover:bg-transparent"
                   >
                   <span className={`relative grid h-[19px] w-[19px] place-items-center rounded-full ${c.done ? "bg-brand text-on-brand" : "border-2 border-line bg-white"}`}>
                     {c.done && <Check size={11} strokeWidth={3} />}
@@ -261,7 +261,7 @@ export function JobView({
       </div>
 
       <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>
-        <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-[1.43] text-slate-700">{app.jd}</div>
+        <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-relaxed text-slate-700">{app.jd}</div>
       </Modal>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Job details" width={460}>
@@ -294,7 +294,7 @@ export function JobView({
             <div className="flex items-center justify-between border-b border-line bg-white px-5 py-3.5">
               <div>
                 <div className="font-semibold">Coach</div>
-                <div className="text-[12px] text-muted">Knows your resume and this job</div>
+                <div className="text-[0.82rem] text-muted">Knows your resume and this job</div>
               </div>
               <button className="btn-quiet" onClick={() => setCoach(false)} aria-label="Close"><X size={16} /></button>
             </div>

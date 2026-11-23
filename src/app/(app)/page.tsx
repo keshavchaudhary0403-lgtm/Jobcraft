@@ -62,7 +62,7 @@ export default async function Home() {
     <>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4 fade-up">
         <div>
-          <h1 className="text-[24px] font-semibold leading-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
+          <h1 className="text-[1.6rem] font-semibold leading-tight tracking-tight">{greeting()}{first ? `, ${first}` : ""}</h1>
           <p className="mt-0.5 text-muted">{profile.target_role ? `Going after ${profile.target_role}` : "Let's land your next role."}</p>
         </div>
         <Link href="/jobs/new" className="btn btn-primary"><Plus size={16} /> Add job</Link>
@@ -109,7 +109,7 @@ export default async function Home() {
         <div className="space-y-5">
           <section>
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[20px] font-semibold leading-[25px]">Your jobs</h2>
+              <h2 className="font-bold">Your jobs</h2>
               {list.length > 0 && <Link href="/jobs" className="pill-link">View all <ArrowRight size={12} /></Link>}
             </div>
             {list.length === 0 ? (
@@ -135,8 +135,8 @@ export default async function Home() {
                 {pipeline.map((p) => (
                   <Link key={p.label} href={`/jobs?status=${p.key}`} className="-m-2 rounded-xl p-2 transition hover:bg-line-2">
                     <div className={`h-1.5 rounded-full ${p.n ? p.cls : "bg-line"}`} />
-                    <div className="mt-2.5 text-[20px] font-semibold tabular-nums">{p.n}</div>
-                    <div className="text-[12px] text-muted">{p.label}</div>
+                    <div className="mt-2.5 text-[1.25rem] font-semibold tabular-nums">{p.n}</div>
+                    <div className="text-[0.82rem] text-muted">{p.label}</div>
                   </Link>
                 ))}
               </div>
@@ -146,13 +146,13 @@ export default async function Home() {
 
         <aside className="space-y-4 stagger">
           <div className="dark-card p-5">
-            <div className="flex items-center gap-2 text-[16px] font-semibold"><Sparkles size={17} className="text-brand-2" /> Your next best move</div>
+            <div className="flex items-center gap-2 text-[1.15rem] font-semibold"><Sparkles size={17} className="text-brand-2" /> Your next best move</div>
             <div className="mt-4 space-y-2">
               {moves.map((m) => (
                 <Link key={m.label} href={m.href} className="flex items-center gap-3 rounded-xl bg-white/[.07] px-3.5 py-3 transition hover:bg-white/[.12]">
                   <div className="min-w-0 flex-1">
-                    <div className="line-clamp-2 text-[14px] font-medium leading-snug">{m.label}</div>
-                    <div className="text-[12px] text-white/55">{m.sub}</div>
+                    <div className="line-clamp-2 text-[0.92rem] font-medium leading-snug">{m.label}</div>
+                    <div className="text-[0.78rem] text-white/55">{m.sub}</div>
                   </div>
                   <ArrowRight size={15} className="shrink-0 text-white/50" />
                 </Link>
@@ -163,23 +163,23 @@ export default async function Home() {
           <div className="card p-2">
             <Link href="/interview" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-lilac text-[#4b3fb3]"><Mic size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[12px] text-muted">By voice, honest score</div></div>
+              <div className="flex-1"><div className="font-medium">Mock interview</div><div className="text-[0.82rem] text-muted">By voice, honest score</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>
             <Link href="/negotiation" className="flex items-center gap-3 rounded-xl p-3 hover:bg-slate-50">
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-sun text-brand"><IndianRupee size={16} /></div>
-              <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[12px] text-muted">Check the offer, then negotiate</div></div>
+              <div className="flex-1"><div className="font-medium">Salary practice</div><div className="text-[0.82rem] text-muted">Check the offer, then negotiate</div></div>
               <ArrowRight size={15} className="text-faint" />
             </Link>
           </div>
 
           {limit != null && (
             <div className="card p-4">
-              <div className="flex items-baseline justify-between text-[14px]">
+              <div className="flex items-baseline justify-between text-[0.85rem]">
                 <span className="font-semibold">AI usage this month</span>
                 <span className="tabular-nums text-muted">₹{spent.toFixed(spent < 10 ? 2 : 0)} / ₹{limit}</span>
               </div>
-              <div className="mt-0.5 text-[12px] text-muted">Your personal monthly AI limit · resets on the 1st</div>
+              <div className="mt-0.5 text-[0.78rem] text-muted">Your personal monthly AI limit · resets on the 1st</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line-2">
                 <div className={`h-full rounded-full ${spent / limit >= 0.9 ? "bg-bad" : "bg-brand"}`} style={{ width: `${Math.max(Math.min(100, (spent / limit) * 100), 2)}%` }} />
               </div>

@@ -58,10 +58,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     return (
       <div className="card ai-gradient flex flex-col items-center px-6 py-14 text-center fade-up">
         <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-to-br from-brand to-brand-ink text-on-brand shadow-lg"><FileText size={22} /></div>
-        <div className="mt-4 text-[16px] font-medium">A resume made for this job</div>
-        <p className="mt-1 max-w-sm text-[14px] text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
+        <div className="mt-4 text-lg font-medium">A resume made for this job</div>
+        <p className="mt-1 max-w-sm text-sm text-muted">Reordered and reworded around what they want — using only what&apos;s true.</p>
         <button className="btn btn-brand mt-5" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
-        {error && <p className="mt-3 flex items-center gap-1.5 text-[14px] text-bad"><AlertCircle size={14} /> {error}</p>}
+        {error && <p className="mt-3 flex items-center gap-1.5 text-sm text-bad"><AlertCircle size={14} /> {error}</p>}
       </div>
     );
 
@@ -91,7 +91,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
       {newAnswers && !busy && (
         <div className="order-0 flex flex-wrap items-center gap-3 rounded-xl border border-brand/20 bg-brand-soft px-4 py-3 fade-up">
           <Info size={16} className="shrink-0 text-brand" />
-          <span className="flex-1 text-[14px] text-brand-ink">You&apos;ve answered new questions since this resume was made. Regenerate to include them.</span>
+          <span className="flex-1 text-[0.92rem] text-brand-ink">You&apos;ve answered new questions since this resume was made. Regenerate to include them.</span>
           <button
             className="btn btn-primary btn-sm"
             onClick={async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version uses your latest answers and replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); }}
@@ -125,7 +125,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
           </div>
         )}
-        {error && <p className="mt-2 text-[14px] text-bad">{error}</p>}
+        {error && <p className="mt-2 text-sm text-bad">{error}</p>}
       </div>
 
       <aside className="order-1 grid items-start gap-4 stagger empty:hidden">
@@ -169,20 +169,20 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 <div key={i} className={`flex items-start gap-3 px-5 py-3 transition ${v === false ? "bg-bad-soft/40" : ""}`}>
                   <div className="min-w-0 flex-1">
                     <div className={`font-medium ${v === false ? "text-bad line-through decoration-bad/40" : "text-slate-800"}`}>{c.change}</div>
-                    <div className="text-[14px] text-muted">{c.why}</div>
+                    <div className="text-[0.85rem] text-muted">{c.why}</div>
                   </div>
                   <div className="flex shrink-0 gap-1.5">
                     <button
                       onClick={() => mark(i, true)}
                       aria-pressed={v === true}
-                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[12px] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}
+                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}
                     >
                       <Check size={13} /> True
                     </button>
                     <button
                       onClick={() => mark(i, false)}
                       aria-pressed={v === false}
-                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[12px] font-semibold transition ${v === false ? "bg-bad text-white" : "bg-line-2 text-muted hover:bg-bad-soft hover:text-bad"}`}
+                      className={`flex h-8 items-center gap-1 rounded-full px-3 text-[0.82rem] font-semibold transition ${v === false ? "bg-bad text-white" : "bg-line-2 text-muted hover:bg-bad-soft hover:text-bad"}`}
                     >
                       <X size={13} /> Not true
                     </button>
@@ -192,7 +192,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             })}
             {untrue.length > 0 && (
               <div className="flex flex-wrap items-center gap-3 bg-bad-soft/40 px-5 py-3.5">
-                <span className="flex-1 text-[14px] text-slate-800">{untrue.length} change{untrue.length > 1 ? "s" : ""} marked not true — fix before you send this resume.</span>
+                <span className="flex-1 text-[0.9rem] text-slate-800">{untrue.length} change{untrue.length > 1 ? "s" : ""} marked not true — fix before you send this resume.</span>
                 <button
                   className="btn btn-primary btn-sm"
                   disabled={busy}

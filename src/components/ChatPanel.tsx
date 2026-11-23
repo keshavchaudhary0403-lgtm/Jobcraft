@@ -92,7 +92,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
           <div className="mt-10 h-6 text-center font-medium text-slate-700">
             {state === "listening" ? "Listening…" : state === "thinking" ? `${aiName} is thinking…` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
           </div>
-          <div className="mt-1 min-h-5 max-w-lg text-center text-[14px] text-muted">{v.listening ? v.transcript : ""}</div>
+          <div className="mt-1 min-h-5 max-w-lg text-center text-sm text-muted">{v.listening ? v.transcript : ""}</div>
           <div className="mt-6 flex items-center gap-3">
             {v.supported.listen ? (
               <button
@@ -106,7 +106,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
                 {v.listening ? <Square size={22} fill="currentColor" /> : <Mic size={26} />}
               </button>
             ) : (
-              <p className="text-[12px] text-muted">Voice works in Chrome, Edge and Safari. You can type below.</p>
+              <p className="text-xs text-muted">Voice works in Chrome, Edge and Safari. You can type below.</p>
             )}
             {v.supported.speak && (
               <button className="btn btn-ghost h-11 w-11 rounded-full p-0" onClick={() => { setSpeakOn(!speakOn); v.stopSpeaking(); }} aria-label="Toggle voice replies">
@@ -114,7 +114,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
               </button>
             )}
           </div>
-          {v.listening && <div className="mt-3 text-[12px] text-muted">Tap ■ when you finish your answer</div>}
+          {v.listening && <div className="mt-3 text-xs text-muted">Tap ■ when you finish your answer</div>}
         </div>
       )}
 
@@ -123,7 +123,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         {visible.length === 0 && !busy && suggestions && (
           <div className="flex flex-wrap gap-2 fade-up">
             {suggestions.map((s) => (
-              <button key={s} onClick={() => send(s)} className="chip border border-line bg-white px-3 py-1.5 text-[14px] text-slate-600 hover:border-brand/40 hover:text-ink">
+              <button key={s} onClick={() => send(s)} className="chip border border-line bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-brand/40 hover:text-ink">
                 {s}
               </button>
             ))}
@@ -139,7 +139,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         {quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (
-              <button key={q} className="chip border border-line bg-white px-3 py-1.5 text-[14px] hover:border-brand/40" disabled={busy} onClick={() => send(q)}>
+              <button key={q} className="chip border border-line bg-white px-3 py-1.5 text-sm hover:border-brand/40" disabled={busy} onClick={() => send(q)}>
                 {q}
               </button>
             ))}
@@ -147,7 +147,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         )}
         <div className="card flex items-end gap-2 p-2 focus-within:border-brand/50">
           <textarea
-            className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2.5 text-[14px] outline-none placeholder:text-faint"
+            className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-faint"
             rows={1}
             placeholder={placeholder ?? "Message…"}
             value={input}
@@ -203,12 +203,12 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
   if (msg.role === "user")
     return (
       <div className="flex justify-end fade-up">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-[14px] text-white">{msg.content}</div>
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-sm text-white">{msg.content}</div>
       </div>
     );
   return (
     <div className="fade-up">
-      <div className="mb-1 text-[12px] font-medium text-faint">{aiName}</div>
+      <div className="mb-1 text-xs font-medium text-faint">{aiName}</div>
       <div className="card rounded-2xl rounded-tl-md px-4 py-3">
         {msg.pending && !msg.content ? (
           <div className="flex gap-1 py-1.5">
@@ -226,7 +226,7 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
         <div className="mt-1.5 flex gap-1">
           <CopyButton text={msg.content} className="border-0 bg-transparent px-2 py-1 text-faint shadow-none hover:text-ink" />
           {onSpeak && (
-            <button className="btn-quiet rounded-lg text-[12px]" onClick={onSpeak}><Volume2 size={13} /></button>
+            <button className="btn-quiet rounded-lg text-xs" onClick={onSpeak}><Volume2 size={13} /></button>
           )}
         </div>
       )}

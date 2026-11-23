@@ -52,7 +52,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       <nav className="space-y-5">
         {groups.map((g) => (
           <div key={g.label}>
-            <div className="mb-1.5 px-3.5 text-[12px] font-medium text-white/45">{g.label}</div>
+            <div className="mb-1.5 px-3.5 text-[0.72rem] font-medium text-white/45">{g.label}</div>
             <div className="space-y-0.5">
               {g.items.map(({ href, label, icon: Icon, ...rest }) => {
                 const active = isActive(href);
@@ -62,13 +62,13 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex h-10 items-center gap-3 rounded-full px-3.5 text-[14px] transition ${
+                    className={`flex h-10 items-center gap-3 rounded-full px-3.5 text-[0.95rem] transition ${
                       active ? "bg-white font-semibold text-ink shadow-[0_6px_16px_-8px_rgba(0,0,0,.5)]" : "text-white/70 hover:bg-white/[.07] hover:text-white"
                     }`}
                   >
                     <Icon size={17} className={active ? "text-brand" : ""} />
                     <span className="flex-1">{label}</span>
-                    {count > 0 && <span className={`rounded-full px-2 text-[12px] tabular-nums ${active ? "bg-brand-soft text-brand" : "bg-white/15 text-white/80"}`}>{count}</span>}
+                    {count > 0 && <span className={`rounded-full px-2 text-[0.75rem] tabular-nums ${active ? "bg-brand-soft text-brand" : "bg-white/15 text-white/80"}`}>{count}</span>}
                   </Link>
                 );
               })}
@@ -80,7 +80,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       <div className="mt-auto space-y-3">
         {strength < 100 && (
           <Link href="/profile" className="block rounded-2xl bg-white/[.08] p-3.5 transition hover:bg-white/[.12]">
-            <div className="flex justify-between text-[12px]">
+            <div className="flex justify-between text-[0.82rem]">
               <span className="text-white/75">Profile strength</span>
               <span className="font-medium text-white">{strength}%</span>
             </div>
@@ -90,8 +90,8 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
           </Link>
         )}
         <div className="flex items-center gap-2.5 rounded-xl px-1.5 py-1">
-          <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand-2 to-brand text-[12px] font-semibold text-white">{initials || "?"}</div>
-          <div className="min-w-0 flex-1 truncate text-[14px] text-white/85">{name}</div>
+          <div className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand-2 to-brand text-[0.75rem] font-semibold text-white">{initials || "?"}</div>
+          <div className="min-w-0 flex-1 truncate text-[0.92rem] text-white/85">{name}</div>
           <button onClick={logout} className="grid h-8 w-8 place-items-center rounded-lg text-white/50 hover:bg-white/10 hover:text-white" title="Log out" aria-label="Log out">
             <LogOut size={15} />
           </button>

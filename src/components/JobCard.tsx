@@ -11,14 +11,14 @@ export function JobCard({ a }: { a: Application }) {
       <div className="flex items-center gap-2.5">
         <CompanyAvatar name={a.company} size={34} />
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[14px] font-medium" title={a.company}>{a.company}</div>
-          <div className="text-[12px] text-faint">{timeAgo(a.updated_at)}</div>
+          <div className="truncate text-[0.92rem] font-medium" title={a.company}>{a.company}</div>
+          <div className="text-[0.78rem] text-faint">{timeAgo(a.updated_at)}</div>
         </div>
         <StatusPill status={a.status} />
       </div>
-      <div className="mt-3 line-clamp-2 text-[16px] font-semibold leading-snug">{a.role}</div>
+      <div className="mt-3 line-clamp-2 text-[1.02rem] font-semibold leading-snug">{a.role}</div>
       {a.location && (
-        <div className="mt-1 flex items-center gap-1 text-[14px] text-muted"><MapPin size={13} /> {a.location}</div>
+        <div className="mt-1 flex items-center gap-1 text-[0.85rem] text-muted"><MapPin size={13} /> {a.location}</div>
       )}
       <div className="mt-3 flex flex-wrap gap-1.5">
         {an ? <MatchChip score={an.fit_score} /> : <span className="chip bg-slate-100 text-slate-500">Not analysed</span>}

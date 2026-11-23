@@ -228,12 +228,12 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
         <div className="mt-8 h-6 text-center font-semibold text-slate-700">
           {status === "connecting" ? "Connecting…" : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening…" : muted ? "You're muted" : "Your turn — just talk"}
         </div>
-        <p className="mt-1 max-w-xs text-center text-[14px] text-muted">
+        <p className="mt-1 max-w-xs text-center text-[0.84rem] text-muted">
           {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Use headphones for best results." : "Practise out loud with a live HR manager. Use headphones for best results."}
         </p>
         <div className="mt-6 flex items-center gap-3">
           {!live ? (
-            <button onClick={start} disabled={status === "connecting"} className="btn btn-primary h-12 px-6 text-[16px]">
+            <button onClick={start} disabled={status === "connecting"} className="btn btn-primary h-12 px-6 text-[1rem]">
               {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}
             </button>
           ) : (
@@ -241,30 +241,30 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
               <button onClick={toggleMute} className={`grid h-12 w-12 place-items-center rounded-full shadow-md transition ${muted ? "bg-bad text-white" : "bg-white text-ink hover:bg-line-2"}`} aria-label={muted ? "Unmute" : "Mute"}>
                 {muted ? <MicOff size={18} /> : <Mic size={18} />}
               </button>
-              <button onClick={end} className="btn h-12 bg-bad px-6 text-[16px] text-white hover:opacity-90"><PhoneOff size={17} /> End call</button>
+              <button onClick={end} className="btn h-12 bg-bad px-6 text-[1rem] text-white hover:opacity-90"><PhoneOff size={17} /> End call</button>
             </>
           )}
         </div>
-        {error && <p className="mt-4 flex items-start gap-1.5 text-center text-[14px] text-bad"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
+        {error && <p className="mt-4 flex items-start gap-1.5 text-center text-[0.86rem] text-bad"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
       <div className="min-w-0">
         {turns.length === 0 ? (
           <div className="card flex flex-col items-center px-6 py-14 text-center text-muted fade-up">
             <Mic size={22} className="text-brand-2" />
-            <p className="mt-3 max-w-sm text-[14px]">Live captions of the conversation appear here, and the full transcript is saved.</p>
+            <p className="mt-3 max-w-sm text-[0.92rem]">Live captions of the conversation appear here, and the full transcript is saved.</p>
           </div>
         ) : (
           <div className="flex flex-col gap-3">
             {turns.map((t) =>
               t.role === "user" ? (
                 <div key={t.id} className="flex justify-end fade-up">
-                  <div className={`max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-[14px] text-white ${t.live ? "opacity-70" : ""}`}>{t.text}</div>
+                  <div className={`max-w-[85%] rounded-2xl rounded-br-md bg-ink px-4 py-2.5 text-sm text-white ${t.live ? "opacity-70" : ""}`}>{t.text}</div>
                 </div>
               ) : (
                 <div key={t.id} className="fade-up">
-                  <div className="mb-1 text-[12px] font-semibold text-faint">{aiName}</div>
-                  <div className={`card rounded-2xl rounded-tl-md px-4 py-3 text-[14px] leading-[1.43] ${t.live ? "text-slate-600" : ""}`}>{t.text || "…"}</div>
+                  <div className="mb-1 text-xs font-semibold text-faint">{aiName}</div>
+                  <div className={`card rounded-2xl rounded-tl-md px-4 py-3 text-[0.95rem] leading-relaxed ${t.live ? "text-slate-600" : ""}`}>{t.text || "…"}</div>
                 </div>
               ),
             )}

@@ -32,12 +32,12 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
         <div className="pointer-events-none absolute -bottom-40 -right-32 h-96 w-96 rounded-full bg-brand-2/25 blur-3xl" />
         <div className="relative"><Logo light /></div>
         <div className="relative mt-12">
-          <div className="text-[12px] text-white/45">Set up · about 2 minutes</div>
+          <div className="text-[0.82rem] text-white/45">Set up · about 2 minutes</div>
           <ol className="mt-6 space-y-1">
             {STEPS.map((s, i) => (
               <li key={s.title} className={`flex items-start gap-3 rounded-xl p-2.5 transition ${i === step ? "bg-white/[.07]" : ""}`}>
                 <span
-                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[12px] font-semibold transition ${
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full text-[0.8rem] font-semibold transition ${
                     i < step ? "bg-brand-2 text-side" : i === step ? "bg-white text-side" : "border border-white/20 text-white/50"
                   }`}
                 >
@@ -45,7 +45,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                 </span>
                 <span>
                   <span className={`block font-medium ${i > step ? "text-white/50" : ""}`}>{s.title}</span>
-                  <span className="block text-[12px] text-white/45">{s.sub}</span>
+                  <span className="block text-[0.8rem] text-white/45">{s.sub}</span>
                 </span>
               </li>
             ))}
@@ -53,7 +53,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
         </div>
         <div className="relative mt-auto flex items-center justify-between rounded-xl bg-white/[.06] px-3.5 py-2.5">
           <span className="min-w-0">
-            <span className="block text-[12px] text-white/45">Signed in as</span>
+            <span className="block text-[0.75rem] text-white/45">Signed in as</span>
             <span className="block truncate">{loginId}</span>
           </span>
           <button onClick={logout} className="rounded-lg p-2 text-white/60 hover:bg-white/10 hover:text-white" title="Log out" aria-label="Log out"><LogOut size={16} /></button>
@@ -64,13 +64,13 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
       <main className="ai-gradient flex flex-col">
         <div className="flex items-center justify-between px-6 py-5 lg:hidden">
           <Logo />
-          <button onClick={logout} className="btn-quiet rounded-lg text-[14px]">Log out</button>
+          <button onClick={logout} className="btn-quiet rounded-lg text-sm">Log out</button>
         </div>
         <div className={`mx-auto w-full px-6 py-8 lg:px-10 lg:py-10 ${draft ? "max-w-[1240px]" : "max-w-[760px] lg:my-auto"}`}>
           {!draft ? (
             <>
-              <div className="text-[14px] font-medium text-brand-ink">Step 1 of 3</div>
-              <h1 className="mt-1 text-[24px] font-semibold fade-up">{first ? `Welcome, ${first}.` : "Welcome."}</h1>
+              <div className="text-[0.85rem] font-medium text-brand-ink">Step 1 of 3</div>
+              <h1 className="mt-1 text-[1.9rem] font-semibold tracking-tight fade-up">{first ? `Welcome, ${first}.` : "Welcome."}</h1>
               <p className="mb-7 mt-1 text-muted fade-up">Upload your resume and we&apos;ll set up your profile from it.</p>
               <ResumeDrop
                 onParsed={(p) =>
@@ -92,8 +92,8 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
             </>
           ) : (
             <>
-              <div className="text-[14px] font-medium text-brand-ink">Step 2 of 3</div>
-              <h1 className="mt-1 text-[24px] font-semibold fade-up">Does this look right?</h1>
+              <div className="text-[0.85rem] font-medium text-brand-ink">Step 2 of 3</div>
+              <h1 className="mt-1 text-[1.6rem] font-semibold tracking-tight fade-up">Does this look right?</h1>
               <p className="mb-6 mt-0.5 text-muted fade-up">We read this from your resume. Fix anything that&apos;s off.</p>
               <ProfileReview userId={userId} initial={draft} cta="Looks good — continue" onSaved={() => router.push("/jobs/new")} />
             </>

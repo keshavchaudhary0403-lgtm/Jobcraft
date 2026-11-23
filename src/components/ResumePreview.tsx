@@ -29,7 +29,7 @@ function Formatted({ text }: { text: string }) {
     out.push(<div key={i} className={KIND_CLS[k]}>{shown}</div>);
   });
   flush(-1);
-  return <div className="text-[14px] leading-[1.43] text-slate-700">{out}</div>;
+  return <div className="text-[0.9rem] leading-relaxed text-slate-700">{out}</div>;
 }
 
 export function ResumePreview({ value, onChange, page }: { value: string; onChange: (v: string) => void; page?: boolean }) {
@@ -39,9 +39,9 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
   return (
     <section className={`card flex flex-col fade-up ${page ? "" : "xl:sticky xl:top-6 xl:h-[calc(100vh-3.5rem)]"}`}>
       <div className={`flex items-center justify-between border-b border-line px-5 py-3 ${page ? "sticky top-[3.4rem] z-10 rounded-t-[inherit] bg-white" : ""}`}>
-        <span className="text-[20px] font-semibold leading-[25px]">Resume</span>
+        <span className="font-bold">Resume</span>
         <span className="flex items-center gap-3">
-          <span className="text-[12px] text-faint">{words} words</span>
+          <span className="text-[0.82rem] text-faint">{words} words</span>
           {editing ? (
             <>
               <button className="btn btn-ghost btn-sm" onClick={() => { onChange(before); setEditing(false); }}>Cancel</button>
@@ -58,12 +58,12 @@ export function ResumePreview({ value, onChange, page }: { value: string; onChan
             value={value}
             onChange={onChange}
             toolbarTop={page ? "top-[6.6rem]" : "top-0"}
-            className={`text-[14px] leading-[1.43] text-slate-700 ${page ? "mx-auto max-w-[860px] text-[16px]" : ""}`}
+            className={`text-[0.9rem] leading-relaxed text-slate-700 ${page ? "mx-auto max-w-[860px] text-[1.02rem]" : ""}`}
           />
         </div>
       ) : (
         <div className={page ? "px-6 py-8 sm:px-10" : "thin-scroll min-h-[420px] flex-1 overflow-y-auto px-6 py-5 xl:min-h-0"}>
-          <div className={page ? "mx-auto max-w-[860px] text-[16px]" : ""}>
+          <div className={page ? "mx-auto max-w-[860px] text-[1.02rem]" : ""}>
           {value.trim() ? <Formatted text={value} /> : <p className="text-muted">No resume yet.</p>}
           </div>
         </div>

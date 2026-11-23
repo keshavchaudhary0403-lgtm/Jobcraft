@@ -13,7 +13,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
   const { data: all } = await supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>();
   const apps = (all ?? []).filter((a) => !status || a.status === status);
   const counts = Object.fromEntries(STATUSES.map((s) => [s, (all ?? []).filter((a) => a.status === s).length])) as Record<Status, number>;
-  const tab = (active: boolean) => `flex h-8 items-center gap-1.5 rounded-lg px-3 text-[14px] font-semibold transition ${active ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`;
+  const tab = (active: boolean) => `flex h-8 items-center gap-1.5 rounded-lg px-3 text-[0.9rem] font-semibold transition ${active ? "bg-white text-ink shadow-sm ring-1 ring-line" : "text-muted hover:text-ink"}`;
 
   return (
     <>

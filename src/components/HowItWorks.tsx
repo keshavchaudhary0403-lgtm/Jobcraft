@@ -7,7 +7,7 @@ export function HowItWorks({ steps }: { steps: string[] }) {
       <ol className="space-y-3">
         {steps.map((s, i) => (
           <li key={s} className="flex items-start gap-3">
-            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[12px] font-semibold text-brand-ink">{i + 1}</span>
+            <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand-soft text-[0.72rem] font-semibold text-brand-ink">{i + 1}</span>
             <span className="text-slate-700">{s}</span>
           </li>
         ))}
