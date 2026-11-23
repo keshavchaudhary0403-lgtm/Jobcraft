@@ -73,10 +73,12 @@ Limits are set in **Admin · users & AI**, in ₹, and reset on the 1st of each 
 
 When a user reaches a limit, their AI features pause, with a clear message, until the next month. The check runs before each AI call, so a single reply can go slightly past the limit.
 
+The ₹ figures use a **live USD→INR rate** (open.er-api.com, with ECB rates via Frankfurter as backup), refreshed every 6 hours. Admins can switch to a fixed rate.
+
 Rough cost per user action with GPT-6.1 Terra: a full workspace run (prompts 1–5) is about ₹5–8, and a mock interview is about ₹2–4. GPT-6 Luna is about 10× cheaper.
 Prices are set in `src/lib/models.ts`. Update them there if OpenAI changes its prices.
 
-**Existing projects:** run `supabase/002_usage_limits.sql` once in the SQL Editor. (`schema.sql` already includes it.)
+**Existing projects:** run `supabase/002_usage_limits.sql` and `003_live_fx.sql` once in the SQL Editor. (`schema.sql` already includes it.)
 
 ## Project map
 ```

@@ -19,6 +19,9 @@ type Settings = {
   default_monthly_limit_inr: number | null;
   total_monthly_limit_inr: number | null;
   usd_to_inr: number;
+  fx_auto: boolean;
+  fx_updated_at: string | null;
+  fx_source: string | null;
 };
 
 const rupees = (n: number) => `₹${n < 10 ? n.toFixed(2) : Math.round(n).toLocaleString("en-IN")}`;
@@ -149,16 +152,40 @@ export function AdminUsers({ meId }: { meId: string }) {
             </div>
             <div>
               <label className="label">1 US$ = ₹</label>
-              <input
-                key={`r${settings.usd_to_inr}`}
-                type="number"
-                min={1}
-                step="0.5"
-                className="field"
-                defaultValue={settings.usd_to_inr}
-                onBlur={(e) => Number(e.target.value) !== settings.usd_to_inr && saveSettings({ usd_to_inr: Number(e.target.value) })}
-              />
-              <p className="mt-1 text-xs text-muted">OpenAI bills in dollars; used to show ₹.</p>
+              {settings.fx_auto ? (
+                <>
+                  <div className="field flex items-center justify-between bg-[#fbfaf7]">
+                    <span className="font-medium">₹{settings.usd_to_inr}</span>
+                    <span className="text-xs text-accent">● live</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted">
+                    {settings.fx_source ?? "Live rate"}
+                    {settings.fx_updated_at ? `, updated ${new Date(settings.fx_updated_at).toLocaleString("en-IN", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}` : ""}
+                    . Refreshes every 6 hours.{" "}
+                    <button type="button" className="underline" onClick={() => saveSettings({ usd_to_inr: settings.usd_to_inr })}>
+                      Set my own
+                    </button>
+                  </p>
+                </>
+              ) : (
+                <>
+                  <input
+                    key={`r${settings.usd_to_inr}`}
+                    type="number"
+                    min={1}
+                    step="0.01"
+                    className="field"
+                    defaultValue={settings.usd_to_inr}
+                    onBlur={(e) => Number(e.target.value) !== settings.usd_to_inr && saveSettings({ usd_to_inr: Number(e.target.value) })}
+                  />
+                  <p className="mt-1 text-xs text-muted">
+                    Fixed rate.{" "}
+                    <button type="button" className="underline" onClick={() => saveSettings({ fx_auto: true })}>
+                      Use live rate
+                    </button>
+                  </p>
+                </>
+              )}
             </div>
           </div>
           {msg && <p className="text-sm text-muted">{msg}</p>}

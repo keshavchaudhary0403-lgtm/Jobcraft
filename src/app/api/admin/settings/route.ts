@@ -10,6 +10,7 @@ export async function PATCH(req: Request) {
     default_monthly_limit_inr?: number | null;
     total_monthly_limit_inr?: number | null;
     usd_to_inr?: number;
+    fx_auto?: boolean;
   };
   const patch: Record<string, unknown> = { id: 1, updated_at: new Date().toISOString() };
   if (body.ai_model !== undefined) {
@@ -25,6 +26,12 @@ export async function PATCH(req: Request) {
   if (body.usd_to_inr !== undefined) {
     if (!(Number(body.usd_to_inr) > 0)) return Response.json({ error: "Rate must be more than 0." }, { status: 400 });
     patch.usd_to_inr = Number(body.usd_to_inr);
+    patch.fx_auto = false; // typing a rate means "use my rate"
+    patch.fx_source = "manual";
+  }
+  if (body.fx_auto !== undefined) {
+    patch.fx_auto = !!body.fx_auto;
+    if (body.fx_auto) patch.fx_updated_at = null; // forces a live refresh on next load
   }
   const { error } = await createServiceClient().from("app_settings").upsert(patch);
   if (error) return Response.json({ error: error.message }, { status: 400 });

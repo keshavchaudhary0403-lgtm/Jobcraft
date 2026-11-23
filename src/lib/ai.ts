@@ -16,7 +16,31 @@ export type Settings = {
   default_monthly_limit_inr: number | null;
   total_monthly_limit_inr: number | null;
   usd_to_inr: number;
+  fx_auto: boolean;
+  fx_updated_at: string | null;
+  fx_source: string | null;
 };
+
+const FX_MAX_AGE_MS = 6 * 3600 * 1000; // refresh the live rate every 6 hours
+
+/** Live USD→INR from free public sources (no key, no user data sent). Returns null if all fail. */
+async function fetchUsdInr(): Promise<{ rate: number; source: string } | null> {
+  const sources: [string, string, (d: Record<string, unknown>) => unknown][] = [
+    ["open.er-api.com", "https://open.er-api.com/v6/latest/USD", (d) => (d.rates as Record<string, number>)?.INR],
+    ["Frankfurter (ECB)", "https://api.frankfurter.dev/v1/latest?base=USD&symbols=INR", (d) => (d.rates as Record<string, number>)?.INR],
+  ];
+  for (const [source, url, pick] of sources) {
+    try {
+      const res = await fetch(url, { signal: AbortSignal.timeout(3000), cache: "no-store" });
+      if (!res.ok) continue;
+      const rate = Number(pick(await res.json()));
+      if (rate > 50 && rate < 200) return { rate, source }; // sanity check
+    } catch {
+      // try the next source
+    }
+  }
+  return null;
+}
 
 export async function getSettings(admin: SupabaseClient): Promise<Settings & { model: ModelId }> {
   const { data } = await admin.from("app_settings").select("*").eq("id", 1).maybeSingle();
@@ -25,7 +49,24 @@ export async function getSettings(admin: SupabaseClient): Promise<Settings & { m
     default_monthly_limit_inr: data?.default_monthly_limit_inr != null ? Number(data.default_monthly_limit_inr) : null,
     total_monthly_limit_inr: data?.total_monthly_limit_inr != null ? Number(data.total_monthly_limit_inr) : null,
     usd_to_inr: Number(data?.usd_to_inr ?? 88),
+    fx_auto: data?.fx_auto ?? true,
+    fx_updated_at: data?.fx_updated_at ?? null,
+    fx_source: data?.fx_source ?? null,
   };
+  const stale = !s.fx_updated_at || Date.now() - new Date(s.fx_updated_at).getTime() > FX_MAX_AGE_MS;
+  if (s.fx_auto && stale) {
+    const live = await fetchUsdInr();
+    if (live) {
+      s.usd_to_inr = Math.round(live.rate * 100) / 100;
+      s.fx_updated_at = new Date().toISOString();
+      s.fx_source = live.source;
+      await admin
+        .from("app_settings")
+        .update({ usd_to_inr: s.usd_to_inr, fx_updated_at: s.fx_updated_at, fx_source: s.fx_source })
+        .eq("id", 1);
+    }
+    // If every source fails, keep the last saved rate.
+  }
   const envModel = process.env.OPENAI_MODEL;
   const model: ModelId = isModelId(s.ai_model) ? s.ai_model : envModel && isModelId(envModel) ? envModel : DEFAULT_MODEL;
   return { ...s, model };

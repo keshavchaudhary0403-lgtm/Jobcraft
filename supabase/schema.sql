@@ -222,3 +222,8 @@ begin
   new.updated_at := now();
   return new;
 end $$;
+
+-- Live USD → INR rate (same as 003_live_fx.sql)
+alter table public.app_settings add column if not exists fx_auto boolean not null default true;
+alter table public.app_settings add column if not exists fx_updated_at timestamptz;
+alter table public.app_settings add column if not exists fx_source text;
