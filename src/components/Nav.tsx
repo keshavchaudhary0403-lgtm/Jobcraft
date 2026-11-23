@@ -109,7 +109,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
         </button>
       </header>
       {open && <div className="no-print fixed inset-0 top-[57px] z-20 flex flex-col bg-side p-4 lg:hidden">{body}</div>}
-      <aside className="no-print fixed bottom-2.5 left-2.5 top-2.5 hidden w-60 flex-col rounded-l-[28px] bg-side px-3.5 py-6 lg:flex">
+      <aside className="no-print fixed inset-y-0 left-0 hidden w-60 flex-col bg-side px-3.5 py-6 lg:flex">
         <Link href="/" className="mb-7 px-3"><Logo light /></Link>
         {body}
       </aside>
