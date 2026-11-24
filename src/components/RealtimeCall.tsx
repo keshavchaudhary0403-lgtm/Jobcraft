@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, PhoneOff, Phone, AlertCircle } from "lucide-react";
+import { Mic, MicOff, PhoneOff, Phone, AlertCircle, AudioLines, Headphones } from "lucide-react";
 import { Spinner } from "./client-ui";
 
 type Turn = { id: string; role: "user" | "assistant"; text: string; live?: boolean };
@@ -284,7 +284,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
 
 function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
   const active = state === "ai" || state === "you";
-  const color = state === "you" ? "from-clay-2 to-clay" : "from-brand-2 to-mustard";
+  const color = state === "you" ? "from-clay-2 to-clay" : "from-[#1f86d6] to-[#004e98]";
   return (
     <div className="relative grid h-24 w-24 shrink-0 place-items-center">
       {active && (
@@ -294,9 +294,11 @@ function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
         </>
       )}
       <span
-        className={`relative h-16 w-16 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500 ${state === "off" ? "opacity-60 grayscale-[30%]" : ""}`}
+        className={`relative grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br text-white ring-4 ring-white/20 ${color} shadow-2xl transition-all duration-500 ${state === "off" ? "opacity-70" : ""}`}
         style={{ animation: active ? "breathe 1.4s ease-in-out infinite" : "breathe 4s ease-in-out infinite" }}
-      />
+      >
+        {state === "you" ? <Mic size={26} /> : state === "ai" ? <AudioLines size={26} /> : <Headphones size={24} />}
+      </span>
     </div>
   );
 }

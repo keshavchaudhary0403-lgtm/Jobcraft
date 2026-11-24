@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, Mic, MessageSquareText, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp, Trophy } from "lucide-react";
+import { AlertCircle, ChevronDown, Mic, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp, Trophy } from "lucide-react";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { CopyButton, Spinner } from "./client-ui";
-import { SubLabel, Meter } from "./ui";
+import { Meter } from "./ui";
 
 async function fetchInsight<T>(sessionId: string, kind: "interview_report" | "offer_check"): Promise<{ data?: T; error?: string }> {
   const res = await fetch("/api/sessions/insight", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId, kind }) });
@@ -179,41 +179,62 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
     );
 
   const P = {
-    below: { label: "Below market", cls: "text-bad", at: 18, icon: ArrowDownRight },
-    at: { label: "At market", cls: "text-mustard-ink", at: 50, icon: ArrowRight },
-    above: { label: "Above market", cls: "text-good", at: 82, icon: ArrowUpRight },
+    below: { label: "Below market", chip: "bg-bad-soft text-bad", seg: 0, color: "var(--color-bad)" },
+    at: { label: "At market", chip: "bg-brand-soft text-brand", seg: 1, color: "var(--brand)" },
+    above: { label: "Above market", chip: "bg-good-soft text-good", seg: 2, color: "var(--color-good)" },
   }[o.position];
   return (
-    <div className="card overflow-hidden">
+    <div className="card overflow-hidden fade-up">
       <div className="p-5">
-        <div className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><Scale size={13} /> Is this offer fair?</div>
-        <div className={`mt-1 flex items-center gap-1.5 font-display text-[1.5rem] font-bold ${P.cls}`}><P.icon size={20} /> {P.label}</div>
-        <div className="relative mt-4 h-3 rounded-full bg-[linear-gradient(90deg,var(--clay-soft),var(--mustard-soft)_50%,var(--good-soft))]">
-          <span className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-side shadow" style={{ left: `${P.at}%` }} />
+        <div className="flex items-center gap-2.5">
+          <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><Scale size={16} /></span>
+          <h2 className="flex-1 text-[1.15rem] font-bold leading-tight">Is this offer fair?</h2>
+          <span className={`chip shrink-0 font-semibold ${P.chip}`}>{P.label}</span>
         </div>
-        <div className="mt-1.5 flex justify-between text-[0.78rem] text-faint"><span>Below</span><span>At</span><span>Above</span></div>
-        <p className="mt-3 text-[0.88rem] leading-relaxed text-ink/85">{o.reasoning}</p>
+        {/* Below / At / Above as three segments, the verdict highlighted */}
+        <div className="mt-4 grid grid-cols-3 gap-1.5">
+          {["Below", "At", "Above"].map((l, i) => (
+            <div key={l}>
+              <div className="h-2 rounded-full" style={{ background: i === P.seg ? P.color : "var(--line)" }} />
+              <div className={`mt-1.5 text-center text-[0.78rem] ${i === P.seg ? "font-semibold text-ink" : "text-faint"}`}>{l}</div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-3 text-[0.88rem] leading-relaxed text-muted">{o.reasoning}</p>
+        <div className="mt-4 rounded-2xl border-l-4 border-brand bg-brand-soft px-4 py-3">
+          <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-brand">Realistic counter</div>
+          <div className="mt-0.5 font-display text-[1.5rem] font-bold leading-tight text-brand-ink">{o.counter_low} - {o.counter_high}</div>
+        </div>
       </div>
-      <div className="mx-5 rounded-2xl bg-side px-4 py-3.5 text-cream">
-        <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Realistic counter</div>
-        <div className="font-display text-[1.6rem] font-bold leading-tight">{o.counter_low} - {o.counter_high}</div>
-      </div>
-      <div className="px-5 py-4">
-        <SubLabel>Say this first</SubLabel>
-        <p className="rounded-2xl border-[1.5px] border-line p-3.5 text-[0.9rem] leading-relaxed">&ldquo;{o.opening_line}&rdquo;</p>
-        <div className="mt-2"><CopyButton text={o.opening_line} /></div>
-      </div>
+
       <div className="border-t border-line px-5 py-4">
-        <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><MessagesSquare size={13} /> What HR will probably say</div>
-        <div className="space-y-2">
+        <div className="flex items-center gap-2"><span data-tone="2" className="tone-chip grid h-7 w-7 place-items-center rounded-lg bg-line-2"><Mic size={13} /></span><span className="font-semibold">Say this first</span></div>
+        <div className="mt-3 rounded-xl border-l-4 border-good bg-good-soft/60 px-3.5 py-3">
+          <p className="text-[0.9rem] leading-relaxed">&ldquo;{o.opening_line}&rdquo;</p>
+          <div className="mt-2"><CopyButton text={o.opening_line} /></div>
+        </div>
+      </div>
+
+      <div className="border-t border-line px-5 py-4">
+        <div className="flex items-center gap-2"><span data-tone="3" className="tone-chip grid h-7 w-7 place-items-center rounded-lg bg-line-2"><MessagesSquare size={13} /></span><span className="font-semibold">What HR will probably say</span><span className="ml-auto text-[0.8rem] text-muted">{o.objections.length}</span></div>
+        <div className="mt-3 divide-y divide-line overflow-hidden rounded-2xl ring-1 ring-line">
           {o.objections.map((x, i) => (
-            <details key={i} className="rounded-2xl border-[1.5px] border-line px-3.5 py-2.5 open:bg-line-2/40">
-              <summary className="flex cursor-pointer list-none items-start gap-2 text-[0.88rem]"><MessageSquareText size={14} className="mt-0.5 shrink-0 text-muted" /> &ldquo;{x.hr_says}&rdquo;</summary>
-              <p className="mt-2 flex items-start gap-2 text-[0.88rem] font-medium"><Mic size={14} className="mt-0.5 shrink-0 text-brand" /> {x.you_say}</p>
+            <details key={i} className="group bg-card open:bg-line-2/50">
+              <summary className="flex cursor-pointer list-none items-start gap-3 px-3.5 py-3 transition hover:bg-line-2/60">
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-line-2 text-[0.75rem] font-bold text-muted">{i + 1}</span>
+                <span className="flex-1 text-[0.9rem] font-semibold leading-snug">&ldquo;{x.hr_says}&rdquo;</span>
+                <ChevronDown size={16} className="mt-0.5 shrink-0 text-faint transition group-open:rotate-180" />
+              </summary>
+              <div className="px-3.5 pb-3.5">
+                <div className="rounded-xl border-l-4 border-good bg-card px-3.5 py-2.5">
+                  <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-good">You say</div>
+                  <p className="mt-1 text-[0.88rem] leading-relaxed">{x.you_say}</p>
+                </div>
+              </div>
             </details>
           ))}
         </div>
-        <p className="mt-3 text-[0.76rem] text-faint">A starting point. Check AmbitionBox or Glassdoor.</p>
+        <p className="mt-3 text-[0.78rem] text-muted">A starting point. Check the market number yourself on AmbitionBox or Glassdoor.</p>
       </div>
     </div>
   );

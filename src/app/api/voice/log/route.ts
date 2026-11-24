@@ -13,7 +13,7 @@ export async function POST(req: Request) {
   if (!session) return Response.json({ error: "Session not found." }, { status: 404 });
 
   if (body.role && body.content?.trim()) {
-    await supabase.from("messages").insert({ session_id: session.id, user_id: user.id, role: body.role, content: body.content.trim().slice(0, 8000) });
+    await supabase.from("messages").insert({ session_id: session.id, user_id: user.id, role: body.role, content: body.content.trim().slice(0, 8000), step: "voice" });
     await supabase.from("sessions").update({ updated_at: new Date().toISOString() }).eq("id", session.id);
   }
   if (body.usage) {

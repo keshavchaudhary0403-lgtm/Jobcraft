@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowUp, Lightbulb, Mic, PenLine, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
+import { ArrowUp, AudioLines, Lightbulb, Mic, PenLine, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { cleanAi } from "@/lib/clean-ai";
 import { useVoice } from "./useVoice";
@@ -87,7 +87,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const visible = messages.filter((m) => !(m.role === "user" && m.step)); // hide backend prompts
+  const visible = messages.filter((m) => !(m.role === "user" && m.step) && m.step !== "voice"); // hide backend prompts and voice-call turns
   const state = v.listening ? "listening" : busy ? "thinking" : v.speaking ? "speaking" : "idle";
 
   return (
@@ -200,7 +200,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
 function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
   const active = state !== "idle";
-  const color = state === "listening" ? "from-clay-2 to-clay" : "from-brand-2 to-mustard";
+  const color = state === "listening" ? "from-clay-2 to-clay" : "from-[#1f86d6] to-[#004e98]";
   return (
     <div className="relative grid h-20 w-20 shrink-0 place-items-center">
       {active && (
@@ -210,9 +210,11 @@ function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speak
         </>
       )}
       <span
-        className={`relative h-16 w-16 rounded-full bg-gradient-to-br ${color} shadow-2xl transition-all duration-500`}
-        style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite", boxShadow: "0 20px 60px -20px color-mix(in srgb, var(--brand) 60%, transparent), inset 0 -10px 30px rgba(255,255,255,.25)" }}
-      />
+        className={`relative grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br text-white ring-4 ring-white/20 ${color} shadow-2xl transition-all duration-500`}
+        style={{ animation: active ? "breathe 1.6s ease-in-out infinite" : "breathe 4s ease-in-out infinite" }}
+      >
+        {state === "listening" ? <Mic size={26} /> : state === "speaking" ? <AudioLines size={26} /> : state === "thinking" ? <Sparkles size={24} /> : <Mic size={24} />}
+      </span>
     </div>
   );
 }

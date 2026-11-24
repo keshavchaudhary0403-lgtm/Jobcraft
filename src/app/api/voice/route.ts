@@ -40,7 +40,7 @@ export async function POST(req: Request) {
     app = { company: session.meta.company, role: session.meta.role } as Application;
   }
   const { data: history } = await supabase.from("messages").select("role, content, step").eq("session_id", session.id).order("created_at").returns<Message[]>();
-  const spoken = (history ?? []).filter((m) => !(m.role === "user" && m.step));
+  const spoken = (history ?? []).filter((m) => !(m.role === "user" && m.step && m.step !== "voice"));
 
   const kind = session.kind;
   const rules =

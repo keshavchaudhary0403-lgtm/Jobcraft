@@ -39,7 +39,8 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
     negotiation: kind === "negotiation" ? (session.meta as unknown as NegotiationInputs) : undefined,
   });
   const del = deleteSession.bind(null, id, cfg.back);
-  const visible = (messages ?? []).filter((m) => !(m.role === "user" && m.step));
+  const visible = (messages ?? []).filter((m) => !(m.role === "user" && m.step && m.step !== "voice"));
+  const voiceTurns = visible.filter((m) => m.step === "voice"); // each mode shows only its own conversation
   const answers = visible.filter((m) => m.role === "user" && m.content.trim().toLowerCase() !== "ready").length;
   const meta = session.meta as unknown as Record<string, unknown>;
   const report = (meta.interview_report as InterviewReport | undefined) ?? null;
@@ -65,11 +66,11 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
         <DeleteSessionButton action={del} />
       </header>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <div className="min-w-0 fade-up">
           <PracticeModes
             available={voiceReady}
-            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />}
+            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />}
             classic={
               <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
               <ChatPanel
