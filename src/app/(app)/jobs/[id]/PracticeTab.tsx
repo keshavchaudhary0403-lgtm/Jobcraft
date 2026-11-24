@@ -33,7 +33,17 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
     <div className="space-y-4">
       <form action={start}>
         <input type="hidden" name="application_id" value={app.id} />
-        <JobCard g={g} kind="interview" cta={<StartRound label={`Start round ${rounds.length + 1}`} />} />
+        <JobCard
+          g={g}
+          kind="interview"
+          heading={
+            <div className="mb-1 flex items-center gap-2.5">
+              <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><Mic size={16} /></span>
+              <h3 className="text-[1.15rem] font-bold leading-tight">Interview practice</h3>
+            </div>
+          }
+          cta={<StartRound label={`Start round ${rounds.length + 1}`} />}
+        />
       </form>
       <Link href={`/negotiation?app=${app.id}`} className="card card-hover flex items-center gap-3 p-4">
         <span data-tone="2" className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-line-2"><IndianRupee size={18} /></span>

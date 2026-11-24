@@ -44,7 +44,8 @@ export function PracticeHistory({ groups, kind }: { groups: PracticeGroup[]; kin
 }
 
 /** One job's practice track. `cta` sits in the header (e.g. Start round N); `flat` drops the card shell. */
-export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: PracticeGroup; kind: "interview" | "negotiation"; cta?: React.ReactNode; flat?: boolean; noHead?: boolean }) {
+/** `heading` replaces the company logo + role (used inside a job page, where the banner already shows them). */
+export function JobCard({ g, kind, cta, flat = false, noHead = false, heading }: { g: PracticeGroup; kind: "interview" | "negotiation"; cta?: React.ReactNode; flat?: boolean; noHead?: boolean; heading?: React.ReactNode }) {
   const base = kind === "interview" ? "/interview" : "/negotiation";
   const items = kind === "interview" ? prepItems(g.rounds) : [];
   const [tab, setTab] = useState<"rounds" | "prep">("rounds");
@@ -59,8 +60,12 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: Pra
     <section className={flat ? "" : "card overflow-hidden"}>
       {!noHead && <div className="flex flex-wrap items-center gap-3 p-5">
         <div className="min-w-0 flex-1">
-          {g.company && <CompanyWordmark name={g.company} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
-          <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
+          {heading ?? (
+            <>
+              {g.company && <CompanyWordmark name={g.company} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
+              <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
+            </>
+          )}
           <p className="text-[0.84rem] text-muted">
             {kind === "interview" ? (g.rounds.length ? "" : "No rounds yet") : g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
             {best != null && <>{kind === "interview" ? "Best" : " · best"} <b className="text-ink">{best}/10</b></>}
