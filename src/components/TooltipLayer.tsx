@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 /**
  * One app-styled tooltip for the whole app. Elements opt in with `data-tip` (SVG shapes may use a
@@ -10,6 +10,12 @@ import { useEffect, useRef, useState } from "react";
 export function TooltipLayer() {
   const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
   const current = useRef<Element | null>(null);
+  const box = useRef<HTMLDivElement>(null);
+  const [h, setH] = useState(0);
+  // Measure the bubble so a tall one flips below the cursor instead of running off the top of the window.
+  useLayoutEffect(() => {
+    if (box.current) setH(box.current.offsetHeight);
+  }, [tip?.text]);
 
   useEffect(() => {
     const textOf = (el: Element): string | null => {
@@ -72,9 +78,10 @@ export function TooltipLayer() {
   }, []);
 
   if (!tip) return null;
-  const below = tip.y < 70;
+  const below = tip.y - 14 - (h || 40) < 8;
   return (
     <div
+      ref={box}
       role="tooltip"
       className="pointer-events-none fixed z-[100] max-w-[260px] rounded-xl bg-side px-3 py-2 text-[0.8rem] font-medium leading-snug text-white shadow-[0_12px_28px_-10px_rgba(0,30,70,.55)]"
       style={{ left: tip.x, top: below ? tip.y + 22 : tip.y - 14, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
