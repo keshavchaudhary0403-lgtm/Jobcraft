@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Columns3, LayoutGrid, Plus } from "lucide-react";
 import { JobBoard } from "@/components/JobBoard";
-import { JobTile, STATUS_BAR, StatusDonut } from "@/components/JobTiles";
+import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
 import { requireUser } from "@/lib/auth";
 import { STATUS_META } from "@/components/ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -64,12 +64,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         <>
           {/* Summary bar: where they stand + filter + sort. Stays compact however many jobs there are. */}
           <section className="card flex flex-wrap items-center gap-4 p-4 fade-up sm:flex-nowrap sm:p-5">
-            <div className="flex shrink-0 items-center gap-3">
-              <StatusDonut counts={counts} total={jobs.length} size={72} className="" />
-              <div>
-                <div className="hidden text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted sm:block">Where they stand</div>
-                <div className="font-display text-[1.15rem] font-bold">{jobs.length} job{jobs.length === 1 ? "" : "s"}</div>
-              </div>
+            <div className="flex min-w-[9rem] shrink-0 flex-col gap-2">
+              <div className="flex items-baseline gap-1.5"><span className="font-display text-[1.5rem] font-bold leading-none">{jobs.length}</span><span className="text-[0.86rem] text-muted">job{jobs.length === 1 ? "" : "s"}</span></div>
+              <StatusBar counts={counts} total={jobs.length} height={8} />
             </div>
             <div className="no-scrollbar order-last -mx-1 flex w-full min-w-0 gap-2 overflow-x-auto px-1 py-1 sm:order-none sm:w-auto sm:flex-1 sm:border-l sm:border-line sm:pl-4">
               <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.88rem] font-semibold transition ${!status ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>

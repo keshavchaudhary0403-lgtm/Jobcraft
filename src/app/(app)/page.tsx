@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, BriefcaseBusiness, IndianRupee, Mic, Plus, Send, Target, UserRound } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { profileStrength } from "@/components/ui";
-import { JobTile, STATUS_BAR, StatusDonut } from "@/components/JobTiles";
+import { STATUS_META, profileStrength } from "@/components/ui";
+import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -87,30 +87,23 @@ export default async function Home() {
       {/* ── Hero band ── */}
       <section className="dark-card overflow-hidden fade-up">
         <div className="p-6 sm:p-7">
-          {/* Top row: who + readiness */}
-          <div className="flex flex-wrap items-center justify-between gap-6">
+          {/* Top row: greeting on the left, readiness on the right */}
+          <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
             <div className="min-w-0">
-              <h1 className="text-[2.4rem] font-bold leading-[0.95] text-white xl:text-[2.7rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-              {profile.target_role && (
-                <p className="mt-3 flex flex-wrap items-center gap-2 text-[0.9rem] text-white/60">
-                  Target role
-                  <Link href="/profile" className="rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20">{profile.target_role}</Link>
-                </p>
-              )}
-              {limit != null && <p className="mt-2.5 text-[0.84rem] text-white/60">AI credit left this month: <b className="text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> of ₹{limit}</p>}
+              <h1 className="text-[2.3rem] font-bold leading-[0.95] text-white sm:text-[2.6rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
+              <div className="mt-3 flex flex-wrap gap-2 text-[0.84rem]">
+                {profile.target_role && <Link href="/profile" title="Your target role" className="inline-flex max-w-full items-center gap-1.5 truncate rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Target size={13} className="shrink-0 text-white/70" /><span className="truncate">{profile.target_role}</span></Link>}
+                {limit != null && <span title="AI credit left this month" className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/70 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
+              </div>
             </div>
-            <Link href={lift.href} className="flex items-center gap-4">
-              <ScoreRing value={score} />
-              <span>
-                <span className="block text-[0.84rem] text-white/60">Job-search readiness</span>
-                <span className="block font-display text-[1.3rem] font-bold leading-tight text-white">{word}</span>
-                <span className="mt-1 block text-[0.78rem] text-white/50">Made up of the six parts below</span>
-              </span>
+            <Link href={lift.href} title="Job-search readiness, made up of the six parts below" className="sm:text-right">
+              <span className="block font-display text-[2.6rem] font-bold leading-none tabular-nums text-white">{score}<span className="text-[1.3rem] text-white/70">%</span></span>
+              <span className="mt-1 block text-[0.84rem] text-white/65">ready · {word}</span>
             </Link>
           </div>
 
           {/* Six parts, as glass tiles */}
-          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6">
+          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6">
             {parts.map((p, i) => (
               <Link key={p.label} href={p.href} data-tone={[0, 1, 3][i % 3]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5 transition hover:bg-white/[.14]">
                 <span className="block truncate text-[0.78rem] text-white/60">{p.label}</span>
@@ -185,14 +178,13 @@ export default async function Home() {
           <aside className="space-y-5 xl:pt-[2.35rem] fade-up">
             <section className="card p-5">
               <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Pipeline</div>
-              <div className="mt-1 flex items-center gap-5">
-                <div className="-mt-3 shrink-0"><StatusDonut counts={counts} total={all.length} size={110} /></div>
-                <ul className="min-w-0 flex-1 space-y-1.5 text-[0.88rem]">
-                  {STATUSES.filter((s) => counts[s]).map((s) => (
-                    <li key={s}><Link href={`/jobs?status=${s}`} className="flex items-center gap-2 hover:text-brand"><span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} /><span className="flex-1 capitalize">{s}</span><b className="tabular-nums">{counts[s]}</b></Link></li>
-                  ))}
-                </ul>
-              </div>
+              <div className="mt-2 flex items-baseline gap-2"><span className="font-display text-[1.8rem] font-bold leading-none">{all.length}</span><span className="text-[0.86rem] text-muted">job{all.length === 1 ? "" : "s"}</span></div>
+              <div className="mt-3"><StatusBar counts={counts} total={all.length} /></div>
+              <ul className="mt-3 space-y-1.5 text-[0.88rem]">
+                {STATUSES.filter((s) => counts[s]).map((s) => (
+                  <li key={s}><Link href={`/jobs?status=${s}`} className="flex items-center gap-2 hover:text-brand"><span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} /><span className="flex-1">{STATUS_META[s].label}</span><b className="tabular-nums">{counts[s]}</b></Link></li>
+                ))}
+              </ul>
             </section>
 
             {gaps.length > 0 && (
@@ -217,19 +209,3 @@ export default async function Home() {
 }
 
 /** Ring made of the six score parts: each arc's length is its weight, the bright part is what you've earned. */
-function ScoreRing({ value }: { value: number }) {
-  const size = 112, stroke = 11, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--hero-accent)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(value, 2) / 100)} />
-      </svg>
-      <div className="donut-hub" style={{ inset: stroke + 7 }}>
-        <span className="flex items-baseline font-display font-bold leading-none tabular-nums text-white">
-          <span className="text-[1.75rem]">{value}</span><span className="ml-0.5 text-[0.9rem] text-white/70">%</span>
-        </span>
-      </div>
-    </div>
-  );
-}

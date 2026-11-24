@@ -66,6 +66,18 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
 
 export const STATUS_HEX: Record<Status, string> = { saved: "var(--mustard)", applied: "var(--ocean)", interviewing: "var(--plum)", offer: "var(--good)", rejected: "var(--clay)", withdrawn: "var(--faint)" };
 
+/** Horizontal stacked bar of job statuses: reads well at any width, including phones. */
+export function StatusBar({ counts, total, height = 12 }: { counts: Record<Status, number>; total: number; height?: number }) {
+  const present = STATUSES.filter((s) => counts[s]);
+  return (
+    <div className="flex w-full gap-1" style={{ height }}>
+      {total === 0 ? <span className="flex-1 rounded-full bg-line-2" /> : present.map((s) => (
+        <span key={s} title={`${STATUS_META[s].label}: ${counts[s]}`} className="rounded-full" style={{ flex: counts[s], background: STATUS_HEX[s] }} />
+      ))}
+    </div>
+  );
+}
+
 export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt-3" }: { counts: Record<Status, number>; total: number; size?: number; className?: string }) {
   const stroke = Math.round(size * 0.13), r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const present = STATUSES.filter((s) => counts[s]);
