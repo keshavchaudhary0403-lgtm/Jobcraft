@@ -153,7 +153,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
         <section className="dark-card flex flex-col p-6">
           <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">How the talk plays out</div>
           <ol className="mt-4 flex-1 space-y-3">
-            {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say stop for feedback"].map((t, i) => (
+            {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say \"stop\" any time for feedback"].map((t, i) => (
               <li key={t} className="flex items-center gap-3">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
                 <span className="text-[0.95rem] text-cream/90">{t}</span>
@@ -202,7 +202,7 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
   return (
     <div className={ready ? "" : "opacity-45"}>
       <div className="flex items-baseline justify-between">
-        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example - type your numbers"}</span>
+        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example: add your numbers above"}</span>
         {pos && <span className={`font-display text-[1.3rem] font-bold ${P[pos].c}`}>{P[pos].t}</span>}
       </div>
       <div className="relative mt-9 h-4 rounded-full bg-line">
@@ -216,7 +216,7 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(L)}%` }}>₹{L}</span>
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(H)}%` }}>₹{H}</span>
       </div>
-      <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "Band = market range. Dot = your offer."}</p>
+      <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "Green band is the market range. The dot is the offer."}</p>
     </div>
   );
 }

@@ -50,10 +50,10 @@
 /* ── Brand: blue + orange on light grey (Coolors ff6700 · ebebeb · c0c0c0 · 3a6ea5 · 004e98) ── */
 :root {
   --on-brand: #ffffff;
-  --brand: #3a6ea5;
-  --brand-ink: #2f5f93;
-  --brand-2: #8fb3dc;
-  --brand-soft: #e8f0f9;
+  --brand: #0a5aa8;
+  --brand-ink: #004e98;
+  --brand-2: #8ab8ec;
+  --brand-soft: #e6eef8;
   --side: #004e98;
   --side-2: #1660ad;
   --ink: #16233a;
@@ -68,17 +68,17 @@
   --clay-soft: #fff0e5;
   --clay-2: #ff9a55;
   --clay-ink: #e85d00;
-  --mustard: #5b8fd0;
-  --mustard-soft: #eef3fa;
-  --mustard-ink: #2f5f93;
+  --mustard: #1f6bbd;
+  --mustard-soft: #e6eef8;
+  --mustard-ink: #004e98;
   --good: #1f9d61;
   --good-soft: #e7f7ee;
   --mid: #d98200;
   --mid-soft: #fff4e0;
   --bad: #d92d20;
   --bad-soft: #fdecea;
-  --ocean: #3a6ea5;
-  --ocean-soft: #e8f0f9;
+  --ocean: #0a5aa8;
+  --ocean-soft: #e6eef8;
   --plum: #0e9384;
   --plum-soft: #e4f6f3;
   /* KitchenOps-style surfaces (blue theme) */
@@ -88,7 +88,7 @@
   --sel-bg: linear-gradient(120deg, #0a5aa8, #004e98);
   --act-glow: rgba(255,103,0,.55);
   --hero-accent: #ffb27a;
-  --t0: #3a6ea5; --t0s: #e8f0f9;
+  --t0: #0a5aa8; --t0s: #e6eef8;
   --t1: #ff6700; --t1s: #fff0e5;
   --t2: #1f9d61; --t2s: #e7f7ee;
   --t3: #d98200; --t3s: #fff4e0;

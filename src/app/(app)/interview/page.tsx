@@ -21,7 +21,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
   const last = scores[0] ?? null;
   const rounds = Math.min(list.length, 3);
 
-  const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "Six questions, then your score and a 9/10 answer"];
+  const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "After six questions: your score and model answers"];
 
   return (
     <div className="space-y-5">
@@ -32,7 +32,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex gap-2">
           <span className="flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none text-brand">{rounds}/3</span><span className="text-[0.84rem] text-brand">rounds done</span></span>
-          <span className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none">{best ?? "-"}</span><span className="text-[0.84rem] text-muted">best score</span></span>
+          {best != null && <span className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none">{best}/10</span><span className="text-[0.84rem] text-muted">best score</span></span>}
         </div>
       </header>
 
@@ -56,7 +56,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
           <div className="mt-auto pt-5">
             <div className="mb-2 flex items-center justify-between text-[0.8rem]">
               <span className="font-semibold uppercase tracking-[0.14em] text-muted">Practice goal</span>
-              <span className="text-muted">{rounds >= 3 ? "Three rounds done - nothing should surprise you now." : "Run it three times, fresh each time."}</span>
+              <span className="text-muted">{rounds >= 3 ? "All 3 rounds done. You're ready." : "3 rounds, new questions each time"}</span>
             </div>
             <div className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < rounds ? "bg-brand" : "bg-line-2"}`} />)}</div>
           </div>
@@ -73,8 +73,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             ))}
           </ol>
           <div className="mt-5 grid grid-cols-2 gap-2 text-center">
-            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last ?? "-"}</div><div className="text-[0.8rem] text-white/55">last score</div></div>
-            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best ?? "-"}</div><div className="text-[0.8rem] text-white/55">best score</div></div>
+            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last != null ? `${last}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/55">last score</div></div>
+            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best != null ? `${best}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/55">best score</div></div>
           </div>
           <button className="btn btn-clay mt-4 h-12 w-full text-[1rem]"><Mic size={17} /> Start interview</button>
         </section>

@@ -208,7 +208,6 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
             <div className="flex min-w-0 items-center gap-4">
               <span className="avatar-warm grid h-[76px] w-[76px] shrink-0 place-items-center rounded-full font-display text-[1.7rem] font-bold ring-4 ring-white/20">{initials}</span>
               <div className="min-w-0">
-                <div className="text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-white/55">Your profile</div>
                 <div className="truncate font-display text-[2rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
                 <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/65">
                   <span>{d.current_title || "Current title"}</span>

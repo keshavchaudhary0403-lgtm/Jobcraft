@@ -24,7 +24,7 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { AI_MODELS, REALTIME_MODEL, VOICES } from "@/lib/models";
+import { AI_MODELS, VOICES } from "@/lib/models";
 import { FEATURES, FEATURE_KEYS, effectiveLimit, type FeatureKey, type FeatureLimits } from "@/lib/features";
 import { Panel } from "@/components/ui";
 import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
@@ -240,7 +240,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   return (
                     <button key={u.id} onClick={() => setOpenId(u.id)} className="card card-hover flex flex-col p-5 text-left">
                       <div className="flex items-start gap-3">
-                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(nameOf(u))}</div>
+                        <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full avatar-warm text-[0.85rem] font-bold">{initials(nameOf(u))}</div>
                         <div className="min-w-0 flex-1">
                           <div className="flex items-center gap-1.5 truncate font-display text-[1.1rem] font-bold leading-tight">{nameOf(u)}{u.is_admin && <Shield size={14} className="shrink-0 text-brand" aria-label="Admin" />}</div>
                           <div className="truncate text-[0.8rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || "-"}</div>
@@ -339,7 +339,7 @@ export function AdminUsers({ meId }: { meId: string }) {
             <div className="space-y-5 fade-up">
               <div>
                 <h2 className="text-[1.45rem] font-bold leading-none">Default feature limits</h2>
-                <p className="mt-1.5 text-[0.9rem] text-muted">For everyone unless set on a person. Blank = built-in default · 0 = off. On top of each monthly ₹ limit.</p>
+                <p className="mt-1.5 text-[0.9rem] text-muted">Applies to everyone unless set per person. Leave blank for the default, 0 turns it off.</p>
               </div>
               <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                 {FEATURE_KEYS.map((f) => (
@@ -362,7 +362,7 @@ export function AdminUsers({ meId }: { meId: string }) {
               <section className="card grid gap-5 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
                 <div>
                   <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
-                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live AI interviewer and HR manager that listens and talks back ({REALTIME_MODEL}). About <b className="text-ink">₹1.5 per minute</b>, counted in each person&apos;s limit. Needs Real AI.</p>
+                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live interviewer that talks back. About <b className="text-ink">₹1.5 per minute</b>, from each person&apos;s limit. Needs Real AI.</p>
                   <div className="mt-4 font-display text-[2rem] font-bold leading-none">{voiceOnCount}<span className="text-[1rem] font-medium text-muted"> of {users.length} people on</span></div>
                   <button className="mt-2 text-[0.86rem] font-semibold text-brand hover:underline" onClick={() => setSection("people")}>Switch it per person →</button>
                 </div>
@@ -526,7 +526,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
     <div className="fixed inset-0 z-50 grid place-items-center bg-side/40 p-4 backdrop-blur-[2px]" onMouseDown={close}>
       <div className="pop flex max-h-[88vh] w-full max-w-[680px] flex-col overflow-hidden rounded-[28px] bg-bg shadow-2xl" onMouseDown={(e) => e.stopPropagation()} aria-label={`${name} settings`}>
         <header className="flex items-center gap-3 border-b border-line bg-card px-6 py-4">
-          <div className="grid h-11 w-11 place-items-center rounded-full bg-mustard text-[0.85rem] font-bold text-side">{initials(name)}</div>
+          <div className="grid h-11 w-11 place-items-center rounded-full avatar-warm text-[0.85rem] font-bold">{initials(name)}</div>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-1.5 font-display text-[1.2rem] font-bold">{name}{u.is_admin && <Shield size={14} className="text-brand" />}{me && <span className="chip bg-line-2 text-muted">You</span>}</div>
             <div className="truncate text-[0.84rem] text-muted">{[u.phone && `+${u.phone}`, u.email].filter(Boolean).join(" · ") || (u.is_demo ? "Shared demo account" : "-")}</div>
@@ -632,7 +632,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
 function SpendRing({ pct }: { pct: number | null }) {
   const size = 46, stroke = 5, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const v = pct ?? 0;
-  const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mustard)" : "var(--brand)";
+  const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mid)" : "var(--brand)";
   return (
     <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
       <svg width={size} height={size} className="-rotate-90">
@@ -875,7 +875,7 @@ function AdminOverview({
             const level = !limit ? "No limit" : pct >= 90 ? "Almost out" : pct >= 70 ? "Getting close" : "Fine";
             return (
               <button key={u.id} onClick={() => onPerson(u.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-line-2/60">
-                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mustard text-[0.8rem] font-bold text-side">{initials(nameOf(u))}</div>
+                <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full avatar-warm text-[0.8rem] font-bold">{initials(nameOf(u))}</div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-baseline justify-between gap-2 text-[0.9rem]">
                     <span className="truncate font-medium">{nameOf(u)}</span>
@@ -884,7 +884,7 @@ function AdminOverview({
                   {limit != null && (
                     <div className="mt-1.5 flex items-center gap-2">
                       <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-line-2">
-                        <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-mustard" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
+                        <div className={`h-full rounded-full ${pct >= 90 ? "bg-bad" : pct >= 70 ? "bg-mid" : "bg-brand"}`} style={{ width: `${Math.max(pct, 2)}%` }} />
                       </div>
                       <span className={`w-24 shrink-0 text-right text-[0.78rem] ${pct >= 90 ? "text-bad" : pct >= 70 ? "text-mid" : "text-muted"}`}>{level}</span>
                     </div>

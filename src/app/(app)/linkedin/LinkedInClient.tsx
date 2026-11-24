@@ -59,7 +59,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             <span className="absolute right-5 top-4 rounded-full bg-white/10 px-3 py-1 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/80">Live preview</span>
           </div>
           <div className="px-7 pb-7">
-            <div className="relative z-10 -mt-12 grid h-24 w-24 place-items-center rounded-full border-[5px] border-card bg-mustard font-display text-[1.9rem] font-bold text-side">{initials}</div>
+            <div className="relative z-10 -mt-12 grid h-24 w-24 place-items-center rounded-full border-[5px] border-card avatar-warm font-display text-[1.9rem] font-bold">{initials}</div>
             <div className="mt-3 font-display text-[1.9rem] font-bold leading-tight">{name}</div>
             {headline ? (
               <p key={headline} className="mt-1 max-w-3xl text-[1.02rem] leading-snug fade-up">{headline}</p>
@@ -120,7 +120,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                   return (
                     <button key={i} type="button" onClick={() => setPick(i)} className={`w-full rounded-[18px] border-[1.5px] p-3.5 text-left transition ${on ? "border-side bg-side text-cream" : "border-line hover:border-brand/40"}`}>
                       <div className="mb-1.5 flex items-center gap-2 text-[0.8rem]">
-                        <span data-tone={on ? undefined : i % 5} className={`tone-chip grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
+                        <span data-tone={on ? undefined : i % 5} className={`tone-chip grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-white" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
                         <span className={`ml-auto ${on ? "text-cream/60" : ""}`}><CharCount text={h} max={220} /></span>
                       </div>
                       <div className="text-[0.9rem] leading-snug">{h}</div>

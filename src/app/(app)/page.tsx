@@ -61,7 +61,7 @@ export default async function Home() {
   const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
   const lift = [...parts].sort((x, y) => y.weight * (1 - y.value) - x.weight * (1 - x.value))[0];
   const gain = Math.round(lift.weight * (1 - lift.value));
-  const word = score >= 75 ? "Interview-ready" : score >= 50 ? "Picking up pace" : "Warming up";
+  const word = score >= 75 ? "Interview-ready" : score >= 40 ? "Building momentum" : "Just getting started";
 
   // Areas of the platform with live status
   const offers = live.filter((a) => a.status === "offer").length;
@@ -86,34 +86,39 @@ export default async function Home() {
     <div className="space-y-5">
       {/* ── Hero band ── */}
       <section className="dark-card overflow-hidden fade-up">
-        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.1fr)_auto_minmax(0,1.2fr)] lg:items-center">
+        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1fr)] lg:items-center">
           <div>
-            <div className="text-[0.8rem] font-semibold uppercase tracking-[0.16em] text-white/50">Your job search</div>
-            <h1 className="mt-2 text-[2.9rem] font-bold leading-[0.95] text-cream">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-            {profile.target_role && <p className="mt-3 text-white/65">Chasing <span className="font-semibold text-cream">{profile.target_role}</span></p>}
+            <h1 className="text-[2.5rem] font-bold leading-[0.95] text-cream xl:text-[2.8rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
+            {profile.target_role && (
+              <p className="mt-3 flex flex-wrap items-center gap-2 text-[0.92rem] text-white/60">
+                Target role
+                <Link href="/profile" className="rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20">{profile.target_role}</Link>
+              </p>
+            )}
           </div>
 
-          <Link href={lift.href} className="flex items-center gap-4" title="Your search score">
+          <Link href={lift.href} className="flex items-center gap-4" title="How ready your job search is: resume, job matches, applying, interview practice and LinkedIn">
             <ScoreRing value={score} parts={parts} />
-            <div>
-              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/50">Search score</div>
-              <div className="font-display text-[1.25rem] font-bold text-brand-2">{word}</div>
+            <div className="max-w-[11rem]">
+              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">Search readiness</div>
+              <div className="font-display text-[1.25rem] font-bold leading-tight text-white">{word}</div>
+              <div className="mt-1 text-[0.78rem] leading-snug text-white/50">Resume, matches, applying and practice</div>
             </div>
           </Link>
 
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-3 gap-3 lg:col-span-3 xl:col-span-1">
             <Link href="/jobs" data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/55">This week</div>
+              <div className="text-[0.8rem] text-white/60" title="Applications sent this week">Applied</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{thisWeek}<span className="text-[0.9rem] text-white/45">/{GOAL}</span></div>
               <div className="mt-2 flex gap-1">{week.map((d) => <span key={d.key} title={`${d.n} applied`} className={`h-1.5 flex-1 rounded-full ${d.n ? "bg-clay" : "bg-white/15"}`} />)}</div>
             </Link>
             <Link href="/interview" data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/55">Mock rounds</div>
+              <div className="text-[0.8rem] text-white/60" title="Mock interview rounds done">Mock rounds</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{Math.min(interviews.length, 3)}<span className="text-[0.9rem] text-white/45">/3</span></div>
               <div className="mt-2 flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < interviews.length ? "bg-clay-2" : "bg-white/15"}`} />)}</div>
             </Link>
             <Link href="/profile" data-tone="3" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/55">AI left</div>
+              <div className="text-[0.8rem] text-white/60" title="AI credit left this month">AI credit</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "-"}</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${limit ? Math.max(2, Math.min(100, 100 - (spent / limit) * 100)) : 0}%` }} /></div>
             </Link>
@@ -121,8 +126,8 @@ export default async function Home() {
         </div>
         {gain > 0 && (
           <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3.5 sm:px-7 transition hover:bg-white/[.08]">
-            <span className="flex min-w-0 items-center gap-3"><span className="shrink-0 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Biggest lift</span><span className="truncate font-semibold text-cream">{lift.lift}</span></span>
-            <span className="flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-[1.1rem] font-bold text-mustard">+{gain}<span className="hidden sm:inline"> points</span> <ArrowRight size={16} /></span>
+            <span className="flex min-w-0 items-center gap-3"><span className="shrink-0 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Next step</span><span className="truncate font-semibold text-cream">{lift.lift}</span></span>
+            <span className="flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-[1.1rem] font-bold text-mustard">+{gain}%<span className="hidden sm:inline"> readiness</span> <ArrowRight size={16} /></span>
           </Link>
         )}
       </section>
@@ -163,7 +168,7 @@ export default async function Home() {
                   <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
                   <span>
                     <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
-                    <span className="block text-[0.84rem]">Five or more keeps your search moving.</span>
+                    <span className="block text-[0.84rem]">Aim for five or more.</span>
                   </span>
                 </Link>
               )}
@@ -235,8 +240,8 @@ function ScoreRing({ value, parts }: { value: number; parts: { label: string; co
         ))}
       </svg>
       <div className="absolute text-center">
-        <div className="font-display text-[2.4rem] font-bold leading-none tabular-nums text-cream">{value}</div>
-        <div className="text-[0.78rem] text-white/45">of 100</div>
+        <div className="font-display text-[2.3rem] font-bold leading-none tabular-nums text-white">{value}<span className="text-[1rem] text-white/60">%</span></div>
+        <div className="text-[0.74rem] text-white/50">ready</div>
       </div>
     </div>
   );
