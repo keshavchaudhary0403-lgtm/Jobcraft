@@ -1,10 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, IndianRupee, Mic, Plus, Target, UserRound } from "lucide-react";
+import { ArrowRight, Mic, Plus, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { LinkedInIcon } from "@/components/icons";
-import { STATUS_META, profileStrength } from "@/components/ui";
-import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
-import { STATUSES, type Application, type Status } from "@/lib/types";
+import { JobTile } from "@/components/JobTiles";
+import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSettings, monthStartIST } from "@/lib/ai";
@@ -34,14 +32,12 @@ export default async function Home() {
   const all = apps ?? [];
   const live = all.filter((a) => !["rejected", "withdrawn"].includes(a.status));
   const interviews = (sessions ?? []).filter((s) => s.kind === "interview");
-  const negotiations = (sessions ?? []).filter((s) => s.kind === "negotiation");
   const practised = new Set(interviews.map((s) => s.application_id).filter(Boolean) as string[]);
   const scores = interviews.map((s) => (s.meta as { interview_report?: { score?: number } } | null)?.interview_report?.score).filter((x): x is number => typeof x === "number");
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
   const first = profile.full_name?.split(" ")[0];
   const health = profile.master_resume?.trim() ? resumeHealth(profile.master_resume).score : null;
-  const strength = profileStrength(profile);
 
   // Search score
   const fits = live.filter((a) => a.analysis).map((a) => (a.analysis as Analysis).fit_score * 10);
@@ -64,25 +60,6 @@ export default async function Home() {
   const gain = Math.round(lift.weight * (1 - lift.value));
   const word = score >= 75 ? "Interview-ready" : score >= 40 ? "Building momentum" : "Just getting started";
 
-  // Areas of the platform with live status
-  const offers = live.filter((a) => a.status === "offer").length;
-  const areas = [
-    { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active` : "Add your first" },
-    { href: "/linkedin", label: "LinkedIn", icon: LinkedInIcon, hint: profile.linkedin_result ? "Rewritten" : "Not done yet" },
-    { href: "/interview", label: "Interview", icon: Mic, hint: `${Math.min(interviews.length, 3)}/3 rounds` },
-    { href: "/negotiation", label: "Salary", icon: IndianRupee, hint: offers ? `${offers} offer${offers > 1 ? "s" : ""}` : `${negotiations.length} practised` },
-    { href: "/profile", label: "Profile", icon: UserRound, hint: `${strength}% complete` },
-  ];
-
-  // Gaps that repeat across jobs
-  const gapMap = new Map<string, { n: number; status: string }>();
-  for (const a of live) for (const g of (a.analysis as Analysis | null)?.gaps ?? []) {
-    const k = g.gap.trim();
-    gapMap.set(k, { n: (gapMap.get(k)?.n ?? 0) + 1, status: g.status });
-  }
-  const gaps = [...gapMap.entries()].sort((x, y) => y[1].n - x[1].n).slice(0, 4);
-  const counts = Object.fromEntries(STATUSES.map((s) => [s, all.filter((a) => a.status === s).length])) as Record<Status, number>;
-
   return (
     <div className="space-y-5">
       {/* ── Hero band ── */}
@@ -91,7 +68,7 @@ export default async function Home() {
           {/* Row 1: greeting left, readiness right (same row on every screen size) */}
           <div className="flex items-start justify-between gap-4">
             <h1 className="min-w-0 text-[1.85rem] font-bold leading-[1] text-white sm:text-[2.6rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-            <Link href={lift.href} data-tip="Job-search readiness, made up of the six parts below" className="shrink-0 text-right">
+            <Link href={lift.href} data-tip="How ready your job search is: resume, job match, prep, applications, mock interviews and LinkedIn" className="shrink-0 text-right">
               <span className="block font-display text-[2.1rem] font-bold leading-none tabular-nums text-white sm:text-[2.6rem]">{score}<span className="text-[1.05rem] text-white/70 sm:text-[1.3rem]">%</span></span>
               <span className="mt-1 block text-[0.76rem] text-white/65 sm:text-[0.84rem]">ready<span className="hidden sm:inline"> · {word}</span></span>
             </Link>
@@ -102,16 +79,6 @@ export default async function Home() {
             {limit != null && <span className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/70 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
           </div>
 
-          {/* Six parts, as glass tiles */}
-          <div className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6">
-            {parts.map((p, i) => (
-              <Link key={p.label} href={p.href} data-tone={[0, 1, 3][i % 3]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5 transition hover:bg-white/[.14]">
-                <span className="block truncate text-[0.78rem] text-white/60">{p.label}</span>
-                <span className="mt-0.5 block truncate font-display text-[1.1rem] font-bold tabular-nums text-white">{p.show}</span>
-                <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/15"><span className="block h-full rounded-full" style={{ width: `${Math.max(p.value * 100, p.value > 0 ? 4 : 0)}%`, background: p.value >= 1 ? "#5fd99a" : "var(--hero-accent)" }} /></span>
-              </Link>
-            ))}
-          </div>
         </div>
         {gain > 0 && (
           <Link href={lift.href} className="group flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3 sm:px-7 transition hover:bg-white/[.08]">
@@ -120,19 +87,6 @@ export default async function Home() {
           </Link>
         )}
       </section>
-
-      {/* ── Areas ── */}
-      <nav className="thin-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 fade-up sm:mx-0 sm:px-0 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
-        {areas.map((x, i) => (
-          <Link key={x.href} href={x.href} className="group flex min-w-[220px] shrink-0 items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white md:min-w-0">
-            <span data-tone={i % 5} className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:scale-105"><x.icon size={17} /></span>
-            <span className="min-w-0">
-              <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
-              <span className="block truncate text-[0.78rem] text-muted">{x.hint}</span>
-            </span>
-          </Link>
-        ))}
-      </nav>
 
       {/* ── Jobs + side ── */}
       {all.length === 0 ? (
@@ -144,15 +98,15 @@ export default async function Home() {
           </span>
         </Link>
       ) : (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_330px]">
+        <div>
           <section className="fade-up">
             <div className="mb-3 flex items-end justify-between">
               <h2 className="text-[1.6rem] font-bold leading-none">Your jobs</h2>
               <Link href="/jobs" className="pill-nav">All {all.length} <ArrowRight size={14} /></Link>
             </div>
-            <div className="grid gap-5 md:grid-cols-2 stagger">
-              {live.slice(0, 4).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
-              {live.length < 4 && (
+            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 stagger">
+              {live.slice(0, 5).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
+              {live.length < 5 && (
                 <Link href="/jobs/new" className="group card card-hover flex min-h-[190px] flex-col p-6">
                   <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
                   <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
@@ -160,7 +114,7 @@ export default async function Home() {
                   <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
                 </Link>
               )}
-              {live.length < 4 && live.length % 2 === 0 && (
+              {live.length < 4 && (Math.min(live.length, 5) + 1) % 3 !== 0 && (
                 <Link href="/interview" className="group card card-hover flex min-h-[190px] flex-col p-6">
                   <span className="flex items-start justify-between gap-3">
                     <span data-tone="2" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Mic size={19} /></span>
@@ -175,33 +129,6 @@ export default async function Home() {
             </div>
           </section>
 
-          <aside className="space-y-5 xl:pt-[2.35rem] fade-up">
-            <section className="card p-5">
-              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Pipeline</div>
-              <div className="mt-2 flex items-baseline gap-2"><span className="font-display text-[1.8rem] font-bold leading-none">{all.length}</span><span className="text-[0.86rem] text-muted">job{all.length === 1 ? "" : "s"}</span></div>
-              <div className="mt-3"><StatusBar counts={counts} total={all.length} /></div>
-              <ul className="mt-3 space-y-1.5 text-[0.88rem]">
-                {STATUSES.filter((s) => counts[s]).map((s) => (
-                  <li key={s}><Link href={`/jobs?status=${s}`} className="flex items-center gap-2 hover:text-brand"><span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} /><span className="flex-1">{STATUS_META[s].label}</span><b className="tabular-nums">{counts[s]}</b></Link></li>
-                ))}
-              </ul>
-            </section>
-
-            {gaps.length > 0 && (
-              <section className="card p-5">
-                <div className="flex items-center gap-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink"><Target size={14} /> Gaps across your jobs</div>
-                <ul className="mt-3 space-y-2.5">
-                  {gaps.map(([g, v]) => (
-                    <li key={g} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 grid h-6 min-w-6 place-items-center rounded-full bg-brand px-1 text-[0.78rem] font-bold text-white">{v.n}×</span>
-                      <span className="text-[0.9rem] font-medium leading-snug">{g}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Link href="/profile" className="pill-action mt-4">Close them in your resume <ArrowRight size={14} /></Link>
-              </section>
-            )}
-          </aside>
         </div>
       )}
     </div>

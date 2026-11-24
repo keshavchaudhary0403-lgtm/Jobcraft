@@ -1,7 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Columns3, LayoutGrid, Plus } from "lucide-react";
-import { JobBoard } from "@/components/JobBoard";
-import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
+import { ArrowRight, Plus } from "lucide-react";
+import { JobTile, STATUS_BAR } from "@/components/JobTiles";
 import { requireUser } from "@/lib/auth";
 import { STATUS_META } from "@/components/ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -10,9 +9,8 @@ import type { Analysis } from "@/lib/tasks";
 export const metadata = { title: "Jobs" };
 
 
-export default async function JobsPage({ searchParams }: { searchParams: Promise<{ status?: string; view?: string; sort?: string }> }) {
-  const { status, view, sort = "recent" } = await searchParams;
-  const board = view === "board";
+export default async function JobsPage({ searchParams }: { searchParams: Promise<{ status?: string; sort?: string }> }) {
+  const { status, sort = "recent" } = await searchParams;
   const { supabase } = await requireUser();
   const [{ data: all }, { data: sessions }] = await Promise.all([
     supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>(),
@@ -41,12 +39,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <h1 className="text-[2.6rem] font-bold leading-none">Jobs<span className="text-clay">.</span></h1>
           <p className="mt-2 text-[1rem] text-muted">Every job, from decode to offer.</p>
         </div>
-        {jobs.length > 0 && (
-          <div className="inline-flex gap-1 rounded-full border-[1.5px] border-line p-1">
-            <Link href="/jobs" className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-[0.9rem] font-semibold transition ${!board ? "bg-side text-cream" : "text-muted hover:text-ink"}`}><LayoutGrid size={15} /> Journeys</Link>
-            <Link href="/jobs?view=board" className={`flex h-9 items-center gap-1.5 rounded-full px-4 text-[0.9rem] font-semibold transition ${board ? "bg-side text-cream" : "text-muted hover:text-ink"}`}><Columns3 size={15} /> Board</Link>
-          </div>
-        )}
+
       </header>
 
       {!jobs.length ? (
@@ -58,16 +51,10 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           </span>
           <span className="pill-action hidden sm:inline-flex">Add a job <ArrowRight size={15} /></span>
         </Link>
-      ) : board ? (
-        <JobBoard apps={jobs} />
       ) : (
         <>
           {/* Summary row: count + status bar, filter chips, sort. Light, like LinkedIn / Interview / Salary. */}
-          <section className="card flex flex-wrap items-center gap-x-5 gap-y-3 p-4 fade-up sm:p-5">
-            <div className="flex min-w-[150px] flex-col gap-1.5">
-              <div className="flex items-baseline gap-1.5"><span className="font-display text-[1.5rem] font-bold leading-none tabular-nums">{jobs.length}</span><span className="text-[0.86rem] text-muted">job{jobs.length === 1 ? "" : "s"}</span></div>
-              <StatusBar counts={counts} total={jobs.length} height={6} />
-            </div>
+          <section className="flex flex-wrap items-center gap-x-4 gap-y-3 fade-up">
             <div className="ml-auto inline-flex shrink-0 gap-1 rounded-full border-[1.5px] border-line p-1 sm:order-last">
               <Link href={q({ sort: undefined })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "recent" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Recent</Link>
               <Link href={q({ sort: "fit" })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "fit" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Best fit</Link>

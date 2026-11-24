@@ -31,7 +31,6 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
     if (res && (await ask({ title: "Rewrite your LinkedIn?", body: "New headlines, About and skills replace the current ones. Uses AI credit.", confirm: "Rewrite" })) === null) return;
     generate();
   };
-  const aboutWords = res ? res.about.trim().split(/\s+/).length : 0;
 
   return (
     <div className="space-y-5">
@@ -95,13 +94,6 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                       ))
                     : [0, 1, 2, 3, 4].map((i) => <li key={i} className={`h-10 rounded-2xl ${busy ? "skeleton" : "bg-line-2"}`} />)}
                 </ol>
-                {res && (
-                  <div data-tone="2" className="tone-soft mt-4 rounded-2xl px-4 py-3" style={{ background: "var(--color-cream)" }}>
-                    <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">About length</div>
-                    <div className="mt-1 font-display text-[1.4rem] font-bold">{aboutWords}<span className="text-[0.85rem] font-medium text-muted"> / 150 words</span></div>
-                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${aboutWords > 150 ? "bg-bad" : "bg-good"}`} style={{ width: `${Math.min(100, (aboutWords / 150) * 100)}%` }} /></div>
-                  </div>
-                )}
               </div>
             </div>
           </div>

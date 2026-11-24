@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ArrowRight,
   Check,
   ChevronRight,
   ChevronDown,
@@ -79,34 +78,8 @@ export function JobView({
   const qs = questionList(a);
   const unanswered = qs.filter((q) => !app.fit_answers?.[q]?.trim()).length;
   const [askAt, setAskAt] = useState<number | null>(null);
-  const openQuestions = () => {
-    setTab("overview");
-    setAskAt(Math.max(0, qs.findIndex((q) => !app.fit_answers?.[q]?.trim())));
-  };
-  const next: { label: string; sub: string; go: () => void } | null = !analysed
-    ? null
-    : unanswered
-      ? { label: `Answer ${unanswered} question${unanswered > 1 ? "s" : ""}`, sub: "Sharpens your match score", go: openQuestions }
-      : !app.tailored_resume
-        ? { label: "Tailor your resume", sub: "Built around what they want", go: () => setTab("resume") }
-        : !app.outreach
-          ? { label: "Message the hiring manager", sub: "A note + a short message", go: () => setTab("outreach") }
-          : app.status === "saved"
-            ? { label: "Mark as applied", sub: "Once you've sent your resume", go: () => update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }) }
-            : { label: "Practise the interview", sub: "6 questions, by voice", go: () => setTab("practice") };
-
   const fit = a ? a.fit_score * 10 : null;
   const fitColor = fit == null ? "var(--line)" : fit >= 70 ? "var(--color-good)" : fit >= 50 ? "var(--brand)" : "var(--color-bad)";
-  const steps = [
-    { label: "Decoded", done: analysed, go: () => setTab("overview") },
-    { label: "Questions", done: analysed && unanswered === 0, go: () => (unanswered ? openQuestions() : setTab("overview")) },
-    { label: "Resume", done: !!app.tailored_resume, go: () => setTab("resume") },
-    { label: "Outreach", done: !!app.outreach, go: () => setTab("outreach") },
-    { label: "Applied", done: ["applied", "interviewing", "offer", "rejected"].includes(app.status), go: () => app.status === "saved" && update({ status: "applied", applied_on: new Date().toISOString().slice(0, 10) }) },
-    { label: "Interview", done: interviews.length > 0 || ["interviewing", "offer"].includes(app.status), go: () => setTab("practice") },
-    { label: "Offer", done: app.status === "offer", go: () => router.push("/negotiation") },
-  ];
-  const cur = steps.findIndex((x) => !x.done);
   const chapters: { key: Tab; label: string; sub: string; done: boolean }[] = [
     { key: "overview", label: "Match", sub: !analysed ? "Reading the job..." : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
     { key: "resume", label: "Resume", sub: app.tailored_resume ? "Tailored" : "Not tailored yet", done: !!app.tailored_resume },
@@ -165,32 +138,6 @@ export function JobView({
           </div>
         </div>
 
-        {/* Journey */}
-        <div className="border-t border-line px-7 py-6">
-          <ol className="grid grid-cols-7">
-            {steps.map((x, i) => {
-              const isCur = i === cur;
-              return (
-                <li key={x.label} className="relative flex flex-col items-center text-center">
-                  {i > 0 && <span className={`absolute right-1/2 top-[15px] h-[3px] w-full ${steps[i - 1].done ? "bg-brand" : "bg-line"}`} />}
-                  <button onClick={x.go} disabled={!analysed && i > 0} className={`relative z-10 grid h-8 w-8 place-items-center rounded-full text-[0.8rem] font-bold transition disabled:cursor-default ${x.done ? "bg-brand text-cream" : isCur ? "bg-clay text-white ring-[5px] ring-clay-soft" : "border-[1.5px] border-line bg-card text-faint"}`}>
-                    {x.done ? <Check size={15} strokeWidth={3} /> : i + 1}
-                  </button>
-                  <span className={`mt-2 whitespace-nowrap text-[0.8rem] ${isCur ? "font-bold text-clay" : x.done ? "hidden font-medium sm:block" : "hidden text-faint sm:block"}`}>{x.label}</span>
-                </li>
-              );
-            })}
-          </ol>
-          {next && (
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-5 py-3.5">
-              <div>
-                <div className="font-display text-[1.1rem] font-bold">{next.label}</div>
-                <div className="text-[0.86rem] text-muted">{next.sub}</div>
-              </div>
-              <button onClick={next.go} className="btn btn-clay h-11">Do it now <ArrowRight size={15} /></button>
-            </div>
-          )}
-        </div>
       </section>
 
       {/* ── Chapters ── */}

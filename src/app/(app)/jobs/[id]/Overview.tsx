@@ -37,7 +37,7 @@ const MATCH = {
 const GAP = {
   lacking: { label: "Missing", cls: "bg-bad-soft text-bad", icon: XCircle, hint: "You don't have this yet - handle it honestly." },
   not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-mustard-ink", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
-  unsure: { label: "Needs your answer", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
+  unsure: { label: "Answer above to settle", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
 };
 
 /** All questions the recruiter wants answered (gap questions + extra ones), no duplicates. */
@@ -331,11 +331,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <p className="mt-1 line-clamp-2 text-[0.88rem] text-muted" data-tip={g.explanation}>{g.explanation}</p>
                       )}
                       <div className="mt-auto flex flex-wrap gap-2 pt-3">
-                        {qi >= 0 && (
-                          <button onClick={() => onAsk(qi)} className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[0.8rem] font-semibold transition ${ans ? "bg-good-soft text-good" : "bg-ocean-soft text-ocean hover:brightness-95"}`}>
-                            {ans ? <><CheckCircle2 size={13} /> Answered · edit</> : <><CircleHelp size={13} /> Answer the question</>}
-                          </button>
-                        )}
+                        {qi >= 0 && ans && <span className="inline-flex h-8 items-center gap-1.5 rounded-full bg-good-soft px-3 text-[0.8rem] font-semibold text-good"><CheckCircle2 size={13} /> Answered</span>}
                         {g.status === "not_shown" && <button className="btn btn-ghost btn-sm" onClick={() => onGo("resume")}><FileText size={13} /> Fix in resume</button>}
                       </div>
                     </div>

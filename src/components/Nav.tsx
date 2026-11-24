@@ -84,10 +84,6 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
             <button onClick={logout} className="flex h-11 w-full items-center gap-3 rounded-2xl px-3 text-[0.95rem] text-bad hover:bg-bad-soft"><LogOut size={16} /> Log out</button>
           </div>
         )}
-        <Link href="/profile" onClick={() => setOpen(false)} className="mb-3 block rounded-2xl bg-white/[.06] px-3.5 py-3 transition hover:bg-white/[.1]">
-          <div className="flex justify-between text-[0.8rem]"><span className="text-white/60">Profile strength</span><span className="font-semibold text-cream">{strength}%</span></div>
-          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-mustard" style={{ width: `${strength}%` }} /></div>
-        </Link>
         <button onClick={() => setMenu(!menu)} className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
           <span className="avatar-warm grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold">{initials || "?"}</span>
           <span className="min-w-0 flex-1 truncate text-[0.92rem] font-medium text-cream">{name}</span>

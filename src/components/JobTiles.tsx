@@ -20,7 +20,6 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
   const steps = journey(a, practised);
   const cur = steps.findIndex((s) => !s.done);
   const next = cur >= 0 && !["rejected", "withdrawn"].includes(a.status) ? steps[cur] : null;
-  const done = steps.filter((s) => s.done).length;
   const st = STATUS_META[a.status];
   return (
     <article className="card card-hover flex flex-col overflow-hidden">
@@ -39,18 +38,8 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
         </div>
       </Link>
 
-      <div className="mt-auto border-t border-line px-6 py-4">
-        <div className="flex items-center justify-between text-[0.8rem]">
-          <span className="text-muted">Step <b className="font-display text-ink">{Math.min(done + 1, 7)}</b> of 7</span>
-          {next && <span className="font-semibold text-clay">{steps[cur].label}</span>}
-        </div>
-        <div className="mt-2 flex gap-1">
-          {steps.map((s, i) => <span key={s.label} data-tip={s.label} className={`h-2 flex-1 rounded-full ${s.done ? "bg-brand" : i === cur ? "bg-clay" : "bg-line"}`} />)}
-        </div>
-      </div>
-
       {next ? (
-        <Link href={next.href} className="group flex items-center justify-between gap-3 border-t border-line px-6 py-3.5">
+        <Link href={next.href} className="group mt-auto flex items-center justify-between gap-3 border-t border-line px-6 py-3.5">
           <span className="min-w-0">
             <span className="block text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-muted">Next step</span>
             <span className="block truncate font-semibold text-ink">{next.cta}</span>
@@ -58,7 +47,7 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
           <span className="pill-action shrink-0">Start <ArrowRight size={14} /></span>
         </Link>
       ) : (
-        <Link href={`/jobs/${a.id}`} className="group flex items-center justify-end border-t border-line px-6 py-3.5"><span className="pill-nav">Open job <ArrowRight size={14} /></span></Link>
+        <Link href={`/jobs/${a.id}`} className="group mt-auto flex items-center justify-end border-t border-line px-6 py-3.5"><span className="pill-nav">Open job <ArrowRight size={14} /></span></Link>
       )}
     </article>
   );
