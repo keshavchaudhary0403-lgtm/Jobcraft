@@ -38,10 +38,10 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
     : [];
 
   return (
-    <div className={`grid gap-5 xl:grid-cols-[380px_minmax(0,1fr)] ${app.outreach ? "items-start" : ""}`}>
+    <div className="grid items-stretch gap-5 xl:grid-cols-[380px_minmax(0,1fr)]">
       {dialog}
       {/* Left: find + write */}
-      <aside className="space-y-4 xl:sticky xl:top-6">
+      <aside className="flex flex-col gap-4">
         <section className="dark-card p-5">
           <div className="flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/70"><UserSearch size={14} /> 1 · Find who hires</div>
           {app.hiring_contact && (
@@ -64,7 +64,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
           <p className="mt-3 text-[0.76rem] text-white/65">Opens LinkedIn people search at {company}.</p>
         </section>
 
-        <section className="card p-5">
+        <section className="card flex-1 p-5">
           <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">2 · Write to them</div>
           <label className="label mt-3">Who did you find? <span className="text-faint">· optional</span></label>
           <input className="field" value={contact} onChange={(e) => setContact(e.target.value)} placeholder="e.g. Priya Sharma, Head of Category" />

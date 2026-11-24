@@ -61,7 +61,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
 
         <div className="mt-6 fade-up">
           {!draft ? (
-            <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <ResumeDrop
                 onParsed={(p) =>
                   setDraft(

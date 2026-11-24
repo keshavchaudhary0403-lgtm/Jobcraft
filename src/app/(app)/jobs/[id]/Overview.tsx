@@ -207,7 +207,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         )}
 
         {/* Row 3: what they want | answers + gaps */}
-        <div className="grid items-start gap-5 xl:grid-cols-2">
+        <div className="grid items-stretch gap-5 xl:grid-cols-2">
           <section className="card overflow-hidden">
             <header className="flex items-center gap-2.5 px-5 pb-3 pt-5">
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-soft text-brand"><Target size={15} /></span>

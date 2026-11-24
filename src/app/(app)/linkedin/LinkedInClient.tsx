@@ -52,7 +52,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
       </header>
       {error && <p className="flex items-center gap-1.5 text-bad"><AlertCircle size={14} /> {error}</p>}
 
-      <div className={`grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px] transition ${busy ? "opacity-60" : ""}`}>
+      <div className={`grid items-stretch gap-5 lg:grid-cols-[minmax(0,1fr)_380px] transition ${busy ? "opacity-60" : ""}`}>
         {/* Live preview */}
         <section className="card overflow-hidden fade-up">
           <div className="grain relative h-32" style={{ background: "linear-gradient(120deg, var(--side), var(--side-2) 55%, var(--brand))" }}>
@@ -100,7 +100,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         </section>
 
         {/* Right rail: headlines + update steps */}
-        <aside className="space-y-5 lg:sticky lg:top-6">
+        <aside className="flex flex-col gap-5">
           <section className="card p-5 fade-up">
             <div className="mb-3 flex items-center justify-between">
               <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="0" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><IdCard size={15} /></span>Pick a headline</h2>
@@ -157,7 +157,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
     { k: "open", title: "Turn on Open to Work (recruiters only)", how: "Profile → Open to → Finding a new job → choose 'Recruiters only' and add your target role." },
   ];
   return (
-    <section className="card p-5 fade-up">
+    <section className="card flex-1 p-5 fade-up">
       <div className="flex items-center gap-3">
         <span data-tone="2" className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-line-2"><Check size={17} /></span>
         <div className="min-w-0 flex-1">

@@ -139,7 +139,7 @@ export default function NewJob() {
         <p className="mt-2 text-[1rem] text-muted">Paste a link or the description.</p>
       </header>
 
-      <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
+      <form onSubmit={submit} className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Paste pane */}
         <div className="card flex flex-col overflow-hidden fade-up">
           <div className="border-b border-line p-5" style={{ background: "var(--color-cream)" }}>
@@ -181,7 +181,7 @@ export default function NewJob() {
         </div>
 
         {/* Preview pane */}
-        <aside className="space-y-4 lg:sticky lg:top-6 fade-up">
+        <aside className="flex flex-col gap-4 fade-up">
           <div className="dark-card p-5">
             <div className="flex items-center justify-between">
               <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Preview</span>
@@ -201,7 +201,7 @@ export default function NewJob() {
             </div>
           </div>
 
-          <div className="card space-y-4 p-5">
+          <div className="card flex-1 space-y-4 p-5">
             {detField("company", "Company", <Building2 size={15} />, words < 30 ? "Filled from the JD" : "Company name")}
             {detField("role", "Role", <UserRound size={15} />, words < 30 ? "Filled from the JD" : "Job title")}
             {detField("location", "Location", <MapPin size={15} />, "Optional")}

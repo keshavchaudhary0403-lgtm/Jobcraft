@@ -125,13 +125,13 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         </div>
       )}
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        {/* The resume */}
-        <div className="min-w-0">
+      <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* The resume: stretches to the side card's height so both end on the same line */}
+        <div className="flex min-w-0 flex-col">
           {editing ? (
-            <div className="paper"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
+            <div className="paper flex-1"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
           ) : (
-            <div className={`paper transition ${busy ? "opacity-50" : ""}`} ref={paper}>
+            <div className={`paper flex-1 transition ${busy ? "opacity-50" : ""}`} ref={paper}>
               <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
             </div>
           )}
@@ -139,8 +139,9 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         </div>
 
         {/* Rail: one card, sections like the scorecard. Scrolls as a whole beside the resume. */}
-        <aside className="thin-scroll pb-20 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto xl:rounded-[22px]">
-          <div className="card overflow-hidden">
+        <aside className="min-w-0">
+          <div className="card h-full">
+            <div className="xl:sticky xl:top-6">
             <section className="p-5">
               <div className="flex items-center gap-2.5">
                 <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><FileText size={16} /></span>
@@ -227,6 +228,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 {numErr && !filled && <p className="mt-2 text-[0.82rem] font-medium text-bad">Add at least one number first.</p>}
               </section>
             )}
+            </div>
           </div>
         </aside>
       </div>
