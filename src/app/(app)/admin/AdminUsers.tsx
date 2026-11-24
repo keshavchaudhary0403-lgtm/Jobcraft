@@ -812,13 +812,13 @@ function AdminOverview({
   return (
     <div className="space-y-5 fade-up">
       {/* Headline band */}
-      <section className="dark-card grid gap-6 p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
+      <section className="dark-card grid gap-5 p-6 sm:p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
         <div className="min-w-0 lg:w-[280px]">
           <div className="text-[0.84rem] text-white/70">Spent in {monthName}</div>
-          <div className="mt-1 font-display text-[2.6rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
+          <div className="mt-1 font-display text-[2.3rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
           {budget != null ? (
             <>
-              <Meter value={total / budget} color={total / budget >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} track="rgba(255,255,255,.18)" height={8} className="mt-3" />
+              <Meter value={total / budget} color={total / budget >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} track="rgba(255,255,255,.18)" height={6} className="mt-2.5" />
               <div className="mt-2 text-[0.86rem] text-white/70"><b className="text-white">{Math.round((total / budget) * 100)}%</b> of {rupees(budget)} monthly budget</div>
             </>
           ) : <div className="mt-2 text-[0.88rem] text-white/70">No total budget set</div>}
@@ -829,15 +829,14 @@ function AdminOverview({
             { tone: 1, label: "Active this month", value: `${stats.active}/${users.length}`, sub: "Used AI at least once", bar: users.length ? stats.active / users.length : 0, go: () => go("people") },
             { tone: 3, label: "Per active person", value: stats.active ? rupees(total / stats.active) : "None yet", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, bar: null, go: () => go("people") },
           ].map((k) => (
-            <button key={k.label} onClick={k.go} data-tone={k.tone} className="stat-tile rounded-2xl p-4 text-left transition hover:bg-white/[.14]">
-              <div className="text-[0.8rem] text-white/60">{k.label}</div>
-              <div className={`mt-1 font-display text-[1.7rem] font-bold leading-tight tabular-nums ${k.warn ? "text-[var(--hero-accent)]" : "text-white"}`}>{k.value}</div>
+            <button key={k.label} onClick={k.go} data-tone={k.tone} data-tip={k.sub} className="stat-tile rounded-2xl px-4 py-3 text-left transition hover:bg-white/[.14]">
+              <div className="truncate text-[0.78rem] text-white/65">{k.label}</div>
+              <div className={`mt-0.5 font-display text-[1.35rem] font-bold leading-tight tabular-nums ${k.warn ? "text-[var(--hero-accent)]" : "text-white"}`}>{k.value}</div>
               {k.bar != null ? (
-                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.max(k.bar * 100, k.bar > 0 ? 4 : 0))}%`, background: "var(--hero-accent)" }} /></div>
+                <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.max(k.bar * 100, k.bar > 0 ? 4 : 0))}%`, background: "var(--hero-accent)" }} /></div>
               ) : (
-                <div className="mt-2 text-[0.76rem] text-white/65">{k.sub}</div>
+                <div className="mt-1.5 truncate text-[0.74rem] text-white/65">{k.sub}</div>
               )}
-              {k.bar != null && <div className="mt-1.5 text-[0.76rem] text-white/65">{k.sub}</div>}
             </button>
           ))}
         </div>
