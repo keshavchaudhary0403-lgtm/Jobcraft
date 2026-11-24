@@ -34,7 +34,7 @@ ${s} p{margin:0}${s} ul{list-style:disc;margin:1pt 0 0;padding-left:14pt}${s} li
 ${s} strong{font-weight:700}${s} em{font-style:normal}
 ${s} .rl{display:flex;justify-content:space-between;align-items:baseline;gap:12pt}
 ${s} .rl>span:last-child{text-align:right;white-space:nowrap;flex-shrink:0}
-${s} a{color:#1f4e79;text-decoration:underline}
+${s} a{color:#1f4e79;text-decoration:none}
 ${s} h1+p a{color:inherit${i};text-decoration:none${i}}`;
 }
 
