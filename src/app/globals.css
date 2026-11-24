@@ -228,7 +228,7 @@ main .bg-side { background: var(--sel-bg); box-shadow: 0 10px 24px -12px var(--s
 main .border-side { border-color: var(--sel); }
 main .bg-side .bg-cream { background: rgba(255,255,255,.95); color: var(--sel); }
 .card { border-color: var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.03), 0 12px 32px -22px color-mix(in srgb, var(--side) 30%, transparent); }
-.btn-clay { box-shadow: 0 10px 22px -10px var(--act-glow); }
+.btn-clay { box-shadow: 0 6px 14px -9px var(--act-glow); }
 .btn-primary, .btn-brand { background: var(--sel-bg); box-shadow: 0 10px 22px -12px var(--sel-glow); }
 .btn-primary:hover:not(:disabled), .btn-brand:hover:not(:disabled) { background: #004480; }
 .tone-chip { border-radius: 12px; }
