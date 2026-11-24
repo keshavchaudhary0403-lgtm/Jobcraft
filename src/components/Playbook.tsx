@@ -30,20 +30,26 @@ export function Playbook({ moves }: { moves: Move[] }) {
   return (
     <section className="card grid overflow-hidden fade-up lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
       {/* Left: name, progress dots, the seven moves */}
-      <div className="p-6 sm:p-7">
-        <div className="flex items-center gap-1.5" aria-label={`${done} of 7 done`}>
-          {moves.map((m) => (
-            <span
-              key={m.n}
-              className={`h-2 rounded-full transition-all ${m === next ? "w-7 bg-brand" : m.done ? "w-2 bg-good" : "w-2 bg-line"}`}
-            />
-          ))}
-          <span className="ml-2 text-[0.8rem] font-semibold tabular-nums text-muted">{done}/7</span>
+      <div className="flex flex-col p-6 sm:p-7">
+        <div>
+        {/* Heading on the left, progress dots in the right corner of the same row */}
+        <div className="flex items-center justify-between gap-4">
+          <h2 className="text-[1.7rem] font-bold leading-tight">Your hiring playbook</h2>
+          <div className="flex shrink-0 items-center gap-1.5" aria-label={`${done} of 7 done`}>
+            {moves.map((m) => (
+              <span
+                key={m.n}
+                className={`h-2 rounded-full transition-all ${m === next ? "w-7 bg-brand" : m.done ? "w-2 bg-good" : "w-2 bg-line"}`}
+              />
+            ))}
+            <span className="ml-2 text-[0.8rem] font-semibold tabular-nums text-muted">{done}/7</span>
+          </div>
         </div>
-        <h2 className="mt-3 text-[1.7rem] font-bold leading-tight">Your hiring playbook</h2>
         <p className="mt-1 text-[0.95rem] text-muted">Seven moves from job post to offer. Tap one to see what it does.</p>
+        </div>
 
-        <div className="mt-5 flex flex-wrap gap-2.5">
+        {/* Pills sit in the middle of the space left under the heading: even room above and below */}
+        <div className="flex flex-1 flex-wrap content-center gap-x-[18px] gap-y-4">
           {moves.map((m) => {
             const I = MOVES[m.n].icon;
             const on = m.n === focus;
@@ -54,7 +60,7 @@ export function Playbook({ moves }: { moves: Move[] }) {
                 onMouseEnter={() => setFocus(m.n)}
                 onFocus={() => setFocus(m.n)}
                 onClick={() => setFocus(m.n)}
-                className={`flex h-11 items-center gap-2 rounded-full border-[1.5px] pl-2 pr-4 text-[0.92rem] font-semibold transition ${
+                className={`flex h-10 items-center gap-2 rounded-full border-[1.5px] pl-1.5 pr-4 text-[0.92rem] font-semibold transition ${
                   on ? "border-side bg-side text-cream" : m.done ? "border-transparent bg-good-soft/70 text-ink hover:border-good/40" : "border-line bg-card text-ink hover:border-brand/40"
                 }`}
               >

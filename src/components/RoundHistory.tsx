@@ -95,14 +95,14 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: Pra
       {tab === "rounds" && g.rounds.length === 0 ? (
         <p className="m-5 mt-3 rounded-2xl bg-line-2/70 px-4 py-6 text-center text-[0.88rem] text-muted">Your {unit}s for this {kind === "interview" ? "job" : "offer"} will show up here, with their scores.</p>
       ) : tab === "rounds" ? (
-        <ol className="grid gap-1.5 p-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ol className="grid gap-2.5 px-5 pb-5 pt-3 sm:grid-cols-2 xl:grid-cols-3">
           {[...g.rounds].reverse().map((r) => {
             const n = g.rounds.indexOf(r) + 1;
             const s = r.report?.score;
             const pos = r.offer?.position;
             return (
               <li key={r.id}>
-                <Link href={`${base}/${r.id}`} className="group flex items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-line-2">
+                <Link href={`${base}/${r.id}`} className="group flex items-center gap-3 rounded-2xl bg-line-2/70 px-3 py-2.5 ring-1 ring-transparent transition hover:bg-brand-soft/60 hover:ring-brand/25">
                   {kind === "negotiation" ? (
                     <span data-tone="2" className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2"><IndianRupee size={16} /></span>
                   ) : (
