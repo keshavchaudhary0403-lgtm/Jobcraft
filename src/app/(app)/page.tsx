@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Mic, Plus, Target } from "lucide-react";
+import { ArrowRight, Check, Mic, Plus, Target } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { JobTile } from "@/components/JobTiles";
 import type { Application } from "@/lib/types";
@@ -33,6 +33,7 @@ export default async function Home() {
   const live = all.filter((a) => !["rejected", "withdrawn"].includes(a.status));
   const interviews = (sessions ?? []).filter((s) => s.kind === "interview");
   const practised = new Set(interviews.map((s) => s.application_id).filter(Boolean) as string[]);
+  const talks = (sessions ?? []).filter((s) => s.kind === "negotiation");
   const scores = interviews.map((s) => (s.meta as { interview_report?: { score?: number } } | null)?.interview_report?.score).filter((x): x is number => typeof x === "number");
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
@@ -57,8 +58,22 @@ export default async function Home() {
   ];
   const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
   const lift = [...parts].sort((x, y) => y.weight * (1 - y.value) - x.weight * (1 - x.value))[0];
-  const gain = Math.round(lift.weight * (1 - lift.value));
   const word = score >= 75 ? "Interview-ready" : score >= 40 ? "Building momentum" : "Just getting started";
+
+  // The prompt-PDF process, in order. Each step knows if it's done and where to do it.
+  const job = live.find((x) => x.analysis) ?? live[0];
+  const jobHref = (tab?: string) => (job ? `/jobs/${job.id}${tab ? `?tab=${tab}` : ""}` : "/jobs/new");
+  const path = [
+    { n: 1, title: "Decode the job", sub: "What they really want", done: all.some((x) => x.analysis), href: job ? jobHref() : "/jobs/new" },
+    { n: 2, title: "Honest fit", sub: "Score, gaps, questions", done: all.some((x) => x.analysis && Object.values(x.fit_answers ?? {}).some((v) => String(v).trim())), href: jobHref() },
+    { n: 3, title: "Tailor resume", sub: "Built for this job", done: all.some((x) => x.tailored_resume), href: jobHref("resume") },
+    { n: 4, title: "LinkedIn", sub: "Found by recruiters", done: !!profile.linkedin_result, href: "/linkedin" },
+    { n: 5, title: "Outreach", sub: "Note to the hiring manager", done: all.some((x) => x.outreach), href: jobHref("outreach") },
+    { n: 6, title: "Mock interview", sub: "6 questions, scored", done: interviews.length > 0, href: "/interview" },
+    { n: 7, title: "Salary talk", sub: "Check and practise the offer", done: talks.length > 0, href: "/negotiation" },
+  ];
+  const nextStep = path.find((x) => !x.done);
+  const doneCount = path.filter((x) => x.done).length;
 
   return (
     <div className="space-y-5">
@@ -80,12 +95,40 @@ export default async function Home() {
           </div>
 
         </div>
-        {gain > 0 && (
-          <Link href={lift.href} className="group flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3 sm:px-7 transition hover:bg-white/[.08]">
-            <span className="flex min-w-0 items-center gap-3"><span className="shrink-0 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Next step</span><span className="truncate font-semibold text-cream">{lift.lift}</span></span>
-            <span className="pill-glass shrink-0">+{gain}%<span className="hidden sm:inline"> readiness</span> <ArrowRight size={15} /></span>
-          </Link>
-        )}
+      </section>
+
+      {/* ── Your path: the seven steps from the prompt PDF ── */}
+      <section className="card p-5 fade-up sm:p-6">
+        <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <h2 className="text-[1.35rem] font-bold leading-tight">Your path to an offer</h2>
+            <p className="text-[0.88rem] text-muted">Seven steps, in order. {nextStep ? <>Next: <b className="text-ink">{nextStep.title}</b>.</> : "All done - keep going for every job."}</p>
+          </div>
+          <span className="text-[0.84rem] font-semibold text-muted tabular-nums">{doneCount}/7 done</span>
+        </div>
+        <ol className="no-scrollbar -mx-1 flex snap-x gap-2.5 overflow-x-auto px-1 pb-1 md:mx-0 md:grid md:grid-cols-4 md:overflow-visible md:px-0 md:pb-0 xl:grid-cols-7">
+          {path.map((x) => {
+            const isNext = x === nextStep;
+            return (
+              <li key={x.n} className="w-[150px] shrink-0 snap-start md:w-auto">
+                <Link
+                  href={x.href}
+                  className={`group flex h-full flex-col rounded-2xl border-2 p-3.5 transition ${isNext ? "border-brand bg-card ring-4 ring-brand/15" : x.done ? "border-transparent bg-line-2/60 hover:border-brand/30" : "border-line bg-card hover:border-brand/40"}`}
+                >
+                  <span className="flex items-center justify-between">
+                    <span className={`grid h-7 w-7 place-items-center rounded-full font-display text-[0.82rem] font-bold ${x.done ? "bg-good text-white" : isNext ? "bg-brand text-white" : "bg-line-2 text-muted"}`}>
+                      {x.done ? <Check size={14} strokeWidth={3} /> : x.n}
+                    </span>
+                    {isNext && <span className="rounded-full bg-clay px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-white">Next</span>}
+                  </span>
+                  <span className="mt-2.5 block font-display text-[1rem] font-bold leading-tight">{x.title}</span>
+                  <span className="mt-0.5 block text-[0.8rem] leading-snug text-muted">{x.sub}</span>
+                  {isNext && <span className="mt-auto inline-flex items-center gap-1 pt-2.5 text-[0.82rem] font-semibold text-clay">Start <ArrowRight size={13} /></span>}
+                </Link>
+              </li>
+            );
+          })}
+        </ol>
       </section>
 
       {/* ── Jobs + side ── */}
