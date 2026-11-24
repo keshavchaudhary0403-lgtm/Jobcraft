@@ -235,7 +235,23 @@ ${CLEAN_RULE} ${TRUTH_RULE}`,
 4. Every bullet: action verb + what they did + measurable result. If a number is missing, keep the bullet honest without a number and add a question to missing_numbers asking for it. Never invent numbers.
 5. One page, simple formatting, no tables, no graphics, no photo - ATS-safe.
 6. Simple, clear English.
-resume_markdown: the full resume in Markdown (# Name, contact line, ## section headings, "- " bullets).
+resume_markdown: the full resume in Markdown, in EXACTLY this format (the candidate's own CV layout - nothing else):
+# FULL NAME
+Phone | Email | City
+## SUMMARY
+Two to three lines on who they are for THIS role, with their strongest real numbers.
+## WORK EXPERIENCE
+### Company Name || City, Country
+Job Title || Mon YYYY - Mon YYYY
+- Bullet: action verb + what they did + result, with the key numbers and names in **bold**
+(repeat "Job Title || dates" + bullets for each role at the same company; a new ### line for each company)
+## KEY SKILLS & TOOLS
+- **Group name:** skill, skill, skill
+## EDUCATION
+### Institution, City || YYYY - YYYY
+Degree, Subject; score
+Class XII (Board), School, City - score || YYYY
+Rules for the format: " || " separates the left and right side of a line - use it only on those lines. No italics anywhere. Section headings are always ## in capitals. Keep the candidate's own section order and education rows. No tables, no other symbols.
 changes: every change you made and why, so the candidate can verify each is true.
 missing_numbers: questions for numbers that would make bullets stronger (empty if none).`,
         input: [
@@ -244,6 +260,8 @@ missing_numbers: questions for numbers that would make bullets stronger (empty i
           answersBlock(app!),
           extra?.numbers && `=== NUMBERS THE CANDIDATE JUST GAVE ===\n${extra.numbers}`,
           extra?.untrue && `=== CHANGES THE CANDIDATE SAYS ARE NOT TRUE - undo or correct each one; never repeat these claims ===\n${extra.untrue}`,
+          extra?.fit_one_page &&
+            `=== MUST FIT ONE PAGE ===\n${extra.fit_one_page}\nShorten it: keep at most 3-4 bullets for older or less relevant roles, merge overlapping bullets, cut filler words and generic summary lines, keep the summary to 2 lines. Keep every number, keyword and fact that matters for THIS job. Never add anything. List what you cut in changes.`,
         ]
           .filter(Boolean)
           .join("\n\n"),

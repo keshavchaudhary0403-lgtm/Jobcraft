@@ -45,6 +45,15 @@ const MD_CLS: Record<Exclude<Md, null> | "text", string> = {
   text: "my-0.5",
 };
 
+/* Same type as the PDF download (used when the editor sits on the A4 sheet). */
+const PRINT_CLS: Record<Exclude<Md, null> | "text", string> = {
+  h1: "text-[16pt] font-bold uppercase leading-[1.25] tracking-[0.03em] [&>textarea]:text-center",
+  h2: "mb-[3pt] mt-[8pt] border-b border-black pb-[1.5pt] text-[10.5pt] font-bold uppercase tracking-[0.04em]",
+  h3: "mt-[4pt] font-bold",
+  em: "",
+  text: "my-0",
+};
+
 let uid = 0;
 function parse(value: string, mode: "plain" | "md"): Row[] {
   return value.split("\n").map((raw) => {
@@ -73,7 +82,25 @@ function serialize(rows: Row[]): string {
     .join("\n");
 }
 
-export function DocEditor({ value, onChange, mode = "plain", className = "", toolbarTop = "top-2" }: { value: string; onChange: (v: string) => void; mode?: "plain" | "md"; className?: string; toolbarTop?: string }) {
+export function DocEditor({
+  value,
+  onChange,
+  mode = "plain",
+  className = "",
+  toolbarTop = "top-2",
+  print = false,
+  wrapRows,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  mode?: "plain" | "md";
+  className?: string;
+  toolbarTop?: string;
+  /** Use the PDF's exact type (for editing on the A4 sheet). */
+  print?: boolean;
+  /** Wrap the lines (not the toolbar) - e.g. in the A4 sheet. */
+  wrapRows?: (rows: React.ReactNode) => React.ReactNode;
+}) {
   const [rows, setRows] = useState(() => parse(value, mode));
   const [focusId, setFocusId] = useState<number | null>(null);
   const refs = useRef(new Map<number, HTMLTextAreaElement>());
@@ -206,17 +233,17 @@ export function DocEditor({ value, onChange, mode = "plain", className = "", too
         <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · type &quot;- &quot; for a bullet</span>
       </div>
 
-      <div>
+      {(wrapRows ?? ((x: React.ReactNode) => <div>{x}</div>))(<>
         {rows.map((r, i) => {
           const blank = !r.text.trim() && !r.bullet && !r.md;
           let cls: string;
-          if (mode === "md") cls = r.bullet ? "my-0.5" : MD_CLS[r.md ?? "text"];
+          if (mode === "md") cls = r.bullet ? (print ? "mb-[1pt] pl-[14pt]" : "my-0.5") : print && blank && focusId !== r.id ? "my-0" : (print ? PRINT_CLS : MD_CLS)[r.md ?? "text"];
           else if (r.bullet) cls = "my-0.5";
           else cls = blank ? "" : KIND_CLS[kindOf(r.text.trim(), nonBlank)];
           if (!blank) nonBlank++;
           return (
             <div key={r.id} className={`flex items-start gap-2 ${cls}`}>
-              {r.bullet && <span className="mt-[0.62em] h-[5px] w-[5px] shrink-0 rounded-full bg-brand-2" />}
+              {r.bullet && <span className={print ? "relative -ml-[9pt] mt-[0.55em] h-[4px] w-[4px] shrink-0 rounded-full bg-black" : "mt-[0.62em] h-[5px] w-[5px] shrink-0 rounded-full bg-brand-2"} />}
               <textarea
                 ref={(el) => {
                   if (el) refs.current.set(r.id, el);
@@ -229,12 +256,15 @@ export function DocEditor({ value, onChange, mode = "plain", className = "", too
                 onFocus={() => setFocusId(r.id)}
                 onChange={(e) => change(i, e.target.value)}
                 onKeyDown={(e) => key(i, e)}
-                className={`-mx-1.5 block w-full resize-none overflow-hidden rounded-md border-0 bg-transparent px-1.5 outline-none transition-colors [field-sizing:content] [text-transform:inherit] placeholder:text-faint hover:bg-line-2/60 focus:bg-brand-soft/60 ${blank ? "min-h-[1em] text-[0.6em]" : ""}`}
+                className={`-mx-1.5 block w-full resize-none overflow-hidden rounded-md border-0 bg-transparent px-1.5 outline-none transition-colors [field-sizing:content] [text-transform:inherit] placeholder:text-faint hover:bg-line-2/60 focus:bg-brand-soft/60 ${
+                  // On the A4 sheet an empty line takes no space (as in the PDF) unless you're on it.
+                  blank ? (print && focusId !== r.id ? "!h-0 min-h-0 !py-0 text-[2px] leading-none" : "min-h-[1em] text-[0.6em]") : ""
+                }`}
               />
             </div>
           );
         })}
-      </div>
+      </>)}
     </div>
   );
 }

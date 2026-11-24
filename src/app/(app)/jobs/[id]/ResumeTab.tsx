@@ -2,9 +2,7 @@
 
 import { Meter } from "@/components/ui";
 
-import { useRef, useState } from "react";
-import ReactMarkdown from "react-markdown";
-import remarkGfm from "remark-gfm";
+import { useEffect, useRef, useState } from "react";
 import { AlertCircle, Check, Download, FileText, Info, Pencil, RotateCcw, ShieldCheck, Sparkles, X, TrendingUp } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
@@ -12,6 +10,51 @@ import { createClient } from "@/lib/supabase/client";
 import { CopyButton, Spinner, Working, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
 import { DocEditor } from "@/components/DocEditor";
+import { A4Pages, A4Sheet } from "@/components/A4Sheet";
+import { CONTENT_W, LAYOUT, LINE_PX, PAGE_ROOM, ResumeMarkdown, resumeCss } from "@/components/ResumeDoc";
+
+/* The PDF: the resume format's CSS on an A4 page. Used for printing AND for measuring pages. */
+const PRINT_CSS = `${resumeCss("body")}\n@page{size:A4;margin:${LAYOUT.margin}in}\nbody{margin:0}`;
+
+type Fit = { pages: number; linesOver: number; linesSpare: number };
+
+/**
+ * How many A4 pages the resume fills when downloaded: lays the rendered resume out off-screen with the
+ * exact print styles and measures. Runs in the browser - free, no AI. Re-runs as you type (debounced).
+ */
+function usePageFit(source: React.RefObject<HTMLDivElement | null>, key: string, active: boolean) {
+  const [fit, setFit] = useState<Fit | null>(null);
+  useEffect(() => {
+    if (!active) return;
+    let frame: HTMLIFrameElement | null = null;
+    const t = setTimeout(() => {
+      if (!source.current) return;
+      const contentW = CONTENT_W;
+      frame = document.createElement("iframe");
+      frame.setAttribute("aria-hidden", "true");
+      frame.style.cssText = `position:fixed;left:-9999px;top:0;width:${contentW}in;height:10px;border:0;visibility:hidden`;
+      document.body.appendChild(frame);
+      const d = frame.contentDocument!;
+      d.open();
+      d.write(`<html><head><style>${PRINT_CSS}</style></head><body>${source.current.innerHTML}</body></html>`);
+      d.close();
+      const line = LINE_PX;
+      const room = PAGE_ROOM; // printable height of one A4 page
+      const used = d.body.scrollHeight;
+      const over = used - (room - 1); // 1px safety: Chrome breaks a page right at the edge
+      setFit({
+        // Anything past the page counts - round UP so 1.04 never shows as 1.
+        pages: over <= 0 ? 1 : Math.max(1.1, Math.ceil((used / room) * 10) / 10),
+        linesOver: over > 0 ? Math.max(1, Math.ceil(over / line)) : 0,
+        linesSpare: over <= 0 ? Math.floor(-over / line) : 0,
+      });
+      frame.remove();
+      frame = null;
+    }, 250);
+    return () => { clearTimeout(t); frame?.remove(); };
+  }, [source, key, active]);
+  return fit;
+}
 
 export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
   const r = app.resume_result as ResumeResult | null;
@@ -24,6 +67,9 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   const [verified, setVerified] = useState<Record<string, boolean>>(r?.verified ?? {});
   const paper = useRef<HTMLDivElement>(null);
   const [ask, dialog] = useAsk();
+  const measure = useRef<HTMLDivElement>(null);
+  const fit = usePageFit(measure, editing ? draft : md, !!md && !busy);
+  const pages = fit?.pages ?? null;
 
   async function generate(extra?: Record<string, string>) {
     const res = await run(extra);
@@ -44,11 +90,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   function download() {
     const w = window.open("", "_blank");
     if (!w || !paper.current) return;
-    w.document.write(`<html><head><title>${app.company} - Resume</title><style>
-      body{font-family:Arial,Helvetica,sans-serif;font-size:10.5pt;line-height:1.45;color:#111;max-width:7.4in;margin:.45in auto}
-      h1{font-size:18pt;margin:0 0 2pt}h2{font-size:9pt;letter-spacing:.12em;text-transform:uppercase;border-bottom:1px solid #ccc;padding-bottom:2pt;margin:12pt 0 5pt}
-      h3{font-size:10.5pt;margin:6pt 0 1pt}p{margin:2pt 0}ul{margin:2pt 0;padding-left:14pt}li{margin:1.5pt 0}
-      @page{margin:.4in}</style></head><body>${paper.current.innerHTML}</body></html>`);
+    w.document.write(`<html><head><title>${app.company} - Resume</title><style>${PRINT_CSS}</style></head><body>${paper.current.innerHTML}</body></html>`);
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 200);
@@ -109,6 +151,12 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     }
   }
 
+  const fitOnePage = async () => {
+    if ((await ask({ title: "Make it fit one page?", body: `It's about ${pages} pages now. The AI tightens the weakest, least relevant lines - nothing true that matters for this job is dropped, nothing is added. Replaces the current version, including your edits. Uses AI credit.`, confirm: "Fit to one page" })) === null) return;
+    generate({ fit_one_page: `The previous version ran to about ${pages} A4 pages. It must fit ONE A4 page.` });
+  };
+  const over = pages != null && pages > 1;
+
   const regen = async () => { if ((await ask({ title: "Regenerate resume?", body: "A fresh version replaces the current one, including any edits you made. Uses AI credit.", confirm: "Regenerate" })) !== null) generate(); };
   const truthPct = changes.length ? checked / changes.length : 0;
 
@@ -125,14 +173,30 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         </div>
       )}
 
-      <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
-        {/* The resume: stretches to the side card's height so both end on the same line */}
-        <div className="flex min-w-0 flex-col">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+        {/* The resume as the real A4 pages it downloads as - live page fit while you edit (free, no AI).
+            On wide screens it stays in view in its own scroll panel while the side card scrolls with the page. */}
+        <div className="no-scrollbar min-w-0 overflow-x-hidden xl:sticky xl:top-4 xl:max-h-[calc(100vh-2rem)] xl:overflow-y-auto xl:rounded-[22px]">
+          {fit && (
+            <div className={`mb-3 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-2xl px-4 py-2.5 text-[0.9rem] ${over ? "bg-bad-soft text-bad" : "bg-good-soft text-good"}`}>
+              {over ? <AlertCircle size={15} /> : <Check size={15} strokeWidth={3} />}
+              <b className="font-semibold">{over ? `${fit.pages} pages` : "Fits on one A4 page"}</b>
+              <span className="text-ink/80">
+                {over
+                  ? `About ${fit.linesOver} line${fit.linesOver === 1 ? "" : "s"} over - cut ${fit.linesOver === 1 ? "it" : "them"} to fit.`
+                  : fit.linesSpare > 0 ? `About ${fit.linesSpare} line${fit.linesSpare === 1 ? "" : "s"} of room left.` : "Right at the edge - no room left."}
+              </span>
+              {editing && <span className="ml-auto text-[0.8rem] text-muted">Updates as you type</span>}
+            </div>
+          )}
+          {/* hidden copies: what the page check measures (the draft while editing) and what the PDF prints */}
+          <div ref={measure} hidden><ResumeMarkdown md={editing ? draft : md} /></div>
+          <div ref={paper} hidden><ResumeMarkdown md={md} /></div>
           {editing ? (
-            <div className="paper flex-1"><DocEditor mode="md" value={draft} onChange={setDraft} className="text-slate-800" /></div>
+            <DocEditor mode="md" print toolbarTop="top-0" value={draft} onChange={setDraft} wrapRows={(rows) => <A4Sheet over={over}>{rows}</A4Sheet>} />
           ) : (
-            <div className={`paper flex-1 transition ${busy ? "opacity-50" : ""}`} ref={paper}>
-              <ReactMarkdown remarkPlugins={[remarkGfm]}>{md}</ReactMarkdown>
+            <div className={`transition ${busy ? "opacity-50" : ""}`}>
+              <A4Pages><ResumeMarkdown md={md} /></A4Pages>
             </div>
           )}
           {error && <p className="mt-2 text-sm text-bad">{error}</p>}
@@ -140,8 +204,8 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
         {/* Rail: one card, sections like the scorecard. Scrolls as a whole beside the resume. */}
         <aside className="min-w-0">
-          <div className="card h-full">
-            <div className="xl:sticky xl:top-6">
+          <div className="card overflow-clip">
+            <div>
             <section className="p-5">
               <div className="flex items-center gap-2.5">
                 <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><FileText size={16} /></span>
@@ -150,6 +214,16 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   <p className="text-[0.8rem] text-muted">One page, ATS-safe, only what&apos;s true.</p>
                 </div>
               </div>
+              {/* One-page check (PDF rule: keep it to one page) - measured on the real A4 download */}
+              {!editing && over && (
+                (
+                  <div className="mt-4 rounded-2xl bg-bad-soft px-4 py-3">
+                    <div className="flex items-center gap-2 text-[0.9rem] font-semibold text-bad"><AlertCircle size={15} /> {pages} pages - over one page</div>
+                    <p className="mt-0.5 text-[0.82rem] text-ink/80">Recruiters and ATS expect one page. Trim it, or let AI tighten it.</p>
+                    <button className="btn btn-clay btn-sm mt-2.5" disabled={busy} onClick={fitOnePage}>{busy ? <Spinner size={13} /> : <Sparkles size={13} />} Make it fit one page</button>
+                  </div>
+                )
+              )}
               {editing ? (
                 <div className="mt-4 grid grid-cols-2 gap-2">
                   <button className="btn btn-primary h-11" onClick={saveEdit}><Check size={15} /> Save</button>
