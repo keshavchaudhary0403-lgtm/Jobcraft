@@ -19,17 +19,17 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
   return (
     <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)_minmax(0,0.85fr)] stagger">
       {/* Mock interview */}
-      <section className="card flex flex-col p-6" style={{ background: "var(--color-plum-soft)" }}>
+      <section className="card flex flex-col p-6">
         <div className="flex items-center gap-3">
-          <span className="grid h-12 w-12 place-items-center rounded-full bg-plum text-white"><Mic size={21} /></span>
+          <span data-tone="2" className="tone-chip grid h-12 w-12 place-items-center rounded-xl bg-line-2"><Mic size={21} /></span>
           <div>
-            <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-plum">Mock interview</div>
+            <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Mock interview</div>
             <h3 className="text-[1.4rem] font-bold leading-tight">{app.company.replace(/\(.*?\)/g, "").trim()}&apos;s hiring manager</h3>
           </div>
         </div>
         <div className="mt-5 grid grid-cols-3 gap-2 text-center">
           {[["6", "questions"], ["Voice", "or chat"], ["/10", "honest score"]].map(([v, l]) => (
-            <div key={l} className="rounded-2xl bg-white/70 px-2 py-3">
+            <div key={l} className="rounded-2xl bg-line-2 px-2 py-3">
               <div className="font-display text-[1.15rem] font-bold">{v}</div>
               <div className="text-[0.8rem] text-muted">{l}</div>
             </div>
@@ -37,11 +37,11 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
         </div>
         <div className="mt-5">
           <div className="flex justify-between text-[0.8rem]"><span className="text-muted">Practice goal</span><span className="font-semibold">{done} of 3 rounds</span></div>
-          <div className="mt-1.5 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < done ? "bg-plum" : "bg-white/80"}`} />)}</div>
+          <div className="mt-1.5 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < done ? "bg-good" : "bg-line-2"}`} />)}</div>
         </div>
         <form action={start} className="mt-auto pt-6">
           <input type="hidden" name="application_id" value={app.id} />
-          <button className="btn h-11 w-full bg-plum text-white hover:bg-clay-ink">Start a round <ArrowRight size={16} /></button>
+          <button className="btn btn-clay h-11 w-full">Start a round <ArrowRight size={16} /></button>
         </form>
       </section>
 
@@ -83,10 +83,10 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
       </section>
 
       {/* Salary */}
-      <section className="card flex flex-col p-6" style={{ background: "var(--color-mustard-soft)" }}>
-        <span className="grid h-12 w-12 place-items-center rounded-full bg-mustard text-white"><IndianRupee size={21} /></span>
+      <section className="card flex flex-col p-6">
+        <span data-tone="3" className="tone-chip grid h-12 w-12 place-items-center rounded-xl bg-line-2"><IndianRupee size={21} /></span>
         <h3 className="mt-4 text-[1.35rem] font-bold leading-tight">Salary talk</h3>
-        <p className="mt-1 text-[0.9rem] text-mustard-ink">{app.status === "offer" ? "You have an offer - check it against the market, then practise with HR." : "When the offer comes: check it, then rehearse the call."}</p>
+        <p className="mt-1 text-[0.9rem] text-muted">{app.status === "offer" ? "You have an offer - check it against the market, then practise with HR." : "When the offer comes: check it, then rehearse the call."}</p>
         <Link href={`/negotiation?app=${app.id}`} className="btn btn-primary mt-auto h-11 w-full">{app.status === "offer" ? "Check my offer" : "Practise anyway"} <ArrowRight size={16} /></Link>
       </section>
     </div>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Columns3, LayoutGrid, Plus } from "lucide-react";
+import { ArrowRight, Columns3, LayoutGrid, Plus } from "lucide-react";
 import { JobBoard } from "@/components/JobBoard";
 import { JobTile, STATUS_BAR, StatusDonut } from "@/components/JobTiles";
 import { requireUser } from "@/lib/auth";
@@ -93,12 +93,13 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <section className="grid gap-5 md:grid-cols-2 stagger">
             {shown.map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
             {!status && shown.length > 0 && (
-              <Link href="/jobs/new" className={`flex min-h-[170px] items-center justify-center gap-4 rounded-[22px] border-[1.5px] border-dashed border-line text-muted transition hover:border-clay hover:text-clay ${shown.length % 2 === 0 ? "md:col-span-2" : "flex-col"}`}>
-                <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
-                <span className={shown.length % 2 === 0 ? "" : "text-center"}>
-                  <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
-                  <span className="block text-[0.86rem]">Paste a link or a description - we decode it in seconds.</span>
+              <Link href="/jobs/new" className={`card card-hover flex items-center gap-4 p-6 ${shown.length % 2 === 0 ? "md:col-span-2" : "min-h-[170px]"}`}>
+                <span data-tone="1" className="tone-chip grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
+                <span className="min-w-0 flex-1">
+                  <span className="block font-display text-[1.15rem] font-bold">Add another job</span>
+                  <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
                 </span>
+                <span className="inline-flex shrink-0 items-center gap-1 text-[0.9rem] font-semibold text-clay">Add <ArrowRight size={14} /></span>
               </Link>
             )}
             {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2">No jobs in this stage.</div>}

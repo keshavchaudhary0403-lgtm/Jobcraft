@@ -50,8 +50,8 @@ export function JobPicker({
               </button>
             );
           })}
-          <button type="button" onClick={() => pick("")} className={`flex w-full items-center gap-3 rounded-2xl border-[1.5px] border-dashed px-3 py-2.5 text-[0.9rem] font-semibold transition ${id === "" ? "border-clay bg-clay-soft text-clay" : "border-line text-muted hover:border-clay/60 hover:text-clay"}`}>
-            <span className="grid h-8 w-8 place-items-center rounded-full border-[1.5px] border-current"><Plus size={14} /></span>{otherLabel}
+          <button type="button" onClick={() => pick("")} className={`flex w-full items-center gap-3 rounded-2xl border-[1.5px] bg-card px-3 py-2.5 text-[0.9rem] font-semibold transition ${id === "" ? "border-clay text-clay" : "border-line hover:border-clay/50"}`}>
+            <span data-tone="1" className="tone-chip grid h-8 w-8 place-items-center rounded-xl bg-line-2"><Plus size={14} /></span>{otherLabel}
           </button>
         </div>
         {id === "" && <div className="mt-3 fade-up">{otherFields}</div>}
@@ -88,10 +88,10 @@ export function JobPicker({
         <button
           type="button"
           onClick={() => pick("")}
-          className={`flex min-h-[124px] flex-col items-center justify-center gap-2 rounded-[20px] border-[1.5px] border-dashed p-4 transition ${id === "" ? "border-clay bg-clay-soft text-clay" : "border-line text-muted hover:border-clay/60 hover:text-clay"}`}
+          className={`flex min-h-[124px] flex-col items-start justify-between rounded-[20px] border-[1.5px] bg-card p-4 text-left transition ${id === "" ? "border-clay shadow-[0_10px_24px_-14px_var(--act-glow)]" : "border-line hover:border-clay/50"}`}
         >
-          <span className="grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-current"><Plus size={16} /></span>
-          <span className="font-semibold">{otherLabel}</span>
+          <span data-tone="1" className="tone-chip grid h-9 w-9 place-items-center rounded-xl bg-line-2"><Plus size={16} /></span>
+          <span className="font-display text-[1.02rem] font-bold">{otherLabel}</span>
         </button>
       </div>
       {id === "" && <div className="mt-4 fade-up">{otherFields}</div>}

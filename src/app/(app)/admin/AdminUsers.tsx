@@ -262,9 +262,11 @@ export function AdminUsers({ meId }: { meId: string }) {
                   );
                 })}
                 {!q && (
-                  <button onClick={() => setAdding(true)} className="flex min-h-[170px] flex-col items-center justify-center gap-2 rounded-[22px] border-[1.5px] border-dashed border-clay/50 text-clay transition hover:border-clay hover:bg-clay-soft/50">
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-clay text-white"><Plus size={20} /></span>
-                    <span className="font-display text-[1.05rem] font-bold">Add a person</span>
+                  <button onClick={() => setAdding(true)} className="card card-hover flex min-h-[170px] flex-col items-start p-5 text-left">
+                    <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
+                    <span className="mt-4 font-display text-[1.1rem] font-bold">Add a person</span>
+                    <span className="text-[0.86rem] text-muted">Phone or email, with a password.</span>
+                    <span className="mt-auto inline-flex items-center gap-1 pt-3 text-[0.9rem] font-semibold text-clay">Add <ChevronRight size={14} /></span>
                   </button>
                 )}
               </div>

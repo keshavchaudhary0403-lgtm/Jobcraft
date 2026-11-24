@@ -164,28 +164,23 @@ export default async function Home() {
             <div className="grid gap-5 md:grid-cols-2 stagger">
               {live.slice(0, 4).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
               {live.length < 4 && (
-                <Link href="/jobs/new" className="flex min-h-[190px] flex-col items-center justify-center gap-3 rounded-[22px] border-[1.5px] border-dashed border-line text-center text-muted transition hover:border-clay hover:text-clay">
-                  <span className="grid h-12 w-12 place-items-center rounded-full bg-line-2"><Plus size={20} /></span>
-                  <span>
-                    <span className="block font-display text-[1.15rem] font-bold text-ink">Add another job</span>
-                    <span className="block text-[0.84rem]">Aim for five or more.</span>
-                  </span>
+                <Link href="/jobs/new" className="card card-hover flex min-h-[190px] flex-col p-6">
+                  <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
+                  <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
+                  <span className="block text-[0.86rem] text-muted">Aim for five or more.</span>
+                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Add a job <ArrowRight size={14} /></span>
                 </Link>
               )}
               {live.length < 4 && live.length % 2 === 0 && (
-                <Link href="/interview" className="card card-hover flex min-h-[190px] flex-col justify-between p-5" style={{ background: "var(--color-plum-soft)" }}>
-                  <span className="flex items-center gap-3">
-                    <span className="grid h-11 w-11 place-items-center rounded-full bg-plum text-white"><Mic size={19} /></span>
-                    <span>
-                      <span className="block text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-plum">Practise while you wait</span>
-                      <span className="block font-display text-[1.15rem] font-bold">Mock interview</span>
-                    </span>
+                <Link href="/interview" className="card card-hover flex min-h-[190px] flex-col p-6">
+                  <span className="flex items-start justify-between gap-3">
+                    <span data-tone="2" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Mic size={19} /></span>
+                    <span className="rounded-full bg-good-soft px-2.5 py-0.5 text-[0.78rem] font-semibold text-good">{Math.min(interviews.length, 3)}/3 rounds</span>
                   </span>
-                  <span className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < interviews.length ? "bg-plum" : "bg-white"}`} />)}</span>
-                  <span className="flex items-center justify-between text-[0.88rem]">
-                    <span className="text-muted">{Math.min(interviews.length, 3)} of 3 rounds{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
-                    <span className="inline-flex items-center gap-1 font-semibold text-plum">Start <ArrowRight size={14} /></span>
-                  </span>
+                  <span className="mt-4 block font-display text-[1.15rem] font-bold">Mock interview</span>
+                  <span className="block text-[0.86rem] text-muted">Practise while you wait{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
+                  <span className="mt-3 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i < interviews.length ? "bg-good" : "bg-line-2"}`} />)}</span>
+                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Start a round <ArrowRight size={14} /></span>
                 </Link>
               )}
             </div>
@@ -205,7 +200,7 @@ export default async function Home() {
             </section>
 
             {gaps.length > 0 && (
-              <section className="card p-5" style={{ background: "var(--color-mustard-soft)" }}>
+              <section className="card p-5">
                 <div className="flex items-center gap-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink"><Target size={14} /> Gaps across your jobs</div>
                 <ul className="mt-3 space-y-2.5">
                   {gaps.map(([g, v]) => (
