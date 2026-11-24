@@ -73,7 +73,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           </section>
 
           {/* Job tiles: full width, grows row by row */}
-          <section className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3 stagger">
+          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 stagger">
             {shown.map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
             {!status && (
               <Link href="/jobs/new" className="group card card-hover flex min-h-[200px] flex-col p-6">
@@ -83,7 +83,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
                 <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
               </Link>
             )}
-            {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2 2xl:col-span-3">No jobs in this stage.</div>}
+            {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2 xl:col-span-3">No jobs in this stage.</div>}
           </section>
         </>
       )}
