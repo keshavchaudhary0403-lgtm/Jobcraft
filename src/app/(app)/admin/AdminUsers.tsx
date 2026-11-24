@@ -3,17 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AudioLines,
-  Gauge,
-  Mic,
-  PieChart,
-  UserRound,
-  UserX,
   Bot,
   ChevronRight,
   IndianRupee,
   KeyRound,
   LayoutDashboard,
-  Lightbulb,
   TrendingUp,
   PlayCircle,
   Plus,
@@ -191,7 +185,7 @@ export function AdminUsers({ meId }: { meId: string }) {
       <div className="mt-6 space-y-5">
         {/* Chapters */}
         <nav className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5 fade-up">
-          {SECTIONS.map(({ key, label, icon: Icon }, i) => {
+          {SECTIONS.map(({ key, label, icon: Icon }) => {
             const on = section === key;
             return (
               <button
@@ -202,7 +196,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}><Icon size={16} /></span>
                 <span className="min-w-0">
                   <span className="block font-display text-[1.05rem] font-bold leading-tight">{label}</span>
-                  <span className={`block truncate text-[0.78rem] ${on ? "text-cream/65" : "text-muted"}`}>{String(i + 1).padStart(2, "0")} · {chapterSub[key]}</span>
+                  <span className={`block truncate text-[0.78rem] ${on ? "text-cream/65" : "text-muted"}`}>{chapterSub[key]}</span>
                 </span>
               </button>
             );
@@ -265,14 +259,6 @@ export function AdminUsers({ meId }: { meId: string }) {
                     </button>
                   );
                 })}
-                {!q && (
-                  <button onClick={() => setAdding(true)} className="group card card-hover flex min-h-[170px] flex-col items-start p-5 text-left">
-                    <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
-                    <span className="mt-4 font-display text-[1.1rem] font-bold">Add a person</span>
-                    <span className="text-[0.86rem] text-muted">Phone or email, with a password.</span>
-                    <span className="mt-auto pt-3"><span className="pill-action">Add a person <ChevronRight size={14} /></span></span>
-                  </button>
-                )}
               </div>
             </div>
           ) : section === "ai" ? (
@@ -821,24 +807,7 @@ function AdminOverview({
   const people = users
     .map((u) => ({ u, limit: limitOf(u) }))
     .sort((a, b) => b.u.spent_inr - a.u.spent_inr);
-  const idle = users.filter((u) => u.is_active && u.spent_inr === 0 && !u.is_demo).length;
-  const nearest = people.filter((p) => p.limit).sort((a, b) => b.u.spent_inr / (b.limit as number) - a.u.spent_inr / (a.limit as number))[0];
 
-  // Insights as short stat tiles: one number, a few words.
-  const insights: { tone: number; icon: typeof Gauge; value: string; label: string; go?: () => void }[] = [];
-  if (budget != null)
-    insights.push(
-      projected > budget
-        ? { tone: 4, icon: Gauge, value: rupees(projected), label: "projected, over budget", go: () => go("ai") }
-        : { tone: 2, icon: Gauge, value: `${Math.round((projected / budget) * 100)}%`, label: "of budget by month end" },
-    );
-  if (features[0] && total > 0)
-    insights.push({ tone: 1, icon: PieChart, value: `${Math.round((features[0][1] / total) * 100)}%`, label: `on ${SPEND_LABEL[features[0][0]] ?? features[0][0]}`, go: () => go("features") });
-  if (nearest && nearest.limit)
-    insights.push({ tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? 4 : 0, icon: UserRound, value: `${Math.round((nearest.u.spent_inr / nearest.limit) * 100)}%`, label: `${nameOf(nearest.u).split(" ")[0]}'s limit used`, go: () => onPerson(nearest.u.id) });
-  if (idle > 0) insights.push({ tone: 3, icon: UserX, value: String(idle), label: idle === 1 ? "person not using AI" : "people not using AI", go: () => go("people") });
-  const voiceOn = users.filter((u) => u.voice_enabled).length;
-  insights.push({ tone: 0, icon: Mic, value: `${voiceOn}/${users.length}`, label: "with voice practice", go: () => go("features") });
 
   return (
     <div className="space-y-5 fade-up">
@@ -874,26 +843,11 @@ function AdminOverview({
         </div>
       </section>
 
-      {/* Two balanced columns */}
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <div className="flex flex-col gap-5">
+      {/* Spend: by day and by feature, side by side and the same height */}
+      <div className="grid items-stretch gap-5 xl:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <Panel title="Daily AI spend" sub={`${monthName} · India time`} icon={<TrendingUp size={15} />}>
           <DailyBars days={days} />
         </Panel>
-        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
-          {insights.map((x, i) => {
-            const Tag = x.go ? "button" : "div";
-            return (
-              <Tag key={i} onClick={x.go} className={`flex flex-col items-start gap-2 rounded-2xl border border-line bg-card p-3.5 text-left ${x.go ? "transition hover:border-brand/40 hover:shadow-sm" : ""}`}>
-                <span data-tone={x.tone} className="tone-chip grid h-8 w-8 place-items-center rounded-xl bg-line-2"><x.icon size={15} /></span>
-                <span className="font-display text-[1.45rem] font-bold leading-none tabular-nums">{x.value}</span>
-                <span className="text-[0.8rem] leading-snug text-muted">{x.label}</span>
-              </Tag>
-            );
-          })}
-        </Panel>
-        </div>
-        <div className="space-y-5">
         <Panel title="Where the money goes" sub="Spend by feature this month" icon={<IndianRupee size={15} />}>
           {features.length === 0 ? (
             <p className="text-muted">No AI use yet this month.</p>
@@ -917,8 +871,9 @@ function AdminOverview({
             </div>
           )}
         </Panel>
+      </div>
 
-        <Panel title="People and their limits" sub="Spend this month against each person's limit" icon={<Users size={15} />} bodyClass="divide-y divide-line">
+      <Panel title="People and their limits" sub="Spend this month against each person's limit" icon={<Users size={15} />} bodyClass="grid divide-y divide-line md:grid-cols-2 md:divide-y-0">
           {people.slice(0, 6).map(({ u, limit }) => {
             const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
             const level = !limit ? "No limit" : pct >= 90 ? "Almost out" : pct >= 70 ? "Getting close" : "Fine";
@@ -943,10 +898,8 @@ function AdminOverview({
               </button>
             );
           })}
-          {people.length > 6 && <button onClick={() => go("people")} className="pill-nav mx-auto my-3 flex">See all {people.length} people <ChevronRight size={14} /></button>}
-        </Panel>
-        </div>
-      </div>
+          {people.length > 6 && <button onClick={() => go("people")} className="pill-nav mx-auto my-3 flex md:col-span-2">See all {people.length} people <ChevronRight size={14} /></button>}
+      </Panel>
     </div>
   );
 }
@@ -971,10 +924,10 @@ function DailyBars({ days }: { days: { d: number; key: string; v: number; future
         )}
       </div>
       <div className="flex gap-2">
-        <div className="flex h-44 w-11 shrink-0 flex-col justify-between text-right text-[0.78rem] tabular-nums text-faint">
+        <div className="flex h-[19rem] w-11 shrink-0 flex-col justify-between text-right text-[0.78rem] tabular-nums text-faint">
           {ticks.map((t) => <span key={t} className="-translate-y-1/2 first:translate-y-0 last:translate-y-0">{rupees(t)}</span>)}
         </div>
-        <div className="relative h-44 flex-1">
+        <div className="relative h-[19rem] flex-1">
           {ticks.map((t, i) => (
             <div key={t} className="pointer-events-none absolute inset-x-0 border-t border-dashed border-line" style={{ top: `${(i / (ticks.length - 1)) * 100}%` }} />
           ))}
