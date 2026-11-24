@@ -109,7 +109,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
         <div className="rail-bg flex h-14 items-center justify-between rounded-[20px] bg-side pl-3.5 pr-2 shadow-[0_12px_30px_-18px_color-mix(in_srgb,var(--side)_90%,transparent)]">
           <Link href="/" aria-label="Home"><Logo size={30} light /></Link>
           <div className="flex items-center gap-2">
-            <Link href="/profile" aria-label="My profile" className="avatar-warm grid h-9 w-9 place-items-center rounded-full text-[0.8rem] font-bold ring-2 ring-white/25">{initials || "?"}</Link>
+            <span aria-hidden className="avatar-warm grid h-9 w-9 select-none place-items-center rounded-full text-[0.8rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
             <button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-[14px] bg-white/12 text-white transition active:scale-95" aria-label="Open menu">
               <Menu size={18} />
             </button>
