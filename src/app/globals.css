@@ -293,3 +293,7 @@ aside.bg-side .avatar-warm, header .avatar-warm, .rail-bg .avatar-warm, .dark-ca
 }
 .practice-aside > .card { overflow-y: auto !important; min-height: 0; scrollbar-width: thin; }
 @media (min-width: 1280px) { .practice-aside > .card { max-height: 100%; } }
+
+/* Home, Profile and Admin banners share one height so they read as one system */
+.hero-band { min-height: 10.25rem; }
+@media (max-width: 639px) { .hero-band { min-height: 0; } }

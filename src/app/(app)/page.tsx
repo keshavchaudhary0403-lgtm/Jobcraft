@@ -79,7 +79,7 @@ export default async function Home() {
   return (
     <div className="space-y-5">
       {/* ── Hero band ── */}
-      <section className="dark-card overflow-hidden fade-up">
+      <section className="dark-card hero-band flex flex-col justify-center overflow-hidden fade-up">
         <div className="p-6 sm:p-7">
           {/* Row 1: greeting left, readiness right (same row on every screen size) */}
           <div className="flex items-start justify-between gap-4">

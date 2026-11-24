@@ -812,7 +812,7 @@ function AdminOverview({
   return (
     <div className="space-y-5 fade-up">
       {/* Headline band */}
-      <section className="dark-card grid gap-5 p-6 sm:p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
+      <section className="dark-card hero-band grid content-center gap-5 p-6 sm:p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
         <div className="min-w-0 lg:w-[280px]">
           <div className="text-[0.84rem] text-white/70">Spent in {monthName}</div>
           <div className="mt-1 font-display text-[2.3rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>

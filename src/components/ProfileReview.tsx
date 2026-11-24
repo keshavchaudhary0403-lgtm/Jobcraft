@@ -204,7 +204,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         )}
 
         {/* Blue banner like Home and Admin: who you are, and two tinted scores. Details live in the form below. */}
-        <section className="dark-card flex flex-wrap items-center gap-5 p-6 text-white fade-up sm:p-7">
+        <section className="dark-card hero-band flex flex-wrap items-center gap-5 p-6 text-white fade-up sm:p-7">
           <span className="avatar-warm grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full font-display text-[1.6rem] font-bold ring-4 ring-white/20">{initials}</span>
           <div className="min-w-0 flex-1">
             <div className="truncate font-display text-[1.9rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
