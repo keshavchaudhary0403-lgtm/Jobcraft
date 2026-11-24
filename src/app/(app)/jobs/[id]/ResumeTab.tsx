@@ -213,7 +213,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 function TruthRing({ value }: { value: number }) {
   const size = 52, stroke = 6, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-good)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} />

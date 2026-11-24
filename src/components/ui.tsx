@@ -47,7 +47,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   const c = 2 * Math.PI * r;
   const color = scoreColor(score);
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--line-2)" strokeWidth={stroke} fill="none" />
         <circle

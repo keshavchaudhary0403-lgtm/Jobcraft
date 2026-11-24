@@ -8,7 +8,7 @@ import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
 import { getSettings, monthStartIST } from "@/lib/ai";
 import { resumeHealth } from "@/lib/resume-health";
-import { journey, openQs } from "@/lib/journey";
+import { journey } from "@/lib/journey";
 
 function greeting() {
   const h = new Date(Date.now() + 5.5 * 3600e3).getUTCHours();
@@ -51,12 +51,12 @@ export default async function Home() {
   const saved = live.filter((a) => a.status === "saved");
   const prepDone = saved.reduce((t, a) => t + journey(a, practised).slice(0, 4).filter((s) => s.done).length, 0);
   const parts = [
-    { label: "Resume", color: "#ffffff", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
-    { label: "Match", color: "#ffffff", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
-    { label: "Prep", color: "#ffffff", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
-    { label: "Applying", color: "#ffffff", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
-    { label: "Interview", color: "#ffffff", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
-    { label: "LinkedIn", color: "#ffffff", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
+    { label: "Resume", show: health != null ? `${health}/100` : "Not added", color: "#ffffff", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
+    { label: "Job match", show: avg != null ? `${avg}% avg` : "No jobs", color: "#ffffff", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
+    { label: "Job prep", show: `${Math.round((saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0) * 100)}%`, color: "#ffffff", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
+    { label: "Applying", show: `${thisWeek}/${GOAL} this week`, color: "#ffffff", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
+    { label: "Mock interviews", show: `${Math.min(interviews.length, 3)}/3`, color: "#ffffff", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
+    { label: "LinkedIn", show: profile.linkedin_result ? "Done" : "Not yet", color: "#ffffff", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
   ];
   const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
   const lift = [...parts].sort((x, y) => y.weight * (1 - y.value) - x.weight * (1 - x.value))[0];
@@ -86,7 +86,7 @@ export default async function Home() {
     <div className="space-y-5">
       {/* ── Hero band ── */}
       <section className="dark-card overflow-hidden fade-up">
-        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.25fr)_auto_minmax(0,1fr)] lg:items-center">
+        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.1fr)_auto_minmax(0,1.2fr)] lg:items-center">
           <div>
             <h1 className="text-[2.5rem] font-bold leading-[0.95] text-cream xl:text-[2.8rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
             {profile.target_role && (
@@ -95,33 +95,33 @@ export default async function Home() {
                 <Link href="/profile" className="rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20">{profile.target_role}</Link>
               </p>
             )}
+            {limit != null && <p className="mt-3 text-[0.84rem] text-white/60">AI credit left this month: <b className="text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> of ₹{limit}</p>}
           </div>
 
-          <Link href={lift.href} className="flex items-center gap-4" title="How ready your job search is: resume, job matches, applying, interview practice and LinkedIn">
-            <ScoreRing value={score} parts={parts} />
-            <div className="max-w-[11rem]">
-              <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">Search readiness</div>
-              <div className="font-display text-[1.25rem] font-bold leading-tight text-white">{word}</div>
-              <div className="mt-1 text-[0.78rem] leading-snug text-white/50">Resume, matches, applying and practice</div>
-            </div>
+          <Link href={lift.href} className="flex flex-col items-center gap-2 lg:px-2">
+            <ScoreRing value={score} />
+            <span className="text-center">
+              <span className="block text-[0.8rem] font-semibold text-white">Job-search readiness</span>
+              <span className="block text-[0.74rem] text-white/55">{word}</span>
+            </span>
           </Link>
 
-          <div className="grid grid-cols-3 gap-3 lg:col-span-3 xl:col-span-1">
-            <Link href="/jobs" data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/60" title="Applications sent this week">Applied</div>
-              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{thisWeek}<span className="text-[0.9rem] text-white/45">/{GOAL}</span></div>
-              <div className="mt-2 flex gap-1">{week.map((d) => <span key={d.key} title={`${d.n} applied`} className={`h-1.5 flex-1 rounded-full ${d.n ? "bg-clay" : "bg-white/15"}`} />)}</div>
-            </Link>
-            <Link href="/interview" data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/60" title="Mock interview rounds done">Mock rounds</div>
-              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{Math.min(interviews.length, 3)}<span className="text-[0.9rem] text-white/45">/3</span></div>
-              <div className="mt-2 flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < interviews.length ? "bg-clay-2" : "bg-white/15"}`} />)}</div>
-            </Link>
-            <Link href="/profile" data-tone="3" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
-              <div className="text-[0.8rem] text-white/60" title="AI credit left this month">AI credit</div>
-              <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "-"}</div>
-              <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${limit ? Math.max(2, Math.min(100, 100 - (spent / limit) * 100)) : 0}%` }} /></div>
-            </Link>
+          {/* What the readiness % is made of */}
+          <div className="rounded-2xl bg-white/[.08] p-4 ring-1 ring-white/15">
+            <div className="mb-2.5 flex items-baseline justify-between">
+              <span className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white/60">What makes up {score}%</span>
+            </div>
+            <ul className="space-y-2">
+              {parts.map((p) => (
+                <li key={p.label}>
+                  <Link href={p.href} className="group grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-center gap-3 text-[0.82rem]">
+                    <span className="truncate text-white/80 group-hover:text-white">{p.label}</span>
+                    <span className="h-1.5 overflow-hidden rounded-full bg-white/15"><span className="block h-full rounded-full" style={{ width: `${Math.max(p.value * 100, p.value > 0 ? 4 : 0)}%`, background: p.value >= 1 ? "#5fd99a" : "var(--hero-accent)" }} /></span>
+                    <span className="w-[5.5rem] text-right font-semibold tabular-nums text-white">{p.show}</span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
         {gain > 0 && (
@@ -221,22 +221,18 @@ export default async function Home() {
 }
 
 /** Ring made of the six score parts: each arc's length is its weight, the bright part is what you've earned. */
-function ScoreRing({ value, parts }: { value: number; parts: { label: string; color: string; value: number; weight: number }[] }) {
-  const size = 128, stroke = 12, r = (size - stroke) / 2, c = 2 * Math.PI * r, gap = 4;
-  const segs = parts.map((p, i) => ({ ...p, start: (parts.slice(0, i).reduce((t, x) => t + x.weight, 0) / 100) * c, len: (p.weight / 100) * c }));
+function ScoreRing({ value }: { value: number }) {
+  const size = 132, stroke = 13, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        {segs.map((p) => (
-          <g key={p.label}>
-            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.14)" strokeWidth={stroke} strokeDasharray={`${p.len - gap} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${Math.round(p.value * 100)}%`}</title></circle>
-            {p.value > 0 && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max((p.len - gap) * p.value, 1)} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${Math.round(p.value * 100)}%`}</title></circle>}
-          </g>
-        ))}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--hero-accent)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(value, 2) / 100)} />
       </svg>
-      <div className="absolute text-center">
-        <div className="font-display text-[2.3rem] font-bold leading-none tabular-nums text-white">{value}<span className="text-[1rem] text-white/60">%</span></div>
-        <div className="text-[0.74rem] text-white/50">ready</div>
+      <div className="donut-hub" style={{ inset: stroke + 7 }}>
+        <span className="flex items-baseline font-display font-bold leading-none tabular-nums text-white">
+          <span className="text-[2.1rem]">{value}</span><span className="ml-0.5 text-[1.05rem] text-white/70">%</span>
+        </span>
       </div>
     </div>
   );

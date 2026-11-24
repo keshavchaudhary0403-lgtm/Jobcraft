@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { TooltipLayer } from "@/components/TooltipLayer";
 
 const mono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 const body = DM_Sans({ variable: "--font-dm", subsets: ["latin"] });
@@ -16,7 +17,10 @@ export const viewport: Viewport = { themeColor: "#004e98" };
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${mono.variable} ${body.variable} ${display.variable} h-full`}>
-      <body className="min-h-full font-sans">{children}</body>
+      <body className="min-h-full font-sans">
+        {children}
+        <TooltipLayer />
+      </body>
     </html>
   );
 }

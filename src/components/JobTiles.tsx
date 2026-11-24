@@ -68,14 +68,14 @@ export function StatusDonut({ counts, total, size = 170 }: { counts: Record<Stat
   const gap = present.length > 1 ? 4 : 0;
   const segs = present.map((s, i) => ({ s, len: (counts[s] / total) * c, start: present.slice(0, i).reduce((t, x) => t + (counts[x] / total) * c, 0) }));
   return (
-    <div className="relative mx-auto mt-3 grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative mx-auto mt-3 grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         {segs.map(({ s, len, start }) => (
           <circle key={s} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={STATUS_HEX[s]} strokeWidth={stroke} strokeDasharray={`${Math.max(len - gap, 1)} ${c}`} strokeDashoffset={-start} />
         ))}
       </svg>
-      <div className="absolute text-center">
+      <div className="donut-hub" style={{ inset: stroke + 5 }}>
         <div className="font-display font-bold leading-none tabular-nums" style={{ fontSize: size * 0.2 }}>{total}</div>
         <div className="text-[0.76rem] text-muted">job{total === 1 ? "" : "s"}</div>
       </div>
@@ -88,12 +88,12 @@ export function MiniDonut({ value }: { value: number | null }) {
   const v = value ?? 0;
   const color = value == null ? "var(--line)" : v >= 70 ? "var(--color-good)" : v >= 50 ? "var(--color-mustard)" : "var(--color-clay)";
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title="Your fit">
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
       </svg>
-      <span className="absolute font-display text-[1.05rem] font-bold tabular-nums">{value ?? "-"}<span className="text-[0.76rem] text-muted">{value != null ? "%" : ""}</span></span>
+      <span className="donut-hub" style={{ inset: stroke + 3 }}><span className="flex items-baseline font-display text-[0.98rem] font-bold leading-none tabular-nums">{value ?? "-"}{value != null && <span className="text-[0.68rem] font-semibold text-muted">%</span>}</span></span>
     </div>
   );
 }

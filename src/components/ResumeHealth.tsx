@@ -135,7 +135,7 @@ function ScoreRing({ score }: { score: number }) {
   const c = 2 * Math.PI * r;
   const color = score >= 85 ? "var(--color-good)" : score >= 70 ? "var(--color-mustard)" : "var(--color-clay)";
   return (
-    <div className="relative grid h-[120px] w-[120px] place-items-center">
+    <div className="donut-3d relative grid h-[120px] w-[120px] place-items-center">
       <svg width="120" height="120" className="-rotate-90">
         <circle cx="60" cy="60" r={r} fill="none" stroke="var(--line)" strokeWidth="11" />
         <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - score / 100)} style={{ transition: "stroke-dashoffset .6s ease" }} />

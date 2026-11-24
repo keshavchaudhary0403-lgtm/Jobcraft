@@ -170,7 +170,7 @@ export function JobView({
           <div className="flex flex-col items-center justify-center rounded-[22px] px-8 py-6" style={{ background: "var(--color-cream)" }}>
             {a ? (
               <>
-                <div className="relative grid h-[150px] w-[150px] place-items-center">
+                <div className="donut-3d relative grid h-[150px] w-[150px] place-items-center">
                   <svg width="150" height="150" className="-rotate-90">
                     <circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" strokeWidth="14" />
                     <circle cx="75" cy="75" r="64" fill="none" stroke={fitColor} strokeWidth="14" strokeLinecap="round" strokeDasharray={2 * Math.PI * 64} strokeDashoffset={2 * Math.PI * 64 * (1 - (fit ?? 0) / 100)} style={{ transition: "stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)" }} />

@@ -166,7 +166,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
   return (
     <section className="card p-5 fade-up">
       <div className="flex items-center gap-3">
-        <div className="relative grid h-14 w-14 shrink-0 place-items-center">
+        <div className="donut-3d relative grid h-14 w-14 shrink-0 place-items-center">
           <svg width="56" height="56" className="-rotate-90">
             <circle cx="28" cy="28" r="23" fill="none" stroke="var(--line-2)" strokeWidth="6" />
             <circle cx="28" cy="28" r="23" fill="none" stroke="var(--color-good)" strokeWidth="6" strokeLinecap="round" strokeDasharray={2 * Math.PI * 23} strokeDashoffset={2 * Math.PI * 23 * (1 - n / STEPS.length)} style={{ transition: "stroke-dashoffset .6s ease" }} />

@@ -281,7 +281,7 @@ function Ring({ value, label, color, text, dark }: { value: number; label: strin
   const size = 104, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
     <div className="flex flex-col items-center">
-      <div className="relative grid place-items-center" style={{ width: size, height: size }}>
+      <div className="donut-3d relative grid place-items-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.14)" : "var(--line-2)"} strokeWidth={stroke} />
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value / 100)} style={{ transition: "stroke-dashoffset .8s ease" }} />

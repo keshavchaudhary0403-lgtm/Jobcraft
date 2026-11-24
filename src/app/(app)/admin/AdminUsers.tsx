@@ -636,7 +636,7 @@ function SpendRing({ pct }: { pct: number | null }) {
   const v = pct ?? 0;
   const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mid)" : "var(--brand)";
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         {pct != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(v, 2) / 100)} />}
@@ -956,19 +956,19 @@ function niceCeil(v: number) {
 }
 
 // Distinct hues in a fixed order so no two spend categories look alike.
-const PALETTE = ["#004e98", "#ff6700", "#1f9d61", "#ffa466", "#7a5af0", "#0e9384", "#5b8fd0", "#e0559a", "#a3aec0"];
+const PALETTE = ["#0a5aa8", "#ff6700", "#1fae6a", "#ff9f4a", "#7b61ff", "#12b3a8", "#4c9bef", "#f0508c", "#94a3b8"];
 
 function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
-  const size = 150, stroke = 20, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const size = 170, stroke = 22, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const sum = parts.reduce((t, p) => t + p.v, 0) || 1;
   const segs = parts.map((p, i) => ({ ...p, len: (p.v / sum) * c, start: parts.slice(0, i).reduce((t, x) => t + (x.v / sum) * c, 0) }));
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
-        {segs.map((p) => <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max(p.len - (segs.length > 1 ? 3 : 0), 1)} ${c}`} strokeDashoffset={-p.start}><title>{p.label}</title></circle>)}
+        {segs.map((p) => <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max(p.len - (segs.length > 1 ? 3 : 0), 1)} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${rupees(p.v)} (${Math.round((p.v / sum) * 100)}%)`}</title></circle>)}
       </svg>
-      <div className="absolute text-center">
+      <div className="donut-hub" style={{ inset: stroke + 6 }}>
         <div className="font-display text-[1.4rem] font-bold leading-none tabular-nums">{rupees(total)}</div>
         <div className="text-[0.78rem] text-muted">this month</div>
       </div>
@@ -980,7 +980,7 @@ function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }
   const size = 120, stroke = 14, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const pct = budget ? Math.min(1, spent / budget) : 0;
   return (
-    <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth={stroke} />
         {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "var(--clay-2)" : "var(--mustard)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
