@@ -77,12 +77,26 @@ async function jobcraftExtract() {
     const parts = document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*\|\s*LinkedIn\s*$/i, "").split(/\s*\|\s*/);
     if (!out.role && parts.length >= 2) out.role = parts[0];
     if (!out.company && parts.length >= 2) out.company = parts[1];
-    if (!out.location && out.role) {
-      let pane = document.querySelector("h2") && [...document.querySelectorAll("h2")].find((e) => /^about the job$/i.test((e.innerText || "").trim()));
-      while (pane && !(pane.innerText || "").includes(out.role)) pane = pane.parentElement;
-      const line = [...(pane || document).querySelectorAll("p, span, div")].find((e) => {
+    // Only look inside the open job's panel (not the job list on the left)
+    let pane = [...document.querySelectorAll("h2, h3")].find((e) => /^about the job$/i.test((e.innerText || "").trim()));
+    while (pane && out.role && !(pane.innerText || "").includes(out.role)) pane = pane.parentElement;
+    const scope = pane || document;
+    // Location sits right after the company in the job's header: "Curefit • Delhi, India (On-site) · 3 days ago"
+    if (!out.location && out.company) {
+      const esc = out.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const re = new RegExp("^" + esc + "\\s*[•·]\\s*([^•·\\n]+)");
+      const hit = [...scope.querySelectorAll("p, span, div")]
+        .filter((e) => (e.innerText || "").length < 200)
+        .map((e) => (e.innerText || "").trim().replace(/\s+/g, " "))
+        .map((t) => re.exec(t))
+        .find(Boolean);
+      if (hit) out.location = hit[1].replace(/\s*\((on-site|remote|hybrid)\)\s*$/i, "").trim();
+    }
+    // fallback: a short "City, Country · 2 days ago" line that isn't the title block
+    if (!out.location) {
+      const line = [...scope.querySelectorAll("p, span")].find((e) => {
         const t = (e.innerText || "").trim();
-        return e.children.length < 8 && t.length < 160 && /·/.test(t) && /(ago|applicant|clicked apply|reposted|promoted)/i.test(t);
+        return t.length < 90 && /·/.test(t) && /(ago|applicant|clicked apply|reposted)/i.test(t) && !(out.role && t.includes(out.role));
       });
       if (line) out.location = line.innerText.split("·")[0].trim();
     }
