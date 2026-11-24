@@ -94,7 +94,7 @@ export default function LoginPage() {
               <div key={title} className="fade-up rounded-2xl border border-white/12 bg-white/[.06] p-4" style={{ animationDelay: `${0.15 + i * 0.1}s` }}>
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-clay text-white"><Icon size={16} /></span>
                 <div className="mt-3 font-display text-[1rem] font-bold leading-tight">{title}</div>
-                <div className="mt-0.5 text-[0.8rem] text-cream/60">{sub}</div>
+                <div className="mt-0.5 text-[0.8rem] text-cream/80">{sub}</div>
               </div>
             ))}
           </div>

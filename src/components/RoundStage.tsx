@@ -44,7 +44,7 @@ export function RoundStage({
           <span className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-white/10 text-[#5fd99a] ring-4 ring-white/10"><CheckCircle2 size={26} /></span>
           <div className="min-w-0 flex-1">
             <div className="font-display text-[1.35rem] font-bold leading-tight">{unit} {roundNo} complete</div>
-            <p className="mt-0.5 text-[0.86rem] text-cream/70">
+            <p className="mt-0.5 text-[0.86rem] text-cream/85">
               {kind === "interview" ? "Read your scorecard, study the weak answers, then go again with fresh questions." : "Read HR's feedback, then practise the talk again."}
             </p>
           </div>

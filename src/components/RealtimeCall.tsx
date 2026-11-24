@@ -230,7 +230,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
           <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">
             {status === "connecting" ? "Connecting..." : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
           </div>
-          <p className="mt-0.5 text-[0.84rem] text-cream/65">
+          <p className="mt-0.5 text-[0.84rem] text-cream/85">
             {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
           </p>
           {kind === "interview" && (

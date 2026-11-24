@@ -1,5 +1,6 @@
 "use client";
 
+import { HowItWorks } from "@/components/HowItWorks";
 import { CompanyWordmark } from "@/components/CompanyWordmark";
 import { CtcField, ExperienceField, TextField } from "@/components/BasicFields";
 import { ctcInput, formatCtc, normaliseBasics } from "@/lib/profile-format";
@@ -121,18 +122,11 @@ export function NegotiationForm({ apps, preselect, defaults, userId, groups = []
             </>
           )}
         </section>
-        <section className="dark-card p-6">
-          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How the talk plays out</div>
-          <ol className="mt-4 space-y-3">
-            {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say \"stop\" any time for feedback"].map((t, i) => (
-              <li key={t} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
-                <span className="text-[0.95rem] text-cream/90">{t}</span>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-5 rounded-2xl bg-white/[.07] px-4 py-3 text-[0.86rem] text-cream/80">{apps.some((x) => x.status === "offer") ? "Offers are listed first. Practise each one before you reply to HR." : "No offer yet? Practise anyway - the first ask is the hardest."}</p>
-        </section>
+        <HowItWorks
+          title="How the talk plays out"
+          steps={["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say \"stop\" any time for feedback"]}
+          tip={apps.some((x) => x.status === "offer") ? "Offers are listed first. Practise each one before you reply to HR." : "No offer yet? Practise anyway - the first ask is the hardest."}
+        />
       </div>
 
       {/* The offer's card: its numbers, your leverage, the one Start button, and its past talks. */}
@@ -240,7 +234,7 @@ function BigInput({ label, placeholder, value, onChange, onBlur, bad, hint }: { 
         <span className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-brand">{label}</span>
         <span className="mt-0.5 flex items-center gap-1.5">
           <IndianRupee size={17} className="shrink-0 text-brand/60" />
-          <input inputMode="decimal" required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className="w-full min-w-0 bg-transparent font-display text-[1.35rem] font-bold text-ink outline-none placeholder:text-[1.05rem] placeholder:font-medium placeholder:text-faint/60" />
+          <input inputMode="decimal" required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className="w-full min-w-0 bg-transparent font-display text-[1.35rem] font-bold text-ink outline-none placeholder:text-[1.05rem] placeholder:font-medium placeholder:text-[#76829a]" />
           <span className="shrink-0 rounded-[10px] bg-brand-soft px-2 py-1 text-[0.78rem] font-semibold text-brand">LPA</span>
         </span>
       </label>
@@ -259,7 +253,7 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
   const pos = !ready ? null : O < L ? "below" : O > H ? "above" : "at";
   const P = { below: { t: "Below market", c: "text-bad", d: "Push for the range - you have room." }, at: { t: "At market", c: "text-mustard-ink", d: "Fair. Aim for the top of the range." }, above: { t: "Above market", c: "text-good", d: "Strong offer. Negotiate the extras." } } as const;
   return (
-    <div className={ready ? "" : "opacity-45"}>
+    <div className={ready ? "" : "opacity-80"}>
       <div className="flex items-baseline justify-between">
         <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example - green is the market, the dot is the offer"}</span>
         {pos && <span className={`font-display text-[1.3rem] font-bold ${P[pos].c}`}>{P[pos].t}</span>}

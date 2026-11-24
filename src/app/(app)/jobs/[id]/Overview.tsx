@@ -266,11 +266,11 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 <div className="flex items-center gap-4">
                   <Ring value={pct / 100} label={`${answered}/${questions.length}`} dark />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/70">Recruiter&apos;s questions</div>
+                    <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/85">Recruiter&apos;s questions</div>
                     <div className="font-display text-[1.15rem] font-bold leading-snug">
                       {answered === questions.length ? "All answered" : `${questions.length - answered} still open`}
                     </div>
-                    <div className="text-[0.8rem] text-white/60">{!answered ? "Answer one to re-score." : changedSinceScore ? "Score doesn't include your latest answers." : "Score is up to date."}</div>
+                    <div className="text-[0.8rem] text-white/80">{!answered ? "Answer one to re-score." : changedSinceScore ? "Score doesn't include your latest answers." : "Score is up to date."}</div>
                   </div>
                 </div>
                 {questions.length > 0 && (

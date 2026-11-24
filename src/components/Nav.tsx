@@ -53,7 +53,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       <nav className="mt-6 space-y-6">
         {groups.map((g) => (
           <div key={g.label}>
-            <div className="mb-2 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/60">{g.label}</div>
+            <div className="mb-2 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/80">{g.label}</div>
             <div className="space-y-1">
               {g.items.map(({ href, label, icon: Icon, ...rest }) => {
                 const active = isActive(href);
@@ -63,7 +63,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex h-11 items-center gap-3 rounded-full px-3.5 text-[0.95rem] transition ${active ? "bg-cream font-semibold text-side" : "text-white/70 hover:bg-white/[.08] hover:text-white"}`}
+                    className={`flex h-11 items-center gap-3 rounded-full px-3.5 text-[0.95rem] transition ${active ? "bg-cream font-semibold text-side" : "text-white/85 hover:bg-white/[.08] hover:text-white"}`}
                   >
                     <Icon size={17} />
                     <span className="flex-1">{label}</span>
@@ -87,7 +87,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
         <button onClick={() => setMenu(!menu)} className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
           <span className="avatar-warm grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold">{initials || "?"}</span>
           <span className="min-w-0 flex-1 truncate text-[0.92rem] font-medium text-cream">{name}</span>
-          <ChevronUp size={15} className={`text-white/65 transition ${menu ? "" : "rotate-180"}`} />
+          <ChevronUp size={15} className={`text-white/85 transition ${menu ? "" : "rotate-180"}`} />
         </button>
       </div>
     </>
@@ -122,7 +122,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                 <Plus size={24} />
               </Link>
             ) : (
-              <Link key={t.href} href={t.href} className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.7rem] font-medium transition ${isActive(t.href) ? "text-cream" : "text-white/65"}`}>
+              <Link key={t.href} href={t.href} className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.7rem] font-medium transition ${isActive(t.href) ? "text-cream" : "text-white/85"}`}>
                 <span className={`grid h-8 w-12 place-items-center rounded-full transition ${isActive(t.href) ? "bg-white/15" : ""}`}><t.icon size={19} /></span>
                 {t.label}
                 {"count" in t && (t.count ?? 0) > 0 && <span className="absolute right-3 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-clay px-1 text-[0.62rem] font-bold text-white">{t.count}</span>}
@@ -148,9 +148,9 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                 <span className="avatar-warm grid h-12 w-12 shrink-0 place-items-center rounded-full text-[0.95rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-[1.15rem] font-bold">{name}</span>
-                  <span className="block text-[0.8rem] text-white/65">Profile strength</span>
+                  <span className="block text-[0.8rem] text-white/85">Profile strength</span>
                 </span>
-                <span className="font-display text-[1.4rem] font-bold">{strength}<span className="text-[0.85rem] text-white/60">%</span></span>
+                <span className="font-display text-[1.4rem] font-bold">{strength}<span className="text-[0.85rem] text-white/80">%</span></span>
               </div>
               <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${strength}%` }} /></div>
             </Link>

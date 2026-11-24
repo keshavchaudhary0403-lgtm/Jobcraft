@@ -196,7 +196,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}><Icon size={16} /></span>
                 <span className="min-w-0">
                   <span className="block font-display text-[1.05rem] font-bold leading-tight">{label}</span>
-                  <span className={`block truncate text-[0.78rem] ${on ? "text-cream/65" : "text-muted"}`}>{chapterSub[key]}</span>
+                  <span className={`block truncate text-[0.78rem] ${on ? "text-cream/85" : "text-muted"}`}>{chapterSub[key]}</span>
                 </span>
               </button>
             );
@@ -404,9 +404,9 @@ export function AdminUsers({ meId }: { meId: string }) {
           ) : (
             <section className="grid gap-5 fade-up lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <div className={`relative overflow-hidden rounded-[22px] p-7 ${settings.demo_enabled ? "dark-card" : "card"}`}>
-                <div className={`text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${settings.demo_enabled ? "text-white/70" : "text-muted"}`}>Demo login</div>
+                <div className={`text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${settings.demo_enabled ? "text-white/85" : "text-muted"}`}>Demo login</div>
                 <div className="mt-2 font-display text-[3rem] font-bold leading-none">{settings.demo_enabled ? "On" : "Off"}<span className="text-clay">.</span></div>
-                <p className={`mt-3 max-w-lg text-[0.95rem] leading-relaxed ${settings.demo_enabled ? "text-white/75" : "text-muted"}`}>
+                <p className={`mt-3 max-w-lg text-[0.95rem] leading-relaxed ${settings.demo_enabled ? "text-white/90" : "text-muted"}`}>
                   {settings.demo_enabled
                     ? <>Anyone can click <b>Explore the demo</b> on the login page and look around a sample account. Sample data resets every day.</>
                     : <>Turn on to show an <b>Explore the demo</b> button on the login page. Visitors get a sample account - no sign-up, no password.</>}
@@ -814,14 +814,14 @@ function AdminOverview({
       {/* Headline band */}
       <section className="dark-card hero-band grid content-center gap-5 p-6 sm:p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
         <div className="min-w-0 lg:w-[280px]">
-          <div className="text-[0.84rem] text-white/70">Spent in {monthName}</div>
+          <div className="text-[0.84rem] text-white/85">Spent in {monthName}</div>
           <div className="mt-1 font-display text-[2.3rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
           {budget != null ? (
             <>
               <Meter value={total / budget} color={total / budget >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} track="rgba(255,255,255,.18)" height={6} className="mt-2.5" />
-              <div className="mt-2 text-[0.86rem] text-white/70"><b className="text-white">{Math.round((total / budget) * 100)}%</b> of {rupees(budget)} monthly budget</div>
+              <div className="mt-2 text-[0.86rem] text-white/85"><b className="text-white">{Math.round((total / budget) * 100)}%</b> of {rupees(budget)} monthly budget</div>
             </>
-          ) : <div className="mt-2 text-[0.88rem] text-white/70">No total budget set</div>}
+          ) : <div className="mt-2 text-[0.88rem] text-white/85">No total budget set</div>}
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[
@@ -830,12 +830,12 @@ function AdminOverview({
             { tone: 3, label: "Per active person", value: stats.active ? rupees(total / stats.active) : "None yet", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, bar: null, go: () => go("people") },
           ].map((k) => (
             <button key={k.label} onClick={k.go} data-tone={k.tone} data-tip={k.sub} className="stat-tile rounded-2xl px-4 py-3 text-left transition hover:bg-white/[.14]">
-              <div className="truncate text-[0.78rem] text-white/65">{k.label}</div>
+              <div className="truncate text-[0.78rem] text-white/85">{k.label}</div>
               <div className={`mt-0.5 font-display text-[1.35rem] font-bold leading-tight tabular-nums ${k.warn ? "text-[var(--hero-accent)]" : "text-white"}`}>{k.value}</div>
               {k.bar != null ? (
                 <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.max(k.bar * 100, k.bar > 0 ? 4 : 0))}%`, background: "var(--hero-accent)" }} /></div>
               ) : (
-                <div className="mt-1.5 truncate text-[0.74rem] text-white/65">{k.sub}</div>
+                <div className="mt-1.5 truncate text-[0.74rem] text-white/85">{k.sub}</div>
               )}
             </button>
           ))}

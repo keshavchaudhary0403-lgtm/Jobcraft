@@ -118,7 +118,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             <div className="font-display text-[1.35rem] font-bold leading-tight">
               {state === "listening" ? "Listening..." : state === "thinking" ? `${aiName} is thinking...` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
             </div>
-            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/65">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
+            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/85">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
           </div>
           <div className="flex items-center gap-2">
             {(busy || v.speaking || v.listening) && (

@@ -156,7 +156,7 @@ export function JobView({
               <span data-tone={on || c.done ? undefined : i % 5} className={`tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
               <span className="min-w-0">
                 <span className="block font-display text-[1.1rem] font-bold leading-tight">{c.label}</span>
-                <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>
+                <span className={`block truncate text-[0.8rem] ${on ? "text-cream/85" : "text-muted"}`}>{c.sub}</span>
               </span>
             </button>
           );

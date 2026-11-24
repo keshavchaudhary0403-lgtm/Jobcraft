@@ -8,6 +8,7 @@ import type { PracticeGroup } from "@/lib/practice-history";
 import { JobPicker } from "./JobPicker";
 import { JobCard, PracticeHistory } from "./RoundHistory";
 import { Spinner } from "./client-ui";
+import { HowItWorks } from "./HowItWorks";
 
 type PickApp = Pick<Application, "id" | "company" | "role" | "status" | "analysis">;
 
@@ -41,18 +42,7 @@ export function InterviewHub({ apps, preselect, groups, otherFields }: { apps: P
           <h2 className="mb-4 text-[1.2rem] font-bold leading-none">Which job are you practising for?</h2>
           <JobPicker apps={apps} preselect={initial} onPick={setSel} otherFields={otherFields} />
         </section>
-        <section className="dark-card p-6">
-          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How a round works</div>
-          <ol className="mt-4 space-y-3">
-            {STEPS.map((t, i) => (
-              <li key={t} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
-                <span className="text-[0.95rem] text-cream/90">{t}</span>
-              </li>
-            ))}
-          </ol>
-          <p className="mt-5 rounded-2xl bg-white/[.07] px-4 py-3 text-[0.86rem] text-cream/80">Do about 3 rounds per job. Between rounds, study the questions you found hardest.</p>
-        </section>
+        <HowItWorks title="How a round works" steps={STEPS} tip="Do about 3 rounds per job. Between rounds, study the questions you found hardest." />
       </div>
 
       {track ? (

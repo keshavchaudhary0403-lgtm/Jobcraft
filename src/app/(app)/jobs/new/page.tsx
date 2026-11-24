@@ -184,13 +184,13 @@ export default function NewJob() {
         <aside className="flex flex-col gap-4 fade-up">
           <div className="dark-card p-5">
             <div className="flex items-center justify-between">
-              <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/60">Preview</span>
-              {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/70"><Spinner size={13} /> Reading...</span>}
+              <span className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/80">Preview</span>
+              {detecting && <span className="flex items-center gap-1.5 text-[0.8rem] text-cream/85"><Spinner size={13} /> Reading...</span>}
             </div>
             <div className="mt-3 flex items-center gap-3">
               <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full avatar-warm font-display text-[1.2rem] font-bold">{(f.company.trim()[0] ?? "?").toUpperCase()}</span>
               <div className="min-w-0">
-                <div className="truncate text-[0.9rem] text-cream/70">{f.company || "Company"}</div>
+                <div className="truncate text-[0.9rem] text-cream/85">{f.company || "Company"}</div>
                 <div className="line-clamp-2 font-display text-[1.25rem] font-bold leading-tight">{f.role || "Role"}</div>
               </div>
             </div>

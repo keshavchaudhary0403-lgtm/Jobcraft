@@ -98,7 +98,7 @@ export function Playbook({ moves }: { moves: Move[] }) {
                 <h3 className="font-display text-[1.6rem] font-bold leading-tight">{m.title}</h3>
               </div>
               <p className="mt-4 text-[0.98rem] leading-relaxed text-cream/90">{info.what}</p>
-              <p className="mt-2 text-[0.88rem] text-white/65">{info.why}</p>
+              <p className="mt-2 text-[0.88rem] text-white/85">{info.why}</p>
               <div className="mt-auto pt-6">
                 <Link href={m.href} tabIndex={shown ? 0 : -1} className={m.done ? "pill-glass" : "btn btn-clay h-11 px-5"}>
                   {m.done ? <><RotateCcw size={14} /> Open again</> : <>Start <ArrowRight size={15} /></>}

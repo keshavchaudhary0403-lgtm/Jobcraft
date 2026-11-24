@@ -43,25 +43,25 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
       {/* Left: find + write */}
       <aside className="flex flex-col gap-4">
         <section className="dark-card p-5">
-          <div className="flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/70"><UserSearch size={14} /> 1 · Find who hires</div>
+          <div className="flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/85"><UserSearch size={14} /> 1 · Find who hires</div>
           {app.hiring_contact && (
             <div className="mt-3 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-[0.88rem]">
               <BadgeCheck size={15} className="shrink-0 text-mustard" /> <span>Named in the post: <b className="font-semibold">{app.hiring_contact}</b></span>
             </div>
           )}
-          <div className="mt-4 text-[0.78rem] text-white/60">Hiring manager</div>
+          <div className="mt-4 text-[0.78rem] text-white/80">Hiring manager</div>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {titles.map((t) => (
               <a key={t} href={people(`${t} ${company}`)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full bg-cream px-3 py-1.5 text-[0.82rem] font-semibold text-side transition hover:bg-mustard">{t} <ArrowUpRight size={12} /></a>
             ))}
           </div>
-          <div className="mt-3 text-[0.78rem] text-white/60">Recruiters</div>
+          <div className="mt-3 text-[0.78rem] text-white/80">Recruiters</div>
           <div className="mt-1.5 flex flex-wrap gap-1.5">
             {["Talent Acquisition", "Recruiter", "HR Business Partner"].map((t) => (
               <a key={t} href={people(`${t} ${company}`)} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 rounded-full border border-white/20 px-3 py-1.5 text-[0.82rem] font-medium text-white/85 transition hover:bg-white/10">{t} <ArrowUpRight size={12} /></a>
             ))}
           </div>
-          <p className="mt-3 text-[0.76rem] text-white/65">Opens LinkedIn people search at {company}.</p>
+          <p className="mt-3 text-[0.76rem] text-white/85">Opens LinkedIn people search at {company}.</p>
         </section>
 
         <section className="card flex-1 p-5">

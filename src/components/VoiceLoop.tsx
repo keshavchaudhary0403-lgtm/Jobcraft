@@ -244,7 +244,7 @@ export function VoiceLoop({
             {on && kind === "interview" && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
           </div>
           <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">{title}</div>
-          <p className="mt-0.5 text-[0.84rem] text-cream/65">
+          <p className="mt-0.5 text-[0.84rem] text-cream/85">
             {on ? "Talk, then pause - it replies when you stop. Tap Skip to cut it short." : finished ? (kind === "interview" ? "Your scorecard is on the right. Start a new round for fresh questions." : "Your feedback is in the transcript. Start a new talk to practise again.") : `${modelName} plays the ${kind === "interview" ? "interviewer" : "HR manager"} and speaks out loud. Headphones help.`}
           </p>
           {kind === "interview" && <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= questions ? "bg-mustard" : "bg-white/15"}`} />)}</div>}

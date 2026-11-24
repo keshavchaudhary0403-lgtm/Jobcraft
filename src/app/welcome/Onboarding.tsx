@@ -52,7 +52,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                 <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{done ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
                 <span className="min-w-0">
                   <span className="block font-display text-[1.05rem] font-bold leading-tight">{s.title}</span>
-                  <span className={`block text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{s.sub}</span>
+                  <span className={`block text-[0.8rem] ${on ? "text-cream/85" : "text-muted"}`}>{s.sub}</span>
                 </span>
               </li>
             );
@@ -80,13 +80,13 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                 }
               />
               <aside className="dark-card p-6">
-                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/70">From your resume we fill in</div>
+                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/85">From your resume we fill in</div>
                 <ul className="mt-4 space-y-3">
                   {["Your name, title and city", "The role you're going after", "Your skills and strongest result", "Your full resume, ready to tailor"].map((x) => (
                     <li key={x} className="flex items-center gap-3 text-[0.95rem]"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard text-white"><Check size={13} strokeWidth={3} /></span>{x}</li>
                   ))}
                 </ul>
-                <p className="mt-5 border-t border-white/10 pt-4 text-[0.84rem] text-white/60">You check everything before it&apos;s saved. Nothing is invented.</p>
+                <p className="mt-5 border-t border-white/10 pt-4 text-[0.84rem] text-white/80">You check everything before it&apos;s saved. Nothing is invented.</p>
               </aside>
             </div>
           ) : (

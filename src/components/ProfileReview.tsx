@@ -208,7 +208,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           <span className="avatar-warm grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full font-display text-[1.6rem] font-bold ring-4 ring-white/20">{initials}</span>
           <div className="min-w-0 flex-1">
             <div className="truncate font-display text-[1.9rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/70">
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/85">
               <span>{d.current_title || "Current title"}</span>
               <span className="text-[var(--hero-accent)]">→</span>
               <span className="font-semibold text-white">{d.target_role || "Target role"}</span>
@@ -220,7 +220,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
               { label: "Resume", value: health ?? 0, show: health == null ? "-" : `${health}/100`, color: health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "var(--s3)" : "var(--hero-accent)", tone: 0 },
             ].map((m) => (
               <div key={m.label} data-tone={m.tone} className="stat-tile w-full rounded-2xl px-4 pb-3 pt-3.5 sm:w-36">
-                <dt className="truncate text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{m.label}</dt>
+                <dt className="truncate text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/85">{m.label}</dt>
                 <dd className="mt-0.5 font-display text-[1.25rem] font-bold tabular-nums">{m.show}</dd>
                 <Meter value={m.value / 100} color={m.color} track="rgba(255,255,255,.18)" height={5} className="mt-1.5" />
               </div>
@@ -237,7 +237,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
                 <span data-tone={on ? undefined : i % 5} className={`tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}>{String(i + 1).padStart(2, "0")}</span>
                 <span className="min-w-0">
                   <span className="flex items-center gap-1.5 font-display text-[1.1rem] font-bold leading-tight"><c.icon size={15} /> {c.label}</span>
-                  <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>
+                  <span className={`block truncate text-[0.8rem] ${on ? "text-cream/85" : "text-muted"}`}>{c.sub}</span>
                 </span>
               </button>
             );

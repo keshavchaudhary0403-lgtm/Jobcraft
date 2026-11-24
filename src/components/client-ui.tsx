@@ -196,7 +196,7 @@ export function SidePanel({ open, onClose, title, sub, icon, children }: { open:
           {icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-white/20">{icon}</span>}
           <div className="min-w-0 flex-1">
             <div className="font-display text-[1.2rem] font-bold leading-tight">{title}</div>
-            {sub && <div className="flex items-center gap-1.5 truncate text-[0.82rem] text-white/75"><span className="h-2 w-2 shrink-0 rounded-full bg-[#5fd99a] shadow-[0_0_0_3px_rgba(95,217,154,.25)]" />{sub}</div>}
+            {sub && <div className="flex items-center gap-1.5 truncate text-[0.82rem] text-white/90"><span className="h-2 w-2 shrink-0 rounded-full bg-[#5fd99a] shadow-[0_0_0_3px_rgba(95,217,154,.25)]" />{sub}</div>}
           </div>
           <button className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/12 ring-1 ring-white/20 transition hover:bg-white/20" onClick={onClose} aria-label="Close"><X size={16} /></button>
         </div>
