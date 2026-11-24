@@ -54,7 +54,7 @@ export function JobPicker({
                 <CompanyAvatar name={a.company} size={32} />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate text-[0.92rem] font-semibold" data-tip={a.role}>{a.role}</span>
-                  <span className="block truncate text-[0.76rem] text-muted">{a.company}{a.status === "offer" ? " · Offer" : ""}</span>
+                  <span className="block truncate text-[0.78rem] font-bold text-ink">{a.company}{a.status === "offer" ? " · Offer" : ""}</span>
                 </span>
                 {an && <span className="font-display text-[1rem] font-bold tabular-nums">{an.fit_score * 10}%</span>}
               </button>
@@ -85,7 +85,7 @@ export function JobPicker({
             >
               <span className="flex items-center gap-2.5">
                 <CompanyAvatar name={a.company} size={32} />
-                <span className="min-w-0 flex-1 truncate text-[0.84rem] text-muted">{a.company}</span>
+                <span className="min-w-0 flex-1 truncate text-[0.9rem] font-bold text-ink">{a.company}</span>
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${on ? "bg-brand text-white" : "border-[1.5px] border-line"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
               </span>
               <span className="mt-3 line-clamp-2 font-display text-[1.05rem] font-bold leading-snug" data-tip={a.role}>{a.role}</span>
