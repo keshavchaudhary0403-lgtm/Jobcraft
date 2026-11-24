@@ -11,7 +11,7 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
   const { app: preselect } = await searchParams;
   const { supabase, profile, user } = await requireUser();
   const [{ data: apps }, { data: sessions }] = await Promise.all([
-    supabase.from("applications").select("id, company, role, status, company_type, location, analysis").order("updated_at", { ascending: false }).returns<Application[]>(),
+    supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>(),
     supabase.from("sessions").select("*").eq("kind", "negotiation").order("updated_at", { ascending: false }).limit(150).returns<Session[]>(),
   ]);
   const sorted = [...(apps ?? [])].sort((a, b) => Number(b.status === "offer") - Number(a.status === "offer"));

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
-import { JobTile, STATUS_BAR } from "@/components/JobTiles";
+import { STATUS_BAR } from "@/components/JobTiles";
+import { JobsGrid } from "@/components/JobsGrid";
 import { requireUser } from "@/lib/auth";
 import { STATUS_META } from "@/components/ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -20,8 +21,9 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
   const practised = new Set((sessions ?? []).map((s) => s.application_id).filter(Boolean) as string[]);
   const counts = Object.fromEntries(STATUSES.map((s) => [s, jobs.filter((a) => a.status === s).length])) as Record<Status, number>;
   const fit = (a: Application) => (a.analysis as Analysis | null)?.fit_score ?? -1;
+  const unanalysed = jobs.filter((a) => !a.analysis).length;
   const shown = jobs
-    .filter((a) => !status || a.status === status)
+    .filter((a) => !status || (status === "new" ? !a.analysis : a.status === status))
     .sort((x, y) => (sort === "fit" ? fit(y) - fit(x) : 0));
   const q = (p: Record<string, string | undefined>) => {
     const u = new URLSearchParams();
@@ -63,6 +65,12 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
               <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${!status ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
                 All <span className="tabular-nums opacity-70">{jobs.length}</span>
               </Link>
+              {unanalysed > 0 && (
+                <Link href={q({ status: "new" })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === "new" ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
+                  <span className="h-2 w-2 rounded-full bg-faint" />
+                  Not analysed <span className="tabular-nums opacity-70">{unanalysed}</span>
+                </Link>
+              )}
               {STATUSES.filter((s) => counts[s]).map((s) => (
                 <Link key={s} href={q({ status: s })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === s ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
                   <span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} />
@@ -72,19 +80,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
             </div>
           </section>
 
-          {/* Job tiles: full width, grows row by row */}
-          <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 stagger">
-            {shown.map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
-            {!status && (
-              <Link href="/jobs/new" className="group card card-hover flex min-h-[200px] flex-col p-6">
-                <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
-                <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
-                <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
-                <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
-              </Link>
-            )}
-            {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2 xl:col-span-3">No jobs in this stage.</div>}
-          </section>
+          {/* Job tiles with Select mode (analyse or delete several at once) */}
+          <JobsGrid jobs={shown} practised={[...practised]} addCard={!status} />
         </>
       )}
     </div>

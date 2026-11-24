@@ -137,6 +137,21 @@ async function jobcraftExtract() {
     out.company = out.company || (document.querySelector('meta[property="og:site_name"]')?.content || "").trim();
   }
 
+  // ---------- Company logo and website (for Jobcraft's company identity) ----------
+  const key = (t) => (t || "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]/g, "");
+  const ck = key(out.company);
+  if (ck.length >= 2) {
+    // the logo image the site shows for this company (alt text names the company)
+    const logo = [...document.querySelectorAll("img")]
+      .filter((i) => key(i.alt).includes(ck) && /logo|company/i.test(i.alt || "") && (i.currentSrc || i.src).startsWith("https://"))
+      .sort((x, y) => (y.naturalWidth || y.width) - (x.naturalWidth || x.width))[0];
+    if (logo) out.logoUrl = logo.currentSrc || logo.src;
+    // a link the page labels as the company's website (Naukri shows "<Company> website")
+    const boards = /(linkedin|licdn|naukri|naukimg|infoedge|ambitionbox|indeed|glassdoor|google|facebook|twitter|x\.com|instagram|youtube|apple|play\.)/i;
+    const site = [...document.querySelectorAll('a[href^="http"]')].find((l) => /website/i.test(l.innerText || l.getAttribute("aria-label") || "") && !boards.test(l.href));
+    if (site) out.website = site.href;
+  }
+
   // The user's highlighted text always wins - it's what they chose.
   if (selection.split(/\s+/).length >= 30) { out.jd = selection; out.how = "selection"; }
 

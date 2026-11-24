@@ -10,7 +10,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
   const { app: preselect } = await searchParams;
   const { supabase } = await requireUser();
   const [{ data: apps }, { data: sessions }] = await Promise.all([
-    supabase.from("applications").select("id, company, role, status, analysis").order("updated_at", { ascending: false }).returns<Application[]>(),
+    supabase.from("applications").select("*").order("updated_at", { ascending: false }).returns<Application[]>(),
     supabase.from("sessions").select("*").eq("kind", "interview").order("updated_at", { ascending: false }).limit(150).returns<Session[]>(),
   ]);
   const start = startSession.bind(null, "interview");

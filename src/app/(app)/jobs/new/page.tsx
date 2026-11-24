@@ -3,8 +3,8 @@
 import { formatCity, formatTitle } from "@/lib/profile-format";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Building2, DownloadCloud, Link2, MapPin, Sparkles, UserRound } from "lucide-react";
-import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { ArrowRight, Bookmark, Building2, Check, Copy, DownloadCloud, Link2, MapPin, Plus, Sparkles, UserRound } from "lucide-react";
 import { Spinner } from "@/components/client-ui";
 import type { DetectedJob } from "@/lib/tasks";
 
@@ -50,13 +50,15 @@ export default function NewJob() {
   // A job sent from the Jobcraft Chrome extension: it leaves the details in this tab's sessionStorage
   // (and fires "jobcraft-import" if the page is already open). Fill the form; the user still checks and adds it.
   const [imported, setImported] = useState<string | null>(null);
+  const brand = useRef<{ website: string; logo: string }>({ website: "", logo: "" });
   useEffect(() => {
     const take = () => {
       const raw = sessionStorage.getItem("jobcraft-import");
       if (!raw) return;
       sessionStorage.removeItem("jobcraft-import");
       try {
-        const j = JSON.parse(raw) as { jd?: string; url?: string; company?: string; role?: string; location?: string; site?: string };
+        const j = JSON.parse(raw) as { jd?: string; url?: string; company?: string; role?: string; location?: string; site?: string; website?: string; logo?: string };
+        brand.current = { website: String(j.website ?? "").slice(0, 300), logo: /^data:image\//.test(String(j.logo ?? "")) ? String(j.logo) : "" };
         const text = String(j.jd ?? "").slice(0, 30000);
         if (text.trim().split(/\s+/).length < 10) return;
         setJd(text);
@@ -114,34 +116,46 @@ export default function NewJob() {
     setF((x) => ({ ...x, [k]: v }));
   };
 
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
+  // Save only - no AI yet. A duplicate (same link, or same company + role) is shown instead of a second copy.
+  const [dupe, setDupe] = useState<{ id: string; company: string; role: string; created_at: string; analysed: boolean; by: "link" | "name" } | null>(null);
+  const [saved, setSaved] = useState<{ id: string; company: string; role: string } | null>(null);
+
+  async function save(force = false) {
     setBusy(true);
     setErr("");
-    const supabase = createClient();
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
-    const user = session?.user;
-    const { data, error } = await supabase
-      .from("applications")
-      .insert({
-        user_id: user!.id,
-        jd: jd.trim(),
-        job_url: url.trim() || null,
-        company: formatTitle(f.company, 80),
-        role: formatTitle(f.role),
-        location: formatCity(f.location) || null,
-        company_type: f.company_type.trim() || null,
-      })
-      .select("id")
-      .single();
-    if (error) {
-      setErr(error.message);
-      setBusy(false);
-      return;
-    }
-    router.push(`/jobs/${data.id}`);
+    const res = await fetch("/api/jobs/save", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ jd, url, company: f.company, role: f.role, location: f.location, company_type: f.company_type, force, ...brand.current }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setBusy(false);
+    if (res.status === 409 && data.duplicate) return setDupe(data.duplicate);
+    if (!res.ok) return setErr(data.error ?? "Couldn't save. Try again.");
+    setDupe(null);
+    setSaved({ id: data.id, company: f.company, role: f.role });
+    router.refresh();
+  }
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    save(false);
+  }
+
+  /** Clear the form for the next job (batch adding). */
+  function another() {
+    setSaved(null);
+    setDupe(null);
+    setJd("");
+    setUrl("");
+    setF({ company: "", role: "", location: "", company_type: "" });
+    setAuto({});
+    setImported(null);
+    brand.current = { website: "", logo: "" };
+    setFetchMsg(null);
+    edited.current.clear();
+    lastDetected.current = "";
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const ready = words >= 30 && f.company.trim() && f.role.trim();
@@ -174,10 +188,23 @@ export default function NewJob() {
       {imported && (
         <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-good-soft px-4 py-3 fade-up">
           <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-good text-white"><DownloadCloud size={14} /></span>
-          <span className="flex-1 text-[0.92rem] font-medium text-ink">Sent from {imported}. Check the details, then click <b>Analyse job</b>.</span>
+          <span className="flex-1 text-[0.92rem] font-medium text-ink">Sent from {imported}. Check the details, then click <b>Save job</b>.</span>
         </div>
       )}
 
+      {saved ? (
+        <section className="card mx-auto max-w-xl p-7 text-center fade-up">
+          <span className="mx-auto grid h-14 w-14 place-items-center rounded-2xl bg-good-soft text-good"><Check size={26} strokeWidth={3} /></span>
+          <h2 className="mt-4 text-[1.4rem] font-bold leading-tight">Saved</h2>
+          <p className="mt-1 text-muted"><b className="text-ink">{saved.role}</b> at <b className="text-ink">{saved.company}</b> is in your jobs. No AI has run on it yet.</p>
+          <div className="mt-6 grid gap-2.5 sm:grid-cols-3">
+            <button type="button" className="btn btn-soft h-11" onClick={another}><Plus size={15} /> Add another</button>
+            <Link href="/jobs?status=new" className="btn btn-soft h-11">Go to Jobs <ArrowRight size={15} /></Link>
+            <Link href={`/jobs/${saved.id}?analyse=1`} className="btn btn-clay h-11 !shadow-none"><Sparkles size={15} /> Analyse now</Link>
+          </div>
+          <p className="mt-4 text-[0.82rem] text-muted">Collecting several jobs? Keep adding, then pick which to analyse from Jobs.</p>
+        </section>
+      ) : (
       <form onSubmit={submit} className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Paste pane */}
         <div className="card flex flex-col overflow-hidden fade-up">
@@ -246,9 +273,23 @@ export default function NewJob() {
             {detField("location", "Location", <MapPin size={15} />, "Optional")}
             {words >= 30 && !detecting && (!f.company || !f.role) && <p className="text-[0.85rem] text-mid">Add the company and role - they weren&apos;t in the text.</p>}
             {err && <p className="text-[0.85rem] text-bad">{err}</p>}
-            <button className="btn btn-clay h-12 w-full text-[1rem]" disabled={busy || !ready}>
-              {busy ? <Spinner /> : <Sparkles size={15} />} Analyse job <ArrowRight size={15} />
-            </button>
+            {dupe ? (
+              <div className="rounded-2xl bg-mid-soft p-4">
+                <div className="flex items-center gap-2 text-[0.92rem] font-semibold text-mid"><Copy size={15} /> Already saved</div>
+                <p className="mt-1 text-[0.86rem] text-ink/80">
+                  <b>{dupe.role}</b> at <b>{dupe.company}</b> is in your jobs ({dupe.by === "link" ? "same link" : "same company and role"}), saved {new Date(dupe.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}{dupe.analysed ? " and analysed" : ""}.
+                </p>
+                <div className="mt-3 grid grid-cols-2 gap-2">
+                  <Link href={`/jobs/${dupe.id}`} className="btn btn-primary h-10 px-3 !shadow-none">Open it</Link>
+                  <button type="button" className="btn btn-soft h-10 px-3" disabled={busy} onClick={() => save(true)}>{busy ? <Spinner size={14} /> : null} Save anyway</button>
+                </div>
+              </div>
+            ) : (
+              <button className="btn btn-clay h-12 w-full text-[1rem] !shadow-none" disabled={busy || !ready}>
+                {busy ? <Spinner /> : <Bookmark size={15} />} Save job
+              </button>
+            )}
+            <p className="text-center text-[0.8rem] text-muted">Saving doesn&apos;t use AI credit. Analyse it when you&apos;re ready.</p>
             <ol className="grid grid-cols-4 gap-1 border-t border-line pt-4 text-center text-[0.78rem] text-muted">
               {["Decode", "Fit score", "Resume", "Outreach"].map((x, i) => (
                 <li key={x}>
@@ -260,6 +301,7 @@ export default function NewJob() {
           </div>
         </aside>
       </form>
+      )}
     </div>
   );
 }

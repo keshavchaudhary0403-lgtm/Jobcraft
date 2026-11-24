@@ -81,7 +81,7 @@ export function JobView({
   const [askAt, setAskAt] = useState<number | null>(null);
   const fit = a ? a.fit_score * 10 : null;
   const chapters: { key: Tab; label: string; sub: string; done: boolean }[] = [
-    { key: "overview", label: "Match", sub: !analysed ? "Reading the job..." : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
+    { key: "overview", label: "Match", sub: !analysed ? "Not analysed yet" : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
     { key: "resume", label: "Resume", sub: app.tailored_resume ? "Tailored" : "Not tailored yet", done: !!app.tailored_resume },
     { key: "outreach", label: "Outreach", sub: app.outreach ? "Written" : "Not written yet", done: !!app.outreach },
     { key: "practice", label: "Practice", sub: `${interviews.length} round${interviews.length === 1 ? "" : "s"} done`, done: interviews.length > 0 },
@@ -106,7 +106,7 @@ export function JobView({
           <div>
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.92rem] text-muted">
-                <CompanyWordmark name={app.company} jobUrl={app.job_url} height={40} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
+                <CompanyWordmark name={app.company} jobUrl={app.job_url} domain={app.company_domain} logo={app.company_logo} height={40} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
                 {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
               </div>
               <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>
@@ -116,7 +116,7 @@ export function JobView({
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.86rem] text-muted">
             {facts.map(([k, v]) => <span key={k}>{k} <b className="font-semibold text-ink">{v}</b></span>)}
           </div>
-          {a ? <FitStat fit={fit} prev={null} className="mt-4 sm:hidden" /> : <p className="mt-3 text-[0.88rem] text-muted">Reading the job...</p>}
+          {a ? <FitStat fit={fit} prev={null} className="mt-4 sm:hidden" /> : null}
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Menu<Status>
@@ -195,7 +195,9 @@ export function JobView({
             e.preventDefault();
             const fd = new FormData(e.currentTarget);
             const v = (k: string) => String(fd.get(k) ?? "").trim();
-            update({ company: v("company") || app.company, role: v("role") || app.role, location: v("location") || null, job_url: v("job_url") || null });
+            // "acme.com", "www.acme.com" or "https://acme.com/about" -> "acme.com" (shows the company's official wordmark)
+            const site = v("company_domain").replace(/^https?:\/\//i, "").replace(/^www\./i, "").split(/[/?#\s]/)[0].toLowerCase();
+            update({ company: v("company") || app.company, role: v("role") || app.role, location: v("location") || null, job_url: v("job_url") || null, company_domain: site.includes(".") ? site : null });
             setEditing(false);
           }}
         >
@@ -204,6 +206,10 @@ export function JobView({
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label">Location</label><input name="location" className="field" defaultValue={app.location ?? ""} /></div>
             <div><label className="label">Job link</label><input name="job_url" className="field" defaultValue={app.job_url ?? ""} /></div>
+          </div>
+          <div>
+            <label className="label">Company website <span className="font-normal text-muted">(shows their logo)</span></label>
+            <input name="company_domain" className="field" defaultValue={app.company_domain ?? ""} placeholder="e.g. cult.fit" />
           </div>
           <div className="flex justify-end gap-2 pt-1">
             <button type="button" className="btn btn-ghost" onClick={() => setEditing(false)}>Cancel</button>

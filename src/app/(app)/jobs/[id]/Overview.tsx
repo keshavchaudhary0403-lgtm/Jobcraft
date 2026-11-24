@@ -18,6 +18,7 @@ import {
   Mic,
   MessageSquareQuote,
   RotateCcw,
+  Sparkles,
   Square,
   Target,
   XCircle,
@@ -76,9 +77,11 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
       });
   }
 
+  // AI never runs on its own: only when the user chose "Analyse now" (?analyse=1) or clicks the button below.
   useEffect(() => {
-    if (!a && !started.current) {
+    if (!a && !started.current && new URLSearchParams(window.location.search).get("analyse") === "1") {
       started.current = true;
+      window.history.replaceState(null, "", window.location.pathname);
       analyse();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,7 +102,30 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         <button className="btn btn-primary mt-4" onClick={analyse}><RotateCcw size={15} /> Try again</button>
       </div>
     );
-  if (!a) return null;
+  if (!a)
+    return (
+      <section className="card grid items-center gap-6 p-6 sm:p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] fade-up">
+        <div>
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted">Saved · not analysed yet</span>
+          <h3 className="mt-3 text-[1.7rem] font-bold leading-tight">Ready when you are<span className="text-clay">.</span></h3>
+          <p className="mt-2 max-w-md text-muted">Run the AI on this job to see what they really want and how well you fit. It uses AI credit, so run it on the jobs you&apos;re serious about.</p>
+          <button className="btn btn-clay mt-5 h-11 px-5 !shadow-none" onClick={analyse}><Sparkles size={15} /> Analyse with AI</button>
+        </div>
+        <ul className="space-y-2.5">
+          {[
+            ["The 5 skills they rank highest", "0"],
+            ["The 3 ATS keywords to include", "3"],
+            ["An honest fit score and your top gaps", "1"],
+            ["Questions that settle anything unclear", "2"],
+          ].map(([t, c], i) => (
+            <li key={t} className="flex items-center gap-3 rounded-2xl bg-line-2/70 px-3.5 py-2.5">
+              <span data-tone={c} className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-white font-display text-[0.85rem] font-bold">{i + 1}</span>
+              <span className="text-[0.92rem] font-medium">{t}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+    );
 
   const questions = questionList(a);
   // Older analyses had no per-gap question: link "unsure" gaps to the questions in order.

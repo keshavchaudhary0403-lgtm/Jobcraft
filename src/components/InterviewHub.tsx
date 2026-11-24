@@ -10,7 +10,7 @@ import { JobCard, PracticeHistory } from "./RoundHistory";
 import { Spinner } from "./client-ui";
 import { HowItWorks } from "./HowItWorks";
 
-type PickApp = Pick<Application, "id" | "company" | "role" | "status" | "analysis">;
+type PickApp = Pick<Application, "id" | "company" | "role" | "status" | "analysis" | "job_url" | "company_domain" | "company_logo">;
 
 /** The one button that starts a round. Shows progress so it never looks stuck. */
 function StartRound({ label }: { label: string }) {

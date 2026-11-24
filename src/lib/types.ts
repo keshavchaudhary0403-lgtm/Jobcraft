@@ -36,6 +36,10 @@ export type Application = {
   role: string;
   job_url: string | null;
   jd: string;
+  /** Company website (e.g. cure.fit) - used to show the official wordmark. Added in migration 011. */
+  company_domain?: string | null;
+  /** Public URL of the logo saved from the job page. Added in migration 011. */
+  company_logo?: string | null;
   company_type: string | null;
   hiring_contact: string | null;
   status: Status;

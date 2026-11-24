@@ -236,7 +236,7 @@ export function fitTone(v: number) {
   return { color: f.c, soft: f.soft, word: f.word, bar: f.c };
 }
 export function FitBadge({ value, size = "md", className = "" }: { value: number | null; size?: "sm" | "md"; className?: string }) {
-  if (value == null) return <span className={`inline-flex items-center rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted ${className}`}>Fit pending</span>;
+  if (value == null) return <span className={`inline-flex items-center rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted ${className}`}>Not analysed</span>;
   const t = fitTone(value);
   return (
     <span className={`inline-flex shrink-0 items-center rounded-full text-white ${size === "sm" ? "px-2 py-[3px]" : "px-2.5 py-1"} ${className}`} style={{ background: t.color }} data-tip={`${t.word}: ${value}%`}>

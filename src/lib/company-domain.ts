@@ -1,5 +1,5 @@
 /** Best guess at a company's website, used only to show its logo. */
-const JOB_BOARDS = /(linkedin|naukri|indeed|glassdoor|greenhouse|lever|workday|myworkdayjobs|instahyre|foundit|monster|iimjobs|wellfound|angel|ashbyhq|smartrecruiters|hirist|cutshort|google|bing|apna|shine|timesjobs|freshersworld|internshala|workable|recruitee|bamboohr|zohorecruit|keka|darwinbox|jobvite|icims|taleo|successfactors)\./i;
+export const JOB_BOARDS = /(linkedin|naukri|indeed|glassdoor|greenhouse|lever|workday|myworkdayjobs|instahyre|foundit|monster|iimjobs|wellfound|angel|ashbyhq|smartrecruiters|hirist|cutshort|google|bing|apna|shine|timesjobs|freshersworld|internshala|workable|recruitee|bamboohr|zohorecruit|keka|darwinbox|jobvite|icims|taleo|successfactors)\./i;
 
 export function companyDomain(name: string, jobUrl?: string | null): string | null {
   if (jobUrl) {

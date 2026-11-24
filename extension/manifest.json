@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Jobcraft - Send job",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "A Jobcraft side panel: send the job you're viewing (LinkedIn, Naukri or any careers page) to your Jobcraft.",
   "action": {
     "default_title": "Open Jobcraft",
@@ -33,7 +33,9 @@
     "https://www.linkedin.com/*",
     "https://www.naukri.com/*",
     "https://jobcraft-sooty.vercel.app/*",
-    "http://localhost:3000/*"
+    "http://localhost:3000/*",
+    "https://media.licdn.com/*",
+    "https://*.naukimg.com/*"
   ],
   "optional_host_permissions": [
     "https://*/*"

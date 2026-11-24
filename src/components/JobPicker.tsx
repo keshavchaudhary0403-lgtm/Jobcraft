@@ -7,7 +7,7 @@ import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { CompanyAvatar, FitBadge } from "./ui";
 
-type PickApp = Pick<Application, "id" | "company" | "role" | "status" | "analysis">;
+type PickApp = Pick<Application, "id" | "company" | "role" | "status" | "analysis" | "job_url" | "company_domain" | "company_logo">;
 
 /** Job tiles to pick from (no native dropdown). Writes application_id into the parent form. */
 export function JobPicker({
@@ -85,7 +85,7 @@ export function JobPicker({
               className={`relative flex flex-col rounded-[20px] border-2 p-4 text-left transition ${on ? "border-brand bg-card" : "border-line bg-card hover:border-brand/40"}`}
             >
               <span className="flex items-center gap-2.5">
-                <CompanyWordmark name={a.company} height={30} iconSize={32} className="flex-1" nameClass="truncate text-[0.9rem] font-bold text-ink" />
+                <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={30} iconSize={32} className="flex-1" nameClass="truncate text-[0.9rem] font-bold text-ink" />
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${on ? "bg-brand text-white" : "border-[1.5px] border-line"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
               </span>
               <span className="mt-3 line-clamp-2 font-display text-[1.05rem] font-bold leading-snug" data-tip={a.role}>{a.role}</span>

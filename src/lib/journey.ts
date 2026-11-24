@@ -15,7 +15,7 @@ export function journey(a: Application, practised: Set<string>) {
   const at = (tab?: string) => `/jobs/${a.id}${tab ? `?tab=${tab}` : ""}`;
   const q = openQs(a);
   return [
-    { label: "Decoded", done: an, cta: "See match", href: at() },
+    { label: "Decoded", done: an, cta: "Analyse with AI", href: at() },
     { label: "Questions", done: an && q === 0, cta: `Answer ${q} question${q === 1 ? "" : "s"}`, href: at() },
     { label: "Resume", done: !!a.tailored_resume, cta: "Tailor resume", href: at("resume") },
     { label: "Outreach", done: !!a.outreach, cta: "Write outreach", href: at("outreach") },

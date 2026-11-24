@@ -28,7 +28,7 @@ const range = (s: string): number[] => {
 };
 
 type Defaults = { city: string; current_ctc: string; experience: string; strongest_proof: string };
-type A = Pick<Application, "id" | "company" | "role" | "status" | "company_type" | "location" | "analysis">;
+type A = Pick<Application, "id" | "company" | "role" | "status" | "company_type" | "location" | "analysis" | "job_url" | "company_domain" | "company_logo">;
 
 export function NegotiationForm({ apps, preselect, defaults, userId, groups = [] }: { apps: A[]; preselect?: string; defaults: Defaults; userId: string; groups?: PracticeGroup[] }) {
   const firstId = apps.find((a) => a.id === preselect)?.id ?? apps[0]?.id ?? "";
@@ -134,7 +134,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId, groups = []
         <div className="flex flex-wrap items-center gap-3 p-5">
           {!a && <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><IndianRupee size={20} /></span>}
           <div className="min-w-0 flex-1">
-            {a && <CompanyWordmark name={a.company} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
+            {a && <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
             <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{a ? a.role : "An offer not in your jobs"}</h3>
             <p className="text-[0.84rem] text-muted">
               {talks ? `${talks} talk${talks === 1 ? "" : "s"}` : "No talks yet"}
