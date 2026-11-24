@@ -25,19 +25,21 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
   return (
     <article className="card card-hover flex flex-col overflow-hidden">
       <Link href={`/jobs/${a.id}`} className="block p-6 pb-5">
-        <div className="flex items-center gap-3">
+        {/* Fixed-height header (room for the location line even when there is none), so the title
+            and the match % sit in exactly the same spot on every card. */}
+        <div className="flex h-[58px] items-start gap-3">
           <span className="min-w-0 flex-1">
             <CompanyWordmark name={a.company} jobUrl={a.job_url} height={34} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
             {a.location && <span className="mt-0.5 flex items-center gap-1 truncate text-[0.8rem] text-muted"><MapPin size={11} />{a.location}</span>}
           </span>
-          <span className="flex shrink-0 items-center gap-2">
+          <span className="flex h-9 shrink-0 items-center gap-2">
             <span className="text-[0.8rem] text-muted">{timeAgo(a.updated_at)}</span>
             <span className={`chip ${st.cls}`}>{st.label}</span>
           </span>
         </div>
-        <div className="mt-4 flex items-start justify-between gap-4">
+        <div className="mt-2 flex min-h-[3.2rem] items-start justify-between gap-4">
           <h2 className="line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>
-          <FitBadge value={m} className="mt-1" />
+          <FitBadge value={m} />
         </div>
       </Link>
 

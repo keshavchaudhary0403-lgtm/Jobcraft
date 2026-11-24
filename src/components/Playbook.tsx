@@ -49,7 +49,7 @@ export function Playbook({ moves }: { moves: Move[] }) {
         </div>
 
         {/* Pills sit in the middle of the space left under the heading: even room above and below */}
-        <div className="flex flex-1 flex-wrap content-center gap-x-[18px] gap-y-4">
+        <div className="flex flex-1 flex-wrap content-center gap-x-[18px] gap-y-4" onMouseLeave={() => setFocus(next?.n ?? 1)}>
           {moves.map((m) => {
             const I = MOVES[m.n].icon;
             const on = m.n === focus;

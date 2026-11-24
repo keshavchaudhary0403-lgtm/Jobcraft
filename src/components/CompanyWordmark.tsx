@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { companyDomain } from "@/lib/company-domain";
 import { CompanyAvatar } from "./CompanyAvatar";
 
@@ -30,12 +30,19 @@ export function CompanyWordmark({
 }) {
   const domain = companyDomain(name, jobUrl);
   const [failed, setFailed] = useState(false);
+  const img = useRef<HTMLImageElement>(null);
+  // A logo that already failed before the page became interactive never fires onError - catch it here.
+  useEffect(() => {
+    const i = img.current;
+    if (i && i.complete && i.naturalWidth === 0) setFailed(true);
+  }, []);
 
   if (CLIENT_ID && domain && !failed)
     return (
       <span className={`flex min-w-0 items-center ${className}`} style={{ height: Math.max(height, iconSize) }} data-tip={name}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
+          ref={img}
           src={`https://cdn.brandfetch.io/domain/${domain}/h/${height * 3}/theme/dark/fallback/404/logo?c=${CLIENT_ID}`}
           alt={name}
           loading="lazy"
