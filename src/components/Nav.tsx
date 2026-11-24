@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { BriefcaseBusiness, ChevronUp, House, IndianRupee, LogOut, Menu, Mic, Plus, Settings2, UserRound, X } from "lucide-react";
+import { BriefcaseBusiness, ChevronRight, ChevronUp, House, IndianRupee, LogOut, Menu, Mic, Plus, Settings2, UserRound, X } from "lucide-react";
 import { Logo } from "./Logo";
 
 const LinkedInIcon = ({ size = 17, className }: { size?: number; className?: string }) => (
@@ -83,7 +83,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
       <div ref={ref} className="relative mt-auto">
         {menu && (
-          <div className="pop absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-3xl border border-line bg-card p-2 text-ink shadow-[0_30px_60px_-30px_color-mix(in srgb, var(--side) 55%, transparent)]">
+          <div className="pop absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-3xl border border-line bg-card p-2 text-ink shadow-[0_30px_60px_-30px_color-mix(in_srgb,var(--side)_55%,transparent)]">
             <Link href="/profile" onClick={() => { setMenu(false); setOpen(false); }} className="flex h-11 items-center gap-3 rounded-2xl px-3 text-[0.95rem] hover:bg-line-2"><UserRound size={16} className="text-muted" /> My profile</Link>
             {isAdmin && <Link href="/admin" onClick={() => { setMenu(false); setOpen(false); }} className="flex h-11 items-center gap-3 rounded-2xl px-3 text-[0.95rem] hover:bg-line-2"><Settings2 size={16} className="text-muted" /> Admin</Link>}
             <button onClick={logout} className="flex h-11 w-full items-center gap-3 rounded-2xl px-3 text-[0.95rem] text-bad hover:bg-bad-soft"><LogOut size={16} /> Log out</button>
@@ -104,19 +104,21 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
   return (
     <>
-      {/* Mobile: floating top pill + app-style bottom tab bar */}
-      <header className="no-print sticky top-0 z-30 px-3 pt-3 lg:hidden">
-        <div className="flex items-center justify-between rail-bg rounded-full bg-side/95 py-1.5 pl-3 pr-1.5 shadow-[0_12px_30px_-18px_color-mix(in srgb, var(--side) 90%, transparent)] backdrop-blur">
-          <Link href="/"><Logo size={28} light /></Link>
-          <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 rounded-full bg-white/10 py-1 pl-1 pr-3 text-cream" aria-label="Open menu">
-            <span className="avatar-warm grid h-8 w-8 place-items-center rounded-full text-[0.78rem] font-bold">{initials || "?"}</span>
-            <Menu size={16} />
-          </button>
+      {/* Mobile: floating top bar + app-style bottom tab bar */}
+      <header className="no-print sticky top-0 z-30 px-4 pt-3 sm:px-6 lg:hidden">
+        <div className="rail-bg flex h-14 items-center justify-between rounded-[20px] bg-side pl-3.5 pr-2 shadow-[0_12px_30px_-18px_color-mix(in_srgb,var(--side)_90%,transparent)]">
+          <Link href="/" aria-label="Home"><Logo size={30} light /></Link>
+          <div className="flex items-center gap-2">
+            <Link href="/profile" aria-label="My profile" className="avatar-warm grid h-9 w-9 place-items-center rounded-full text-[0.8rem] font-bold ring-2 ring-white/25">{initials || "?"}</Link>
+            <button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-[14px] bg-white/12 text-white transition active:scale-95" aria-label="Open menu">
+              <Menu size={18} />
+            </button>
+          </div>
         </div>
       </header>
 
       <nav className="no-print fixed inset-x-3 bottom-3 z-30 lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <div className="grid grid-cols-5 items-center rail-bg rounded-[26px] bg-side/95 px-1.5 py-1.5 shadow-[0_18px_40px_-18px_color-mix(in srgb, var(--side) 90%, transparent)] backdrop-blur">
+        <div className="grid grid-cols-5 items-center rail-bg rounded-[26px] bg-side/95 px-1.5 py-1.5 shadow-[0_18px_40px_-18px_color-mix(in_srgb,var(--side)_90%,transparent)] backdrop-blur">
           {[
             { href: "/", label: "Home", icon: House },
             { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, count: jobs },
@@ -125,7 +127,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
             { href: "/negotiation", label: "Salary", icon: IndianRupee },
           ].map((t) =>
             t === null ? (
-              <Link key="add" href="/jobs/new" aria-label="Add job" className="mx-auto -mt-7 grid h-14 w-14 place-items-center rounded-full bg-clay text-white shadow-[0_12px_24px_-10px_color-mix(in srgb, var(--clay) 90%, transparent)] ring-4 ring-bg transition active:scale-95">
+              <Link key="add" href="/jobs/new" aria-label="Add job" className="mx-auto -mt-7 grid h-14 w-14 place-items-center rounded-full bg-clay text-white shadow-[0_12px_24px_-10px_color-mix(in_srgb,var(--clay)_90%,transparent)] ring-4 ring-bg transition active:scale-95">
                 <Plus size={24} />
               </Link>
             ) : (
@@ -141,36 +143,55 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
       {open && (
         <div className="no-print fixed inset-0 z-40 lg:hidden" onClick={() => setOpen(false)}>
-          <div className="absolute inset-0 bg-side/40 backdrop-blur-[2px]" />
-          <div className="sheet-up absolute inset-x-0 bottom-0 rounded-t-[28px] bg-card p-4 pb-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
-            <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line" />
-            <div className="flex items-center gap-3 px-1">
-              <span className="avatar-warm grid h-12 w-12 place-items-center rounded-full text-[0.9rem] font-bold">{initials || "?"}</span>
-              <div className="min-w-0 flex-1">
-                <div className="truncate font-display text-[1.15rem] font-bold">{name}</div>
-                <div className="text-[0.82rem] text-muted">Profile {strength}% complete</div>
-              </div>
-              <button onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-line-2" aria-label="Close"><X size={16} /></button>
+          <div className="absolute inset-0 bg-side/45 backdrop-blur-[3px]" />
+          <div className="sheet-up absolute inset-x-0 bottom-0 rounded-t-[30px] bg-bg px-4 pt-3 shadow-2xl" style={{ paddingBottom: "calc(env(safe-area-inset-bottom) + 1.25rem)" }} onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-3 h-1.5 w-10 rounded-full bg-line" />
+            <div className="mb-3 flex items-center justify-between px-1">
+              <h2 className="text-[1.3rem] font-bold">Menu</h2>
+              <button onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-card shadow-sm" aria-label="Close"><X size={16} /></button>
             </div>
-            <div className="mx-1 mt-3 h-1.5 overflow-hidden rounded-full bg-line-2"><div className="h-full rounded-full bg-clay" style={{ width: `${strength}%` }} /></div>
-            <div className="mt-4 grid grid-cols-2 gap-2">
+
+            {/* Profile card in the app's hero style */}
+            <Link href="/profile" onClick={() => setOpen(false)} className="dark-card block rounded-[22px] p-4 text-white">
+              <div className="flex items-center gap-3">
+                <span className="avatar-warm grid h-12 w-12 shrink-0 place-items-center rounded-full text-[0.95rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
+                <span className="min-w-0 flex-1">
+                  <span className="block truncate font-display text-[1.15rem] font-bold">{name}</span>
+                  <span className="block text-[0.8rem] text-white/65">Profile strength</span>
+                </span>
+                <span className="font-display text-[1.4rem] font-bold">{strength}<span className="text-[0.85rem] text-white/60">%</span></span>
+              </div>
+              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${strength}%` }} /></div>
+            </Link>
+
+            {/* Destinations */}
+            <div className="card mt-3 divide-y divide-line overflow-hidden p-0">
               {[
-                { href: "/linkedin", label: "LinkedIn", icon: LinkedInIcon },
-                { href: "/profile", label: "My profile", icon: UserRound },
-                ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Settings2 }] : []),
-              ].map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3.5 font-semibold ${isActive(href) ? "border-brand bg-brand-soft text-brand-ink" : "border-line"}`}>
-                  <Icon size={18} /> {label}
+                { href: "/linkedin", label: "LinkedIn", sub: "Headline, About and skills", icon: LinkedInIcon, tone: 1 },
+                { href: "/profile", label: "My profile", sub: "Details and resume", icon: UserRound, tone: 0 },
+                ...(isAdmin ? [{ href: "/admin", label: "Admin", sub: "People, limits and AI spend", icon: Settings2, tone: 4 }] : []),
+              ].map(({ href, label, sub, icon: Icon, tone }) => (
+                <Link key={href} href={href} onClick={() => setOpen(false)} className="flex items-center gap-3 px-4 py-3 active:bg-line-2">
+                  <span data-tone={tone} className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-line-2"><Icon size={18} /></span>
+                  <span className="min-w-0 flex-1">
+                    <span className={`block font-semibold ${isActive(href) ? "text-brand" : ""}`}>{label}</span>
+                    <span className="block truncate text-[0.8rem] text-muted">{sub}</span>
+                  </span>
+                  {isActive(href) ? <span className="rounded-full bg-brand-soft px-2 py-0.5 text-[0.72rem] font-semibold text-brand">Here</span> : <ChevronRight size={17} className="text-faint" />}
                 </Link>
               ))}
-              <button onClick={logout} className="flex items-center gap-3 rounded-2xl border-[1.5px] border-line px-4 py-3.5 font-semibold text-bad"><LogOut size={18} /> Log out</button>
             </div>
+
+            <button onClick={logout} className="card mt-3 flex w-full items-center gap-3 px-4 py-3 text-left">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-bad-soft text-bad"><LogOut size={18} /></span>
+              <span className="flex-1 font-semibold text-bad">Log out</span>
+            </button>
           </div>
         </div>
       )}
 
       {/* Desktop: floating rail */}
-      <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_color-mix(in srgb, var(--side) 90%, transparent)] lg:flex">
+      <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_color-mix(in_srgb,var(--side)_90%,transparent)] lg:flex">
         <Link href="/" className="mb-6 px-1.5 pt-1"><Logo size={32} light /></Link>
         {body}
       </aside>

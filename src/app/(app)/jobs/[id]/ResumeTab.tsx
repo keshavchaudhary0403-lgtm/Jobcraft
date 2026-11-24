@@ -76,7 +76,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             </li>
           ))}
         </ul>
-        <div className="hidden rotate-2 rounded-2xl border border-line bg-white p-5 shadow-[0_24px_50px_-30px_color-mix(in srgb, var(--side) 50%, transparent)] md:block">
+        <div className="hidden rotate-2 rounded-2xl border border-line bg-white p-5 shadow-[0_24px_50px_-30px_color-mix(in_srgb,var(--side)_50%,transparent)] md:block">
           <div className="h-3 w-2/3 rounded bg-ink/80" />
           <div className="mt-2 h-2 w-1/2 rounded bg-line" />
           {[0, 1, 2].map((i) => (

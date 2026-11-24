@@ -247,7 +247,7 @@ export function JobView({
       </section>
 
       {/* Coach */}
-      <button onClick={() => setCoach(true)} className="fixed bottom-28 right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-side px-4 font-semibold lg:bottom-6 sm:right-6 sm:pl-5 sm:pr-6 text-cream shadow-[0_20px_40px_-16px_color-mix(in srgb, var(--side) 70%, transparent)] transition hover:bg-brand">
+      <button onClick={() => setCoach(true)} className="fixed bottom-28 right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-side px-4 font-semibold lg:bottom-6 sm:right-6 sm:pl-5 sm:pr-6 text-cream shadow-[0_20px_40px_-16px_color-mix(in_srgb,var(--side)_70%,transparent)] transition hover:bg-brand">
         <MessageCircle size={18} className="text-mustard" /> <span className="hidden sm:inline">Ask the coach</span>
       </button>
 

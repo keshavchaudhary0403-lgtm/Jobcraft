@@ -38,12 +38,12 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
       <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
           <h1 className="text-[2.6rem] font-bold leading-none">LinkedIn<span className="text-clay">.</span></h1>
-          <p className="mt-2 flex flex-wrap items-center gap-2 text-[1rem] text-muted">
-            Written to be found for <span className="font-semibold text-ink">{targetRole || "your next role"}</span>
-            <Link href="/profile" className="rounded-full border-[1.5px] border-line px-2.5 py-0.5 text-[0.8rem] font-semibold text-ink hover:border-brand/40">Change</Link>
+          <p className="mt-2 text-[1rem] leading-relaxed text-muted">
+            Written to be found for <span className="font-semibold text-ink">{targetRole || "your next role"}</span>{" "}
+            <Link href="/profile" className="ml-1 inline-block rounded-full border-[1.5px] border-line px-2.5 py-0.5 align-middle text-[0.8rem] font-semibold text-ink hover:border-brand/40">Change</Link>
           </p>
         </div>
-        <div className="flex gap-2">
+        <div className="flex w-full gap-2 sm:w-auto [&>*]:flex-1 sm:[&>*]:flex-none">
           {url && <a className="btn btn-ghost h-11" href={url} target="_blank" rel="noreferrer">Open my profile <ExternalLink size={14} /></a>}
           <button className="btn btn-clay h-11" disabled={busy} onClick={rewrite}>
             {busy ? <Spinner /> : res ? <RotateCcw size={15} /> : <Sparkles size={15} />} {res ? "Rewrite" : "Write my LinkedIn"}
