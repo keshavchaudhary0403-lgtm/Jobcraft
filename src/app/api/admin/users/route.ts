@@ -30,7 +30,9 @@ export async function GET() {
     daily[day] = (daily[day] ?? 0) + inr;
     active.add(r.user_id);
   }
-  return Response.json({ users, settings, total_spent_inr, by_feature, daily, calls, active_users: active.size, events: ev?.length ?? 0 });
+  // Which provider keys are set on the server (never the keys themselves).
+  const keys = { openai: !!process.env.OPENAI_API_KEY, anthropic: !!process.env.ANTHROPIC_API_KEY };
+  return Response.json({ users, settings: { ...settings, keys }, total_spent_inr, by_feature, daily, calls, active_users: active.size, events: ev?.length ?? 0 });
 }
 
 /** Create a user: name + (email and/or phone) + password. No email/OTP is sent. */

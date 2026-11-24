@@ -1,16 +1,46 @@
 import OpenAI from "openai";
+import Anthropic from "@anthropic-ai/sdk";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { DEMO, demoStructured } from "./demo";
 
 import { AI_MODELS, type ModelId } from "./models";
 export { AI_MODELS, DEFAULT_MODEL, isModelId, type ModelId } from "./models";
-import { DEFAULT_MODEL, isModelId } from "./models";
+import { DEFAULT_MODEL, isModelId, providerOf } from "./models";
 
 let _client: OpenAI | null = null;
 export function openai() {
   if (!_client) _client = new OpenAI(); // reads OPENAI_API_KEY
   return _client;
 }
+
+let _claude: Anthropic | null = null;
+export function claude() {
+  if (!_claude) _claude = new Anthropic(); // reads ANTHROPIC_API_KEY
+  return _claude;
+}
+
+/**
+ * Claude Opus 5.5 / Sonnet 5.5 can decline a request on safety grounds. With fallbacks on,
+ * the API re-runs a declined request on Anthropic's recommended fallback model in the same call.
+ */
+export function claudeFallback(model: ModelId): { betas?: Anthropic.Beta.AnthropicBeta[]; fallbacks?: "default" } {
+  return model === "claude-opus-5-5" || model === "claude-sonnet-5-5" ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" } : {};
+}
+
+/** Token usage in one shape for both providers. `input` includes cached and cache-write tokens. */
+export type Usage = { input: number; cached: number; cacheWrite: number; output: number };
+export function usageFromOpenAI(u: OpenAI.Responses.ResponseUsage | null | undefined): Usage | null {
+  if (!u) return null;
+  return { input: u.input_tokens ?? 0, cached: u.input_tokens_details?.cached_tokens ?? 0, cacheWrite: 0, output: u.output_tokens ?? 0 };
+}
+export function usageFromClaude(u: { input_tokens: number; output_tokens: number; cache_read_input_tokens?: number | null; cache_creation_input_tokens?: number | null } | null | undefined): Usage | null {
+  if (!u) return null;
+  const cached = u.cache_read_input_tokens ?? 0;
+  const cacheWrite = u.cache_creation_input_tokens ?? 0;
+  return { input: u.input_tokens + cached + cacheWrite, cached, cacheWrite, output: u.output_tokens };
+}
+/** OpenAI reasoning effort -> Claude effort (Claude has no "none"; thinking stays adaptive). */
+export const claudeEffort = (e: "none" | "low" | "medium" | "high") => (e === "none" ? "low" : e);
 
 export type Settings = {
   ai_model: string;
@@ -86,9 +116,9 @@ export function monthStartIST(now = new Date()) {
   return new Date(startIstAsUtc - 5.5 * 3600 * 1000).toISOString();
 }
 
-export function costUsd(model: ModelId, input: number, cached: number, output: number) {
+export function costUsd(model: ModelId, input: number, cached: number, output: number, cacheWrite = 0) {
   const p = AI_MODELS[model];
-  return ((input - cached) * p.input + cached * p.cached + output * p.output) / 1_000_000;
+  return (Math.max(0, input - cached - cacheWrite) * p.input + cached * p.cached + cacheWrite * p.cacheWrite + output * p.output) / 1_000_000;
 }
 
 async function sumCost(admin: SupabaseClient, userId?: string) {
@@ -103,7 +133,7 @@ export type AiMode = "real" | "demo" | "off";
 /**
  * Can this user use AI right now?
  * - ai_mode "off"  → blocked
- * - ai_mode "demo" → sample answers, no OpenAI call, no cost, no limits
+ * - ai_mode "demo" → sample answers, no AI call, no cost, no limits
  * - ai_mode "real" → monthly per-user + total limits apply
  */
 export async function checkLimits(admin: SupabaseClient, userId: string, profile: { monthly_limit_inr: number | null; ai_mode?: string | null }) {
@@ -130,12 +160,10 @@ export async function checkLimits(admin: SupabaseClient, userId: string, profile
 
 export async function logUsage(
   admin: SupabaseClient,
-  e: { userId: string; sessionId?: string | null; feature: string; model: ModelId; usage?: OpenAI.Responses.ResponseUsage | null },
+  e: { userId: string; sessionId?: string | null; feature: string; model: ModelId; usage?: Usage | null },
 ) {
   if (!e.usage) return;
-  const input = e.usage.input_tokens ?? 0;
-  const cached = e.usage.input_tokens_details?.cached_tokens ?? 0;
-  const output = e.usage.output_tokens ?? 0;
+  const { input, cached, cacheWrite, output } = e.usage;
   await admin.from("usage_events").insert({
     user_id: e.userId,
     session_id: e.sessionId ?? null,
@@ -144,7 +172,7 @@ export async function logUsage(
     input_tokens: input,
     cached_tokens: cached,
     output_tokens: output,
-    cost_usd: costUsd(e.model, input, cached, output),
+    cost_usd: costUsd(e.model, input, cached, output, cacheWrite),
   });
 }
 
@@ -157,31 +185,73 @@ export async function spendByUser(admin: SupabaseClient, usdToInr: number) {
 }
 
 export function aiErrorMessage(err: unknown) {
+  if (err instanceof Anthropic.RateLimitError) return "Claude is busy or the Anthropic credits have run out. Try again in a minute.";
+  if (err instanceof Anthropic.AuthenticationError) return "The Claude key is not set up correctly (ANTHROPIC_API_KEY).";
+  if (err instanceof Anthropic.APIError) return `Claude service error (${err.status ?? "network"}). Please try again.`;
   if (err instanceof OpenAI.RateLimitError) return "The AI is busy or the OpenAI credits have run out. Try again in a minute.";
   if (err instanceof OpenAI.AuthenticationError) return "The AI key is not set up correctly (OPENAI_API_KEY).";
   if (err instanceof OpenAI.APIError) return `AI service error (${err.status ?? "network"}). Please try again.`;
   return "Something went wrong. Please try again.";
 }
 
-/** One structured-output call. Returns parsed JSON + usage. */
+/** Input for one structured call: plain text, or a PDF plus a short note (resume upload). */
+export type AiInput = string | { pdf: { base64: string; filename: string }; text: string };
+
+/** One structured-output call on whichever provider the model belongs to. Returns parsed JSON + usage. */
 export async function runStructured<T>(opts: {
   model: ModelId;
   name: string;
   schema: object;
   instructions: string;
-  input: string | OpenAI.Responses.ResponseInputItem[];
+  input: AiInput;
   effort?: "none" | "low" | "medium" | "high";
   userId: string;
   /** Sample answer instead of a real AI call (user in demo mode). */
   demo?: boolean;
-}): Promise<{ data: T; usage: OpenAI.Responses.ResponseUsage | null | undefined }> {
+}): Promise<{ data: T; usage: Usage | null }> {
   if (DEMO || opts.demo) return { data: await demoStructured<T>(opts.name), usage: null };
   let effort = opts.effort ?? "low";
+
+  if (providerOf(opts.model) === "anthropic") {
+    const content: Anthropic.Beta.BetaContentBlockParam[] =
+      typeof opts.input === "string"
+        ? [{ type: "text", text: opts.input }]
+        : [
+            { type: "document", source: { type: "base64", media_type: "application/pdf", data: opts.input.pdf.base64 }, title: opts.input.pdf.filename },
+            { type: "text", text: opts.input.text },
+          ];
+    const res = await claude().beta.messages.create({
+      ...claudeFallback(opts.model),
+      model: opts.model,
+      max_tokens: 16000,
+      system: opts.instructions,
+      messages: [{ role: "user", content }],
+      output_config: { effort: claudeEffort(effort), format: { type: "json_schema", schema: opts.schema as Record<string, unknown> } },
+      metadata: { user_id: opts.userId },
+    });
+    if (res.stop_reason === "refusal") throw new Error("The AI declined this request. Try rewording it.");
+    if (res.stop_reason === "max_tokens") throw new Error("The AI answer was cut short. Please try again.");
+    const text = res.content.flatMap((b) => (b.type === "text" ? [b.text] : [])).join("");
+    return { data: humanise(JSON.parse(text)) as T, usage: usageFromClaude(res.usage) };
+  }
+
   if (effort === "none" && !AI_MODELS[opts.model].noneEffort) effort = "low";
+  const input: string | OpenAI.Responses.ResponseInputItem[] =
+    typeof opts.input === "string"
+      ? opts.input
+      : [
+          {
+            role: "user",
+            content: [
+              { type: "input_file", filename: opts.input.pdf.filename, file_data: `data:application/pdf;base64,${opts.input.pdf.base64}` },
+              { type: "input_text", text: opts.input.text },
+            ],
+          },
+        ];
   const res = await openai().responses.create({
     model: opts.model,
     instructions: opts.instructions,
-    input: opts.input,
+    input,
     reasoning: { effort },
     text: { format: { type: "json_schema", name: opts.name, schema: opts.schema as Record<string, unknown>, strict: true } },
     max_output_tokens: 32000,
@@ -189,7 +259,7 @@ export async function runStructured<T>(opts: {
     safety_identifier: opts.userId,
   });
   if (res.status === "incomplete") throw new Error("The AI answer was cut short. Please try again.");
-  return { data: humanise(JSON.parse(res.output_text)) as T, usage: res.usage };
+  return { data: humanise(JSON.parse(res.output_text)) as T, usage: usageFromOpenAI(res.usage) };
 }
 
 /** Strip typographic tells (long dashes, curly quotes, ellipsis characters) from AI text. */

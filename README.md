@@ -15,7 +15,7 @@ After that, every prompt is filled in from those details, so nobody has to re-ty
 
 The method from the *Get Hired Faster* prompt library runs in the backend (`src/lib/tasks.ts`, `src/lib/prompts.ts`). Users never see prompts.
 
-Built with Next.js 16, Supabase (auth + Postgres with Row Level Security), and the OpenAI API (default model `gpt-6.1-terra`; switchable in Admin).
+Built with Next.js 16, Supabase (auth + Postgres with Row Level Security), and the OpenAI API or Anthropic's Claude API (default model `gpt-6.1-terra`; the admin switches between ChatGPT and Claude in Admin → AI & spending). Realistic voice calls always use OpenAI.
 Voice uses the browser's built-in speech features (Chrome, Edge, Safari), so it adds no extra cost.
 
 ## Setup (about 15 minutes)
@@ -49,7 +49,7 @@ The Admin page avoids this.)
 
 ### 4. Run locally
 ```bash
-cp .env.example .env.local   # fill in the 3 Supabase values + OPENAI_API_KEY
+cp .env.example .env.local   # fill in the 3 Supabase values + OPENAI_API_KEY (+ ANTHROPIC_API_KEY for Claude)
 npm install
 npm run dev                  # http://localhost:3000
 ```
@@ -79,7 +79,7 @@ When a user reaches a limit, their AI features pause, with a clear message, unti
 The ₹ figures use a **live USD→INR rate** (open.er-api.com, with ECB rates via Frankfurter as backup), refreshed every 6 hours. Admins can switch to a fixed rate.
 
 Measured with GPT-6.1 Terra: resume import + match + tailored resume + outreach + LinkedIn cost about **₹1.50** in total. GPT-6 Luna is about 10× cheaper.
-Prices are set in `src/lib/models.ts`. Update them there if OpenAI changes its prices.
+Prices are set in `src/lib/models.ts`. Update them there if OpenAI or Anthropic changes its prices.
 
 **Existing projects:** run `supabase/002_usage_limits.sql`, `003_live_fx.sql` and `004_structured.sql` once in the SQL Editor. (`schema.sql` already includes it.)
 

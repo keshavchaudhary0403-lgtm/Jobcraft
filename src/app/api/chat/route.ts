@@ -1,7 +1,8 @@
 import { currentUser } from "@/lib/current-user";
 import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai, humaniseText } from "@/lib/ai";
+import { AI_MODELS, aiErrorMessage, checkLimits, claude, claudeEffort, claudeFallback, logUsage, openai, humaniseText, usageFromClaude, usageFromOpenAI } from "@/lib/ai";
+import { providerOf } from "@/lib/models";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
 import { DEMO, demoChat } from "@/lib/demo";
 import type { Application, Message, Profile, Session } from "@/lib/types";
@@ -116,6 +117,41 @@ export async function POST(req: Request) {
         }
         // Role-play turns should feel instant; writing tasks get more thought.
         const effort = roleplay ? (AI_MODELS[model].noneEffort ? "none" : "low") : "medium";
+        const cutShort = () => {
+          const note = "\n\n_(The answer was cut short. Say \"continue\" to get the rest.)_";
+          full += note;
+          controller.enqueue(encoder.encode(note));
+        };
+        if (providerOf(model) === "anthropic") {
+          // Claude needs the conversation to start with the candidate's turn.
+          const convo = messages[0]?.role === "assistant" ? [{ role: "user" as const, content: "(Start.)" }, ...messages] : messages;
+          const stream = claude().beta.messages.stream({
+            ...claudeFallback(model),
+            model,
+            max_tokens: 32000,
+            system: system,
+            messages: convo,
+            output_config: { effort: claudeEffort(effort) },
+            cache_control: { type: "ephemeral" }, // same session -> cached resume/JD -> cheaper
+            metadata: { user_id: user.id },
+          });
+          for await (const event of stream) {
+            if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+              const d = humaniseText(event.delta.text);
+              full += d;
+              controller.enqueue(encoder.encode(d));
+            }
+          }
+          const final = await stream.finalMessage();
+          await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: usageFromClaude(final.usage) });
+          if (final.stop_reason === "max_tokens") cutShort();
+          if (final.stop_reason === "refusal" && !full.trim()) {
+            const note = "The AI declined to answer that. Try rewording it.";
+            full += note;
+            controller.enqueue(encoder.encode(note));
+          }
+          return;
+        }
         const stream = openai().responses.stream({
           model,
           instructions: system,
@@ -134,12 +170,8 @@ export async function POST(req: Request) {
           }
         }
         const final = await stream.finalResponse();
-        await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: final.usage });
-        if (final.status === "incomplete") {
-          const note = "\n\n_(The answer was cut short. Say \"continue\" to get the rest.)_";
-          full += note;
-          controller.enqueue(encoder.encode(note));
-        }
+        await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: usageFromOpenAI(final.usage) });
+        if (final.status === "incomplete") cutShort();
       } catch (err) {
         const msg = aiErrorMessage(err);
         console.error("chat error", err);

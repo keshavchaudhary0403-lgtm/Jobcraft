@@ -2,10 +2,10 @@ import { currentUser } from "@/lib/current-user";
 import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkLimits, logUsage, runStructured, type ModelId } from "@/lib/ai";
+import { LIGHT_MODEL, providerOf } from "@/lib/models";
 import { buildTask, SCHEMAS, type DetectedJob } from "@/lib/tasks";
 
 // Reading a title and company name is simple - always use the cheapest model.
-const DETECT_MODEL: ModelId = "gpt-6-luna";
 
 /** Paste a JD → company / role / location suggestions for the user to confirm. */
 export async function POST(req: Request) {
@@ -21,6 +21,8 @@ export async function POST(req: Request) {
   if (await aiLimited(user.id, "detect", profile.feature_limits)) return Response.json({ data: null });
   const limits = await checkLimits(admin, user.id, profile);
   if (limits.error) return Response.json({ data: null });
+  // Reading a title from a JD is tiny: use the cheapest model of the provider the admin picked.
+  const DETECT_MODEL: ModelId = LIGHT_MODEL[providerOf(limits.settings.model)];
 
   const { instructions, input } = buildTask("detect_job", { profile: {} as never, extra: { jd: jd.slice(0, 12000) } });
   try {

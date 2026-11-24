@@ -23,8 +23,9 @@ import {
   SlidersHorizontal,
   Users,
   X,
+  AlertCircle,
 } from "lucide-react";
-import { AI_MODELS, VOICES } from "@/lib/models";
+import { AI_MODELS, PROVIDER_DEFAULT, PROVIDERS, VOICES, type Provider } from "@/lib/models";
 import { FEATURES, FEATURE_KEYS, effectiveLimit, type FeatureKey, type FeatureLimits } from "@/lib/features";
 import { Panel, Meter } from "@/components/ui";
 import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
@@ -56,6 +57,7 @@ type Settings = {
   demo_enabled: boolean;
   voice_name: string;
   feature_limits: FeatureLimits;
+  keys?: { openai: boolean; anthropic: boolean };
 };
 type Section = "overview" | "people" | "ai" | "features" | "demo";
 
@@ -99,6 +101,7 @@ export function AdminUsers({ meId }: { meId: string }) {
   const [section, setSectionRaw] = useState<Section>("overview");
   const [openId, setOpenId] = useState<string | null>(null);
   const [pendingModel, setPendingModel] = useState<string | null>(null);
+  const [viewProvider, setViewProvider] = useState<Provider | null>(null);
   const [demoBusy, setDemoBusy] = useState(false);
   const [q, setQ] = useState("");
   const [adding, setAdding] = useState(false);
@@ -275,8 +278,29 @@ export function AdminUsers({ meId }: { meId: string }) {
             <div className="grid gap-5 fade-up xl:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <section className="card p-5">
                 <div className="card-head"><span className="ico"><Bot size={15} /></span><span className="flex-1">AI model</span><span className="text-[0.82rem] font-normal text-muted">Used for everyone</span></div>
+                {(() => {
+                  const chosen = (pendingModel ?? settings.ai_model) as keyof typeof AI_MODELS;
+                  const prov: Provider = viewProvider ?? AI_MODELS[chosen]?.provider ?? "openai";
+                  const liveProv = AI_MODELS[settings.ai_model as keyof typeof AI_MODELS]?.provider;
+                  const ready = settings.keys?.[prov] ?? true;
+                  return (
+                    <>
+                      <div className="mb-3 grid grid-cols-2 gap-1 rounded-full border-[1.5px] border-line p-1">
+                        {(Object.keys(PROVIDERS) as Provider[]).map((p) => (
+                          <button key={p} type="button" onClick={() => { setViewProvider(p); if (AI_MODELS[chosen]?.provider !== p) setPendingModel(PROVIDER_DEFAULT[p] === settings.ai_model ? null : PROVIDER_DEFAULT[p]); }} className={`flex h-9 items-center justify-center gap-2 rounded-full text-[0.9rem] font-semibold transition ${prov === p ? "bg-side text-cream" : "text-muted hover:text-ink"}`}>
+                            {PROVIDERS[p].short}
+                            {liveProv === p && <span className="chip bg-good-soft px-1.5 py-0 text-[0.7rem] text-good">Live</span>}
+                          </button>
+                        ))}
+                      </div>
+                      {!ready && (
+                        <div className="mb-3 flex items-start gap-2.5 rounded-2xl border-l-4 border-bad bg-bad-soft px-4 py-3 text-[0.86rem]">
+                          <AlertCircle size={16} className="mt-0.5 shrink-0 text-bad" />
+                          <span>No {PROVIDERS[prov].short} key on the server yet. Add <b className="font-mono text-[0.8rem]">{PROVIDERS[prov].key}</b> in Vercel (Settings → Environment Variables), redeploy, then switch here.</span>
+                        </div>
+                      )}
                 <div className="grid gap-2.5">
-                  {Object.entries(AI_MODELS).map(([id, m]) => {
+                  {Object.entries(AI_MODELS).filter(([, m]) => m.provider === prov).map(([id, m]) => {
                     const on = (pendingModel ?? settings.ai_model) === id;
                     return (
                       <button key={id} data-on={on} onClick={() => setPendingModel(id === settings.ai_model ? null : id)} className="option flex flex-col gap-2 p-4">
@@ -291,12 +315,15 @@ export function AdminUsers({ meId }: { meId: string }) {
                     );
                   })}
                 </div>
+                    </>
+                  );
+                })()}
                 {pendingModel && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-soft px-4 py-3 fade-up">
-                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?</span>
+                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.provider !== AI_MODELS[settings.ai_model as keyof typeof AI_MODELS]?.provider && <span className="block text-[0.8rem] text-muted">Realistic voice calls stay on OpenAI - Claude has no live voice.</span>}</span>
                     <span className="flex gap-2">
-                      <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
-                      <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); }}>Save</button>
+                      <button className="btn btn-ghost btn-sm" onClick={() => { setPendingModel(null); setViewProvider(null); }}>Cancel</button>
+                      <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); setViewProvider(null); }}>Save</button>
                     </span>
                   </div>
                 )}
@@ -311,7 +338,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 )}
                 <div className="space-y-4">
                   <LimitField label="Default per person / month" value={settings.default_monthly_limit_inr} onSave={(v) => saveSettings({ default_monthly_limit_inr: v })} hint="For everyone without their own limit, including new people." />
-                  <LimitField label="Total budget, everyone / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your OpenAI credits." />
+                  <LimitField label="Total budget, everyone / month" value={settings.total_monthly_limit_inr} onSave={(v) => saveSettings({ total_monthly_limit_inr: v })} hint="Safety cap for your AI credits (ChatGPT or Claude)." />
                   <div className="border-t border-line pt-4">
                     <label className="label">Dollar to rupee</label>
                     <div className="flex items-center gap-2">

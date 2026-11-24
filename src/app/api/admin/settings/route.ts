@@ -1,6 +1,6 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { isModelId } from "@/lib/ai";
-import { isVoiceId } from "@/lib/models";
+import { isVoiceId, PROVIDERS, providerOf } from "@/lib/models";
 import { cleanLimits } from "@/lib/features";
 import { requireAdmin } from "@/lib/admin";
 
@@ -19,6 +19,8 @@ export async function PATCH(req: Request) {
   const patch: Record<string, unknown> = { id: 1, updated_at: new Date().toISOString() };
   if (body.ai_model !== undefined) {
     if (!isModelId(body.ai_model)) return Response.json({ error: "Unknown model" }, { status: 400 });
+    const p = providerOf(body.ai_model);
+    if (!process.env[PROVIDERS[p].key]) return Response.json({ error: `Add ${PROVIDERS[p].key} to the server settings first, then switch to ${PROVIDERS[p].short}.` }, { status: 400 });
     patch.ai_model = body.ai_model;
   }
   for (const k of ["default_monthly_limit_inr", "total_monthly_limit_inr"] as const) {

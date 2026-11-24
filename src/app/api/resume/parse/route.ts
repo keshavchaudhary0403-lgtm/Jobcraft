@@ -33,15 +33,7 @@ export async function POST(req: Request) {
     if (file.type !== "application/pdf") return Response.json({ error: "Please upload a PDF." }, { status: 400 });
     if (file.size > 8 * 1024 * 1024) return Response.json({ error: "PDF must be under 8 MB." }, { status: 400 });
     const data = Buffer.from(await file.arrayBuffer()).toString("base64");
-    input = [
-      {
-        role: "user",
-        content: [
-          { type: "input_file", filename: file.name || "resume.pdf", file_data: `data:application/pdf;base64,${data}` },
-          { type: "input_text", text: "This is my resume." },
-        ],
-      },
-    ];
+    input = { pdf: { base64: data, filename: file.name || "resume.pdf" }, text: "This is my resume." };
   } else if (text && text.length > 100) {
     input = text;
   } else {
