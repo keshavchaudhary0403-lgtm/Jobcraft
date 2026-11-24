@@ -251,7 +251,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
             </>
           )}
         </div>
-        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-clay-2"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
+        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-bad"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
       <div className="card thin-scroll min-h-[320px] flex-1 overflow-y-auto p-5 xl:min-h-0">

@@ -16,7 +16,7 @@ export function SessionList({ sessions, base, empty }: { sessions: Session[]; ba
           <li key={s.id}>
             <Link href={`${base}/${s.id}`} className="group flex items-center gap-3 rounded-2xl px-3 py-2.5 transition hover:bg-line-2">
               {typeof score === "number" ? (
-                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-[1rem] font-bold ${score >= 8 ? "bg-good-soft text-good" : score >= 6 ? "bg-mustard-soft text-mustard-ink" : "bg-clay-soft text-clay"}`}>{score}</span>
+                <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-[1rem] font-bold ${score >= 8 ? "bg-good-soft text-good" : score >= 6 ? "bg-mustard-soft text-mustard-ink" : "bg-bad-soft text-bad"}`}>{score}</span>
               ) : (
                 <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-[0.78rem] text-faint">-</span>
               )}

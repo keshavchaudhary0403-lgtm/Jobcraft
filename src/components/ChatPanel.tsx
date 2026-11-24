@@ -180,7 +180,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             }}
           />
           <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white shadow-[0_8px_18px_-10px_var(--act-glow)] transition hover:bg-clay-ink disabled:bg-line disabled:text-faint disabled:shadow-none"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white shadow-[0_8px_18px_-10px_var(--act-glow)] transition hover:bg-clay-ink disabled:opacity-40 disabled:shadow-none"
             disabled={busy || !input.trim()}
             onClick={() => {
               const t = input;

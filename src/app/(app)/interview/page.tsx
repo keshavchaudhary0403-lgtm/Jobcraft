@@ -47,9 +47,9 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             preselect={preselect}
             otherFields={
               <div className="grid gap-3 sm:grid-cols-2">
-                <input name="company" className="field" placeholder="Company" />
-                <input name="role" className="field" placeholder="Role" />
-                <textarea name="jd" className="field sm:col-span-2" rows={4} placeholder="Job description (recommended)" />
+                <div><label className="label">Company <span className="text-clay">*</span></label><input name="company" required maxLength={80} className="field" placeholder="e.g. Swiggy" /></div>
+                <div><label className="label">Role <span className="text-clay">*</span></label><input name="role" required maxLength={90} className="field" placeholder="e.g. Category Manager" /></div>
+                <div className="sm:col-span-2"><label className="label">Job description <span className="rounded-full bg-line-2 px-1.5 py-px text-[0.7rem] font-semibold text-muted">Recommended</span></label><textarea name="jd" className="field" rows={4} placeholder="Paste it so questions match the real job" /></div>
               </div>
             }
           />

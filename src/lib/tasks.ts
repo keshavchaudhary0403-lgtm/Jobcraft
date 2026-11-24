@@ -177,8 +177,12 @@ export function buildTask(
       return {
         instructions: `Read the resume and fill the fields.
 - resume_text: the full resume as clean plain text. Keep every word, number and date exactly. Section headings in CAPS, bullets as "- ".
+- full_name: the person's name as written, in normal capitalisation ("Priya Sharma", not "PRIYA SHARMA").
+- current_title: the job title of the most recent role only, e.g. "Regional Head - North India". No company name.
 - target_role: the most likely next role plus industry, e.g. "Digital Marketing Manager in e-commerce / D2C".
-- experience_years: e.g. "about 4 years", from the dates.
+- experience_years: total years of full-time work from the dates, written only as "N years" or "N+ years" (e.g. "4 years", "5+ years"). Internships don't count. Null if there are no dates.
+- city: the current city only, e.g. "Bengaluru" or "Delhi / NCR". No state, country or pincode.
+- linkedin_url: only if a linkedin.com/in/ link is written in the resume; never guess one.
 - strongest_proof: the 1-2 strongest results that have real numbers, copied faithfully, one line.
 - skills: up to 12 skills or tools actually named in the resume.
 Use null when the resume doesn't say. ${TRUTH_RULE}`,

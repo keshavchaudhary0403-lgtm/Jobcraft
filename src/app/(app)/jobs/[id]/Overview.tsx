@@ -297,7 +297,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score
                   </button>
                 </div>
-                {error && <p className="mt-2 text-[0.86rem] text-clay-2">{error}</p>}
+                {error && <p className="mt-2 text-[0.86rem] text-bad">{error}</p>}
               </section>
             )}
 

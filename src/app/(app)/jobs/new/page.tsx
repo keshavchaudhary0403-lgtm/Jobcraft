@@ -1,5 +1,6 @@
 "use client";
 
+import { formatCity, formatTitle } from "@/lib/profile-format";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowRight, Building2, DownloadCloud, Link2, MapPin, Sparkles, UserRound } from "lucide-react";
@@ -95,9 +96,9 @@ export default function NewJob() {
         user_id: user!.id,
         jd: jd.trim(),
         job_url: url.trim() || null,
-        company: f.company.trim(),
-        role: f.role.trim(),
-        location: f.location.trim() || null,
+        company: formatTitle(f.company, 80),
+        role: formatTitle(f.role),
+        location: formatCity(f.location) || null,
         company_type: f.company_type.trim() || null,
       })
       .select("id")
@@ -116,7 +117,7 @@ export default function NewJob() {
     return (
       <div key={k}>
         <label className="label flex items-center justify-between">
-          <span>{label}</span>
+          <span>{label}{k !== "location" ? <span className="ml-1 text-clay">*</span> : null}</span>
           {auto[k] && <span className="chip bg-mustard-soft px-1.5 py-0 text-[0.78rem] text-mustard-ink"><Sparkles size={10} /> from JD</span>}
         </label>
         <div className="relative">
@@ -124,7 +125,7 @@ export default function NewJob() {
           {detecting && !f[k] ? (
             <div className="skeleton h-[2.6rem] w-full rounded-[14px]" />
           ) : (
-            <input className="field pl-9" value={f[k]} onChange={(e) => set(k, e.target.value)} placeholder={placeholder} />
+            <input className="field pl-9" maxLength={k === "role" ? 90 : 80} value={f[k]} onChange={(e) => set(k, e.target.value)} onBlur={() => { const v = k === "location" ? formatCity(f[k]) : formatTitle(f[k]); if (v !== f[k]) setF((x) => ({ ...x, [k]: v })); }} placeholder={placeholder} />
           )}
         </div>
       </div>

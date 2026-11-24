@@ -1,3 +1,4 @@
+import { cleanBasics } from "@/lib/profile-format";
 import { currentUser } from "@/lib/current-user";
 import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
@@ -59,7 +60,7 @@ export async function POST(req: Request) {
       userId: user.id,
     });
     await logUsage(admin, { userId: user.id, feature: "resume_import", model, usage });
-    return Response.json({ data });
+    return Response.json({ data: cleanBasics(data) });
   } catch (err) {
     console.error("resume parse", err);
     return Response.json({ error: aiErrorMessage(err) }, { status: 500 });

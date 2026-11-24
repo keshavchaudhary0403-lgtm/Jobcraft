@@ -1,5 +1,8 @@
 "use client";
 
+import { CtcField, ExperienceField, TextField } from "@/components/BasicFields";
+import { ctcInput, formatCtc, normaliseBasics } from "@/lib/profile-format";
+
 import { useState } from "react";
 import { Check, ExternalLink, IndianRupee, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -8,7 +11,10 @@ import type { Application } from "@/lib/types";
 import { JobPicker } from "@/components/JobPicker";
 
 /** First one or two numbers in a salary string ("9 LPA", "8-12 LPA"). */
-const nums = (s: string) => (s.replace(/,/g, "").match(/\d+(\.\d+)?/g) ?? []).map(Number).filter((n) => n > 0);
+/** "9", "9 LPA", "9,00,000" -> 9 (lakh). */
+const lakh = (s: string) => { const f = formatCtc(s); return f ? Number(ctcInput(f)) : undefined; };
+/** "8-12", "8 to 12 LPA", "₹8L - ₹12L" -> [8, 12] (lakh). */
+const range = (s: string): number[] => s.split(/\s*(?:-|–|—|\bto\b)\s*/i).map((x) => lakh(/\d/.test(x) ? x + (/(l|lakh|lpa|cr|k)\b/i.test(s) && !/(l|lakh|lpa|cr|k)\b/i.test(x) ? " " + (s.match(/(lpa|lakh|cr|l|k)\b/i)?.[1] ?? "") : "") : "")).filter((n): n is number => n != null);
 
 type Defaults = { city: string; current_ctc: string; experience: string; strongest_proof: string };
 type A = Pick<Application, "id" | "company" | "role" | "status" | "company_type" | "location" | "analysis">;
@@ -26,10 +32,14 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
   const dirty = JSON.stringify(vals) !== JSON.stringify(saved);
   const [offered, setOffered] = useState("");
   const [market, setMarket] = useState("");
-  const o = nums(offered)[0];
-  const m = nums(market);
+  const o = lakh(offered);
+  const m = range(market);
   const lo = m[0];
   const hi = m[1] ?? m[0];
+  const [tried, setTried] = useState(false);
+  const offerBad = (tried || !!offered.trim()) && o == null;
+  const marketBad = (tried || !!market.trim()) && (m.length !== 2 || m[1] < m[0]);
+  const fmt = (n: number) => String(Math.round(n * 10) / 10);
 
   function cancel() {
     setVals(saved);
@@ -40,13 +50,17 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
     setSaving(true);
     setSaveMsg("");
     const t = (x: string) => x.trim() || null;
+    const { value: c, errors } = normaliseBasics({ current_ctc: vals.current_ctc, experience_years: vals.experience, city: vals.city });
+    if (Object.keys(errors).length) { setSaving(false); return setSaveMsg("Fix the fields marked in red"); }
+    const next = { ...vals, current_ctc: c.current_ctc ?? "", experience: c.experience_years ?? "", city: c.city ?? "" };
+    setVals(next);
     const { error } = await createClient()
       .from("profiles")
-      .update({ current_ctc: t(vals.current_ctc), experience_years: t(vals.experience), city: t(vals.city), strongest_proof: t(vals.strongest_proof) })
+      .update({ current_ctc: t(next.current_ctc), experience_years: t(next.experience), city: t(next.city), strongest_proof: t(vals.strongest_proof) })
       .eq("id", userId);
     setSaving(false);
     if (error) return setSaveMsg("Couldn't save. Try again.");
-    setSaved(vals);
+    setSaved(next);
     setEdit(false);
     setJustSaved(true);
     setTimeout(() => setJustSaved(false), 2500);
@@ -79,8 +93,13 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
             onPick={setAppId}
             otherFields={
               <div className="grid gap-2">
-                <input name="role" className="field" placeholder="Role offered" />
-                <input name="company_type" className="field" placeholder="Company type (startup, MNC...)" />
+                <div><label className="label">Role offered <span className="text-clay">*</span></label><input name="role" required maxLength={90} className="field" placeholder="e.g. Senior Product Manager" /></div>
+                <div><label className="label">Company type <span className="text-clay">*</span></label>
+                  <select name="company_type" required className="field" defaultValue="">
+                    <option value="" disabled>Choose one</option>
+                    {["Startup", "Growth-stage startup", "MNC", "Indian large company", "Agency / consulting", "Government / PSU"].map((t) => <option key={t}>{t}</option>)}
+                  </select>
+                </div>
               </div>
             }
           />
@@ -100,8 +119,10 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
         <div className="flex flex-col border-line p-6 lg:border-l" style={{ background: "var(--color-cream)" }}>
           <StepHead n={2} title="Is it fair?" />
           <div className="grid gap-4 sm:grid-cols-2">
-            <BigInput label="Offered CTC" name="offered_ctc" placeholder="9 LPA" value={offered} onChange={setOffered} />
-            <BigInput label="Market range" name="market_range" placeholder="8-12 LPA" value={market} onChange={setMarket} />
+            <BigInput label="Offered CTC" placeholder="9" value={offered} onChange={setOffered} bad={offerBad} hint={offerBad ? "Enter the yearly offer in lakh, e.g. 9" : "Yearly, in lakh"} onBlur={() => o != null && setOffered(fmt(o))} />
+            <BigInput label="Market range" placeholder="8 - 12" value={market} onChange={setMarket} bad={marketBad} hint={marketBad ? "Enter low and high in lakh, e.g. 8 - 12" : "Low - high, in lakh"} onBlur={() => m.length === 2 && m[1] >= m[0] && setMarket(`${fmt(m[0])} - ${fmt(m[1])}`)} />
+            <input type="hidden" name="offered_ctc" value={o != null ? `₹${fmt(o)} LPA` : ""} />
+            <input type="hidden" name="market_range" value={m.length === 2 ? `₹${fmt(m[0])} - ₹${fmt(m[1])} LPA` : ""} />
           </div>
           <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.8rem] text-muted">
             Look up the market on
@@ -124,12 +145,12 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
           {saveMsg && <p className="mb-2 text-[0.82rem] text-bad">{saveMsg}</p>}
           {justSaved && <p className="mb-2 flex items-center gap-1 text-[0.82rem] text-good"><Check size={13} /> Saved to your profile</p>}
           {edit ? (
-            <div className="grid grid-cols-3 gap-3">
-              <div><label className="label">Current CTC</label><input className="field" value={vals.current_ctc} onChange={(e) => setVals({ ...vals, current_ctc: e.target.value })} placeholder="₹12 LPA" /></div>
-              <div><label className="label">Experience</label><input className="field" value={vals.experience} onChange={(e) => setVals({ ...vals, experience: e.target.value })} placeholder="5 years" /></div>
-              <div><label className="label">City</label><input className="field" value={vals.city} onChange={(e) => setVals({ ...vals, city: e.target.value })} /></div>
-              <div className="col-span-3"><label className="label">Best results (with numbers)</label><textarea className="field" rows={3} value={vals.strongest_proof} onChange={(e) => setVals({ ...vals, strongest_proof: e.target.value })} /></div>
-              <p className="col-span-3 text-[0.78rem] text-muted">Saving also updates My profile.</p>
+            <div className="grid gap-3 sm:grid-cols-3">
+              <CtcField label="Current CTC" required value={vals.current_ctc} onChange={(v) => setVals({ ...vals, current_ctc: v })} />
+              <ExperienceField label="Experience" required value={vals.experience} onChange={(v) => setVals({ ...vals, experience: v })} />
+              <TextField kind="city" label="City" required value={vals.city} onChange={(v) => setVals({ ...vals, city: v })} placeholder="e.g. Bengaluru" />
+              <div className="sm:col-span-3"><label className="label">Best results (with numbers)</label><textarea className="field resize-none" rows={3} maxLength={500} value={vals.strongest_proof} placeholder="e.g. Grew monthly revenue from ₹8.5L to ₹25L in 3 months." onChange={(e) => setVals({ ...vals, strongest_proof: e.target.value })} /></div>
+              <p className="text-[0.78rem] text-muted sm:col-span-3">Saving also updates My profile.</p>
             </div>
           ) : (
             <div className="grid flex-1 gap-4 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
@@ -160,7 +181,8 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
               </li>
             ))}
           </ol>
-          <button className="btn btn-clay mt-5 h-12 w-full text-[1rem]" disabled={edit}>Start practice</button>
+          <button className="btn btn-clay mt-5 h-12 w-full text-[1rem]" disabled={edit} onClick={(e) => { if (o == null || m.length !== 2 || m[1] < m[0]) { e.preventDefault(); setTried(true); } }}>Start practice</button>
+          {tried && (o == null || m.length !== 2 || m[1] < m[0]) && <p className="mt-2 rounded-xl bg-white/12 px-3 py-2 text-center text-[0.82rem] font-semibold text-white">Add the offered CTC and the market range above first.</p>}
           {edit && <span className="mt-1.5 text-center text-[0.8rem] text-white/60">Save your details first</span>}
         </section>
       </div>
@@ -178,15 +200,19 @@ function StepHead({ n, title, action }: { n: number; title: string; action?: Rea
   );
 }
 
-function BigInput({ label, name, placeholder, value, onChange }: { label: string; name: string; placeholder: string; value: string; onChange: (v: string) => void }) {
+function BigInput({ label, placeholder, value, onChange, onBlur, bad, hint }: { label: string; placeholder: string; value: string; onChange: (v: string) => void; onBlur: () => void; bad: boolean; hint: string }) {
   return (
-    <label className="block rounded-2xl border-[1.5px] border-line bg-card px-4 py-3 transition focus-within:border-brand">
-      <span className="text-[0.76rem] font-semibold uppercase tracking-[0.12em] text-muted">{label}</span>
-      <span className="mt-1 flex items-center gap-1.5">
-        <IndianRupee size={18} className="text-faint" />
-        <input name={name} required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} className="w-full bg-transparent font-display text-[1.5rem] font-bold outline-none placeholder:text-faint/70" />
-      </span>
-    </label>
+    <div>
+      <label className={`block rounded-2xl border-[1.5px] bg-card px-4 py-3 transition focus-within:border-brand ${bad ? "border-bad/60" : "border-line"}`}>
+        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.12em] text-muted">{label}</span>
+        <span className="mt-1 flex items-center gap-1.5">
+          <IndianRupee size={18} className="shrink-0 text-faint" />
+          <input inputMode="decimal" required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className="w-full min-w-0 bg-transparent font-display text-[1.5rem] font-bold outline-none placeholder:text-faint/70" />
+          <span className="shrink-0 rounded-[10px] bg-line-2 px-2 py-1 text-[0.8rem] font-semibold text-muted">LPA</span>
+        </span>
+      </label>
+      <p className={`mt-1.5 text-[0.78rem] ${bad ? "font-medium text-bad" : "text-muted"}`}>{hint}</p>
+    </div>
   );
 }
 
