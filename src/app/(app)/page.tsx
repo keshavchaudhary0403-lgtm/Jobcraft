@@ -54,7 +54,7 @@ export default async function Home() {
     { label: "Resume", show: health != null ? `${health}/100` : "Not added", color: "#ffffff", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
     { label: "Job match", show: avg != null ? `${avg}% avg` : "No jobs", color: "#ffffff", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
     { label: "Job prep", show: `${Math.round((saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0) * 100)}%`, color: "#ffffff", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
-    { label: "Applying", show: `${thisWeek}/${GOAL} this week`, color: "#ffffff", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
+    { label: "Applied this week", show: `${thisWeek}/${GOAL}`, color: "#ffffff", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
     { label: "Mock interviews", show: `${Math.min(interviews.length, 3)}/3`, color: "#ffffff", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
     { label: "LinkedIn", show: profile.linkedin_result ? "Done" : "Not yet", color: "#ffffff", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
   ];
@@ -86,42 +86,38 @@ export default async function Home() {
     <div className="space-y-5">
       {/* ── Hero band ── */}
       <section className="dark-card overflow-hidden fade-up">
-        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1.1fr)_auto_minmax(0,1.2fr)] lg:items-center">
-          <div>
-            <h1 className="text-[2.5rem] font-bold leading-[0.95] text-cream xl:text-[2.8rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-            {profile.target_role && (
-              <p className="mt-3 flex flex-wrap items-center gap-2 text-[0.92rem] text-white/60">
-                Target role
-                <Link href="/profile" className="rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20">{profile.target_role}</Link>
-              </p>
-            )}
-            {limit != null && <p className="mt-3 text-[0.84rem] text-white/60">AI credit left this month: <b className="text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> of ₹{limit}</p>}
+        <div className="p-6 sm:p-7">
+          {/* Top row: who + readiness */}
+          <div className="flex flex-wrap items-center justify-between gap-6">
+            <div className="min-w-0">
+              <h1 className="text-[2.4rem] font-bold leading-[0.95] text-white xl:text-[2.7rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
+              {profile.target_role && (
+                <p className="mt-3 flex flex-wrap items-center gap-2 text-[0.9rem] text-white/60">
+                  Target role
+                  <Link href="/profile" className="rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20">{profile.target_role}</Link>
+                </p>
+              )}
+              {limit != null && <p className="mt-2.5 text-[0.84rem] text-white/60">AI credit left this month: <b className="text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> of ₹{limit}</p>}
+            </div>
+            <Link href={lift.href} className="flex items-center gap-4">
+              <ScoreRing value={score} />
+              <span>
+                <span className="block text-[0.84rem] text-white/60">Job-search readiness</span>
+                <span className="block font-display text-[1.3rem] font-bold leading-tight text-white">{word}</span>
+                <span className="mt-1 block text-[0.78rem] text-white/50">Made up of the six parts below</span>
+              </span>
+            </Link>
           </div>
 
-          <Link href={lift.href} className="flex flex-col items-center gap-2 lg:px-2">
-            <ScoreRing value={score} />
-            <span className="text-center">
-              <span className="block text-[0.8rem] font-semibold text-white">Job-search readiness</span>
-              <span className="block text-[0.74rem] text-white/55">{word}</span>
-            </span>
-          </Link>
-
-          {/* What the readiness % is made of */}
-          <div className="rounded-2xl bg-white/[.08] p-4 ring-1 ring-white/15">
-            <div className="mb-2.5 flex items-baseline justify-between">
-              <span className="text-[0.78rem] font-semibold uppercase tracking-[0.12em] text-white/60">What makes up {score}%</span>
-            </div>
-            <ul className="space-y-2">
-              {parts.map((p) => (
-                <li key={p.label}>
-                  <Link href={p.href} className="group grid grid-cols-[6.5rem_minmax(0,1fr)_auto] items-center gap-3 text-[0.82rem]">
-                    <span className="truncate text-white/80 group-hover:text-white">{p.label}</span>
-                    <span className="h-1.5 overflow-hidden rounded-full bg-white/15"><span className="block h-full rounded-full" style={{ width: `${Math.max(p.value * 100, p.value > 0 ? 4 : 0)}%`, background: p.value >= 1 ? "#5fd99a" : "var(--hero-accent)" }} /></span>
-                    <span className="w-[5.5rem] text-right font-semibold tabular-nums text-white">{p.show}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          {/* Six parts, as glass tiles */}
+          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6">
+            {parts.map((p, i) => (
+              <Link key={p.label} href={p.href} data-tone={[0, 1, 3][i % 3]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5 transition hover:bg-white/[.14]">
+                <span className="block truncate text-[0.78rem] text-white/60">{p.label}</span>
+                <span className="mt-0.5 block truncate font-display text-[1.1rem] font-bold tabular-nums text-white">{p.show}</span>
+                <span className="mt-2 block h-1.5 overflow-hidden rounded-full bg-white/15"><span className="block h-full rounded-full" style={{ width: `${Math.max(p.value * 100, p.value > 0 ? 4 : 0)}%`, background: p.value >= 1 ? "#5fd99a" : "var(--hero-accent)" }} /></span>
+              </Link>
+            ))}
           </div>
         </div>
         {gain > 0 && (
@@ -222,7 +218,7 @@ export default async function Home() {
 
 /** Ring made of the six score parts: each arc's length is its weight, the bright part is what you've earned. */
 function ScoreRing({ value }: { value: number }) {
-  const size = 132, stroke = 13, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const size = 112, stroke = 11, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
@@ -231,7 +227,7 @@ function ScoreRing({ value }: { value: number }) {
       </svg>
       <div className="donut-hub" style={{ inset: stroke + 7 }}>
         <span className="flex items-baseline font-display font-bold leading-none tabular-nums text-white">
-          <span className="text-[2.1rem]">{value}</span><span className="ml-0.5 text-[1.05rem] text-white/70">%</span>
+          <span className="text-[1.75rem]">{value}</span><span className="ml-0.5 text-[0.9rem] text-white/70">%</span>
         </span>
       </div>
     </div>
