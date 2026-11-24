@@ -33,8 +33,9 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
   if (!r)
     return (
       <div className="card p-6 text-center">
-        <div className="mx-auto grid h-[120px] w-[120px] place-items-center rounded-full border-[10px] border-dashed border-line">
-          <span className="font-display text-[1.8rem] font-bold text-faint">?<span className="text-[0.9rem]">/10</span></span>
+        <div className="mx-auto w-[140px]">
+          <div className="font-display text-[2rem] font-bold leading-none text-faint">?<span className="text-[0.95rem]">/10</span></div>
+          <Meter value={0} className="mt-2" height={7} />
         </div>
         <div className="mt-4 font-display text-[1.25rem] font-bold">Your scorecard</div>
         <p className="mt-1 text-[0.88rem] text-muted">

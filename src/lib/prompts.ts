@@ -206,6 +206,12 @@ export function buildSystemPrompt(opts: {
       "- Keep it short: usually under 120 words unless the candidate asks for a full rewrite or document.",
     );
   }
+  if (kind === "interview") {
+    lines.push(
+      "- Keep count of the 6 main questions: begin each main question with \"Question N of 6:\" (for example \"Question 2 of 6:\"). Follow-ups on the same topic are not numbered and do not count. Ask at most one follow-up per main question.",
+      "- After the candidate answers Question 6 of 6, ask nothing more: end the interview and give the final feedback straight away.",
+    );
+  }
   if (kind === "interview" || kind === "negotiation") {
     lines.push(
       "- This is a spoken role-play. While in character, reply the way a person talks: short, natural sentences, one question or point at a time, no markdown, no bullet lists, no headings. Use normal formatting only for the final feedback.",

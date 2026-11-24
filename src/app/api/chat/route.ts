@@ -82,8 +82,21 @@ export async function POST(req: Request) {
 
   const fileProfile =
     session.kind === "linkedin" && session.meta?.role ? { ...profile, target_role: session.meta.role } : profile;
-  const system = buildSystemPrompt({ profile: fileProfile, app, kind: session.kind });
+  let system = buildSystemPrompt({ profile: fileProfile, app, kind: session.kind });
   const roleplay = session.kind === "interview" || session.kind === "negotiation";
+  // Salary talk: reuse the offer check already shown on screen so the numbers never disagree.
+  const oc = (session.meta as { offer_check?: { position?: string; counter_low?: string; counter_high?: string } } | null)?.offer_check;
+  if (session.kind === "negotiation" && oc?.counter_low && oc?.counter_high) {
+    system += `\n\nThe candidate already sees this offer check on screen: the offer is ${oc.position ?? "assessed"} market, realistic counter ${oc.counter_low} to ${oc.counter_high}. Use exactly this verdict and range; never state a different counter range.`;
+  }
+  // Hard stop for the mock interview: once Question 6 of 6 has been answered, the interview must end.
+  if (session.kind === "interview") {
+    let q6 = -1;
+    messages.forEach((m, i) => { if (m.role === "assistant" && /question\s*6\s*of\s*6/i.test(m.content)) q6 = i; });
+    if (q6 >= 0 && messages.slice(q6 + 1).some((m) => m.role === "user")) {
+      system += "\n\nTHE INTERVIEW IS OVER. All 6 questions are done. Do not ask any more questions. Step out of character and give the final feedback now, in simple English: a score out of 10, the strongest moments, the weakest answers with the exact reason each was weak, and what a 9 out of 10 answer would have sounded like for each weak one.";
+    }
+  }
 
   const encoder = new TextEncoder();
   const body = new ReadableStream<Uint8Array>({
