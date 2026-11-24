@@ -176,7 +176,7 @@ export function buildTask(
     case "parse_resume":
       return {
         instructions: `Read the resume and fill the fields.
-- resume_text: the full resume as clean plain text. Keep every word, number and date exactly. Section headings in CAPS, bullets as "- ".
+- resume_text: the full resume as clean plain text. Keep every word, number and date exactly. Section headings in CAPS, bullets as "- ". If links are listed with the resume, write those linked words as Markdown links [words](address) - same words, exact address, nothing else linked.
 - full_name: the person's name as written, in normal capitalisation ("Priya Sharma", not "PRIYA SHARMA").
 - current_title: the job title of the most recent role only, e.g. "Regional Head - North India". No company name.
 - target_role: the most likely next role plus industry, e.g. "Digital Marketing Manager in e-commerce / D2C".
@@ -253,7 +253,7 @@ Job Title || Mon YYYY - Mon YYYY
 ### Institution, City || YYYY - YYYY
 Degree, Subject; score
 Class XII (Board), School, City - score || YYYY
-Keep the candidate's own section order and headings where they have them (e.g. WORK EXPERIENCE). Rules for the format: " || " separates the left and right side of a line - use it only on those lines. No italics anywhere. Section headings are always ## in capitals. Keep the candidate's own section order and education rows. No tables, no other symbols.
+Keep the candidate's own section order and headings where they have them (e.g. WORK EXPERIENCE). Links: wherever the candidate's resume has a Markdown link [words](address), keep it on the same item in the same form - never change an address and never add a link that isn't in their resume. Rules for the format: " || " separates the left and right side of a line - use it only on those lines. No italics anywhere. Section headings are always ## in capitals. Keep the candidate's own section order and education rows. No tables, no other symbols.
 changes: every change you made and why, so the candidate can verify each is true.
 missing_numbers: questions for numbers that would make bullets stronger (empty if none).`,
         input: [

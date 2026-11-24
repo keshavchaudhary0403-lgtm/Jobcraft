@@ -266,7 +266,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   <div className="relative z-10 mt-3 grid grid-cols-3 gap-2">
                     <CopyButton text={md} />
                     <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
-                    <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Redo</button>
+                    <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Regenerate</button>
                   </div>
                 </>
               )}

@@ -5,6 +5,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { aiErrorMessage, checkLimits, logUsage, runStructured } from "@/lib/ai";
 import { buildTask, SCHEMAS, type ParsedResume } from "@/lib/tasks";
 import type { Profile } from "@/lib/types";
+import { pdfLinks } from "@/lib/pdf-links";
 
 export const maxDuration = 120;
 
@@ -32,8 +33,14 @@ export async function POST(req: Request) {
   if (file instanceof File && file.size > 0) {
     if (file.type !== "application/pdf") return Response.json({ error: "Please upload a PDF." }, { status: 400 });
     if (file.size > 8 * 1024 * 1024) return Response.json({ error: "PDF must be under 8 MB." }, { status: 400 });
-    const data = Buffer.from(await file.arrayBuffer()).toString("base64");
-    input = { pdf: { base64: data, filename: file.name || "resume.pdf" }, text: "This is my resume." };
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    // The AI sees the PDF's words but not the addresses behind linked words - pass those along.
+    const links = await pdfLinks(bytes.slice()).catch(() => []);
+    const linkNote = links.length
+      ? `\n\nLinks in this resume (the linked words -> address). Keep each one as a Markdown link [words](address) on the same words in resume_text; mailto/email links stay plain text:\n${links.map((l) => `- ${l.text} -> ${l.url}`).join("\n")}`
+      : "";
+    const data = Buffer.from(bytes).toString("base64");
+    input = { pdf: { base64: data, filename: file.name || "resume.pdf" }, text: `This is my resume.${linkNote}` };
   } else if (text && text.length > 100) {
     input = text;
   } else {
