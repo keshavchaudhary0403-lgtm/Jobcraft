@@ -175,7 +175,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
         </div>
         <div className="min-w-0 flex-1">
           <h2 className="text-[1.2rem] font-bold leading-tight">Put it live</h2>
-          <div className="text-[0.8rem] text-muted">About 5 minutes · hover a step for how</div>
+          <div className="text-[0.8rem] text-muted">About 5 minutes</div>
         </div>
         {url && <a href={url} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-line text-muted hover:text-ink" aria-label="Open LinkedIn"><ExternalLink size={14} /></a>}
       </div>

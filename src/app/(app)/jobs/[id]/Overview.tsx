@@ -147,7 +147,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
             <div className="mt-auto pt-5">
               <div className="border-t border-mustard pt-4">
                 <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">Why this score</div>
-                <p className="mt-1.5 text-[0.94rem] leading-relaxed text-ink/80">{a.fit_reasoning}</p>
+                <MoreText text={a.fit_reasoning} className="mt-1.5 text-[0.94rem] leading-relaxed text-ink/80" />
               </div>
             </div>
           </section>
@@ -176,7 +176,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
               <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">ATS keywords</span>
               <div className="mt-2 flex items-center gap-4">
                 <Ring value={kwTotal ? kwHave / kwTotal : 0} label={`${kwHave}/${kwTotal}`} />
-                <p className="text-[0.86rem] leading-snug text-muted">{a.keywords_missing ? (kwTotal - kwHave ? `${kwTotal - kwHave} missing - add them where true.` : "All on your resume.") : "Words the screening software looks for."}</p>
+                <p className="text-[0.86rem] leading-snug text-muted">{a.keywords_missing ? (kwTotal - kwHave ? `${kwHave} of ${kwTotal} on your resume.` : "All on your resume.") : "Words screening software looks for."}</p>
               </div>
               <div className="mt-3 flex flex-wrap gap-1.5">
                 {a.ats_keywords.map((k) => {
@@ -325,9 +325,9 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <span className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted">{m.label}</span>
                       </div>
                       {g.how_to_close ? (
-                        <p className="mt-1 line-clamp-3 text-[0.88rem] leading-relaxed text-muted" title={g.explanation}>{g.how_to_close}</p>
+                        <p className="mt-1 line-clamp-2 text-[0.88rem] leading-relaxed text-muted" title={`${g.explanation}\n\n${g.how_to_close}`}>{g.how_to_close}</p>
                       ) : (
-                        <p className="mt-1 line-clamp-3 text-[0.88rem] text-muted">{g.explanation}</p>
+                        <p className="mt-1 line-clamp-2 text-[0.88rem] text-muted" title={g.explanation}>{g.explanation}</p>
                       )}
                       <div className="mt-3 flex flex-wrap gap-2">
                         {qi >= 0 && (
@@ -468,7 +468,7 @@ function AnswerFlowInner({
         </div>
       )}
       <h3 className="text-[1.2rem] font-bold leading-snug tracking-tight text-ink">{q}</h3>
-      <p className="mt-1 text-[0.88rem] text-muted">Be specific: what you did, how many, and what changed. Only what&apos;s true - it goes into your resume and outreach.</p>
+      <p className="mt-1 text-[0.88rem] text-muted">What you did, how many, what changed. Only what&apos;s true.</p>
 
       <div className="relative mt-4">
         <textarea
@@ -513,5 +513,17 @@ function AnswerFlowInner({
         )}
       </div>
     </Modal>
+  );
+}
+
+/** Long AI text: first two lines, with a toggle for the rest. */
+function MoreText({ text, className = "" }: { text: string; className?: string }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > 160;
+  return (
+    <div className={className}>
+      <p className={open || !long ? "" : "line-clamp-2"}>{text}</p>
+      {long && <button type="button" onClick={() => setOpen(!open)} className="mt-1 text-[0.84rem] font-semibold text-brand hover:underline">{open ? "Show less" : "Read more"}</button>}
+    </div>
   );
 }

@@ -135,7 +135,7 @@ export default function NewJob() {
     <div className="space-y-6">
       <header className="pt-2 fade-up">
         <h1 className="text-[2.6rem] font-bold leading-none">Add a job<span className="text-clay">.</span></h1>
-        <p className="mt-2 text-[1rem] text-muted">Paste a link or the description. We pick out the company and role - you confirm.</p>
+        <p className="mt-2 text-[1rem] text-muted">Paste a link or the description.</p>
       </header>
 
       <form onSubmit={submit} className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">

@@ -196,9 +196,14 @@ export async function runStructured<T>(opts: {
 export function humaniseText(t: string) {
   return t.replace(/\s*[\u2014\u2013]\s*/g, (m) => (/\s/.test(m) ? " - " : "-")).replace(/[\u201C\u201D]/g, '"').replace(/[\u2018\u2019]/g, "'").replace(/\u2026/g, "...");
 }
-function humanise(v: unknown): unknown {
-  if (typeof v === "string") return humaniseText(v);
-  if (Array.isArray(v)) return v.map(humanise);
-  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, humanise(x)]));
+/** Removes model notes such as "(inferred from UC)" or "(SCM; inferred)" from short name fields. */
+export function cleanField(t: string) {
+  return t.replace(/\s*\([^()]*\b(inferred|likely|assumed|guess(ed)?|probably|unclear|not stated)\b[^()]*\)/gi, "").trim();
+}
+const NAME_FIELDS = new Set(["company", "role", "location", "company_type", "seniority"]);
+function humanise(v: unknown, key = ""): unknown {
+  if (typeof v === "string") return NAME_FIELDS.has(key) ? cleanField(humaniseText(v)) : humaniseText(v);
+  if (Array.isArray(v)) return v.map((x) => humanise(x));
+  if (v && typeof v === "object") return Object.fromEntries(Object.entries(v).map(([k, x]) => [k, humanise(x, k)]));
   return v;
 }

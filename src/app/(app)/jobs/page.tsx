@@ -39,7 +39,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
       <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
           <h1 className="text-[2.6rem] font-bold leading-none">Jobs<span className="text-clay">.</span></h1>
-          <p className="mt-2 text-[1rem] text-muted">{jobs.length ? `${jobs.length} job${jobs.length === 1 ? "" : "s"} - every one tracked from decode to offer.` : "Every job you're going after, in one place."}</p>
+          <p className="mt-2 text-[1rem] text-muted">{jobs.length ? `${jobs.length} job${jobs.length === 1 ? "" : "s"} tracked` : "Every job you're going after."}</p>
         </div>
         {jobs.length > 0 && (
           <div className="inline-flex gap-1 rounded-full border-[1.5px] border-line p-1">
@@ -54,7 +54,7 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <span className="grid h-14 w-14 place-items-center rounded-full bg-clay text-white"><Plus size={24} /></span>
           <span className="flex-1">
             <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
-            <span className="block text-muted">Paste the description - get your match, a tailored resume and a note for the hiring manager.</span>
+            <span className="block text-muted">Paste the description. We do the rest.</span>
           </span>
         </Link>
       ) : board ? (

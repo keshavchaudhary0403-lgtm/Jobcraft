@@ -51,11 +51,11 @@ export default async function Home() {
   const saved = live.filter((a) => a.status === "saved");
   const prepDone = saved.reduce((t, a) => t + journey(a, practised).slice(0, 4).filter((s) => s.done).length, 0);
   const parts = [
-    { label: "Resume", color: "var(--mustard)", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
-    { label: "Match", color: "var(--brand-2)", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
-    { label: "Prep", color: "color-mix(in srgb, var(--clay) 70%, white)", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
-    { label: "Applying", color: "var(--brand-2)", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
-    { label: "Interview", color: "var(--clay-2)", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
+    { label: "Resume", color: "#ffffff", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
+    { label: "Match", color: "#ffffff", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
+    { label: "Prep", color: "#ffffff", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
+    { label: "Applying", color: "#ffffff", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
+    { label: "Interview", color: "#ffffff", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
     { label: "LinkedIn", color: "#ffffff", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
   ];
   const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
@@ -67,11 +67,11 @@ export default async function Home() {
   const qOpen = live.reduce((t, a) => t + openQs(a), 0);
   const offers = live.filter((a) => a.status === "offer").length;
   const areas = [
-    { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active${qOpen ? ` · ${qOpen} questions open` : ""}` : "Add your first" },
-    { href: "/linkedin", label: "LinkedIn", icon: Send, hint: profile.linkedin_result ? "Rewritten" : "Not rewritten yet" },
-    { href: "/interview", label: "Interview", icon: Mic, hint: `${Math.min(interviews.length, 3)}/3 rounds${scores.length ? ` · last ${scores.at(-1)}/10` : ""}` },
-    { href: "/negotiation", label: "Salary", icon: IndianRupee, hint: offers ? `${offers} offer${offers > 1 ? "s" : ""}` : `${negotiations.length} talk${negotiations.length === 1 ? "" : "s"} practised` },
-    { href: "/profile", label: "Profile", icon: UserRound, hint: `${strength}% complete${health != null ? ` · resume ${health}` : ""}` },
+    { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active` : "Add your first" },
+    { href: "/linkedin", label: "LinkedIn", icon: Send, hint: profile.linkedin_result ? "Rewritten" : "Not done yet" },
+    { href: "/interview", label: "Interview", icon: Mic, hint: `${Math.min(interviews.length, 3)}/3 rounds` },
+    { href: "/negotiation", label: "Salary", icon: IndianRupee, hint: offers ? `${offers} offer${offers > 1 ? "s" : ""}` : `${negotiations.length} practised` },
+    { href: "/profile", label: "Profile", icon: UserRound, hint: `${strength}% complete` },
   ];
 
   // Gaps that repeat across jobs
@@ -147,7 +147,7 @@ export default async function Home() {
           <span className="grid h-14 w-14 place-items-center rounded-full bg-clay text-white"><Plus size={24} /></span>
           <span className="flex-1">
             <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
-            <span className="block text-muted">Paste the description - Jobcraft decodes it, scores your fit, tailors your resume and writes to the hiring manager.</span>
+            <span className="block text-muted">Paste the description. We do the rest.</span>
           </span>
         </Link>
       ) : (
@@ -230,8 +230,8 @@ function ScoreRing({ value, parts }: { value: number; parts: { label: string; co
       <svg width={size} height={size} className="-rotate-90">
         {segs.map((p) => (
           <g key={p.label}>
-            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.1)" strokeWidth={stroke} strokeDasharray={`${p.len - gap} ${c}`} strokeDashoffset={-p.start} />
-            {p.value > 0 && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max((p.len - gap) * p.value, 1)} ${c}`} strokeDashoffset={-p.start}><title>{p.label}</title></circle>}
+            <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.14)" strokeWidth={stroke} strokeDasharray={`${p.len - gap} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${Math.round(p.value * 100)}%`}</title></circle>
+            {p.value > 0 && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max((p.len - gap) * p.value, 1)} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${Math.round(p.value * 100)}%`}</title></circle>}
           </g>
         ))}
       </svg>

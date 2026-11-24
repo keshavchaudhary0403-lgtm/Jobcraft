@@ -23,7 +23,7 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
       <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
           <h1 className="text-[2.6rem] font-bold leading-none">Salary<span className="text-clay">.</span></h1>
-          <p className="mt-2 text-[1rem] text-muted">Know if the offer is fair. Then practise asking for more - out loud.</p>
+          <p className="mt-2 text-[1rem] text-muted">Is the offer fair? Then practise asking for more.</p>
         </div>
         <div className="flex gap-2">
           <span className="flex items-center gap-2 rounded-full bg-good-soft px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none text-good">{offers}</span><span className="text-[0.84rem] text-good">offer{offers === 1 ? "" : "s"} in hand</span></span>

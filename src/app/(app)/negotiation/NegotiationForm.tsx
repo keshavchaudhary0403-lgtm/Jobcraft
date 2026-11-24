@@ -216,7 +216,7 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(L)}%` }}>₹{L}</span>
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(H)}%` }}>₹{H}</span>
       </div>
-      <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "The green band is the market range; the dot is your offer."}</p>
+      <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "Band = market range. Dot = your offer."}</p>
     </div>
   );
 }

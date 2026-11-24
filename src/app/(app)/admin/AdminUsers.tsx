@@ -833,7 +833,7 @@ function AdminOverview({
         <Panel title="Daily AI spend" sub={`${monthName} · India time`} icon={<TrendingUp size={15} />}>
           <DailyBars days={days} />
         </Panel>
-        <Panel title="Insights" icon={<Lightbulb size={15} />} className="flex-1" bodyClass="divide-y divide-line">
+        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="divide-y divide-line">
           {insights.map((x, i) => {
             const Tag = x.go ? "button" : "div";
             return (
@@ -951,7 +951,8 @@ function niceCeil(v: number) {
   return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
 }
 
-const PALETTE = ["var(--side)", "var(--clay)", "var(--mustard)", "var(--ocean)", "var(--plum)", "var(--good)", "var(--brand-2)", "var(--clay-2)", "var(--faint)"];
+// Distinct hues in a fixed order so no two spend categories look alike.
+const PALETTE = ["#004e98", "#ff6700", "#1f9d61", "#d98200", "#7a5af0", "#0e9384", "#5b8fd0", "#e0559a", "#a3aec0"];
 
 function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
   const size = 150, stroke = 20, r = (size - stroke) / 2, c = 2 * Math.PI * r;

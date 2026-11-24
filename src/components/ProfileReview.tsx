@@ -125,12 +125,12 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
       </Section>
   );
   const notesS = (
-      <Section n="04" title="Not on your resume" sub="Anything true the AI should know - side projects, results, context.">
+      <Section n="04" title="Not on your resume" sub="Side projects, results, context.">
         <textarea className="field h-full min-h-[140px]" rows={5} value={d.extra_notes ?? ""} onChange={(e) => set("extra_notes", e.target.value)} />
       </Section>
   );
   const bestS = (
-      <Section n="02" title="Best results" sub="1-2 wins with real numbers. Used in outreach and salary talks.">
+      <Section n="02" title="Best results" sub="1-2 wins with real numbers.">
         <textarea className="field h-full min-h-[120px]" rows={4} value={d.strongest_proof ?? ""} onChange={(e) => set("strongest_proof", e.target.value)} />
       </Section>
   );

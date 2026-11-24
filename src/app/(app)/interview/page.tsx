@@ -28,7 +28,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
       <header className="flex flex-wrap items-end justify-between gap-4 pt-2 fade-up">
         <div>
           <h1 className="text-[2.6rem] font-bold leading-none">Interview<span className="text-clay">.</span></h1>
-          <p className="mt-2 text-[1rem] text-muted">Six real questions, out loud. An honest score at the end.</p>
+          <p className="mt-2 text-[1rem] text-muted">Six questions, out loud, with an honest score.</p>
         </div>
         <div className="flex gap-2">
           <span className="flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none text-brand">{rounds}/3</span><span className="text-[0.84rem] text-brand">rounds done</span></span>

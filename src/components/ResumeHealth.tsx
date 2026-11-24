@@ -57,7 +57,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
           <div className="flex flex-wrap items-end justify-between gap-2">
             <div>
               <h2 className="text-[1.3rem] font-bold leading-tight">ATS-safe checks</h2>
-              <div className="text-[0.84rem] text-muted">Checked live against what recruiters and ATS look for. Free, no AI.</div>
+              <div className="text-[0.84rem] text-muted">What recruiters and ATS check first.</div>
             </div>
             <span className="chip bg-good-soft text-good">{report.doc.filter((d) => d.ok).length} of {report.doc.length} passed</span>
           </div>
@@ -81,7 +81,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
         <div className="flex flex-wrap items-center justify-between gap-2 px-6 py-4">
           <div>
             <div className="font-display text-[1.15rem] font-bold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
-            <div className="text-[0.8rem] text-muted">Each is scored out of 10: a number, a strong verb, length, active voice, no filler, no buzzwords.</div>
+            <div className="text-[0.8rem] text-muted">Scored out of 10 on numbers, verbs and length.</div>
           </div>
           {report.bullets.length > 0 && <button className="pill-link" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only weak ones" : `Show all ${report.bullets.length}`}</button>}
         </div>

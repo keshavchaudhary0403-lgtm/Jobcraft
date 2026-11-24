@@ -57,7 +57,7 @@ export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: 
             setUpload(false);
           }}
         />
-        <p className="mt-3 text-[0.85rem] text-muted">Your details will refill from it. Review, then save.</p>
+        <p className="mt-3 text-[0.85rem] text-muted">Your details refill from it.</p>
       </Modal>
       <PasswordModal open={pwOpen} onClose={() => setPwOpen(false)} />
     </>

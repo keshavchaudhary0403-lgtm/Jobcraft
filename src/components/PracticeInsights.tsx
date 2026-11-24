@@ -167,7 +167,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
             </details>
           ))}
         </div>
-        <p className="mt-3 text-[0.76rem] text-faint">Check the market number yourself on AmbitionBox or Glassdoor - this is a starting point.</p>
+        <p className="mt-3 text-[0.76rem] text-faint">A starting point. Check AmbitionBox or Glassdoor.</p>
       </div>
     </div>
   );

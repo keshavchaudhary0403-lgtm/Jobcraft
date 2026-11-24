@@ -118,7 +118,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
                   {x.lines.map((w, i) => <span key={i} className="block h-2.5 rounded-full bg-line-2" style={{ width: `${w}%` }} />)}
                 </div>
                 <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-line-2"><div className="h-full rounded-full bg-line" style={{ width: `${x.bar}%` }} /></div>
-                <p className="mt-2 text-[0.8rem] text-muted">Written from your strongest result - appears here once you click <b className="text-ink">Write messages</b>.</p>
+                <p className="mt-2 text-[0.8rem] text-muted">Appears here when you click <b className="text-ink">Write messages</b>.</p>
               </div>
             ))}
           </div>
