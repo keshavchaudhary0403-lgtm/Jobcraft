@@ -64,7 +64,6 @@ export default async function Home() {
   const word = score >= 75 ? "Interview-ready" : score >= 50 ? "Picking up pace" : "Warming up";
 
   // Areas of the platform with live status
-  const qOpen = live.reduce((t, a) => t + openQs(a), 0);
   const offers = live.filter((a) => a.status === "offer").length;
   const areas = [
     { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active` : "Add your first" },
@@ -132,7 +131,7 @@ export default async function Home() {
       <nav className="thin-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 fade-up sm:mx-0 sm:px-0 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {areas.map((x, i) => (
           <Link key={x.href} href={x.href} className="group flex min-w-[220px] shrink-0 items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white md:min-w-0">
-            <span data-tone={i % 5} className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
+            <span data-tone={i % 5} className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:scale-105"><x.icon size={17} /></span>
             <span className="min-w-0">
               <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
               <span className="block truncate text-[0.78rem] text-muted">{x.hint}</span>

@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AudioLines,
+  Gauge,
+  Mic,
+  PieChart,
+  UserRound,
+  UserX,
   Bot,
   ChevronRight,
   IndianRupee,
@@ -781,24 +786,21 @@ function AdminOverview({
   const idle = users.filter((u) => u.is_active && u.spent_inr === 0 && !u.is_demo).length;
   const nearest = people.filter((p) => p.limit).sort((a, b) => b.u.spent_inr / (b.limit as number) - a.u.spent_inr / (a.limit as number))[0];
 
-  const insights: { tone: "good" | "warn" | "info"; text: React.ReactNode; go?: () => void }[] = [];
+  // Insights as short stat tiles: one number, a few words.
+  const insights: { tone: number; icon: typeof Gauge; value: string; label: string; go?: () => void }[] = [];
   if (budget != null)
     insights.push(
       projected > budget
-        ? { tone: "warn", text: <>At this pace you&apos;ll spend <b>{rupees(projected)}</b> this month - over your <b>{rupees(budget)}</b> budget.</>, go: () => go("ai") }
-        : { tone: "good", text: <>On track: about <b>{rupees(projected)}</b> by month end, {Math.round((projected / budget) * 100)}% of your {rupees(budget)} budget.</> },
+        ? { tone: 4, icon: Gauge, value: rupees(projected), label: "projected, over budget", go: () => go("ai") }
+        : { tone: 2, icon: Gauge, value: `${Math.round((projected / budget) * 100)}%`, label: "of budget by month end" },
     );
   if (features[0] && total > 0)
-    insights.push({ tone: "info", text: <><b>{SPEND_LABEL[features[0][0]] ?? features[0][0]}</b> is your biggest cost - {Math.round((features[0][1] / total) * 100)}% of spend.</>, go: () => go("features") });
+    insights.push({ tone: 1, icon: PieChart, value: `${Math.round((features[0][1] / total) * 100)}%`, label: `on ${SPEND_LABEL[features[0][0]] ?? features[0][0]}`, go: () => go("features") });
   if (nearest && nearest.limit)
-    insights.push({
-      tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? "warn" : "info",
-      text: <><b>{nameOf(nearest.u)}</b> has used {Math.round((nearest.u.spent_inr / nearest.limit) * 100)}% of their {rupees(nearest.limit)} limit.</>,
-      go: () => onPerson(nearest.u.id),
-    });
-  if (idle > 0) insights.push({ tone: "info", text: <>{idle} {idle === 1 ? "person hasn't" : "people haven't"} used any AI this month.</>, go: () => go("people") });
+    insights.push({ tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? 4 : 0, icon: UserRound, value: `${Math.round((nearest.u.spent_inr / nearest.limit) * 100)}%`, label: `${nameOf(nearest.u).split(" ")[0]}'s limit used`, go: () => onPerson(nearest.u.id) });
+  if (idle > 0) insights.push({ tone: 3, icon: UserX, value: String(idle), label: idle === 1 ? "person not using AI" : "people not using AI", go: () => go("people") });
   const voiceOn = users.filter((u) => u.voice_enabled).length;
-  insights.push({ tone: "info", text: <>Realistic voice is on for <b>{voiceOn}</b> of {users.length} people.</>, go: () => go("features") });
+  insights.push({ tone: 0, icon: Mic, value: `${voiceOn}/${users.length}`, label: "with realistic voice", go: () => go("features") });
 
   return (
     <div className="space-y-5 fade-up">
@@ -833,14 +835,14 @@ function AdminOverview({
         <Panel title="Daily AI spend" sub={`${monthName} · India time`} icon={<TrendingUp size={15} />}>
           <DailyBars days={days} />
         </Panel>
-        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="divide-y divide-line">
+        <Panel title="Insights" icon={<Lightbulb size={15} />} bodyClass="grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
           {insights.map((x, i) => {
             const Tag = x.go ? "button" : "div";
             return (
-              <Tag key={i} onClick={x.go} className={`flex w-full items-start gap-3 px-5 py-3 text-left text-[0.9rem] leading-snug ${x.go ? "transition hover:bg-line-2/60" : ""}`}>
-                <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${x.tone === "warn" ? "bg-clay" : x.tone === "good" ? "bg-good" : "bg-ocean"}`} />
-                <span className="flex-1">{x.text}</span>
-                {x.go && <ChevronRight size={15} className="mt-0.5 shrink-0 text-faint" />}
+              <Tag key={i} onClick={x.go} className={`flex flex-col items-start gap-2 rounded-2xl border border-line bg-card p-3.5 text-left ${x.go ? "transition hover:border-brand/40 hover:shadow-sm" : ""}`}>
+                <span data-tone={x.tone} className="tone-chip grid h-8 w-8 place-items-center rounded-xl bg-line-2"><x.icon size={15} /></span>
+                <span className="font-display text-[1.45rem] font-bold leading-none tabular-nums">{x.value}</span>
+                <span className="text-[0.8rem] leading-snug text-muted">{x.label}</span>
               </Tag>
             );
           })}

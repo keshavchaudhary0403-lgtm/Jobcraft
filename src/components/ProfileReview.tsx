@@ -202,30 +202,33 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           </header>
         )}
 
-        {/* Hero */}
-        <section className="card grid gap-6 p-7 fade-up lg:grid-cols-[minmax(0,1fr)_auto]">
-          <div className="flex min-w-0 flex-wrap items-center gap-5">
-            <span className="grid h-[88px] w-[88px] shrink-0 place-items-center rounded-full bg-mustard font-display text-[1.9rem] font-bold text-side">{initials}</span>
-            <div className="min-w-0 flex-1">
-              <div className="font-display text-[2.1rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
-              <div className="mt-1.5 flex flex-wrap items-center gap-2 text-[0.98rem] text-muted">
-                <span>{d.current_title || "Current title"}</span>
-                <span className="text-clay">→</span>
-                <span className="font-semibold text-ink">{d.target_role || "Target role"}</span>
+        {/* Hero banner */}
+        <section className="dark-card grid gap-6 p-6 text-white fade-up sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
+          <div className="min-w-0">
+            <div className="flex min-w-0 items-center gap-4">
+              <span className="avatar-warm grid h-[76px] w-[76px] shrink-0 place-items-center rounded-full font-display text-[1.7rem] font-bold ring-4 ring-white/20">{initials}</span>
+              <div className="min-w-0">
+                <div className="text-[0.76rem] font-semibold uppercase tracking-[0.16em] text-white/55">Your profile</div>
+                <div className="truncate font-display text-[2rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
+                <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/65">
+                  <span>{d.current_title || "Current title"}</span>
+                  <span className="text-[var(--hero-accent)]">→</span>
+                  <span className="font-semibold text-white">{d.target_role || "Target role"}</span>
+                </div>
               </div>
-              <dl className="mt-4 flex flex-wrap gap-x-7 gap-y-2">
-                {facts.map((f) => (
-                  <div key={f.label}>
-                    <dt className="flex items-center gap-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-faint">{f.icon}{f.label}</dt>
-                    <dd className={`font-medium ${f.v ? "" : "text-faint"}`}>{f.v || "-"}</dd>
-                  </div>
-                ))}
-              </dl>
             </div>
+            <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+              {facts.map((f, i) => (
+                <div key={f.label} data-tone={[0, 1, 3, 0][i]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5">
+                  <dt className="flex items-center gap-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/55">{f.icon}{f.label}</dt>
+                  <dd className={`mt-0.5 truncate font-display text-[1.1rem] font-bold ${f.v ? "" : "text-white/40"}`}>{f.v || "-"}</dd>
+                </div>
+              ))}
+            </dl>
           </div>
-          <div className="flex items-center gap-4">
-            <Ring value={strength} label="Profile" color="var(--color-clay)" />
-            <Ring value={health ?? 0} label="Resume" color={health == null ? "var(--line)" : health >= 80 ? "var(--color-good)" : health >= 60 ? "var(--color-mustard)" : "var(--color-clay)"} text={health == null ? "-" : undefined} />
+          <div className="flex items-center justify-center gap-5">
+            <Ring dark value={strength} label="Profile" color="var(--hero-accent)" />
+            <Ring dark value={health ?? 0} label="Resume" color={health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "#ffd27a" : "var(--hero-accent)"} text={health == null ? "-" : undefined} />
           </div>
         </section>
 
@@ -275,18 +278,18 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
   );
 }
 
-function Ring({ value, label, color, text }: { value: number; label: string; color: string; text?: string }) {
+function Ring({ value, label, color, text, dark }: { value: number; label: string; color: string; text?: string; dark?: boolean }) {
   const size = 104, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
     <div className="flex flex-col items-center">
       <div className="relative grid place-items-center" style={{ width: size, height: size }}>
         <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.14)" : "var(--line-2)"} strokeWidth={stroke} />
           <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value / 100)} style={{ transition: "stroke-dashoffset .8s ease" }} />
         </svg>
-        <span className="absolute font-display text-[1.6rem] font-bold tabular-nums">{text ?? value}</span>
+        <span className={`absolute font-display text-[1.6rem] font-bold tabular-nums ${dark ? "text-white" : ""}`}>{text ?? value}</span>
       </div>
-      <span className="mt-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">{label}</span>
+      <span className={`mt-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${dark ? "text-white/60" : "text-muted"}`}>{label}</span>
     </div>
   );
 }

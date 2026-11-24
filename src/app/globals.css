@@ -83,8 +83,9 @@
   --plum-soft: #e4f6f3;
   /* KitchenOps-style surfaces (blue theme) */
   --rail-bg: radial-gradient(120% 60% at 0% 100%, rgba(120,170,255,.35), transparent 60%), linear-gradient(#0a5aa8, #003b75);
-  --hero-bg: radial-gradient(42% 90% at 92% 115%, rgba(255,140,60,.45), transparent 70%), radial-gradient(40% 90% at 100% 0%, rgba(140,190,255,.45), transparent 70%), linear-gradient(105deg, #003f7f 0%, #0a55a6 45%, #2a6cbc 75%, #3f7fc8 100%);
-  --sel: #3a6ea5; --sel-glow: rgba(58,110,165,.55);
+  --hero-bg: radial-gradient(38% 80% at 96% 118%, rgba(255,140,60,.28), transparent 70%), radial-gradient(40% 90% at 100% 0%, rgba(140,190,255,.4), transparent 70%), linear-gradient(105deg, #003f7f 0%, #0a55a6 45%, #1f65b6 75%, #2f74c2 100%);
+  --sel: #004e98; --sel-glow: rgba(0,78,152,.5);
+  --sel-bg: linear-gradient(120deg, #0a5aa8, #004e98);
   --act-glow: rgba(255,103,0,.55);
   --hero-accent: #ffb27a;
   --t0: #3a6ea5; --t0s: #e8f0f9;
@@ -219,19 +220,20 @@ aside.bg-side span.bg-mustard, header span.bg-mustard { background: #ffe3d2; col
 .dark-card { background: var(--hero-bg); }
 .dark-card .text-mustard, main .bg-side .text-mustard { color: var(--hero-accent); }
 .dark-card .bg-mustard { background: var(--hero-accent); }
-main .bg-side, main .group:hover .group-hover\:bg-side { background: var(--sel); box-shadow: 0 10px 24px -12px var(--sel-glow); }
+main .bg-side { background: var(--sel-bg); box-shadow: 0 10px 24px -12px var(--sel-glow); }
 main .border-side { border-color: var(--sel); }
 main .bg-side .bg-cream { background: rgba(255,255,255,.95); color: var(--sel); }
 .card { border-color: var(--line); box-shadow: 0 1px 2px rgba(16,24,40,.03), 0 12px 32px -22px color-mix(in srgb, var(--side) 30%, transparent); }
 .btn-clay { box-shadow: 0 10px 22px -10px var(--act-glow); }
-.btn-primary, .btn-brand { box-shadow: 0 10px 22px -12px var(--sel-glow); }
+.btn-primary, .btn-brand { background: var(--sel-bg); box-shadow: 0 10px 22px -12px var(--sel-glow); }
+.btn-primary:hover:not(:disabled), .btn-brand:hover:not(:disabled) { background: #004480; }
 .tone-chip { border-radius: 12px; }
 .tone-chip[data-tone="0"] { background: var(--t0s); color: var(--t0); }
 .tone-chip[data-tone="1"] { background: var(--t1s); color: var(--t1); }
 .tone-chip[data-tone="2"] { background: var(--t2s); color: var(--t2); }
 .tone-chip[data-tone="3"] { background: var(--t3s); color: var(--t3); }
 .tone-chip[data-tone="4"] { background: var(--t4s); color: var(--t4); }
-.stat-tile { position: relative; background: rgba(255,255,255,.1); box-shadow: inset 0 0 0 1px rgba(255,255,255,.16); }
+.stat-tile { position: relative; background: rgba(255,255,255,.09); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 .stat-tile::before { content: ""; position: absolute; left: 16px; top: -1px; width: 28px; height: 4px; border-radius: 0 0 4px 4px; background: var(--strip); }
 .stat-tile[data-tone="0"] { --strip: var(--s0); }
 .stat-tile[data-tone="1"] { --strip: var(--s1); }
