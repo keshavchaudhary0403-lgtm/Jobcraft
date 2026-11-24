@@ -126,7 +126,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   }
 
 
-  if (busy && !md) return <Working steps={["Reading what this role values...", "Reordering your experience...", "Rewriting bullets with real results...", "Checking it stays one page and ATS-safe..."]} />;
+  if (busy && !md) return <Working title="Tailoring your resume for this job" steps={["Reading what this role values...", "Reordering your experience...", "Rewriting bullets with real results...", "Checking it stays one page and ATS-safe..."]} />;
 
   if (!md)
     return (
@@ -243,6 +243,13 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   <h3 className="text-[1.1rem] font-bold leading-tight">Your tailored resume</h3>
                   <p className="text-[0.8rem] text-muted">One page, ATS-safe, only what&apos;s true.</p>
                 </div>
+                {/* secondary actions: small icon buttons, like elsewhere in the app */}
+                {!editing && (
+                  <div className="flex shrink-0 gap-1.5">
+                    <CopyButton soft icon label="Copy text" text={md} className="h-9 w-9 !px-0" />
+                    <button className="btn btn-soft h-9 w-9 px-0" onClick={() => setEditing(true)} aria-label="Edit resume" data-tip="Edit resume"><Pencil size={14} /></button>
+                  </div>
+                )}
               </div>
               {/* One-page check (PDF rule: keep it to one page) - measured on the real A4 download */}
               {!editing && over && (
@@ -250,7 +257,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   <div className="mt-4 rounded-2xl bg-bad-soft px-4 py-3">
                     <div className="flex items-center gap-2 text-[0.9rem] font-semibold text-bad"><AlertCircle size={15} /> {pages} pages - over one page</div>
                     <p className="mt-0.5 text-[0.82rem] text-ink/80">Recruiters and ATS expect one page. Trim it, or let AI tighten it.</p>
-                    <button className="btn btn-clay btn-sm mt-2.5" disabled={busy} onClick={fitOnePage}>{busy ? <Spinner size={13} /> : <Sparkles size={13} />} Make it fit one page</button>
+                    <button className="btn btn-clay btn-sm mt-2.5 !shadow-none" disabled={busy} onClick={fitOnePage}>{busy ? <Spinner size={13} /> : <Sparkles size={13} />} Make it fit one page</button>
                   </div>
                 )
               )}
@@ -261,20 +268,16 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 </div>
               ) : (
                 <>
-                  {/* Main actions side by side: update the resume (blue) and download it (orange) */}
-                  <div className="mt-4 grid grid-cols-2 gap-2">
-                    <button className={`btn btn-primary h-11 px-3 !shadow-none ${busy ? "pointer-events-none" : ""}`} disabled={busy} onClick={regen} aria-busy={busy}>
-                      {busy ? <Spinner size={15} /> : <RotateCcw size={15} />} {busy ? "Regenerating..." : "Regenerate"}
+                  {/* Main actions: two equal halves of the row, at the app's standard button height */}
+                  <div className="mt-4 grid grid-cols-2 gap-2.5">
+                    <button className={`btn btn-primary h-10 px-4 text-[0.9rem] !shadow-none ${busy ? "pointer-events-none" : ""}`} disabled={busy} onClick={regen} aria-busy={busy} data-tip="Rewrite it for this job (uses AI credit)">
+                      {busy ? <Spinner size={14} /> : <RotateCcw size={14} />} {busy ? "Regenerating..." : "Regenerate"}
                     </button>
-                    <button className={`btn btn-clay relative z-0 h-11 px-3 !shadow-none ${pdfBusy ? "pointer-events-none" : ""}`} onClick={download} aria-busy={pdfBusy}>
-                      {pdfBusy ? <><Spinner size={15} /> Preparing...</> : <><Download size={15} /> Download PDF</>}
+                    <button className={`btn btn-clay h-10 px-4 text-[0.9rem] !shadow-none ${pdfBusy ? "pointer-events-none" : ""}`} onClick={download} aria-busy={pdfBusy}>
+                      {pdfBusy ? <><Spinner size={14} /> Preparing...</> : <><Download size={15} /> Download PDF</>}
                     </button>
                   </div>
                   {pdfErr && <p className="mt-2 text-[0.8rem] text-bad">Couldn&apos;t build the file - opened the print window instead. Choose &quot;Save as PDF&quot; there.</p>}
-                  <div className="relative z-10 mt-2 grid grid-cols-2 gap-2">
-                    <CopyButton soft text={md} />
-                    <button className="btn btn-soft btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
-                  </div>
                 </>
               )}
             </section>

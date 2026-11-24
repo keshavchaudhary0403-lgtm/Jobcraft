@@ -78,7 +78,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
       {/* Right: the messages */}
       <div className="min-w-0">
         {busy && !o ? (
-          <Working steps={["Finding a real challenge they face...", "Matching it to your strongest result...", "Keeping it short and human..."]} />
+          <Working title="Writing your messages" steps={["Finding a real challenge they face...", "Matching it to your strongest result...", "Keeping it short and human..."]} />
         ) : o ? (
           <div className={`grid items-stretch gap-5 md:grid-cols-2 stagger transition ${busy ? "opacity-50" : ""}`}>
             {meters.map((m) => {

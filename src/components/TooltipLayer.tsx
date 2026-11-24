@@ -8,13 +8,14 @@ import { useEffect, useLayoutEffect, useRef, useState } from "react";
  * is already fully visible on the element.
  */
 export function TooltipLayer() {
-  const [tip, setTip] = useState<{ text: string; x: number; y: number } | null>(null);
+  // x = centre of the hovered element; top/bottom = its edges (the bubble sits above, or below if no room)
+  const [tip, setTip] = useState<{ text: string; x: number; top: number; bottom: number } | null>(null);
   const current = useRef<Element | null>(null);
   const box = useRef<HTMLDivElement>(null);
-  const [h, setH] = useState(0);
-  // Measure the bubble so a tall one flips below the cursor instead of running off the top of the window.
+  const [size, setSize] = useState({ w: 0, h: 0 });
+  // Measure the bubble so it can be kept on screen and flipped below when there's no room above.
   useLayoutEffect(() => {
-    if (box.current) setH(box.current.offsetHeight);
+    if (box.current) setSize({ w: box.current.offsetWidth, h: box.current.offsetHeight });
   }, [tip?.text]);
 
   useEffect(() => {
@@ -51,9 +52,9 @@ export function TooltipLayer() {
       }
       return null;
     };
-    const place = (e: MouseEvent, text: string) => {
-      const x = Math.min(Math.max(e.clientX, 140), window.innerWidth - 140);
-      setTip({ text, x, y: e.clientY });
+    const place = (el: Element, text: string) => {
+      const r = el.getBoundingClientRect();
+      setTip((t) => (t && t.text === text && t.x === r.left + r.width / 2 && t.top === r.top ? t : { text, x: r.left + r.width / 2, top: r.top, bottom: r.bottom }));
     };
     const move = (e: MouseEvent) => {
       const hit = find(e.target);
@@ -62,7 +63,7 @@ export function TooltipLayer() {
         return;
       }
       current.current = hit.el;
-      place(e, hit.t);
+      place(hit.el, hit.t);
     };
     const hide = () => { current.current = null; setTip(null); };
     document.addEventListener("mousemove", move);
@@ -78,16 +79,21 @@ export function TooltipLayer() {
   }, []);
 
   if (!tip) return null;
-  const below = tip.y - 14 - (h || 40) < 8;
+  const gap = 10;
+  const below = tip.top - gap - (size.h || 40) < 8;
+  const w = size.w || 160;
+  // keep the bubble on screen, but point the arrow at the element's centre
+  const left = Math.min(Math.max(tip.x - w / 2, 8), window.innerWidth - w - 8);
+  const arrow = Math.min(Math.max(tip.x - left, 14), w - 14);
   return (
     <div
       ref={box}
       role="tooltip"
       className="pointer-events-none fixed z-[100] max-w-[260px] rounded-xl bg-side px-3 py-2 text-[0.8rem] font-medium leading-snug text-white shadow-[0_12px_28px_-10px_rgba(0,30,70,.55)]"
-      style={{ left: tip.x, top: below ? tip.y + 22 : tip.y - 14, transform: `translate(-50%, ${below ? "0" : "-100%"})` }}
+      style={{ left, top: below ? tip.bottom + gap : tip.top - gap, transform: below ? "none" : "translateY(-100%)", visibility: size.w ? "visible" : "hidden" }}
     >
       {tip.text}
-      <span className={`absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 bg-side ${below ? "-top-1" : "-bottom-1"}`} />
+      <span className={`absolute h-2.5 w-2.5 -translate-x-1/2 rotate-45 bg-side ${below ? "-top-1" : "-bottom-1"}`} style={{ left: arrow }} />
     </div>
   );
 }

@@ -25,7 +25,7 @@ import {
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
-import { Modal, Spinner, Working, useAsk } from "@/components/client-ui";
+import { Modal, Spinner, Working, WorkingInline, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
 import { useVoice } from "@/components/useVoice";
 
@@ -90,7 +90,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
     onUpdate({ fit_answers: next });
   }
 
-  if (busy && !a) return <Working steps={["Reading the job description...", "Finding what they really want...", "Comparing it with your resume...", "Scoring your fit..."]} />;
+  if (busy && !a) return <Working title="Decoding this job" steps={["Reading the job description...", "Finding what they really want...", "Comparing it with your resume...", "Scoring your fit..."]} />;
   if (error && !a)
     return (
       <div className="card flex flex-col items-center p-10 text-center">
@@ -131,9 +131,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
     <div className="space-y-5">
       {dialog}
       {busy && (
-        <div className="flex items-center gap-2.5 rounded-2xl bg-brand-soft px-4 py-3 text-[0.92rem] font-medium text-brand fade-up">
-          <Spinner size={15} /> Re-scoring with your latest answers...
-        </div>
+        <WorkingInline text="Re-scoring with your latest answers..." />
       )}
 
       <div className={`space-y-5 stagger transition ${busy ? "pointer-events-none opacity-60" : ""}`}>

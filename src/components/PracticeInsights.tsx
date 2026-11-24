@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { AlertCircle, ChevronDown, Mic, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp, Trophy } from "lucide-react";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
-import { CopyButton, Spinner } from "./client-ui";
+import { CopyButton, Spinner, WorkingInline } from "./client-ui";
 import { Meter } from "./ui";
 
 async function fetchInsight<T>(sessionId: string, kind: "interview_report" | "offer_check"): Promise<{ data?: T; error?: string }> {
@@ -57,9 +57,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
       <div className="card p-5">
         {head}
         {busy ? (
-          <div className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-soft px-4 py-4 text-[0.9rem] font-medium text-brand-ink">
-            <Spinner /> Scoring your answers...
-          </div>
+          <WorkingInline className="mt-5" text="Scoring your answers..." />
         ) : (
           <>
             <div className="mt-4">
