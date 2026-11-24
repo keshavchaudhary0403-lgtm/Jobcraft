@@ -243,15 +243,17 @@ Two to three lines on who they are for THIS role, with their strongest real numb
 ## WORK EXPERIENCE
 ### Company Name || City, Country
 Job Title || Mon YYYY - Mon YYYY
-- Bullet: action verb + what they did + result, with the key numbers and names in **bold**
+- Bullet: action verb + what they did + result. In EVERY bullet put 1-3 key facts in **bold** - the numbers, scale and named results/clients/tools a recruiter scans for (e.g. "**1,200+ accounts**", "**₹2 Cr to ₹5 Cr in 6 months**", "**a named client or tool**"). Never bold a whole sentence.
 (repeat "Job Title || dates" + bullets for each role at the same company; a new ### line for each company)
 ## KEY SKILLS & TOOLS
 - **Group name:** skill, skill, skill
+## (any other section the candidate's resume has, e.g. INDEPENDENT PROJECTS, CERTIFICATIONS - keep it, in their order)
+- **Project or item name** - one line on what it is or did
 ## EDUCATION
 ### Institution, City || YYYY - YYYY
 Degree, Subject; score
 Class XII (Board), School, City - score || YYYY
-Rules for the format: " || " separates the left and right side of a line - use it only on those lines. No italics anywhere. Section headings are always ## in capitals. Keep the candidate's own section order and education rows. No tables, no other symbols.
+Keep the candidate's own section order and headings where they have them (e.g. WORK EXPERIENCE). Rules for the format: " || " separates the left and right side of a line - use it only on those lines. No italics anywhere. Section headings are always ## in capitals. Keep the candidate's own section order and education rows. No tables, no other symbols.
 changes: every change you made and why, so the candidate can verify each is true.
 missing_numbers: questions for numbers that would make bullets stronger (empty if none).`,
         input: [

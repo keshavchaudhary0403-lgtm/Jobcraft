@@ -16,6 +16,25 @@ import { CONTENT_W, LAYOUT, LINE_PX, PAGE_ROOM, ResumeMarkdown, resumeCss } from
 /* The PDF: the resume format's CSS on an A4 page. Used for printing AND for measuring pages. */
 const PRINT_CSS = `${resumeCss("body")}\n@page{size:A4;margin:${LAYOUT.margin}in}\nbody{margin:0}`;
 
+/**
+ * The downloaded PDF. The page margin is 0 so the browser has no room to print its own header/footer
+ * (date, page title, "about:blank"); the 0.5in margins come from a table whose header/footer rows
+ * repeat on every page. Content width and page height stay exactly what the page check measures.
+ */
+function pdfHtml(title: string, body: string) {
+  const m = `${LAYOUT.margin}in`;
+  const esc = (t: string) => t.replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!);
+  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
+${resumeCss("body")}
+@page{size:A4;margin:0}
+html,body{margin:0}
+body{padding:0 ${m}}
+table.pg{width:100%;border-collapse:collapse}
+table.pg td{padding:0;vertical-align:top}
+.pg-gap{height:${m}}
+</style></head><body><table class="pg"><thead><tr><td class="pg-gap"></td></tr></thead><tfoot><tr><td class="pg-gap"></td></tr></tfoot><tbody><tr><td>${body}</td></tr></tbody></table></body></html>`;
+}
+
 type Fit = { pages: number; linesOver: number; linesSpare: number };
 
 /**
@@ -90,7 +109,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   function download() {
     const w = window.open("", "_blank");
     if (!w || !paper.current) return;
-    w.document.write(`<html><head><title>${app.company} - Resume</title><style>${PRINT_CSS}</style></head><body>${paper.current.innerHTML}</body></html>`);
+    // File name: "<Name>_Resume_<Company>" (the title is only used as the suggested file name)
+    const name = (md.match(/^#\s+(.+)$/m)?.[1] ?? "Resume").trim();
+    const file = `${name}_Resume_${app.company}`.replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_|_$/g, "");
+    w.document.write(pdfHtml(file, paper.current.innerHTML));
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 200);

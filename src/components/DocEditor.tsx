@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Heading, List, Pilcrow } from "lucide-react";
+import { Bold, Heading, List, Pilcrow } from "lucide-react";
 
 /**
  * Line-by-line resume editor that looks like the formatted resume:
@@ -144,8 +144,30 @@ export function DocEditor({
     commit(next, row.text !== text ? { id: row.id, pos: row.text.length } : undefined);
   }
 
+  /** Bold / un-bold the selected words (stored as **text**, like key numbers in the CV). */
+  function toggleBold(i: number, el: HTMLTextAreaElement) {
+    const r = rows[i];
+    const a = el.selectionStart, b = el.selectionEnd;
+    if (a === b) return;
+    const t = r.text;
+    const wrapped = t.slice(a - 2, a) === "**" && t.slice(b, b + 2) === "**";
+    const inner = t.slice(a, b);
+    const text = wrapped
+      ? t.slice(0, a - 2) + inner + t.slice(b + 2)
+      : /^\*\*[\s\S]*\*\*$/.test(inner)
+        ? t.slice(0, a) + inner.slice(2, -2) + t.slice(b)
+        : t.slice(0, a) + "**" + inner + "**" + t.slice(b);
+    const next = rows.slice();
+    next[i] = { ...r, text };
+    commit(next, { id: r.id, pos: wrapped ? b - 2 : text.length - (t.length - b) });
+  }
+
   function key(i: number, e: React.KeyboardEvent<HTMLTextAreaElement>) {
     const el = e.currentTarget;
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "b") {
+      e.preventDefault();
+      return toggleBold(i, el);
+    }
     const r = rows[i];
     const start = el.selectionStart;
     const collapsed = start === el.selectionEnd;
@@ -230,7 +252,23 @@ export function DocEditor({
             <Icon size={13} /> {l}
           </button>
         ))}
-        <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · type &quot;- &quot; for a bullet</span>
+        {mode === "md" && (
+          <button
+            type="button"
+            disabled={!current}
+            onMouseDown={(e) => e.preventDefault()}
+            onClick={() => {
+              const i = rows.findIndex((r) => r.id === focusId);
+              const el = focusId != null ? refs.current.get(focusId) : null;
+              if (i >= 0 && el) toggleBold(i, el);
+            }}
+            className="flex h-7 items-center gap-1.5 rounded-lg px-2.5 text-[0.82rem] font-semibold text-muted transition hover:bg-line-2 hover:text-ink disabled:opacity-40"
+            data-tip="Select words, then Bold (Ctrl/Cmd + B)"
+          >
+            <Bold size={13} /> Bold
+          </button>
+        )}
+        <span className="ml-auto hidden pr-1 text-[0.78rem] text-faint md:block">Enter = new line · &quot;- &quot; for a bullet · select + Ctrl/⌘B to bold</span>
       </div>
 
       {(wrapRows ?? ((x: React.ReactNode) => <div>{x}</div>))(<>
