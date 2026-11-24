@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, PhoneOff, Phone, AlertCircle, AudioLines, Headphones } from "lucide-react";
+import Link from "next/link";
+import { Mic, MicOff, PhoneOff, Phone, Plus, AlertCircle, AudioLines, Headphones } from "lucide-react";
 import { Spinner } from "./client-ui";
 
 type Turn = { id: string; role: "user" | "assistant"; text: string; live?: boolean };
@@ -11,11 +12,11 @@ type Status = "idle" | "connecting" | "live" | "ended" | "error";
 const MAX_MINUTES = 25;
 
 /**
- * Realistic voice practice: the browser talks to OpenAI Realtime over WebRTC using a
+ * ChatGPT voice practice: the browser talks to OpenAI Realtime over WebRTC using a
  * short-lived secret from our server. Every finished turn is saved to the session
  * transcript (in order) and every response's cost is logged against the user.
  */
-export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[] }) {
+export function RealtimeCall({ sessionId, aiName, kind, history, finished = false, newHref }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[]; finished?: boolean; newHref?: string }) {
   const initialTurns = history.filter((m) => m.role === "assistant" && m.content.includes("?")).length;
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
@@ -223,22 +224,24 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
         <Orb state={speaking ?? (live ? "idle" : "off")} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-[0.78rem]">
-            <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-semibold">Realistic voice</span>
+            <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-semibold">ChatGPT voice</span>
             {live && <span className="rounded-full bg-white/10 px-2.5 py-0.5 tabular-nums">{mm}:{ss}</span>}
             {live && kind === "interview" && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
           </div>
           <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">
-            {status === "connecting" ? "Connecting..." : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
+            {status === "connecting" ? "Connecting..." : !live ? (finished && status !== "ended" ? "This round is finished" : status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
           </div>
           <p className="mt-0.5 text-[0.84rem] text-cream/65">
-            {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
+            {live ? "Speak naturally. You can interrupt, like a real call." : finished && status !== "ended" ? (kind === "interview" ? "Your scorecard is on the right. Start a new round for fresh questions." : "Start a new talk to practise again.") : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
           </p>
           {kind === "interview" && (
             <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= questions ? "bg-mustard" : "bg-white/15"}`} />)}</div>
           )}
         </div>
         <div className="flex items-center gap-2">
-          {!live ? (
+          {!live && finished && status !== "ended" && newHref ? (
+            <Link href={newHref} className="btn btn-clay h-12 px-6 text-[1rem]"><Plus size={17} /> {kind === "interview" ? "New round" : "New talk"}</Link>
+          ) : !live ? (
             <button onClick={start} disabled={status === "connecting"} className="btn btn-clay h-12 px-6 text-[1rem]">
               {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}
             </button>
@@ -251,7 +254,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
             </>
           )}
         </div>
-        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-bad"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
+        {error && <p className="flex w-full items-start gap-1.5 rounded-xl bg-white/10 px-3 py-2 text-[0.86rem] font-medium text-white"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
       <div className="card thin-scroll min-h-[320px] flex-1 overflow-y-auto p-5 xl:min-h-0">
@@ -282,7 +285,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
   );
 }
 
-function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
+export function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
   const active = state === "ai" || state === "you";
   const color = state === "you" ? "from-clay-2 to-clay" : "from-[#1f86d6] to-[#004e98]";
   return (

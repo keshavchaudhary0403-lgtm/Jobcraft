@@ -23,8 +23,8 @@ export async function POST(req: Request) {
   if (!session || !profile) return Response.json({ error: "Session not found." }, { status: 404 });
   if (session.kind !== "interview" && session.kind !== "negotiation") return Response.json({ error: "Voice is for interview and salary practice." }, { status: 400 });
   if (!profile.is_active) return Response.json({ error: "Your account is paused." }, { status: 403 });
-  if (!profile.voice_enabled) return Response.json({ error: "Realistic voice isn't switched on for your account. Ask your admin." }, { status: 403 });
-  if (profile.ai_mode !== "real") return Response.json({ error: "Realistic voice needs Real AI on your account." }, { status: 403 });
+  if (!profile.voice_enabled) return Response.json({ error: "Voice practice isn't switched on for your account. Ask your admin." }, { status: 403 });
+  if (profile.ai_mode !== "real") return Response.json({ error: "Voice practice needs Real AI on your account." }, { status: 403 });
 
   const admin = createServiceClient();
   const gate = await aiLimited(user.id, "voice", profile.feature_limits);

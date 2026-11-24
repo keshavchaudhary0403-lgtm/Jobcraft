@@ -14,10 +14,12 @@ export async function POST(req: Request) {
   const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Not logged in" }, { status: 401 });
 
-  const { sessionId, content, step } = (await req.json()) as {
+  const { sessionId, content, step, spoken } = (await req.json()) as {
     sessionId: string;
     content: string;
     step?: string | null;
+    /** Claude voice call: the reply will be read aloud. */
+    spoken?: boolean;
   };
   if (!sessionId || !content?.trim()) {
     return Response.json({ error: "Missing message" }, { status: 400 });
@@ -92,6 +94,9 @@ export async function POST(req: Request) {
   const oc = (session.meta as { offer_check?: { position?: string; counter_low?: string; counter_high?: string } } | null)?.offer_check;
   if (session.kind === "negotiation" && oc?.counter_low && oc?.counter_high) {
     system += `\n\nThe candidate already sees this offer check on screen: the offer is ${oc.position ?? "assessed"} market, realistic counter ${oc.counter_low} to ${oc.counter_high}. Use exactly this verdict and range; never state a different counter range.`;
+  }
+  if (spoken) {
+    system += "\n\nTHIS IS A SPOKEN PHONE CALL. Your reply is read aloud by a voice. Talk like a person on a call: plain sentences only, no markdown, no headings, no bullet points, no emojis, no stage directions. Keep each turn to one to three short sentences and ask one question at a time. Keep the hidden [[Qn]] and [[END]] tags exactly as instructed - they are never read aloud.";
   }
   // Hard stop for the mock interview: once Question 6 of 6 has been answered, the interview must end.
   if (session.kind === "interview") {
@@ -185,7 +190,7 @@ export async function POST(req: Request) {
             user_id: user.id,
             role: "assistant",
             content: full,
-            step: step ?? null,
+            step: step === "voice_resume" ? "voice" : (step ?? null), // a resumed voice call's reply belongs to the voice transcript
           });
           await supabase.from("sessions").update({ updated_at: new Date().toISOString() }).eq("id", sessionId);
           if (app?.id) {

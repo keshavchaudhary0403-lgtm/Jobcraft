@@ -43,6 +43,7 @@ type U = {
   is_demo: boolean;
   voice_enabled: boolean;
   feature_limits: FeatureLimits | null;
+  ai_model?: string | null;
   spent_inr: number;
   created_at: string;
 };
@@ -62,7 +63,7 @@ type Settings = {
 type Section = "overview" | "people" | "ai" | "features" | "demo";
 
 const AI_MODES: { value: AiMode; label: string; hint: string }[] = [
-  { value: "real", label: "Real AI", hint: "Uses OpenAI and your credits" },
+  { value: "real", label: "Real AI", hint: "ChatGPT or Claude, uses your credits" },
   { value: "demo", label: "Demo", hint: "Sample answers, no cost" },
   { value: "off", label: "Off", hint: "AI features blocked" },
 ];
@@ -320,7 +321,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                 })()}
                 {pendingModel && (
                   <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-soft px-4 py-3 fade-up">
-                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.provider !== AI_MODELS[settings.ai_model as keyof typeof AI_MODELS]?.provider && <span className="block text-[0.8rem] text-muted">Realistic voice calls stay on OpenAI - Claude has no live voice.</span>}</span>
+                    <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.provider === "anthropic" && <span className="block text-[0.8rem] text-muted">Voice practice with Claude has a short pause before each reply.</span>}</span>
                     <span className="flex gap-2">
                       <button className="btn btn-ghost btn-sm" onClick={() => { setPendingModel(null); setViewProvider(null); }}>Cancel</button>
                       <button className="btn btn-primary btn-sm" onClick={async () => { await saveSettings({ ai_model: pendingModel }); setPendingModel(null); setViewProvider(null); }}>Save</button>
@@ -390,8 +391,9 @@ export function AdminUsers({ meId }: { meId: string }) {
               </div>
               <section className="card grid gap-5 p-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
                 <div>
-                  <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
-                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live interviewer that talks back. About <b className="text-ink">₹1.5 per minute</b>, from each person&apos;s limit. Needs Real AI.</p>
+                  <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Voice practice</h2></div>
+                  <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">An interviewer or HR manager that talks back. About <b className="text-ink">₹1.5 per minute</b>, from each person&apos;s limit. Needs Real AI.</p>
+                  <p className="mt-2 text-[0.84rem] leading-relaxed text-muted">The voice follows each person&apos;s AI: <b className="text-ink">ChatGPT</b> talks live, <b className="text-ink">Claude</b> replies after a short pause.</p>
                   <div className="mt-4 font-display text-[2rem] font-bold leading-none">{voiceOnCount}<span className="text-[1rem] font-medium text-muted"> of {users.length} people on</span></div>
                   <button className="pill-nav mt-3" onClick={() => setSection("people")}>Switch it per person <ChevronRight size={14} /></button>
                 </div>
@@ -492,6 +494,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
   const initial = {
     ai_mode: u.ai_mode,
     voice_enabled: u.voice_enabled,
+    ai_model: u.ai_model ?? "",
     monthly: u.monthly_limit_inr == null ? "" : String(u.monthly_limit_inr),
     is_active: u.is_active,
     is_admin: u.is_admin,
@@ -538,7 +541,7 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
     if (risky.length && (await ask({ title: `Save changes for ${name}?`, body: <>This will {risky.join(", ")}.</>, confirm: "Save changes", danger: true })) === null) return;
 
     setSaving(true);
-    const body: Record<string, unknown> = { ai_mode: d.ai_mode, voice_enabled: d.voice_enabled, monthly_limit_inr: monthly, feature_limits: fl };
+    const body: Record<string, unknown> = { ai_mode: d.ai_mode, voice_enabled: d.voice_enabled, monthly_limit_inr: monthly, feature_limits: fl, ai_model: d.ai_model || null };
     if (!me) {
       body.is_active = d.is_active;
       body.is_admin = d.is_admin;
@@ -573,7 +576,17 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
                 </button>
               ))}
             </div>
-            <Row label="Realistic voice" hint={d.ai_mode === "real" ? "Live AI voice for interview and salary practice · ~₹1.5/min" : "Needs Real AI"}>
+            <Row label="Which AI" hint={d.ai_model ? "Only for this person" : `App default: ${PROVIDERS[AI_MODELS[settings.ai_model as keyof typeof AI_MODELS]?.provider ?? "openai"].short} · ${AI_MODELS[settings.ai_model as keyof typeof AI_MODELS]?.label.split(" -")[0] ?? settings.ai_model}`}>
+              <select className="field h-10 w-56 text-[0.9rem]" value={d.ai_model} onChange={(e) => setD({ ...d, ai_model: e.target.value })}>
+                <option value="">App default</option>
+                {(Object.keys(PROVIDERS) as Provider[]).map((p) => (
+                  <optgroup key={p} label={PROVIDERS[p].short + (settings.keys && !settings.keys[p] ? " (no key)" : "")}>
+                    {Object.entries(AI_MODELS).filter(([, m]) => m.provider === p).map(([id, m]) => <option key={id} value={id} disabled={!!settings.keys && !settings.keys[p]}>{m.label.split(" -")[0]}</option>)}
+                  </optgroup>
+                ))}
+              </select>
+            </Row>
+            <Row label="Voice practice" hint={d.ai_mode === "real" ? "Interview and salary practice out loud, in the person's AI · ~₹1.5/min" : "Needs Real AI"}>
               <Switch on={d.voice_enabled} disabled={d.ai_mode !== "real"} onChange={(v) => setD({ ...d, voice_enabled: v })} />
             </Row>
           </Block>
@@ -825,7 +838,7 @@ function AdminOverview({
     insights.push({ tone: nearest.u.spent_inr / nearest.limit >= 0.7 ? 4 : 0, icon: UserRound, value: `${Math.round((nearest.u.spent_inr / nearest.limit) * 100)}%`, label: `${nameOf(nearest.u).split(" ")[0]}'s limit used`, go: () => onPerson(nearest.u.id) });
   if (idle > 0) insights.push({ tone: 3, icon: UserX, value: String(idle), label: idle === 1 ? "person not using AI" : "people not using AI", go: () => go("people") });
   const voiceOn = users.filter((u) => u.voice_enabled).length;
-  insights.push({ tone: 0, icon: Mic, value: `${voiceOn}/${users.length}`, label: "with realistic voice", go: () => go("features") });
+  insights.push({ tone: 0, icon: Mic, value: `${voiceOn}/${users.length}`, label: "with voice practice", go: () => go("features") });
 
   return (
     <div className="space-y-5 fade-up">

@@ -22,6 +22,8 @@ export type Profile = {
   is_demo: boolean;
   voice_enabled: boolean;
   feature_limits: Partial<Record<string, number>> | null;
+  /** null = app default. */
+  ai_model?: string | null;
 };
 
 export const STATUSES = ["saved", "applied", "interviewing", "offer", "rejected", "withdrawn"] as const;

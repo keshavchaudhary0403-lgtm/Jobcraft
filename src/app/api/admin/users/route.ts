@@ -1,3 +1,4 @@
+import { isModelId, PROVIDERS, providerOf } from "@/lib/models";
 import { createServiceClient } from "@/lib/supabase/server";
 import { requireAdmin } from "@/lib/admin";
 import { normalisePhone, placeholderEmail } from "@/lib/phone";
@@ -7,14 +8,15 @@ import { cleanLimits } from "@/lib/features";
 export async function GET() {
   if (!(await requireAdmin())) return Response.json({ error: "Admins only" }, { status: 403 });
   const admin = createServiceClient();
-  const { data, error } = await admin
-    .from("profiles")
-    .select("id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, voice_enabled, feature_limits, created_at")
-    .order("created_at", { ascending: false });
+  const cols = "id, full_name, email, phone, is_admin, is_active, monthly_limit_inr, ai_mode, is_demo, voice_enabled, feature_limits, created_at";
+  type Row = Record<string, unknown> & { id: string };
+  let { data, error } = await admin.from("profiles").select(`${cols}, ai_model`).order("created_at", { ascending: false }).returns<Row[]>();
+  // Before migration 010 the per-person columns don't exist yet: list people without them.
+  if (error) ({ data, error } = await admin.from("profiles").select(cols).order("created_at", { ascending: false }).returns<Row[]>());
   if (error) return Response.json({ error: error.message }, { status: 500 });
   const settings = await getSettings(admin);
   const spend = await spendByUser(admin, settings.usd_to_inr);
-  const users = data.map((u) => ({ ...u, spent_inr: spend[u.id] ?? 0 }));
+  const users = (data ?? []).map((u) => ({ ...u, spent_inr: spend[u.id] ?? 0 }));
   const total_spent_inr = Object.values(spend).reduce((a, b) => a + b, 0);
   const { data: ev } = await admin.from("usage_events").select("feature, cost_usd, user_id, created_at").gte("created_at", monthStartIST());
   const by_feature: Record<string, number> = {};
@@ -69,7 +71,8 @@ export async function POST(req: Request) {
 export async function PATCH(req: Request) {
   const me = await requireAdmin();
   if (!me) return Response.json({ error: "Admins only" }, { status: 403 });
-  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode, voice_enabled, feature_limits } = (await req.json()) as {
+  const { id, password, is_active, is_admin, monthly_limit_inr, ai_mode, voice_enabled, feature_limits, ai_model } = (await req.json()) as {
+    ai_model?: string | null;
     id: string;
     password?: string;
     is_active?: boolean;
@@ -102,6 +105,12 @@ export async function PATCH(req: Request) {
     patch.monthly_limit_inr = monthly_limit_inr === null ? null : Number(monthly_limit_inr);
   }
   if (typeof voice_enabled === "boolean") patch.voice_enabled = voice_enabled;
+  if (ai_model !== undefined) {
+    if (ai_model !== null && !isModelId(ai_model)) return Response.json({ error: "Unknown model." }, { status: 400 });
+    if (ai_model && !process.env[PROVIDERS[providerOf(ai_model)].key]) return Response.json({ error: `Add ${PROVIDERS[providerOf(ai_model)].key} to the server first.` }, { status: 400 });
+    patch.ai_model = ai_model;
+  }
+
   if (typeof is_active === "boolean" && id !== me.id) patch.is_active = is_active;
   if (typeof is_admin === "boolean" && id !== me.id) patch.is_admin = is_admin;
   if (Object.keys(patch).length) {

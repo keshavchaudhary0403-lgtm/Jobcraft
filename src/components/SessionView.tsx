@@ -8,6 +8,10 @@ import type { Application, Message, Session } from "@/lib/types";
 import { ChatPanel } from "./ChatPanel";
 import { cleanAi } from "@/lib/clean-ai";
 import { RealtimeCall } from "./RealtimeCall";
+import { VoiceLoop } from "./VoiceLoop";
+import { getSettings, personalSettings } from "@/lib/ai";
+import { PROVIDERS, providerOf } from "@/lib/models";
+import { createServiceClient } from "@/lib/supabase/server";
 import { InterviewScorecard, OfferCheckCard, PracticeModes } from "./PracticeInsights";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { deleteSession } from "@/lib/actions";
@@ -32,6 +36,10 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   }
 
   const { data: messages } = await supabase.from("messages").select("*").eq("session_id", id).order("created_at").returns<Message[]>();
+  // Voice follows the person's AI: ChatGPT talks live; Claude replies after a short pause.
+  const svc = createServiceClient();
+  const mine = await personalSettings(svc, profile.id, await getSettings(svc));
+  const brand = PROVIDERS[providerOf(mine.model)].short;
   const cfg = CONFIG[kind];
   const prompt = buildPrompt(cfg.step, {
     profile,
@@ -46,6 +54,11 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   const report = (meta.interview_report as InterviewReport | undefined) ?? null;
   const transcriptLen = visible.map((m) => `${m.role === "user" ? "Candidate" : "Interviewer"}: ${m.content}`).join("\n").length;
   const stale = !!report && transcriptLen > Number(meta.report_turns ?? 0) + 40;
+  // Has this round already ended? ([[END]] is the hidden end tag.) Then voice offers a new round instead.
+  const assistantText = (messages ?? []).filter((m) => m.role === "assistant").map((m) => m.content);
+  const finished = assistantText.some((t) => /\[\[END\]\]/.test(t));
+  const asked = Math.max(0, ...assistantText.flatMap((t) => [...t.matchAll(/\[\[Q(\d)\]\]/g)].map((x) => Number(x[1]))));
+  const newHref = `${cfg.back}${session.application_id ? `?app=${session.application_id}` : ""}`;
   const voiceReady = profile.voice_enabled && profile.ai_mode === "real" && profile.is_active;
   const company = app?.company ?? (meta.company as string | undefined);
 
@@ -70,7 +83,14 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
         <div className="practice-col min-w-0 fade-up">
           <PracticeModes
             available={voiceReady}
-            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />}
+            voiceLabel={`${brand} voice`}
+            realistic={
+              providerOf(mine.model) === "anthropic" ? (
+                <VoiceLoop sessionId={id} aiName={cfg.ai} kind={kind} modelName={brand} finished={finished} asked={asked} newHref={newHref} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} kickoff={(messages ?? []).length === 0 ? { prompt, step: cfg.step } : null} />
+              ) : (
+                <RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} finished={finished} newHref={newHref} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />
+              )
+            }
             classic={
               <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5 xl:h-full xl:min-h-0" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
               <ChatPanel

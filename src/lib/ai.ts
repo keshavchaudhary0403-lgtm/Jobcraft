@@ -5,7 +5,7 @@ import { DEMO, demoStructured } from "./demo";
 
 import { AI_MODELS, type ModelId } from "./models";
 export { AI_MODELS, DEFAULT_MODEL, isModelId, type ModelId } from "./models";
-import { DEFAULT_MODEL, isModelId, providerOf } from "./models";
+import { DEFAULT_MODEL, isModelId, PROVIDERS, providerOf } from "./models";
 
 let _client: OpenAI | null = null;
 export function openai() {
@@ -130,6 +130,20 @@ async function sumCost(admin: SupabaseClient, userId?: string) {
 
 export type AiMode = "real" | "demo" | "off";
 
+/** A provider can only be used when its key is on the server. */
+export const providerReady = (m: ModelId) => !!process.env[PROVIDERS[providerOf(m)].key];
+
+/**
+ * App settings with this person's own AI model applied (admin sets it per person; empty = app default).
+ * A personal model whose provider has no key falls back to the app model.
+ */
+export async function personalSettings<T extends Settings & { model: ModelId }>(admin: SupabaseClient, userId: string, s: T): Promise<T> {
+  const { data, error } = await admin.from("profiles").select("ai_model").eq("id", userId).maybeSingle();
+  if (error || !data) return s; // before migration 010 the columns don't exist yet
+  const model = data.ai_model && isModelId(data.ai_model) && providerReady(data.ai_model) ? data.ai_model : s.model;
+  return { ...s, model };
+}
+
 /**
  * Can this user use AI right now?
  * - ai_mode "off"  → blocked
@@ -137,7 +151,7 @@ export type AiMode = "real" | "demo" | "off";
  * - ai_mode "real" → monthly per-user + total limits apply
  */
 export async function checkLimits(admin: SupabaseClient, userId: string, profile: { monthly_limit_inr: number | null; ai_mode?: string | null }) {
-  const s = await getSettings(admin);
+  const s = await personalSettings(admin, userId, await getSettings(admin));
   const mode = (profile.ai_mode ?? "real") as AiMode;
   if (mode === "off") return { error: "AI is turned off for your account. Ask your admin to turn it on.", settings: s, demo: false };
   if (mode === "demo") return { error: null, settings: s, demo: true };
@@ -186,11 +200,11 @@ export async function spendByUser(admin: SupabaseClient, usdToInr: number) {
 
 export function aiErrorMessage(err: unknown) {
   if (err instanceof Anthropic.RateLimitError) return "Claude is busy or the Anthropic credits have run out. Try again in a minute.";
-  if (err instanceof Anthropic.AuthenticationError) return "The Claude key is not set up correctly (ANTHROPIC_API_KEY).";
+  if (err instanceof Anthropic.AuthenticationError) return "The Claude key is not set up correctly. Ask your admin.";
   if (err instanceof Anthropic.APIError) return `Claude service error (${err.status ?? "network"}). Please try again.`;
-  if (err instanceof OpenAI.RateLimitError) return "The AI is busy or the OpenAI credits have run out. Try again in a minute.";
-  if (err instanceof OpenAI.AuthenticationError) return "The AI key is not set up correctly (OPENAI_API_KEY).";
-  if (err instanceof OpenAI.APIError) return `AI service error (${err.status ?? "network"}). Please try again.`;
+  if (err instanceof OpenAI.RateLimitError) return "ChatGPT is busy or its credits have run out. Try again in a minute.";
+  if (err instanceof OpenAI.AuthenticationError) return "The ChatGPT key is not set up correctly. Ask your admin.";
+  if (err instanceof OpenAI.APIError) return `ChatGPT service error (${err.status ?? "network"}). Please try again.`;
   return "Something went wrong. Please try again.";
 }
 

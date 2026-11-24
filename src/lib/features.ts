@@ -7,7 +7,7 @@ export const FEATURES = {
   detect: { label: "Job auto-fill", desc: "Reading company, role and location from a pasted JD", per: "minute", window: 60, def: 30 },
   parse: { label: "Resume upload", desc: "Reading an uploaded resume", per: "hour", window: 3600, def: 10 },
   insight: { label: "Scorecards", desc: "Interview scorecard and salary offer check", per: "hour", window: 3600, def: 20 },
-  voice: { label: "Voice calls", desc: "Realistic voice practice calls started (also needs Voice on)", per: "hour", window: 3600, def: 12 },
+  voice: { label: "Voice calls", desc: "Voice practice calls started (also needs Voice practice on)", per: "hour", window: 3600, def: 12 },
 } as const;
 
 export type FeatureKey = keyof typeof FEATURES;

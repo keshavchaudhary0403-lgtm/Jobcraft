@@ -6,8 +6,8 @@
  */
 export type Provider = "openai" | "anthropic";
 export const PROVIDERS: Record<Provider, { label: string; short: string; key: string }> = {
-  openai: { label: "ChatGPT (OpenAI)", short: "ChatGPT", key: "OPENAI_API_KEY" },
-  anthropic: { label: "Claude (Anthropic)", short: "Claude", key: "ANTHROPIC_API_KEY" },
+  openai: { label: "ChatGPT", short: "ChatGPT", key: "OPENAI_API_KEY" },
+  anthropic: { label: "Claude", short: "Claude", key: "ANTHROPIC_API_KEY" },
 };
 
 /**
@@ -92,10 +92,15 @@ export const PROVIDER_DEFAULT: Record<Provider, ModelId> = { openai: "gpt-6.1-te
 export const LIGHT_MODEL: Record<Provider, ModelId> = { openai: "gpt-6-luna", anthropic: "claude-haiku-5-5" };
 
 
-/** Realistic voice (speech-to-speech) for interview practice. USD per 1M tokens (Nov 2026). */
+/** ChatGPT voice (live speech-to-speech) for interview practice. USD per 1M tokens (Nov 2026). */
 export const REALTIME_MODEL = "gpt-realtime-2.1-mini";
 export const REALTIME_PRICE = { textIn: 0.6, textOut: 2.4, audioIn: 10, audioOut: 20, cachedIn: 0.3 };
 export const TRANSCRIBE_MODEL = "gpt-4o-mini-transcribe";
+/** Claude voice: Claude writes the reply, this voice speaks it. */
+export const TTS_MODEL = "gpt-4o-mini-tts";
+/** USD per 1M tokens (Nov 2026). Transcribe: audio in / text out. Speech: text in / audio out. */
+export const SPEECH_PRICE = { transcribeAudioIn: 3, transcribeTextIn: 1.25, transcribeOut: 5, ttsTextIn: 0.6, ttsAudioOut: 12 };
+
 
 export const VOICES = [
   { id: "marin", label: "Marin", note: "Warm, natural - recommended" },
