@@ -104,12 +104,70 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
   return (
     <>
-      {/* Mobile */}
-      <header className="no-print sticky top-0 z-30 flex items-center justify-between bg-side px-4 py-3 lg:hidden">
-        <Link href="/"><Logo size={28} light /></Link>
-        <button className="grid h-10 w-10 place-items-center rounded-full bg-white/10 text-cream" onClick={() => setOpen(!open)} aria-label="Menu">{open ? <X size={18} /> : <Menu size={18} />}</button>
+      {/* Mobile: floating top pill + app-style bottom tab bar */}
+      <header className="no-print sticky top-0 z-30 px-3 pt-3 lg:hidden">
+        <div className="flex items-center justify-between rounded-full bg-side/95 py-1.5 pl-3 pr-1.5 shadow-[0_12px_30px_-18px_rgba(22,48,43,.9)] backdrop-blur">
+          <Link href="/"><Logo size={28} light /></Link>
+          <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 rounded-full bg-white/10 py-1 pl-1 pr-3 text-cream" aria-label="Open menu">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-mustard text-[0.78rem] font-bold text-side">{initials || "?"}</span>
+            <Menu size={16} />
+          </button>
+        </div>
       </header>
-      {open && <div className="no-print fixed inset-x-3 bottom-3 top-[68px] z-30 flex flex-col rounded-[28px] bg-side p-4 lg:hidden">{body}</div>}
+
+      <nav className="no-print fixed inset-x-3 bottom-3 z-30 lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
+        <div className="grid grid-cols-5 items-center rounded-[26px] bg-side/95 px-1.5 py-1.5 shadow-[0_18px_40px_-18px_rgba(22,48,43,.9)] backdrop-blur">
+          {[
+            { href: "/", label: "Home", icon: House },
+            { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, count: jobs },
+            null,
+            { href: "/interview", label: "Interview", icon: Mic },
+            { href: "/negotiation", label: "Salary", icon: IndianRupee },
+          ].map((t) =>
+            t === null ? (
+              <Link key="add" href="/jobs/new" aria-label="Add job" className="mx-auto -mt-7 grid h-14 w-14 place-items-center rounded-full bg-clay text-white shadow-[0_12px_24px_-10px_rgba(224,101,63,.9)] ring-4 ring-bg transition active:scale-95">
+                <Plus size={24} />
+              </Link>
+            ) : (
+              <Link key={t.href} href={t.href} className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.7rem] font-medium transition ${isActive(t.href) ? "text-cream" : "text-white/50"}`}>
+                <span className={`grid h-8 w-12 place-items-center rounded-full transition ${isActive(t.href) ? "bg-white/15" : ""}`}><t.icon size={19} /></span>
+                {t.label}
+                {"count" in t && (t.count ?? 0) > 0 && <span className="absolute right-3 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-clay px-1 text-[0.62rem] font-bold text-white">{t.count}</span>}
+              </Link>
+            ),
+          )}
+        </div>
+      </nav>
+
+      {open && (
+        <div className="no-print fixed inset-0 z-40 lg:hidden" onClick={() => setOpen(false)}>
+          <div className="absolute inset-0 bg-side/40 backdrop-blur-[2px]" />
+          <div className="sheet-up absolute inset-x-0 bottom-0 rounded-t-[28px] bg-card p-4 pb-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+            <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line" />
+            <div className="flex items-center gap-3 px-1">
+              <span className="grid h-12 w-12 place-items-center rounded-full bg-mustard text-[0.9rem] font-bold text-side">{initials || "?"}</span>
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-display text-[1.15rem] font-bold">{name}</div>
+                <div className="text-[0.82rem] text-muted">Profile {strength}% complete</div>
+              </div>
+              <button onClick={() => setOpen(false)} className="grid h-9 w-9 place-items-center rounded-full bg-line-2" aria-label="Close"><X size={16} /></button>
+            </div>
+            <div className="mx-1 mt-3 h-1.5 overflow-hidden rounded-full bg-line-2"><div className="h-full rounded-full bg-clay" style={{ width: `${strength}%` }} /></div>
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              {[
+                { href: "/linkedin", label: "LinkedIn", icon: LinkedInIcon },
+                { href: "/profile", label: "My profile", icon: UserRound },
+                ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Settings2 }] : []),
+              ].map(({ href, label, icon: Icon }) => (
+                <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3.5 font-semibold ${isActive(href) ? "border-side bg-side text-cream" : "border-line"}`}>
+                  <Icon size={18} /> {label}
+                </Link>
+              ))}
+              <button onClick={logout} className="flex items-center gap-3 rounded-2xl border-[1.5px] border-line px-4 py-3.5 font-semibold text-bad"><LogOut size={18} /> Log out</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Desktop: floating rail */}
       <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_rgba(22,48,43,.9)] lg:flex">

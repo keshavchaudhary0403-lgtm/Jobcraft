@@ -136,6 +136,8 @@ textarea.field { height: auto; padding: .6rem .8rem; line-height: 1.55; }
 @keyframes ripple { from { transform: scale(1); opacity: .45 } to { transform: scale(1.9); opacity: 0 } }
 @keyframes pop { from { opacity: 0; transform: translateY(-4px) scale(.98) } to { opacity: 1; transform: none } }
 .pop { animation: pop .14s ease-out both; }
+@keyframes sheet-up { from { transform: translateY(100%) } to { transform: none } }
+.sheet-up { animation: sheet-up .28s cubic-bezier(.2,.8,.2,1) both; }
 
 .ai-gradient { background: radial-gradient(900px 300px at 0% 0%, rgba(224, 101, 63, .08), transparent 60%), radial-gradient(700px 300px at 100% 0%, rgba(226, 169, 44, .10), transparent 60%); }
 .dark-card { background: radial-gradient(420px 260px at 100% 0%, rgba(156, 197, 178, .28), transparent 65%), linear-gradient(160deg, #234a40, #16302b); color: #fdfaf4; border-radius: 22px; }
