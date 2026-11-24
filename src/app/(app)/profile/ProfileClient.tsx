@@ -14,12 +14,15 @@ export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: 
   const [draft, setDraft] = useState(initial);
   const [version, setVersion] = useState(0);
   const [upload, setUpload] = useState(false);
+  const [pendingFile, setPendingFile] = useState<string | null>(null);
   const [pwOpen, setPwOpen] = useState(false);
 
   return (
     <>
       <ProfileReview
         key={version}
+        pendingFile={pendingFile}
+        onFileKept={() => setPendingFile(null)}
         tabs
         userId={userId}
         initial={draft}
@@ -40,7 +43,8 @@ export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: 
       <Modal open={upload} onClose={() => setUpload(false)} title="Upload new resume">
         <ResumeDrop
           compact
-          onParsed={(p) => {
+          onParsed={(p, file) => {
+            setPendingFile(file ?? null);
             setDraft((d) => ({
               ...d,
               full_name: p.full_name ?? d.full_name,

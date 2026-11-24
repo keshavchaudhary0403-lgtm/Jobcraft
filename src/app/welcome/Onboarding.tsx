@@ -16,6 +16,7 @@ const STEPS = [
 
 export function Onboarding({ userId, first, loginId }: { userId: string; first: string | null; loginId: string }) {
   const router = useRouter();
+  const [pendingFile, setPendingFile] = useState<string | null>(null);
   const [draft, setDraft] = useState<ProfileDraft | null>(null);
   const step = draft ? 1 : 0;
 
@@ -63,7 +64,8 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
           {!draft ? (
             <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
               <ResumeDrop
-                onParsed={(p) =>
+                onParsed={(p, file) => {
+                  setPendingFile(file ?? null);
                   setDraft(
                     draftFrom({
                       full_name: p.full_name,
@@ -76,8 +78,8 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                       linkedin_url: p.linkedin_url,
                       skills: p.skills,
                     }),
-                  )
-                }
+                  );
+                }}
               />
               <aside className="dark-card p-6">
                 <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/85">From your resume we fill in</div>
@@ -90,7 +92,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
               </aside>
             </div>
           ) : (
-            <ProfileReview userId={userId} initial={draft} cta="Looks good - continue" onSaved={() => router.push("/jobs/new")} />
+            <ProfileReview userId={userId} initial={draft} pendingFile={pendingFile} cta="Looks good - continue" onSaved={() => router.push("/jobs/new")} />
           )}
         </div>
       </main>

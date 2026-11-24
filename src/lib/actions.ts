@@ -58,3 +58,23 @@ export async function deleteSession(id: string, back: string) {
   await supabase.from("sessions").delete().eq("id", id);
   redirect(back);
 }
+
+
+/** After the profile is saved: the PDF they just uploaded becomes their current resume file. */
+export async function keepUploadedResume() {
+  const supabase = await createClient();
+  const user = await currentUser(supabase);
+  if (!user) return { ok: false };
+  const { keepPending } = await import("@/lib/resume-file");
+  return { ok: await keepPending(user.id).catch(() => false) };
+}
+
+/** Name and upload date of the user's current resume PDF (null if none was uploaded). */
+export async function uploadedResumeInfo() {
+  const supabase = await createClient();
+  const user = await currentUser(supabase);
+  if (!user) return null;
+  const { currentFile } = await import("@/lib/resume-file");
+  const f = await currentFile(user.id).catch(() => null);
+  return f ? { name: f.name, uploadedAt: f.uploadedAt } : null;
+}

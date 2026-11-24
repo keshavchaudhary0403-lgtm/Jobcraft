@@ -6,7 +6,8 @@ import type { ParsedResume } from "@/lib/tasks";
 import { Working } from "./client-ui";
 
 /** Drag-and-drop a resume PDF (or paste text) → parsed details. */
-export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: ParsedResume) => void; compact?: boolean }) {
+/** `file` is the uploaded PDF's name when it was kept (saved for good when the profile is saved). */
+export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: ParsedResume, file?: string | null) => void; compact?: boolean }) {
   const [drag, setDrag] = useState(false);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
@@ -20,7 +21,7 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
     const res = await fetch("/api/resume/parse", { method: "POST", body: fd });
     const data = await res.json().catch(() => ({}));
     setBusy(false);
-    if (data.data) onParsed(data.data);
+    if (data.data) onParsed(data.data, data.file ?? null);
     else setErr(data.error ?? "Couldn't read that. Try again or paste the text.");
   }
 

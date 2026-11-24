@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { AlertCircle, Check, FileText, NotebookPen, Plus, Tags, Trophy, UserRound, X } from "lucide-react";
+import { AlertCircle, Check, ExternalLink, FileText, NotebookPen, Plus, Tags, Trophy, UserRound, X } from "lucide-react";
+import { keepUploadedResume, uploadedResumeInfo } from "@/lib/actions";
 import { CtcField, ExperienceField, LinkedInField, TextField } from "./BasicFields";
 import { normaliseBasics } from "@/lib/profile-format";
 import type { ProfileDraft } from "@/lib/profile-draft";
@@ -38,7 +39,29 @@ function Notes({ value, onChange, placeholder, max, hint }: { value: string; onC
   );
 }
 
-export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline, scoreStart, head }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft; scoreStart?: number | null; head?: { loginId: string; actions: React.ReactNode } }) {
+/** Which PDF the profile came from: name, upload date and a View button - or the one waiting to be saved. */
+function UploadedFile({ file, pending }: { file: { name: string; uploadedAt: string } | null; pending?: string | null }) {
+  if (!file && !pending) return null;
+  const when = file?.uploadedAt ? new Date(file.uploadedAt).toLocaleString("en-IN", { day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit" }) : "";
+  return (
+    <div className="card flex flex-wrap items-center gap-3 px-4 py-3">
+      <span data-tone="3" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><FileText size={16} /></span>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-[0.92rem] font-semibold" data-tip={pending ?? file?.name}>{pending ?? file?.name}</div>
+        <div className="text-[0.8rem] text-muted">{pending ? "Just uploaded - saved as your resume file when you save" : `Your uploaded resume · ${when}`}</div>
+      </div>
+      {!pending && file && (
+        <a href="/api/resume/file" target="_blank" rel="noreferrer" className="pill-nav shrink-0"><ExternalLink size={13} /> View PDF</a>
+      )}
+    </div>
+  );
+}
+
+export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline, scoreStart, head, pendingFile, onFileKept }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft; scoreStart?: number | null; head?: { loginId: string; actions: React.ReactNode }; pendingFile?: string | null; onFileKept?: () => void }) {
+  const [file, setFile] = useState<{ name: string; uploadedAt: string } | null>(null);
+  useEffect(() => {
+    uploadedResumeInfo().then(setFile).catch(() => {});
+  }, []);
   const [d, setD] = useState(initial);
   const [view, setView] = useState<"details" | "resume">("details");
   const [saved, setSaved] = useState(baseline ?? initial);
@@ -86,6 +109,12 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
       .eq("id", userId);
     setBusy(false);
     if (error) return setMsg(error.message);
+    if (pendingFile) {
+      // the PDF they uploaded now becomes their resume file
+      await keepUploadedResume().catch(() => null);
+      setFile(await uploadedResumeInfo().catch(() => null));
+      onFileKept?.();
+    }
     setSaved(clean);
     setMsg("Saved");
     setTimeout(() => setMsg(""), 1500);
@@ -173,13 +202,19 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
   );
   const resumeUI = tabs ? (
     <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
-      <ResumePreview page value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+      <div className="min-w-0 space-y-4">
+        <UploadedFile file={file} pending={pendingFile} />
+        <ResumePreview page value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+      </div>
       <div className="thin-scroll lg:sticky lg:top-[6.4rem] lg:max-h-[calc(100vh-7.4rem)] lg:overflow-y-auto lg:rounded-[22px]">
         <ResumeHealth compact value={d.master_resume ?? ""} savedValue={saved.master_resume ?? ""} start={scoreStart ?? null} onChange={(v) => set("master_resume", v)} />
       </div>
     </div>
   ) : (
-    <ResumePreview value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+    <div className="space-y-4">
+      <UploadedFile file={file} pending={pendingFile} />
+      <ResumePreview value={d.master_resume ?? ""} onChange={(v) => set("master_resume", v)} />
+    </div>
   );
 
   if (tabs) {
