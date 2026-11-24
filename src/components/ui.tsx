@@ -239,8 +239,8 @@ export function FitBadge({ value, size = "md", className = "" }: { value: number
   if (value == null) return <span className={`inline-flex items-center rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted ${className}`}>Fit pending</span>;
   const t = fitTone(value);
   return (
-    <span className={`inline-flex shrink-0 items-center rounded-full text-white ${size === "sm" ? "px-2.5 py-1" : "px-3.5 py-1.5"} ${className}`} style={{ background: t.color }} data-tip={`${t.word}: ${value}%`}>
-      <b className={`font-display font-bold tabular-nums leading-none ${size === "sm" ? "text-[0.98rem]" : "text-[1.15rem]"}`}>{value}%</b>
+    <span className={`inline-flex shrink-0 items-center rounded-full text-white ${size === "sm" ? "px-2 py-[3px]" : "px-2.5 py-1"} ${className}`} style={{ background: t.color }} data-tip={`${t.word}: ${value}%`}>
+      <b className={`font-display font-bold tabular-nums leading-none ${size === "sm" ? "text-[0.8rem]" : "text-[0.9rem]"}`}>{value}%</b>
     </span>
   );
 }
