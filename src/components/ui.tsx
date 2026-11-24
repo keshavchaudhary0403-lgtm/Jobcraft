@@ -74,30 +74,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
 }
 
 // Soft tinted monograms (like app icons) - never loud solid blocks.
-const AVATAR_TONES = [
-  ["var(--brand-soft)", "var(--brand-ink)"],
-  ["var(--clay-soft)", "var(--clay-ink)"],
-  ["var(--mustard-soft)", "var(--mustard-ink)"],
-  ["var(--good-soft)", "var(--good)"],
-];
-export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
-  const [bgTone, fgTone] = AVATAR_TONES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_TONES.length];
-  return (
-    <div
-      className="grid shrink-0 place-items-center font-bold"
-      style={{
-        width: size,
-        height: size,
-        borderRadius: 999,
-        fontSize: size * 0.42,
-        background: bgTone,
-        color: fgTone,
-      }}
-    >
-      {(name.trim()[0] ?? "?").toUpperCase()}
-    </div>
-  );
-}
+export { CompanyAvatar } from "./CompanyAvatar";
 
 const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-mustard-ink", lilac: "bg-plum-soft text-plum", rose: "bg-bad-soft text-bad", mint: "bg-brand-soft text-brand" };
 export function StatTile({ icon, label, value, sub, tone = "sky", href, interactive }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES; href?: string; interactive?: boolean }) {

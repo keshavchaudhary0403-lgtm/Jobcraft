@@ -82,7 +82,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                       className={`group card card-hover block cursor-grab p-3 active:cursor-grabbing ${dragId === a.id ? "opacity-50" : ""}`}
                     >
                       <div className="flex items-center gap-2">
-                        <CompanyAvatar name={a.company} size={26} />
+                        <CompanyAvatar name={a.company} jobUrl={a.job_url} size={26} />
                         <span className="min-w-0 flex-1 truncate text-[0.84rem] font-medium" title={a.company}>{a.company}</span>
                         <GripVertical size={14} className="shrink-0 text-faint opacity-0 transition group-hover:opacity-100" />
                       </div>

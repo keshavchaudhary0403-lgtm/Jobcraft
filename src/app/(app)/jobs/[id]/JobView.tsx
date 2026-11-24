@@ -129,20 +129,12 @@ export function JobView({
       <section className="card overflow-hidden fade-up">
         <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1fr)_auto]">
           <div className="min-w-0">
-            <div className="flex items-center gap-3">
-              <CompanyAvatar name={app.company} size={52} />
+            {/* Company identity: logo + name only (kept clean for real logos) */}
+            <div className="flex items-center gap-3.5">
+              <CompanyAvatar name={app.company} jobUrl={app.job_url} size={56} />
               <div className="min-w-0">
-                <div className="truncate text-[1rem] font-semibold">{app.company}</div>
-                <div className="flex flex-wrap items-center gap-x-3 text-[0.86rem] text-muted">
-                  {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
-                  <Menu<Status>
-                    align="left"
-                    value={app.status}
-                    options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
-                    onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-                    render={(c) => <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>}
-                  />
-                </div>
+                <div className="truncate font-display text-[1.25rem] font-bold leading-tight">{app.company}</div>
+                {app.location && <div className="mt-0.5 inline-flex items-center gap-1 text-[0.86rem] text-muted"><MapPin size={12} />{app.location}</div>}
               </div>
             </div>
             <h1 className="mt-5 text-[2.5rem] font-bold leading-[1.02]">{app.role}</h1>
@@ -154,7 +146,17 @@ export function JobView({
                 </div>
               ))}
             </dl>
-            <div className="mt-6 flex flex-wrap gap-2">
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <span className="flex items-center gap-2 rounded-full bg-line-2 py-1 pl-3.5 pr-1 text-[0.86rem] text-muted">
+                Status
+                <Menu<Status>
+                  align="left"
+                  value={app.status}
+                  options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
+                  onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
+                  render={(c) => <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>}
+                />
+              </span>
               {[
                 { label: "Job description", icon: FileText, on: () => setShowJd(true) },
                 { label: "Edit", icon: Pencil, on: () => setEditing(true) },

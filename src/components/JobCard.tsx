@@ -12,7 +12,7 @@ export function JobCard({ a }: { a: Application }) {
   return (
     <Link href={`/jobs/${a.id}`} className="card card-hover group flex flex-col p-6">
       <div className="flex items-start justify-between gap-3">
-        <CompanyAvatar name={a.company} size={46} />
+        <CompanyAvatar name={a.company} jobUrl={a.job_url} size={46} />
         <span className={`chip ${st.cls}`}>{st.label}</span>
       </div>
       <div className="mt-5 line-clamp-2 font-display text-[1.3rem] font-bold leading-[1.15]">{a.role}</div>
