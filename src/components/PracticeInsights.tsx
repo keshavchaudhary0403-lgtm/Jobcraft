@@ -243,15 +243,15 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
 /** Switch between the realistic voice call and the classic chat (+ browser voice). */
 export function PracticeModes({ realistic, classic, available }: { realistic: React.ReactNode; classic: React.ReactNode; available: boolean }) {
   const [mode, setMode] = useState<"realistic" | "classic">(available ? "realistic" : "classic");
-  if (!available) return <>{classic}</>;
+  if (!available) return <div className="flex h-full flex-col">{classic}</div>;
   return (
-    <div className="space-y-4">
-      <div className="inline-flex gap-1 rounded-full border-[1.5px] border-line p-1">
+    <div className="flex h-full flex-col gap-4">
+      <div className="inline-flex shrink-0 gap-1 self-start rounded-full border-[1.5px] border-line p-1">
         {([["realistic", "Realistic voice"], ["classic", "Chat + basic voice"]] as const).map(([k, l]) => (
           <button key={k} type="button" onClick={() => setMode(k)} className={`h-9 rounded-full px-4 text-[0.9rem] font-semibold transition ${mode === k ? "bg-side text-cream" : "text-muted hover:text-ink"}`}>{l}</button>
         ))}
       </div>
-      {mode === "realistic" ? realistic : classic}
+      <div className="flex min-h-0 flex-1 flex-col">{mode === "realistic" ? realistic : classic}</div>
     </div>
   );
 }

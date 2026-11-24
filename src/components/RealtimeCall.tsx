@@ -218,8 +218,8 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
   const ss = String(secs % 60).padStart(2, "0");
 
   return (
-    <div className="space-y-4">
-      <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
+    <div className="flex h-full flex-col gap-4">
+      <div className="dark-card flex shrink-0 flex-wrap items-center gap-5 p-5 fade-up">
         <Orb state={speaking ?? (live ? "idle" : "off")} />
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2 text-[0.78rem]">
@@ -254,7 +254,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
         {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-clay-2"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
-      <div className="card min-h-[320px] p-5">
+      <div className="card thin-scroll min-h-[320px] flex-1 overflow-y-auto p-5 xl:min-h-0">
         <div className="mb-3 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Transcript</div>
         {turns.length === 0 ? (
           <div className="grid min-h-[240px] place-items-center text-center text-muted">

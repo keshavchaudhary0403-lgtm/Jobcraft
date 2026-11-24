@@ -285,3 +285,10 @@ aside.bg-side .avatar-warm, header .avatar-warm, .rail-bg .avatar-warm, .dark-ca
 
 .prose-ai h3 { font-family: var(--font-bricolage), ui-sans-serif; font-size: 1rem; font-weight: 700; margin: .8em 0 .25em; }
 .prose-ai h3:first-child { margin-top: .1em; }
+
+/* Practice sessions: chat column and scorecard column share one height; each card scrolls inside itself */
+@media (min-width: 1280px) {
+  .practice-col { height: calc(100vh - 3rem); }
+}
+.practice-aside > .card { overflow-y: auto !important; min-height: 0; scrollbar-width: thin; }
+@media (min-width: 1280px) { .practice-aside > .card { max-height: 100%; } }

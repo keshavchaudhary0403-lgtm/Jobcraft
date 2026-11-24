@@ -67,12 +67,12 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
       </header>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
-        <div className="min-w-0 fade-up">
+        <div className="practice-col min-w-0 fade-up">
           <PracticeModes
             available={voiceReady}
             realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />}
             classic={
-              <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
+              <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5 xl:h-full xl:min-h-0" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
               <ChatPanel
                 sessionId={id}
                 initialMessages={messages ?? []}
@@ -86,7 +86,7 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
             }
           />
         </div>
-        <aside className="thin-scroll space-y-4 fade-up xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto xl:pb-2">
+        <aside className="practice-col practice-aside flex flex-col gap-4 fade-up xl:sticky xl:top-6">
           {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
           {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
         </aside>
