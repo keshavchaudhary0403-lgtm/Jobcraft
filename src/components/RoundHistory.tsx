@@ -43,7 +43,8 @@ export function PracticeHistory({ groups, kind }: { groups: PracticeGroup[]; kin
   );
 }
 
-function JobCard({ g, kind }: { g: PracticeGroup; kind: "interview" | "negotiation" }) {
+/** One job's practice track. `cta` sits in the header (e.g. Start round N); `flat` drops the card shell. */
+export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: PracticeGroup; kind: "interview" | "negotiation"; cta?: React.ReactNode; flat?: boolean; noHead?: boolean }) {
   const base = kind === "interview" ? "/interview" : "/negotiation";
   const items = kind === "interview" ? prepItems(g.rounds) : [];
   const [tab, setTab] = useState<"rounds" | "prep">("rounds");
@@ -55,13 +56,13 @@ function JobCard({ g, kind }: { g: PracticeGroup; kind: "interview" | "negotiati
   const unit = kind === "interview" ? "round" : "talk";
 
   return (
-    <section className="card overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 p-5">
+    <section className={flat ? "" : "card overflow-hidden"}>
+      {!noHead && <div className="flex flex-wrap items-center gap-3 p-5">
         {g.company && <CompanyAvatar name={g.company} size={44} />}
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.title}</h3>
           <p className="text-[0.84rem] text-muted">
-            {g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}
+            {g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
             {best != null && <> · best <b className="text-ink">{best}/10</b></>}
             {gain > 0 && <span className="text-good"> · up {gain} since your first</span>}
           </p>
@@ -76,7 +77,8 @@ function JobCard({ g, kind }: { g: PracticeGroup; kind: "interview" | "negotiati
             ))}
           </div>
         )}
-      </div>
+        {cta && <div className="w-full sm:w-auto">{cta}</div>}
+      </div>}
 
       {kind === "interview" && (
         <div className="px-5">
@@ -90,7 +92,9 @@ function JobCard({ g, kind }: { g: PracticeGroup; kind: "interview" | "negotiati
         </div>
       )}
 
-      {tab === "rounds" ? (
+      {tab === "rounds" && g.rounds.length === 0 ? (
+        <p className="m-5 mt-3 rounded-2xl bg-line-2/70 px-4 py-6 text-center text-[0.88rem] text-muted">Your {unit}s for this {kind === "interview" ? "job" : "offer"} will show up here, with their scores.</p>
+      ) : tab === "rounds" ? (
         <ol className="grid gap-1.5 p-3 sm:grid-cols-2 xl:grid-cols-3">
           {[...g.rounds].reverse().map((r) => {
             const n = g.rounds.indexOf(r) + 1;

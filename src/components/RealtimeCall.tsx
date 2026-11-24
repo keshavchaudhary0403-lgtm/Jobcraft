@@ -3,7 +3,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Mic, MicOff, PhoneOff, Phone, AlertCircle, AudioLines, Headphones } from "lucide-react";
-import { NewRoundButton } from "./NewRoundButton";
 import { Spinner } from "./client-ui";
 
 type Turn = { id: string; role: "user" | "assistant"; text: string; live?: boolean };
@@ -16,7 +15,7 @@ const MAX_MINUTES = 25;
  * short-lived secret from our server. Every finished turn is saved to the session
  * transcript (in order) and every response's cost is logged against the user.
  */
-export function RealtimeCall({ sessionId, aiName, kind, history, finished = false }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[]; finished?: boolean }) {
+export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[]}) {
   const initialTurns = history.filter((m) => m.role === "assistant" && m.content.includes("?")).length;
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
@@ -229,19 +228,17 @@ export function RealtimeCall({ sessionId, aiName, kind, history, finished = fals
             {live && kind === "interview" && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(Math.max(questions, 1), 6)} of 6</span>}
           </div>
           <div className="mt-2 font-display text-[1.35rem] font-bold leading-tight">
-            {status === "connecting" ? "Connecting..." : !live ? (finished && status !== "ended" ? "This round is finished" : status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
+            {status === "connecting" ? "Connecting..." : !live ? (status === "ended" ? "Call ended" : "Ready when you are") : speaking === "ai" ? `${aiName} is speaking` : speaking === "you" ? "Listening..." : muted ? "You're muted" : "Your turn - just talk"}
           </div>
           <p className="mt-0.5 text-[0.84rem] text-cream/65">
-            {live ? "Speak naturally. You can interrupt, like a real call." : finished && status !== "ended" ? (kind === "interview" ? "Your scorecard is on the right. Start a new round for fresh questions." : "Start a new talk to practise again.") : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
+            {live ? "Speak naturally. You can interrupt, like a real call." : kind === "interview" ? "A live interviewer who listens and talks back. Headphones help." : "A live HR manager. Headphones help."}
           </p>
           {kind === "interview" && (
             <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= questions ? "bg-mustard" : "bg-white/15"}`} />)}</div>
           )}
         </div>
-        <div className="flex items-center gap-2">
-          {!live && finished && status !== "ended" ? (
-            <NewRoundButton sessionId={sessionId} kind={kind} variant="call" />
-          ) : !live ? (
+        <div className="flex w-full items-center gap-2 sm:w-auto [&>.btn]:flex-1 sm:[&>.btn]:flex-none">
+          {!live ? (
             <button onClick={start} disabled={status === "connecting"} className="btn btn-clay h-12 px-6 text-[1rem]">
               {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}
             </button>

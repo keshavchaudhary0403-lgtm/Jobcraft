@@ -5,7 +5,10 @@ import { ctcInput, formatCtc, normaliseBasics } from "@/lib/profile-format";
 
 import { useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Check, ExternalLink, IndianRupee, Pencil } from "lucide-react";
+import { JobCard } from "@/components/RoundHistory";
+import type { PracticeGroup } from "@/lib/practice-history";
+import { Check, ExternalLink, IndianRupee, Mic, Pencil } from "lucide-react";
+import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "@/components/client-ui";
 import type { Application } from "@/lib/types";
@@ -26,7 +29,7 @@ const range = (s: string): number[] => {
 type Defaults = { city: string; current_ctc: string; experience: string; strongest_proof: string };
 type A = Pick<Application, "id" | "company" | "role" | "status" | "company_type" | "location" | "analysis">;
 
-export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A[]; preselect?: string; defaults: Defaults; userId: string }) {
+export function NegotiationForm({ apps, preselect, defaults, userId, groups = [] }: { apps: A[]; preselect?: string; defaults: Defaults; userId: string; groups?: PracticeGroup[] }) {
   const firstId = apps.find((a) => a.id === preselect)?.id ?? apps[0]?.id ?? "";
   const [appId, setAppId] = useState(firstId);
   const complete = (v: Defaults) => !!(v.current_ctc.trim() && v.experience.trim() && v.city.trim() && v.strongest_proof.trim());
@@ -86,20 +89,23 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
     <button type="button" className="btn btn-ghost btn-sm" onClick={() => setEdit(true)}><Pencil size={13} /> Edit</button>
   );
 
+  const g = a ? groups.find((x) => x.key === a.id) : undefined;
+  const talks = g?.rounds.length ?? 0;
+  const lastPos = g?.rounds.slice().reverse().find((r) => r.offer)?.offer?.position;
+  const blocked = o == null || m.length !== 2 || m[1] < m[0];
+
   return (
     <div className="space-y-5">
-      {/* ── 1 + 2: the offer and the numbers ── */}
-      <section className="card grid overflow-hidden lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1.4fr)]">
-        <div className="flex flex-col p-6">
-          <StepHead n={1} title="Which offer?" />
+      {/* Same shape as Interview: pick the offer, see how it works, then the offer's own card below. */}
+      <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <section className="card p-6">
+          <h2 className="mb-4 text-[1.2rem] font-bold leading-none">Which offer are you practising for?</h2>
           <JobPicker
-            compact
             apps={apps}
             preselect={firstId}
             otherLabel="Offer not in my jobs"
             onPick={setAppId}
-            otherFields={
-              <div className="grid gap-2">
+            otherFields={<div className="grid gap-2">
                 <div><label className="label">Role offered <span className="text-clay">*</span></label><input name="role" required maxLength={90} className="field" placeholder="e.g. Senior Product Manager" /></div>
                 <div><label className="label">Company type <span className="text-clay">*</span></label>
                   <select name="company_type" required className="field" defaultValue="">
@@ -107,80 +113,18 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
                     {["Startup", "Growth-stage startup", "MNC", "Indian large company", "Agency / consulting", "Government / PSU"].map((t) => <option key={t}>{t}</option>)}
                   </select>
                 </div>
-              </div>
-            }
+              </div>}
           />
-          <div className="mb-4" />
           {a && (
             <>
               <input type="hidden" name="role" value={a.role} />
               <input type="hidden" name="company_type" value={a.company_type ?? "company"} />
             </>
           )}
-          <div className="mt-auto flex items-start gap-3 rounded-2xl bg-good-soft px-4 py-3 text-[0.86rem] text-good">
-            <IndianRupee size={16} className="mt-0.5 shrink-0" />
-            <span>{apps.some((x) => x.status === "offer") ? "Offers are listed first. Check each one before you reply." : "No offer yet? Practise anyway - the first ask is the hardest."}</span>
-          </div>
-        </div>
-
-        <div className="flex flex-col border-line p-6 lg:border-l" style={{ background: "var(--color-cream)" }}>
-          <StepHead n={2} title="Is it fair?" />
-          <div className="grid gap-4 sm:grid-cols-2">
-            <BigInput label="Offered CTC" placeholder="9" value={offered} onChange={setOffered} bad={offerBad} hint={offerBad ? "Enter the yearly offer in lakh, e.g. 9" : "Yearly, in lakh"} onBlur={() => o != null && setOffered(fmt(o))} />
-            <BigInput label="Market range" placeholder="8 - 12" value={market} onChange={setMarket} bad={marketBad} hint={marketBad ? "Enter low and high in lakh, e.g. 8 - 12" : "Low - high, in lakh"} onBlur={() => m.length === 2 && m[1] >= m[0] && setMarket(`${fmt(m[0])} - ${fmt(m[1])}`)} />
-            <input type="hidden" name="offered_ctc" value={o != null ? `₹${fmt(o)} LPA` : ""} />
-            <input type="hidden" name="market_range" value={m.length === 2 ? `₹${fmt(m[0])} - ₹${fmt(m[1])} LPA` : ""} />
-          </div>
-          <div className="mt-2 flex flex-wrap items-center gap-1.5 text-[0.8rem] text-muted">
-            Look up the market on
-            <a className="pill-link h-6 px-2.5 text-[0.76rem]" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
-            <a className="pill-link h-6 px-2.5 text-[0.76rem]" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
-          </div>
-          <div className="mt-auto pt-6"><MarketScale offered={o} lo={lo} hi={hi} /></div>
-        </div>
-      </section>
-
-      {/* ── 3 + start ── */}
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
-        <section className={`card flex flex-col p-6 ${edit ? "ring-2 ring-clay/30" : ""}`}>
-          <StepHead n={3} title="Your leverage" action={editActions} />
-          {/* Always submitted with the form */}
-          <input type="hidden" name="current_ctc" value={saved.current_ctc} />
-          <input type="hidden" name="experience" value={saved.experience} />
-          <input type="hidden" name="city" value={saved.city} />
-          <input type="hidden" name="strongest_proof" value={saved.strongest_proof} />
-          {saveMsg && <p className="mb-2 text-[0.82rem] text-bad">{saveMsg}</p>}
-          {justSaved && <p className="mb-2 flex items-center gap-1 text-[0.82rem] text-good"><Check size={13} /> Saved to your profile</p>}
-          {edit ? (
-            <div className="grid gap-3 sm:grid-cols-3">
-              <CtcField label="Current CTC" required value={vals.current_ctc} onChange={(v) => setVals({ ...vals, current_ctc: v })} />
-              <ExperienceField label="Experience" required value={vals.experience} onChange={(v) => setVals({ ...vals, experience: v })} />
-              <TextField kind="city" label="City" required value={vals.city} onChange={(v) => setVals({ ...vals, city: v })} placeholder="e.g. Bengaluru" />
-              <div className="sm:col-span-3"><label className="label">Best results (with numbers)</label><textarea className="field resize-none" rows={3} maxLength={500} value={vals.strongest_proof} placeholder="e.g. Grew monthly revenue from ₹8.5L to ₹25L in 3 months." onChange={(e) => setVals({ ...vals, strongest_proof: e.target.value })} /></div>
-              <p className="text-[0.78rem] text-muted sm:col-span-3">Saving also updates My profile.</p>
-            </div>
-          ) : (
-            <div className="grid flex-1 gap-4 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.3fr)]">
-              <div className="grid gap-2.5">
-                {[["Current CTC", saved.current_ctc], ["Experience", saved.experience], ["City", saved.city]].map(([k, v], i) => (
-                  <div key={k} data-tone={i % 5} className="tone-soft flex items-center justify-between gap-3 rounded-2xl bg-line-2/70 px-4 py-2.5">
-                    <span className="text-[0.8rem] text-muted">{k}</span>
-                    <span className="truncate font-display text-[1.1rem] font-bold" data-tip={v}>{v || "-"}</span>
-                  </div>
-                ))}
-              </div>
-              <div className="flex flex-col rounded-2xl p-4" style={{ background: "var(--color-mustard-soft)" }}>
-                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">Your strongest proof</div>
-                <p className="mt-1.5 font-display text-[1.05rem] font-semibold leading-snug">&ldquo;{saved.strongest_proof || "Add a result with a number"}&rdquo;</p>
-                <p className="mt-auto pt-2 text-[0.78rem] text-mustard-ink/80">You&apos;ll use this to justify your counter.</p>
-              </div>
-            </div>
-          )}
         </section>
-
-        <section className="dark-card flex flex-col p-6">
+        <section className="dark-card p-6">
           <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How the talk plays out</div>
-          <ol className="mt-4 flex-1 space-y-3">
+          <ol className="mt-4 space-y-3">
             {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say \"stop\" any time for feedback"].map((t, i) => (
               <li key={t} className="flex items-center gap-3">
                 <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
@@ -188,18 +132,99 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
               </li>
             ))}
           </ol>
-          <StartButton disabled={edit} onClick={(e) => { if (o == null || m.length !== 2 || m[1] < m[0]) { e.preventDefault(); setTried(true); } }} />
-          {tried && (o == null || m.length !== 2 || m[1] < m[0]) && <p className="mt-2 rounded-xl bg-white/12 px-3 py-2 text-center text-[0.82rem] font-semibold text-white">Add the offered CTC and the market range above first.</p>}
-          {edit && <span className="mt-1.5 text-center text-[0.8rem] text-white/60">Save your details first</span>}
+          <p className="mt-5 rounded-2xl bg-white/[.07] px-4 py-3 text-[0.86rem] text-cream/80">{apps.some((x) => x.status === "offer") ? "Offers are listed first. Practise each one before you reply to HR." : "No offer yet? Practise anyway - the first ask is the hardest."}</p>
         </section>
       </div>
+
+      {/* The offer's card: its numbers, your leverage, the one Start button, and its past talks. */}
+      <section className="card overflow-hidden">
+        <div className="flex flex-wrap items-center gap-3 p-5">
+          {a ? <CompanyAvatar name={a.company} size={44} /> : <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><IndianRupee size={20} /></span>}
+          <div className="min-w-0 flex-1">
+            <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{a ? `${a.role} @ ${a.company}` : "An offer not in your jobs"}</h3>
+            <p className="text-[0.84rem] text-muted">
+              {talks ? `${talks} talk${talks === 1 ? "" : "s"}` : "No talks yet"}
+              {lastPos && <> · last check: <b className="text-ink">{lastPos === "at" ? "at market" : `${lastPos} market`}</b></>}
+            </p>
+          </div>
+          <div className="w-full sm:w-auto">
+            <StartButton label={`Start talk ${talks + 1}`} disabled={edit} onClick={(e) => { if (blocked) { e.preventDefault(); setTried(true); } }} />
+          </div>
+          {tried && blocked && <p className="w-full rounded-xl bg-bad-soft px-3 py-2 text-[0.84rem] font-medium text-bad sm:text-right">Add the offered CTC and the market range below first.</p>}
+          {edit && <p className="w-full text-[0.84rem] text-muted sm:text-right">Save your details below first.</p>}
+        </div>
+
+        <div className="grid border-t border-line lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]">
+          <div className="flex flex-col p-5 sm:p-6" style={{ background: "var(--color-cream)" }}>
+            <StepHead
+              n={1}
+              title="Is it fair?"
+              action={
+                <span className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-muted">
+                  <span className="hidden sm:inline">Market data:</span>
+                  <a className="pill-link h-6 px-2.5 text-[0.76rem]" target="_blank" rel="noreferrer" href={`https://www.ambitionbox.com/search?q=${q}`}>AmbitionBox <ExternalLink size={10} /></a>
+                  <a className="pill-link h-6 px-2.5 text-[0.76rem]" target="_blank" rel="noreferrer" href={`https://www.glassdoor.co.in/Search/results.htm?keyword=${q}`}>Glassdoor <ExternalLink size={10} /></a>
+                </span>
+              }
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <BigInput label="Offered CTC" placeholder="e.g. 9" value={offered} onChange={setOffered} bad={offerBad} hint={offerBad ? "Enter the yearly offer in lakh, e.g. 9" : "Yearly, in lakh"} onBlur={() => o != null && setOffered(fmt(o))} />
+              <BigInput label="Market range" placeholder="e.g. 8 - 12" value={market} onChange={setMarket} bad={marketBad} hint={marketBad ? "Enter low and high in lakh, e.g. 8 - 12" : "Low - high, in lakh"} onBlur={() => m.length === 2 && m[1] >= m[0] && setMarket(`${fmt(m[0])} - ${fmt(m[1])}`)} />
+              <input type="hidden" name="offered_ctc" value={o != null ? `₹${fmt(o)} LPA` : ""} />
+              <input type="hidden" name="market_range" value={m.length === 2 ? `₹${fmt(m[0])} - ₹${fmt(m[1])} LPA` : ""} />
+            </div>
+            <div className="mt-auto pt-5"><MarketScale offered={o} lo={lo} hi={hi} /></div>
+          </div>
+          <div className={`flex flex-col border-line p-5 sm:p-6 lg:border-l ${edit ? "ring-2 ring-inset ring-clay/30" : ""}`}>
+            <StepHead n={2} title="Your leverage" action={editActions} />
+          {/* Always submitted with the form */}
+            <input type="hidden" name="current_ctc" value={saved.current_ctc} />
+            <input type="hidden" name="experience" value={saved.experience} />
+            <input type="hidden" name="city" value={saved.city} />
+            <input type="hidden" name="strongest_proof" value={saved.strongest_proof} />
+            {saveMsg && <p className="mb-2 text-[0.82rem] text-bad">{saveMsg}</p>}
+            {justSaved && <p className="mb-2 flex items-center gap-1 text-[0.82rem] text-good"><Check size={13} /> Saved to your profile</p>}
+            {edit ? (
+              <div className="grid gap-3 sm:grid-cols-3">
+                <CtcField label="Current CTC" required value={vals.current_ctc} onChange={(v) => setVals({ ...vals, current_ctc: v })} />
+                <ExperienceField label="Experience" required value={vals.experience} onChange={(v) => setVals({ ...vals, experience: v })} />
+                <TextField kind="city" label="City" required value={vals.city} onChange={(v) => setVals({ ...vals, city: v })} placeholder="e.g. Bengaluru" />
+                <div className="sm:col-span-3"><label className="label">Best results (with numbers)</label><textarea className="field resize-none" rows={3} maxLength={500} value={vals.strongest_proof} placeholder="e.g. Grew monthly revenue from ₹8.5L to ₹25L in 3 months." onChange={(e) => setVals({ ...vals, strongest_proof: e.target.value })} /></div>
+                <p className="text-[0.78rem] text-muted sm:col-span-3">Saving also updates My profile.</p>
+              </div>
+            ) : (
+              <div className="flex flex-1 flex-col gap-3">
+              <div className="grid grid-cols-3 gap-2">
+                {[["Current CTC", saved.current_ctc], ["Experience", saved.experience], ["City", saved.city]].map(([k, v], i) => (
+                  <div key={k} data-tone={i % 5} className="tone-soft rounded-2xl bg-line-2/70 px-3 py-2.5">
+                    <div className="truncate text-[0.74rem] text-muted">{k}</div>
+                    <div className="truncate font-display text-[1rem] font-bold" data-tip={v}>{v || "-"}</div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex-1 rounded-2xl px-4 py-3" style={{ background: "var(--color-mustard-soft)" }}>
+                <div className="text-[0.74rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">Your strongest proof · use it to justify your counter</div>
+                <p className="mt-1 line-clamp-3 text-[0.92rem] font-semibold leading-snug" data-tip={saved.strongest_proof}>&ldquo;{saved.strongest_proof || "Add a result with a number"}&rdquo;</p>
+              </div>
+            </div>
+            )}
+          </div>
+        </div>
+
+        {g && g.rounds.length > 0 && (
+          <div className="border-t border-line">
+            <div className="px-5 pt-4 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">Past talks for this offer</div>
+            <JobCard g={g} kind="negotiation" flat noHead />
+          </div>
+        )}
+      </section>
     </div>
   );
 }
 
 function StepHead({ n, title, action }: { n: number; title: string; action?: React.ReactNode }) {
   return (
-    <div className="mb-4 flex items-center gap-2.5">
+    <div className="mb-4 flex flex-wrap items-center gap-2.5">
       <span data-tone={(n - 1) % 5} className="tone-chip grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">{n}</span>
       <h2 className="flex-1 text-[1.2rem] font-bold leading-none">{title}</h2>
       {action}
@@ -210,12 +235,14 @@ function StepHead({ n, title, action }: { n: number; title: string; action?: Rea
 function BigInput({ label, placeholder, value, onChange, onBlur, bad, hint }: { label: string; placeholder: string; value: string; onChange: (v: string) => void; onBlur: () => void; bad: boolean; hint: string }) {
   return (
     <div>
-      <label className={`block rounded-2xl border-[1.5px] bg-card px-4 py-3 transition focus-within:border-brand ${bad ? "border-bad/60" : "border-line"}`}>
-        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.12em] text-muted">{label}</span>
-        <span className="mt-1 flex items-center gap-1.5">
-          <IndianRupee size={18} className="shrink-0 text-faint" />
-          <input inputMode="decimal" required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className="w-full min-w-0 bg-transparent font-display text-[1.5rem] font-bold outline-none placeholder:text-faint/70" />
-          <span className="shrink-0 rounded-[10px] bg-line-2 px-2 py-1 text-[0.8rem] font-semibold text-muted">LPA</span>
+      <label
+        className={`block rounded-2xl border-2 bg-white px-4 py-2.5 shadow-[0_8px_20px_-14px_color-mix(in_srgb,var(--brand)_55%,transparent)] transition focus-within:border-brand focus-within:ring-4 focus-within:ring-brand/15 ${bad ? "border-bad/60" : value.trim() ? "border-brand/50" : "border-brand/25 hover:border-brand/45"}`}
+      >
+        <span className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-brand">{label}</span>
+        <span className="mt-0.5 flex items-center gap-1.5">
+          <IndianRupee size={17} className="shrink-0 text-brand/60" />
+          <input inputMode="decimal" required placeholder={placeholder} value={value} onChange={(e) => onChange(e.target.value)} onBlur={onBlur} className="w-full min-w-0 bg-transparent font-display text-[1.35rem] font-bold text-ink outline-none placeholder:text-[1.05rem] placeholder:font-medium placeholder:text-faint/60" />
+          <span className="shrink-0 rounded-[10px] bg-brand-soft px-2 py-1 text-[0.78rem] font-semibold text-brand">LPA</span>
         </span>
       </label>
       <p className={`mt-1.5 text-[0.78rem] ${bad ? "font-medium text-bad" : "text-muted"}`}>{hint}</p>
@@ -235,31 +262,31 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
   return (
     <div className={ready ? "" : "opacity-45"}>
       <div className="flex items-baseline justify-between">
-        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example: add your numbers above"}</span>
+        <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">{ready ? "Where your offer sits" : "Example - green is the market, the dot is the offer"}</span>
         {pos && <span className={`font-display text-[1.3rem] font-bold ${P[pos].c}`}>{P[pos].t}</span>}
       </div>
-      <div className="relative mt-9 h-4 rounded-full bg-line">
+      <div className="relative mt-8 h-3.5 rounded-full bg-line">
         <span className="absolute inset-y-0 rounded-full bg-good/70" style={{ left: `${pct(L)}%`, width: `${Math.max(pct(H) - pct(L), 1.5)}%` }} />
         <span className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2" style={{ left: `${pct(O)}%` }}>
           <span className="absolute bottom-full left-1/2 mb-2 -translate-x-1/2 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold text-white">Offer ₹{O}</span>
-          <span className="block h-7 w-7 rounded-full border-[3px] border-white bg-clay shadow" />
+          <span className="block h-6 w-6 rounded-full border-[3px] border-white bg-clay shadow" />
         </span>
       </div>
-      <div className="relative mt-2 h-5 text-[0.78rem] text-muted">
+      <div className="relative mt-1.5 h-5 text-[0.78rem] text-muted">
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(L)}%` }}>₹{L}</span>
         <span className="absolute -translate-x-1/2" style={{ left: `${pct(H)}%` }}>₹{H}</span>
       </div>
-      <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "Green band is the market range. The dot is the offer."}</p>
+      {pos && <p className="mt-0.5 text-[0.86rem] text-ink/80">{P[pos].d}</p>}
     </div>
   );
 }
 
 /** Shows "Starting..." while the new talk is being created, so it never looks like nothing happened. */
-function StartButton({ disabled, onClick }: { disabled: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+function StartButton({ label, disabled, onClick }: { label: string; disabled: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
   const { pending } = useFormStatus();
   return (
-    <button className={`btn btn-clay mt-5 h-12 w-full text-[1rem] ${pending ? "pointer-events-none" : ""}`} aria-busy={pending} disabled={disabled} onClick={onClick}>
-      {pending ? <><Spinner /> Starting...</> : "Start practice"}
+    <button className={`btn btn-clay h-12 w-full px-6 text-[1rem] sm:w-auto ${pending ? "pointer-events-none" : ""}`} aria-busy={pending} disabled={disabled} onClick={onClick}>
+      {pending ? <><Spinner /> Starting...</> : <><Mic size={17} /> {label}</>}
     </button>
   );
 }

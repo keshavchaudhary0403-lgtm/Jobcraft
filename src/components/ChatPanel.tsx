@@ -111,7 +111,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
   return (
     <div className="flex flex-col gap-4">
-      {!(ended && endBanner) && voice && (
+      {!ended && voice && (
         <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
           <VoiceOrb state={state} />
           <div className="min-w-0 flex-1">
@@ -178,7 +178,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
       </div>
 
       <div className="sticky bottom-0 bg-gradient-to-t from-[var(--chat-bg,var(--bg))] via-[var(--chat-bg,var(--bg))] to-transparent pb-4 pt-3">
-        {ended && endBanner ? endBanner : (<>
+        {ended ? (endBanner ?? <p className="rounded-2xl bg-line-2/70 px-4 py-3 text-center text-[0.86rem] text-muted">This round is complete. Your scorecard is on the right.</p>) : (<>
         {quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (

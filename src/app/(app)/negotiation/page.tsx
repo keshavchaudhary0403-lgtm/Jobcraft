@@ -40,16 +40,14 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
           preselect={preselect}
           userId={user.id}
           defaults={{ city: profile.city ?? "", current_ctc: profile.current_ctc ?? "", experience: profile.experience_years ?? "", strongest_proof: profile.strongest_proof ?? "" }}
+          groups={groups}
         />
       </form>
 
-      {list.length > 0 && (
+      {groups.some((g) => g.key.startsWith("t:")) && (
         <section className="space-y-3 fade-up">
-          <div className="px-1">
-            <h2 className="text-[1.35rem] font-bold leading-tight">Your practice, by offer</h2>
-            <p className="text-[0.88rem] text-muted">Revisit any talk and its feedback before the real conversation.</p>
-          </div>
-          <PracticeHistory groups={groups} kind="negotiation" />
+          <h2 className="px-1 text-[1.1rem] font-bold">Other offers you practised</h2>
+          <PracticeHistory groups={groups.filter((g) => g.key.startsWith("t:"))} kind="negotiation" />
         </section>
       )}
     </div>

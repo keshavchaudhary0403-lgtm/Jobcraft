@@ -1,8 +1,6 @@
-import { Mic } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { PracticeHistory } from "@/components/RoundHistory";
 import { groupRounds } from "@/lib/practice-history";
-import { JobPicker } from "@/components/JobPicker";
+import { InterviewHub } from "@/components/InterviewHub";
 import { startSession } from "@/lib/actions";
 import type { Application, Session } from "@/lib/types";
 
@@ -19,12 +17,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
   const list = sessions ?? [];
   const scores = list.map((s) => (s.meta as unknown as { interview_report?: { score?: number } }).interview_report?.score).filter((x): x is number => typeof x === "number");
   const best = scores.length ? Math.max(...scores) : null;
-  const last = scores[0] ?? null;
-  const rounds = Math.min(list.length, 3);
   const company = new Map((apps ?? []).map((a) => [a.id, a.company]));
   const groups = groupRounds(list, (s) => (s.application_id ? company.get(s.application_id) ?? null : ((s.meta as { company?: string } | null)?.company ?? null)));
-
-  const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "After six questions: your score and model answers"];
 
   return (
     <div className="space-y-5">
@@ -34,66 +28,23 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
           <p className="mt-2 text-[1rem] text-muted">Six questions, out loud, with an honest score.</p>
         </div>
         <div className="flex gap-2">
-          <span className="flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none text-brand">{rounds}/3</span><span className="text-[0.84rem] text-brand">rounds done</span></span>
+          <span className="flex items-center gap-2 rounded-full bg-brand-soft px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none text-brand">{list.length}</span><span className="text-[0.84rem] text-brand">round{list.length === 1 ? "" : "s"} practised</span></span>
           {best != null && <span className="flex items-center gap-2 rounded-full border-[1.5px] border-line px-4 py-2"><span className="font-display text-[1.3rem] font-bold leading-none">{best}/10</span><span className="text-[0.84rem] text-muted">best score</span></span>}
         </div>
       </header>
 
-      <form action={start} className="grid items-start gap-5 fade-up lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
-        <section className="card flex flex-col p-6">
-          <div className="mb-4 flex items-center gap-2.5">
-            <span data-tone="0" className="tone-chip grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">1</span>
-            <h2 className="flex-1 text-[1.2rem] font-bold leading-none">Pick the job</h2>
-          </div>
-          <JobPicker
-            apps={apps ?? []}
-            preselect={preselect}
-            otherFields={
-              <div className="grid gap-3 sm:grid-cols-2">
+      <form action={start} className="fade-up">
+        <InterviewHub
+          apps={apps ?? []}
+          preselect={preselect}
+          groups={groups}
+          otherFields={<div className="grid gap-3 sm:grid-cols-2">
                 <div><label className="label">Company <span className="text-clay">*</span></label><input name="company" required maxLength={80} className="field" placeholder="e.g. Swiggy" /></div>
                 <div><label className="label">Role <span className="text-clay">*</span></label><input name="role" required maxLength={90} className="field" placeholder="e.g. Category Manager" /></div>
                 <div className="sm:col-span-2"><label className="label">Job description <span className="rounded-full bg-line-2 px-1.5 py-px text-[0.7rem] font-semibold text-muted">Recommended</span></label><textarea name="jd" className="field" rows={4} placeholder="Paste it so questions match the real job" /></div>
-              </div>
-            }
-          />
-          <div className="mt-auto pt-5">
-            <div className="mb-2 flex items-center justify-between text-[0.8rem]">
-              <span className="font-semibold uppercase tracking-[0.14em] text-muted">Practice goal</span>
-              <span className="text-muted">{rounds >= 3 ? "All 3 rounds done. You're ready." : "3 rounds, new questions each time"}</span>
-            </div>
-            <div className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < rounds ? "bg-brand" : "bg-line"}`} />)}</div>
-          </div>
-        </section>
-
-        <section className="dark-card flex flex-col p-6">
-          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How a round works</div>
-          <ol className="mt-4 flex-1 space-y-3">
-            {STEPS.map((t, i) => (
-              <li key={t} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/10 font-display text-[0.9rem] font-bold text-mustard">{i + 1}</span>
-                <span className="text-[0.95rem] text-cream/90">{t}</span>
-              </li>
-            ))}
-          </ol>
-          <div className="mt-5 grid grid-cols-2 gap-2 text-center">
-            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last != null ? `${last}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/70">last score</div></div>
-            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best != null ? `${best}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/70">best score</div></div>
-          </div>
-          <button className="btn btn-clay mt-4 h-12 w-full text-[1rem]"><Mic size={17} /> Start interview</button>
-        </section>
+              </div>}
+        />
       </form>
-
-      {list.length > 0 && (
-        <section className="space-y-3 fade-up">
-          <div className="flex items-end justify-between gap-3 px-1">
-            <div>
-              <h2 className="text-[1.35rem] font-bold leading-tight">Your practice, by job</h2>
-              <p className="text-[0.88rem] text-muted">Revisit any round, watch your score climb, and study the questions you found hardest.</p>
-            </div>
-          </div>
-          <PracticeHistory groups={groups} kind="interview" />
-        </section>
-      )}
     </div>
   );
 }

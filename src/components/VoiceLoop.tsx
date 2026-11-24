@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import { AlertCircle, Mic, Phone, PhoneOff, SkipForward } from "lucide-react";
-import { NewRoundButton } from "./NewRoundButton";
 import { cleanAi } from "@/lib/clean-ai";
 import { Orb } from "./RealtimeCall";
 import { Spinner } from "./client-ui";
@@ -30,7 +29,6 @@ export function VoiceLoop({
   history,
   kickoff,
   modelName,
-  finished: wasFinished,
   asked,
 }: {
   sessionId: string;
@@ -40,8 +38,6 @@ export function VoiceLoop({
   /** Hidden first message when the session has no messages at all (same as chat mode). */
   kickoff: { prompt: string; step: string } | null;
   modelName: string;
-  /** The round already ended - offer a new round instead of calling again. */
-  finished: boolean;
   /** Highest question number asked so far in this round (any mode). */
   asked: number;
 }) {
@@ -49,7 +45,7 @@ export function VoiceLoop({
   const [phase, setPhase] = useState<Phase>("off");
   const [error, setError] = useState("");
   const [ended, setEnded] = useState(false);
-  const [finished, setFinished] = useState(wasFinished);
+  const [finished, setFinished] = useState(false);
   const [qMax, setQMax] = useState(asked);
   const live = useRef(false);
   const kicked = useRef(false);
@@ -253,10 +249,8 @@ export function VoiceLoop({
           </p>
           {kind === "interview" && <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= questions ? "bg-mustard" : "bg-white/15"}`} />)}</div>}
         </div>
-        <div className="flex items-center gap-2">
-          {!on && finished ? (
-            <NewRoundButton sessionId={sessionId} kind={kind} variant="call" />
-          ) : !on ? (
+        <div className="flex w-full items-center gap-2 sm:w-auto [&>.btn]:flex-1 sm:[&>.btn]:flex-none">
+          {!on && finished ? null : !on ? (
             <button onClick={start} className="btn btn-clay h-12 px-6 text-[1rem]"><Phone size={17} /> {ended || turns.length ? "Continue call" : "Start call"}</button>
           ) : (
             <>
