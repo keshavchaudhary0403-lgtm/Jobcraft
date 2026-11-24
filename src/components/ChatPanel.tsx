@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowUp, Mic, Square, Volume2, VolumeX } from "lucide-react";
+import { ArrowUp, Lightbulb, Mic, PenLine, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { useVoice } from "./useVoice";
 import { CopyButton } from "./client-ui";
@@ -118,12 +118,27 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
       <div className="flex min-w-0 flex-col gap-4">
       <div className="flex flex-col gap-3">
         {visible.length === 0 && !busy && suggestions && (
-          <div className="flex flex-wrap gap-2 fade-up">
-            {suggestions.map((s) => (
-              <button key={s} onClick={() => send(s)} className="pill-nav h-9 whitespace-normal text-left text-[0.85rem]">
-                {s}
-              </button>
-            ))}
+          <div className="fade-up">
+            {/* Welcome: who the coach is + colourful starter tiles */}
+            <div className="flex items-start gap-3 rounded-[20px] bg-card p-4 ring-1 ring-line">
+              <CoachAvatar />
+              <div className="min-w-0">
+                <div className="font-display text-[1.05rem] font-bold">Hi, I&apos;m your {aiName.toLowerCase()}</div>
+                <p className="mt-0.5 text-[0.88rem] leading-snug text-muted">I&apos;ve read your resume and this job description. Ask me anything, or start with one of these.</p>
+              </div>
+            </div>
+            <div className="mt-3 grid gap-2">
+              {suggestions.map((s, i) => {
+                const Icon = [Lightbulb, Search, PenLine, Target][i % 4];
+                return (
+                  <button key={s} onClick={() => send(s)} className="group flex items-center gap-3 rounded-2xl bg-card px-3.5 py-3 text-left ring-1 ring-line transition hover:-translate-y-0.5 hover:ring-brand/40 hover:shadow-[0_10px_24px_-18px_rgba(0,50,110,.5)]">
+                    <span data-tone={[1, 2, 3, 4][i % 4]} className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><Icon size={16} /></span>
+                    <span className="flex-1 text-[0.9rem] font-semibold">{s}</span>
+                    <ArrowUp size={15} className="rotate-45 text-faint transition group-hover:text-clay" />
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
         {visible.map((m) => (
@@ -200,17 +215,17 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
   if (msg.role === "user")
     return (
       <div className="flex justify-end fade-up">
-        <div className="max-w-[85%] whitespace-pre-wrap rounded-[18px] rounded-br-md bg-side px-4 py-2.5 text-[0.92rem] text-cream">{msg.content}</div>
+        <div className="max-w-[85%] whitespace-pre-wrap rounded-[18px] rounded-br-md px-4 py-2.5 text-[0.92rem] text-white shadow-[0_10px_22px_-14px_var(--sel-glow)]" style={{ background: "var(--sel-bg)" }}>{msg.content}</div>
       </div>
     );
   return (
     <div className="fade-up">
-      <div className="mb-1 text-xs font-medium text-faint">{aiName}</div>
-      <div className="rounded-[18px] rounded-tl-md border-[1.5px] border-line bg-card px-4 py-3">
+      <div className="mb-1.5 flex items-center gap-2"><CoachAvatar small /><span className="text-[0.8rem] font-semibold text-muted">{aiName}</span></div>
+      <div className="rounded-[18px] rounded-tl-md bg-card px-4 py-3 shadow-[0_8px_24px_-18px_rgba(0,50,110,.35)] ring-1 ring-line">
         {msg.pending && !msg.content ? (
           <div className="flex gap-1 py-1.5">
             {[0, 1, 2].map((i) => (
-              <span key={i} className="h-2 w-2 rounded-full bg-clay/60" style={{ animation: `breathe 1s ease-in-out ${i * 0.15}s infinite` }} />
+              <span key={i} className="h-2 w-2 rounded-full" style={{ background: ["var(--brand)", "#1f86d6", "var(--clay)"][i], animation: `breathe 1s ease-in-out ${i * 0.15}s infinite` }} />
             ))}
           </div>
         ) : (
@@ -228,5 +243,15 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
         </div>
       )}
     </div>
+  );
+}
+
+/** Small gradient avatar for the AI coach. */
+function CoachAvatar({ small = false }: { small?: boolean }) {
+  const size = small ? 22 : 40;
+  return (
+    <span className="grid shrink-0 place-items-center rounded-full text-white shadow-[0_6px_14px_-8px_var(--sel-glow)]" style={{ width: size, height: size, background: "linear-gradient(135deg, #1f86d6, #004e98)" }}>
+      <Sparkles size={small ? 12 : 18} />
+    </span>
   );
 }

@@ -192,11 +192,11 @@ export function SidePanel({ open, onClose, title, sub, icon, children }: { open:
       {/* Phones: bottom sheet (page stays visible above). Larger screens: floating side panel. */}
       <div className="side-panel flex h-[86vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-bg shadow-[0_30px_70px_-30px_rgba(0,30,70,.6)] sm:h-full sm:max-w-[480px] sm:rounded-[28px]" onMouseDown={(e) => e.stopPropagation()}>
         <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-white/60 sm:hidden" style={{ position: "relative", zIndex: 1, marginBottom: -14 }} />
-        <div className="rail-bg flex items-center gap-3 px-5 py-4 text-white">
+        <div className="flex items-center gap-3 px-5 py-4 text-white" style={{ background: "var(--hero-bg)" }}>
           {icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-white/20">{icon}</span>}
           <div className="min-w-0 flex-1">
             <div className="font-display text-[1.2rem] font-bold leading-tight">{title}</div>
-            {sub && <div className="truncate text-[0.82rem] text-white/70">{sub}</div>}
+            {sub && <div className="flex items-center gap-1.5 truncate text-[0.82rem] text-white/75"><span className="h-2 w-2 shrink-0 rounded-full bg-[#5fd99a] shadow-[0_0_0_3px_rgba(95,217,154,.25)]" />{sub}</div>}
           </div>
           <button className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/12 ring-1 ring-white/20 transition hover:bg-white/20" onClick={onClose} aria-label="Close"><X size={16} /></button>
         </div>
