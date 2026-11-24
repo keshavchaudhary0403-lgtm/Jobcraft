@@ -807,25 +807,33 @@ function AdminOverview({
   return (
     <div className="space-y-5 fade-up">
       {/* Headline band */}
-      <section className="dark-card grid gap-6 p-7 lg:grid-cols-[auto_minmax(0,1fr)]">
+      <section className="dark-card grid gap-6 p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
         <div className="flex items-center gap-6">
-          <BudgetDonut spent={total} budget={budget} />
+          <div className="flex flex-col items-center gap-2">
+            <BudgetDonut spent={total} budget={budget} />
+            <span className="text-[0.78rem] font-semibold text-white/70">of budget used</span>
+          </div>
           <div>
-            <div className="text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/55">Spent in {monthName}</div>
-            <div className="mt-1 font-display text-[3.2rem] font-bold leading-none tabular-nums">{rupees(total)}</div>
-            <div className="mt-1.5 text-[0.9rem] text-white/60">{budget != null ? `of ${rupees(budget)} budget` : "No total budget set"}</div>
+            <div className="text-[0.84rem] text-white/60">Spent in {monthName}</div>
+            <div className="mt-1 font-display text-[2.6rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
+            <div className="mt-2 text-[0.88rem] text-white/60">{budget != null ? <>of <b className="text-white">{rupees(budget)}</b> monthly budget</> : "No total budget set"}</div>
           </div>
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[
-            { label: "Projected by month end", value: rupees(projected), sub: `Day ${today} of ${daysInMonth}`, warn: budget != null && projected > budget, go: () => go("ai") },
-            { label: "Active this month", value: `${stats.active}/${users.length}`, sub: "Used AI at least once", go: () => go("people") },
-            { label: "Per active person", value: stats.active ? rupees(total / stats.active) : "-", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, go: () => go("people") },
+            { tone: 0, label: "Projected by month end", value: rupees(projected), sub: `Day ${today} of ${daysInMonth}`, bar: budget ? projected / budget : today / daysInMonth, warn: budget != null && projected > budget, go: () => go("ai") },
+            { tone: 1, label: "Active this month", value: `${stats.active}/${users.length}`, sub: "Used AI at least once", bar: users.length ? stats.active / users.length : 0, go: () => go("people") },
+            { tone: 3, label: "Per active person", value: stats.active ? rupees(total / stats.active) : "None yet", sub: `${stats.events.toLocaleString("en-IN")} AI requests`, bar: null, go: () => go("people") },
           ].map((k) => (
-            <button key={k.label} onClick={k.go} className="rounded-2xl bg-white/[.07] p-4 text-left transition hover:bg-white/[.12]">
-              <div className="text-[0.78rem] text-white/55">{k.label}</div>
-              <div className={`mt-1 font-display text-[1.8rem] font-bold leading-none tabular-nums ${k.warn ? "text-clay-2" : ""}`}>{k.value}</div>
-              <div className="mt-1.5 text-[0.76rem] text-white/45">{k.sub}</div>
+            <button key={k.label} onClick={k.go} data-tone={k.tone} className="stat-tile rounded-2xl p-4 text-left transition hover:bg-white/[.14]">
+              <div className="text-[0.8rem] text-white/60">{k.label}</div>
+              <div className={`mt-1 font-display text-[1.7rem] font-bold leading-tight tabular-nums ${k.warn ? "text-[var(--hero-accent)]" : "text-white"}`}>{k.value}</div>
+              {k.bar != null ? (
+                <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.max(k.bar * 100, k.bar > 0 ? 4 : 0))}%`, background: "var(--hero-accent)" }} /></div>
+              ) : (
+                <div className="mt-2 text-[0.76rem] text-white/50">{k.sub}</div>
+              )}
+              {k.bar != null && <div className="mt-1.5 text-[0.76rem] text-white/50">{k.sub}</div>}
             </button>
           ))}
         </div>
@@ -977,15 +985,19 @@ function FeatureDonut({ parts, total }: { parts: { label: string; v: number; col
 }
 
 function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }) {
-  const size = 120, stroke = 14, r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const size = 120, stroke = 12, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const pct = budget ? Math.min(1, spent / budget) : 0;
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth={stroke} />
-        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "var(--clay-2)" : "var(--mustard)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
+        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${Math.max(pct * c, stroke * 1.2)} ${c}`} />}
       </svg>
-      <span className="absolute font-display text-[1.4rem] font-bold tabular-nums">{budget != null ? `${Math.round(pct * 100)}%` : "-"}</span>
+      <div className="donut-hub" style={{ inset: stroke + 7 }}>
+        <span className="flex items-baseline font-display font-bold leading-none tabular-nums text-white">
+          {budget != null ? <><span className="text-[1.7rem]">{Math.round(pct * 100)}</span><span className="ml-0.5 text-[0.9rem] text-white/70">%</span></> : <span className="text-[1.2rem]">-</span>}
+        </span>
+      </div>
     </div>
   );
 }
