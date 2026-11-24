@@ -2,6 +2,10 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  // Headless Chrome for the resume PDF must stay a plain Node dependency (not bundled).
+  serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
+  // The PDF route reads the embedded resume font from node_modules at runtime.
+  outputFileTracingIncludes: { "/api/resume/pdf": ["./node_modules/@fontsource/arimo/files/arimo-latin*-{400,700}-normal.woff2"] },
   poweredByHeader: false,
   async headers() {
     return [

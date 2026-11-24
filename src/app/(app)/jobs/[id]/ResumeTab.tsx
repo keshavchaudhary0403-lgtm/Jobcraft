@@ -12,28 +12,10 @@ import { useGenerate } from "@/components/useGenerate";
 import { DocEditor } from "@/components/DocEditor";
 import { A4Pages, A4Sheet } from "@/components/A4Sheet";
 import { CONTENT_W, LAYOUT, LINE_PX, PAGE_ROOM, ResumeMarkdown, resumeCss } from "@/components/ResumeDoc";
+import { pdfHtml, resumeFileName } from "@/lib/resume-pdf";
 
 /* The PDF: the resume format's CSS on an A4 page. Used for printing AND for measuring pages. */
 const PRINT_CSS = `${resumeCss("body")}\n@page{size:A4;margin:${LAYOUT.margin}in}\nbody{margin:0}`;
-
-/**
- * The downloaded PDF. The page margin is 0 so the browser has no room to print its own header/footer
- * (date, page title, "about:blank"); the 0.5in margins come from a table whose header/footer rows
- * repeat on every page. Content width and page height stay exactly what the page check measures.
- */
-function pdfHtml(title: string, body: string) {
-  const m = `${LAYOUT.margin}in`;
-  const esc = (t: string) => t.replace(/[<>&"]/g, (c) => ({ "<": "&lt;", ">": "&gt;", "&": "&amp;", '"': "&quot;" })[c]!);
-  return `<!doctype html><html><head><meta charset="utf-8"><title>${esc(title)}</title><style>
-${resumeCss("body")}
-@page{size:A4;margin:0}
-html,body{margin:0}
-body{padding:0 ${m}}
-table.pg{width:100%;border-collapse:collapse}
-table.pg td{padding:0;vertical-align:top}
-.pg-gap{height:${m}}
-</style></head><body><table class="pg"><thead><tr><td class="pg-gap"></td></tr></thead><tfoot><tr><td class="pg-gap"></td></tr></tfoot><tbody><tr><td>${body}</td></tr></tbody></table></body></html>`;
-}
 
 type Fit = { pages: number; linesOver: number; linesSpare: number };
 
@@ -106,17 +88,43 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     setEditing(false);
   }
 
-  function download() {
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const [pdfErr, setPdfErr] = useState(false);
+
+  /** Real PDF file from the server: clickable links, no browser header/footer, exact A4 layout. */
+  async function download() {
+    setPdfBusy(true);
+    setPdfErr(false);
+    try {
+      const res = await fetch("/api/resume/pdf", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ applicationId: app.id, html: paper.current?.innerHTML ?? "" }) });
+      if (!res.ok) throw new Error(String(res.status));
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${resumeFileName(md, app.company)}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10_000);
+    } catch {
+      setPdfErr(true);
+      printFallback();
+    } finally {
+      setPdfBusy(false);
+    }
+  }
+
+  /** Backup if the server PDF fails: the browser's print window (choose "Save as PDF" in Chrome to keep links). */
+  function printFallback() {
     const w = window.open("", "_blank");
     if (!w || !paper.current) return;
-    // File name: "<Name>_Resume_<Company>" (the title is only used as the suggested file name)
-    const name = (md.match(/^#\s+(.+)$/m)?.[1] ?? "Resume").trim();
-    const file = `${name}_Resume_${app.company}`.replace(/[^\p{L}\p{N}]+/gu, "_").replace(/^_|_$/g, "");
-    w.document.write(pdfHtml(file, paper.current.innerHTML));
+    w.document.write(pdfHtml(resumeFileName(md, app.company), paper.current.innerHTML));
     w.document.close();
     w.focus();
     setTimeout(() => w.print(), 200);
   }
+
 
   if (busy && !md) return <Working steps={["Reading what this role values...", "Reordering your experience...", "Rewriting bullets with real results...", "Checking it stays one page and ATS-safe..."]} />;
 
@@ -253,7 +261,8 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 </div>
               ) : (
                 <>
-                  <button className="btn btn-clay relative z-0 mt-4 h-11 w-full" onClick={download}><Download size={15} /> Download PDF</button>
+                  <button className={`btn btn-clay relative z-0 mt-4 h-11 w-full ${pdfBusy ? "pointer-events-none" : ""}`} onClick={download} aria-busy={pdfBusy}>{pdfBusy ? <><Spinner size={15} /> Preparing PDF...</> : <><Download size={15} /> Download PDF</>}</button>
+                  {pdfErr && <p className="mt-2 text-[0.8rem] text-bad">Couldn&apos;t build the file - opened the print window instead. Choose &quot;Save as PDF&quot; there.</p>}
                   <div className="relative z-10 mt-3 grid grid-cols-3 gap-2">
                     <CopyButton text={md} />
                     <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
