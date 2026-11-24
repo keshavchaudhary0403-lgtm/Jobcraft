@@ -189,7 +189,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
     const filled = [d.full_name, d.current_title, d.target_role, d.experience_years, d.city, d.strongest_proof, d.linkedin_url].filter((x) => (x ?? "").trim()).length;
     const chapters = [
       { k: "details" as const, label: "Details", sub: missing ? `${missing} required left` : `${filled} of 7 filled`, icon: UserRound },
-      { k: "resume" as const, label: "Resume", sub: health != null ? `Health ${health}/100` : "Not added yet", icon: FileText },
+      { k: "resume" as const, label: "Resume", sub: health != null ? "Your master resume" : "Not added yet", icon: FileText },
     ];
     return (
       <div className="space-y-5">

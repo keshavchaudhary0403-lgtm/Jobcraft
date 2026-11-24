@@ -93,7 +93,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
                   <div className="mt-2.5 h-1.5 overflow-hidden rounded-full bg-line-2"><div className={`h-full rounded-full ${over ? "bg-bad" : "bg-good"}`} style={{ width: `${Math.min(100, (m.used / m.max) * 100)}%` }} /></div>
                   <p className="mt-4 flex-1 whitespace-pre-wrap rounded-2xl bg-line-2/60 p-4 leading-relaxed">{m.text}</p>
                   <div className="mt-4 flex items-center justify-between">
-                    <span className={`text-[0.8rem] font-medium ${over ? "text-bad" : "text-good"}`}>{over ? "Over the limit - trim it" : "Within LinkedIn's limit"}</span>
+                    <span className="text-[0.8rem] font-medium text-bad">{over ? "Over the limit - trim it" : ""}</span>
                     <CopyButton text={m.text} />
                   </div>
                 </section>

@@ -62,8 +62,8 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: Pra
         <div className="min-w-0 flex-1">
           <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.title}</h3>
           <p className="text-[0.84rem] text-muted">
-            {g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
-            {best != null && <> · best <b className="text-ink">{best}/10</b></>}
+            {kind === "interview" ? (g.rounds.length ? "" : "No rounds yet") : g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
+            {best != null && <>{kind === "interview" ? "Best" : " · best"} <b className="text-ink">{best}/10</b></>}
             {gain > 0 && <span className="text-good"> · up {gain} since your first</span>}
           </p>
         </div>
@@ -112,7 +112,6 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: Pra
                     <span className="block text-[0.92rem] font-semibold">{kind === "interview" ? "Round" : "Talk"} {n}</span>
                     <span className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-muted">
                       {when(r.created_at)}
-                      {kind === "interview" && typeof s !== "number" && <span>· not scored</span>}
                       {pos && POS[pos] && <span className={`chip py-0 text-[0.74rem] ${POS[pos].c}`}>{POS[pos].t}</span>}
                     </span>
                   </span>

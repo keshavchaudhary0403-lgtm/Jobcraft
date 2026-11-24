@@ -91,7 +91,6 @@ export function NegotiationForm({ apps, preselect, defaults, userId, groups = []
 
   const g = a ? groups.find((x) => x.key === a.id) : undefined;
   const talks = g?.rounds.length ?? 0;
-  const lastPos = g?.rounds.slice().reverse().find((r) => r.offer)?.offer?.position;
   const blocked = o == null || m.length !== 2 || m[1] < m[0];
 
   return (
@@ -144,7 +143,6 @@ export function NegotiationForm({ apps, preselect, defaults, userId, groups = []
             <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{a ? `${a.role} @ ${a.company}` : "An offer not in your jobs"}</h3>
             <p className="text-[0.84rem] text-muted">
               {talks ? `${talks} talk${talks === 1 ? "" : "s"}` : "No talks yet"}
-              {lastPos && <> · last check: <b className="text-ink">{lastPos === "at" ? "at market" : `${lastPos} market`}</b></>}
             </p>
           </div>
           <div className="w-full sm:w-auto">

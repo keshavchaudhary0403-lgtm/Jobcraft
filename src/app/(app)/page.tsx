@@ -103,7 +103,7 @@ export default async function Home() {
         <div className="mb-4 flex flex-wrap items-end justify-between gap-2">
           <div>
             <h2 className="text-[1.35rem] font-bold leading-tight">Your path to an offer</h2>
-            <p className="text-[0.88rem] text-muted">Seven steps, in order. {nextStep ? <>Next: <b className="text-ink">{nextStep.title}</b>.</> : "All done - keep going for every job."}</p>
+            <p className="text-[0.88rem] text-muted">{nextStep ? "Seven steps, from the job post to the offer." : "All done - keep going for every job."}</p>
           </div>
           <span className="text-[0.84rem] font-semibold text-muted tabular-nums">{doneCount}/7 done</span>
         </div>

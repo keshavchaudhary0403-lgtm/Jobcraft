@@ -72,7 +72,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
               <div className="min-w-0">
                 <div className="mb-2 flex items-center justify-between">
                   <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="1" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><FileText size={15} /></span>About</h2>
-                  {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
+                  {res && <CopyButton text={res.about} />}
                 </div>
                 {res ? (
                   <p className="whitespace-pre-wrap leading-relaxed">{res.about}</p>
@@ -94,6 +94,16 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                       ))
                     : [0, 1, 2, 3, 4].map((i) => <li key={i} className={`h-10 rounded-2xl ${busy ? "skeleton" : "bg-line-2"}`} />)}
                 </ol>
+                {res && (() => {
+                  const words = res.about.trim().split(/\s+/).length;
+                  return (
+                    <div data-tone="2" className="tone-soft mt-4 rounded-2xl px-4 py-3" style={{ background: "var(--color-cream)" }}>
+                      <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">About length</div>
+                      <div className="mt-1 font-display text-[1.4rem] font-bold">{words}<span className="text-[0.85rem] font-medium text-muted"> / 150 words</span></div>
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${words > 150 ? "bg-bad" : "bg-good"}`} style={{ width: `${Math.min(100, (words / 150) * 100)}%` }} /></div>
+                    </div>
+                  );
+                })()}
               </div>
             </div>
           </div>
