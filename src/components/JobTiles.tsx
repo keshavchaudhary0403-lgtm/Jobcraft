@@ -27,13 +27,13 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
       <Link href={`/jobs/${a.id}`} className="block p-6 pb-5">
         {/* Fixed-height header (room for the location line even when there is none), so the title
             and the match % sit in exactly the same spot on every card. */}
-        <div className="flex h-[58px] items-start gap-3">
+        <div className="flex h-[64px] items-start gap-3">
           <span className="min-w-0 flex-1">
             <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={34} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
-            {a.location && <span className="mt-0.5 flex items-center gap-1 truncate text-[0.8rem] text-muted"><MapPin size={11} />{a.location}</span>}
+            {a.location && <span className="mt-2 flex items-center gap-1.5 truncate text-[0.82rem] text-muted"><MapPin size={12} className="shrink-0" />{a.location}</span>}
           </span>
           <span className="flex h-9 shrink-0 items-center gap-2">
-            <span className="text-[0.8rem] text-muted">{timeAgo(a.updated_at)}</span>
+            <span className="text-[0.8rem] text-muted" suppressHydrationWarning>{timeAgo(a.updated_at)}</span>
             <span className={`chip ${st.cls}`}>{st.label}</span>
           </span>
         </div>
