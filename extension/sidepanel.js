@@ -117,11 +117,8 @@ async function send(job) {
   btn.disabled = true;
   btn.textContent = "Opening Jobcraft...";
   const payload = { site: job.site, url: job.url, company: val("company"), role: val("role"), location: val("location"), jd: job.jd };
-  const url = `${TARGETS[targetSel.value]}/jobs/new`;
-  const tab = await chrome.tabs.create({ url, active: false });
-  // hide the panel on the Jobcraft tab before showing it, so Jobcraft opens at full width
-  await chrome.sidePanel.setOptions({ tabId: tab.id, enabled: false }).catch(() => {});
-  await chrome.tabs.update(tab.id, { active: true });
+  // A new tab has no panel (the panel belongs to this job tab), so Jobcraft opens at full width.
+  const tab = await chrome.tabs.create({ url: `${TARGETS[targetSel.value]}/jobs/new` });
   sentFor = current.url;
   // When Jobcraft has loaded, hand it the job inside that tab only (sessionStorage), then nudge the page.
   const listener = async (id, info) => {
