@@ -263,3 +263,16 @@ aside.bg-side .avatar-warm, header .avatar-warm, .rail-bg .avatar-warm, .dark-ca
 .dark-card .donut-hub { background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ── Link-style actions as real pill buttons ── */
+.pill-action, .pill-nav {
+  display: inline-flex; align-items: center; gap: .35rem; height: 2.25rem; padding: 0 1rem;
+  border-radius: 9999px; font-size: .88rem; font-weight: 600; white-space: nowrap;
+  transition: background .15s, color .15s, box-shadow .15s, transform .15s;
+}
+.pill-action { background: var(--clay-soft); color: var(--clay-ink); }
+.pill-action:hover, .group:hover .pill-action { background: var(--clay); color: #fff; box-shadow: 0 8px 18px -10px var(--act-glow); }
+.pill-nav { background: var(--card); color: var(--brand-ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.pill-nav:hover, .group:hover .pill-nav { background: var(--brand-soft); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--brand) 30%, var(--line)); }
+.pill-glass { display: inline-flex; align-items: center; gap: .4rem; height: 2.1rem; padding: 0 .95rem; border-radius: 9999px; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); color: #fff; font-weight: 600; font-size: .9rem; white-space: nowrap; transition: background .15s; }
+.pill-glass:hover, .group:hover .pill-glass { background: rgba(255,255,255,.2); }

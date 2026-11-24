@@ -50,11 +50,15 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
       </div>
 
       {next ? (
-        <Link href={next.href} className="flex items-center justify-between bg-clay-soft px-6 py-3.5 font-semibold text-clay transition hover:bg-clay hover:text-white">
-          {next.cta} <ArrowRight size={16} />
+        <Link href={next.href} className="group flex items-center justify-between gap-3 border-t border-line px-6 py-3.5">
+          <span className="min-w-0">
+            <span className="block text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-muted">Next step</span>
+            <span className="block truncate font-semibold text-ink">{next.cta}</span>
+          </span>
+          <span className="pill-action shrink-0">Start <ArrowRight size={14} /></span>
         </Link>
       ) : (
-        <Link href={`/jobs/${a.id}`} className="flex items-center justify-between bg-line-2 px-6 py-3.5 font-semibold text-muted transition hover:text-ink">Open job <ArrowRight size={16} /></Link>
+        <Link href={`/jobs/${a.id}`} className="group flex items-center justify-end border-t border-line px-6 py-3.5"><span className="pill-nav">Open job <ArrowRight size={14} /></span></Link>
       )}
     </article>
   );

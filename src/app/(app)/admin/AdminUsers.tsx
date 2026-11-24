@@ -262,11 +262,11 @@ export function AdminUsers({ meId }: { meId: string }) {
                   );
                 })}
                 {!q && (
-                  <button onClick={() => setAdding(true)} className="card card-hover flex min-h-[170px] flex-col items-start p-5 text-left">
+                  <button onClick={() => setAdding(true)} className="group card card-hover flex min-h-[170px] flex-col items-start p-5 text-left">
                     <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
                     <span className="mt-4 font-display text-[1.1rem] font-bold">Add a person</span>
                     <span className="text-[0.86rem] text-muted">Phone or email, with a password.</span>
-                    <span className="mt-auto inline-flex items-center gap-1 pt-3 text-[0.9rem] font-semibold text-clay">Add <ChevronRight size={14} /></span>
+                    <span className="mt-auto pt-3"><span className="pill-action">Add a person <ChevronRight size={14} /></span></span>
                   </button>
                 )}
               </div>
@@ -366,7 +366,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   <div className="flex items-center gap-2"><span className="grid h-9 w-9 place-items-center rounded-full bg-plum text-white"><AudioLines size={16} /></span><h2 className="text-[1.35rem] font-bold leading-none">Realistic voice</h2></div>
                   <p className="mt-3 text-[0.9rem] leading-relaxed text-muted">A live interviewer that talks back. About <b className="text-ink">₹1.5 per minute</b>, from each person&apos;s limit. Needs Real AI.</p>
                   <div className="mt-4 font-display text-[2rem] font-bold leading-none">{voiceOnCount}<span className="text-[1rem] font-medium text-muted"> of {users.length} people on</span></div>
-                  <button className="mt-2 text-[0.86rem] font-semibold text-brand hover:underline" onClick={() => setSection("people")}>Switch it per person →</button>
+                  <button className="pill-nav mt-3" onClick={() => setSection("people")}>Switch it per person <ChevronRight size={14} /></button>
                 </div>
                 <div className="grid content-start gap-2 sm:grid-cols-2 xl:grid-cols-3">
                   {VOICES.map((v) => (
@@ -904,7 +904,7 @@ function AdminOverview({
               </button>
             );
           })}
-          {people.length > 6 && <button onClick={() => go("people")} className="flex w-full items-center justify-center gap-1 px-5 py-3 text-[0.88rem] font-semibold text-brand hover:bg-line-2/60">See all {people.length} people <ChevronRight size={14} /></button>}
+          {people.length > 6 && <button onClick={() => go("people")} className="pill-nav mx-auto my-3 flex">See all {people.length} people <ChevronRight size={14} /></button>}
         </Panel>
         </div>
       </div>

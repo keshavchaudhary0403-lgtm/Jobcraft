@@ -39,7 +39,7 @@ export function SessionList({ sessions, base, empty }: { sessions: Session[]; ba
       <ul className="space-y-1.5">{sessions.slice(0, SHOW).map(row)}</ul>
       {sessions.length > SHOW && (
         <details className="group/more">
-          <summary className="mt-1 cursor-pointer list-none px-3 py-2 text-[0.86rem] font-semibold text-brand hover:underline">
+          <summary className="pill-nav mt-2 cursor-pointer list-none">
             <span className="group-open/more:hidden">Show {sessions.length - SHOW} more</span>
             <span className="hidden group-open/more:inline">Show fewer</span>
           </summary>

@@ -121,9 +121,9 @@ export default async function Home() {
           </div>
         </div>
         {gain > 0 && (
-          <Link href={lift.href} className="flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3.5 sm:px-7 transition hover:bg-white/[.08]">
+          <Link href={lift.href} className="group flex items-center justify-between gap-3 border-t border-white/10 bg-white/[.04] px-5 py-3 sm:px-7 transition hover:bg-white/[.08]">
             <span className="flex min-w-0 items-center gap-3"><span className="shrink-0 whitespace-nowrap rounded-full bg-clay px-2.5 py-0.5 text-[0.78rem] font-bold uppercase tracking-[0.1em] text-white">Next step</span><span className="truncate font-semibold text-cream">{lift.lift}</span></span>
-            <span className="flex shrink-0 items-center gap-2 whitespace-nowrap font-display text-[1.1rem] font-bold text-mustard">+{gain}%<span className="hidden sm:inline"> readiness</span> <ArrowRight size={16} /></span>
+            <span className="pill-glass shrink-0">+{gain}%<span className="hidden sm:inline"> readiness</span> <ArrowRight size={15} /></span>
           </Link>
         )}
       </section>
@@ -155,20 +155,20 @@ export default async function Home() {
           <section className="fade-up">
             <div className="mb-3 flex items-end justify-between">
               <h2 className="text-[1.6rem] font-bold leading-none">Your jobs</h2>
-              <Link href="/jobs" className="inline-flex items-center gap-1 text-[0.92rem] font-semibold text-brand hover:underline">All {all.length} <ArrowRight size={14} /></Link>
+              <Link href="/jobs" className="pill-nav">All {all.length} <ArrowRight size={14} /></Link>
             </div>
             <div className="grid gap-5 md:grid-cols-2 stagger">
               {live.slice(0, 4).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
               {live.length < 4 && (
-                <Link href="/jobs/new" className="card card-hover flex min-h-[190px] flex-col p-6">
+                <Link href="/jobs/new" className="group card card-hover flex min-h-[190px] flex-col p-6">
                   <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
                   <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
                   <span className="block text-[0.86rem] text-muted">Aim for five or more.</span>
-                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Add a job <ArrowRight size={14} /></span>
+                  <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
                 </Link>
               )}
               {live.length < 4 && live.length % 2 === 0 && (
-                <Link href="/interview" className="card card-hover flex min-h-[190px] flex-col p-6">
+                <Link href="/interview" className="group card card-hover flex min-h-[190px] flex-col p-6">
                   <span className="flex items-start justify-between gap-3">
                     <span data-tone="2" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Mic size={19} /></span>
                     <span className="rounded-full bg-good-soft px-2.5 py-0.5 text-[0.78rem] font-semibold text-good">{Math.min(interviews.length, 3)}/3 rounds</span>
@@ -176,7 +176,7 @@ export default async function Home() {
                   <span className="mt-4 block font-display text-[1.15rem] font-bold">Mock interview</span>
                   <span className="block text-[0.86rem] text-muted">Practise while you wait{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
                   <span className="mt-3 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i < interviews.length ? "bg-good" : "bg-line-2"}`} />)}</span>
-                  <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Start a round <ArrowRight size={14} /></span>
+                  <span className="mt-auto pt-4"><span className="pill-action">Start a round <ArrowRight size={14} /></span></span>
                 </Link>
               )}
             </div>
@@ -206,7 +206,7 @@ export default async function Home() {
                     </li>
                   ))}
                 </ul>
-                <Link href="/profile" className="mt-4 inline-flex items-center gap-1 text-[0.88rem] font-semibold text-clay hover:underline">Close them in your resume <ArrowRight size={14} /></Link>
+                <Link href="/profile" className="pill-action mt-4">Close them in your resume <ArrowRight size={14} /></Link>
               </section>
             )}
           </aside>

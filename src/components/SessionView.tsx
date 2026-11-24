@@ -49,7 +49,7 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
 
   return (
     <div className="space-y-5">
-      <Link href={cfg.back} className="inline-flex items-center gap-1 pt-2 text-[0.9rem] font-medium text-muted hover:text-ink"><ChevronLeft size={15} /> {cfg.backLabel}</Link>
+      <Link href={cfg.back} className="pill-nav h-8 px-3 text-[0.84rem]"><ChevronLeft size={15} /> {cfg.backLabel}</Link>
 
       <header className="card flex flex-wrap items-center gap-4 p-6 fade-up">
         {company && <CompanyAvatar name={company} size={52} />}

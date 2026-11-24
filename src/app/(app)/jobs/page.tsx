@@ -50,13 +50,13 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
       </header>
 
       {!jobs.length ? (
-        <Link href="/jobs/new" className="card card-hover flex items-center gap-5 p-6 fade-up">
+        <Link href="/jobs/new" className="group card card-hover flex items-center gap-5 p-6 fade-up">
           <span data-tone="1" className="tone-chip grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-line-2"><Plus size={24} /></span>
           <span className="flex-1">
             <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
             <span className="block text-muted">Paste the description. We do the rest.</span>
           </span>
-          <span className="hidden items-center gap-1 font-semibold text-clay sm:inline-flex">Add a job <ArrowRight size={15} /></span>
+          <span className="pill-action hidden sm:inline-flex">Add a job <ArrowRight size={15} /></span>
         </Link>
       ) : board ? (
         <JobBoard apps={jobs} />
@@ -92,11 +92,11 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
           <section className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3 stagger">
             {shown.map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
             {!status && (
-              <Link href="/jobs/new" className="card card-hover flex min-h-[200px] flex-col p-6">
+              <Link href="/jobs/new" className="group card card-hover flex min-h-[200px] flex-col p-6">
                 <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
                 <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
                 <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
-                <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Add a job <ArrowRight size={14} /></span>
+                <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
               </Link>
             )}
             {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2 2xl:col-span-3">No jobs in this stage.</div>}

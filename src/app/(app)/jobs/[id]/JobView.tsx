@@ -123,7 +123,7 @@ export function JobView({
   return (
     <div className="space-y-5">
       {dialog}
-      <Link href="/jobs" className="inline-flex items-center gap-1 pt-2 text-[0.9rem] font-medium text-muted hover:text-ink"><ChevronRight size={15} className="rotate-180" /> All jobs</Link>
+      <Link href="/jobs" className="pill-nav h-8 px-3 text-[0.84rem]"><ChevronRight size={15} className="rotate-180" /> All jobs</Link>
 
       {/* ── Hero ── */}
       <section className="card overflow-hidden fade-up">

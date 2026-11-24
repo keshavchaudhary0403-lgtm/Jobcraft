@@ -157,7 +157,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
             <div>
               <div className="flex items-center justify-between">
                 <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Skills covered</span>
-                {!detailed && <button className="text-[0.8rem] font-semibold text-brand hover:underline" onClick={refresh}>Get details</button>}
+                {!detailed && <button className="pill-nav h-8 px-3 text-[0.8rem]" onClick={refresh}>Get details</button>}
               </div>
               <div className="mt-2 font-display text-[2.4rem] font-bold leading-none tabular-nums">{counts.strong}<span className="text-[1rem] text-muted"> / {a.top_skills.length} proven</span></div>
               <div className="mt-3 flex h-3 gap-1 overflow-hidden rounded-full">
@@ -280,7 +280,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <button key={q} onClick={() => onAsk(i)} className="flex w-full items-center gap-2.5 rounded-xl bg-white/[.07] px-3 py-2.5 text-left text-[0.88rem] transition hover:bg-white/[.12]">
                           {ans ? <Check size={14} className="shrink-0 text-brand-2" /> : <CircleHelp size={14} className="shrink-0 text-mustard" />}
                           <span className="line-clamp-2 flex-1">{q}</span>
-                          <span className="shrink-0 text-[0.76rem] text-white/55">{ans ? "Edit" : "Answer"}</span>
+                          <span className="pill-glass h-7 shrink-0 px-3 text-[0.78rem]">{ans ? "Edit" : "Answer"}</span>
                         </button>
                       );
                     })}
@@ -523,7 +523,7 @@ function MoreText({ text, className = "" }: { text: string; className?: string }
   return (
     <div className={className}>
       <p className={open || !long ? "" : "line-clamp-2"}>{text}</p>
-      {long && <button type="button" onClick={() => setOpen(!open)} className="mt-1 text-[0.84rem] font-semibold text-brand hover:underline">{open ? "Show less" : "Read more"}</button>}
+      {long && <button type="button" onClick={() => setOpen(!open)} className="pill-nav mt-2 h-8 px-3 text-[0.82rem]">{open ? "Show less" : "Read more"}</button>}
     </div>
   );
 }

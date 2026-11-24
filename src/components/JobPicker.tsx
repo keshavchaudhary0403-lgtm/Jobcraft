@@ -37,7 +37,7 @@ export function JobPicker({
   const head = apps.slice(0, LIMIT);
   const visible = showAll || apps.length <= LIMIT ? apps : head.some((a) => a.id === id) || !id ? head : [...head, apps.find((a) => a.id === id)!].filter(Boolean);
   const more = apps.length > LIMIT && (
-    <button type="button" onClick={() => setShowAll(!showAll)} className="mt-2.5 text-[0.86rem] font-semibold text-brand hover:underline">
+    <button type="button" onClick={() => setShowAll(!showAll)} className="pill-nav mt-3">
       {showAll ? "Show fewer" : `Show all ${apps.length} jobs`}
     </button>
   );
