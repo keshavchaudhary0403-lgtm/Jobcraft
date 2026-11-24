@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyWordmark } from "@/components/CompanyWordmark";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -17,7 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { CompanyAvatar, STATUS_META, Meter } from "@/components/ui";
+import { STATUS_META, Meter, FitBadge, fitTone } from "@/components/ui";
 import { Menu, Modal, useAsk, SidePanel } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
@@ -102,10 +103,9 @@ export function JobView({
       <section className="card overflow-hidden fade-up">
         <div className="p-5 sm:p-6">
           <div className="flex items-start gap-4">
-            <CompanyAvatar name={app.company} jobUrl={app.job_url} size={52} />
             <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-x-2 text-[0.92rem] text-muted">
-                <span className="font-semibold text-ink">{app.company}</span>
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.92rem] text-muted">
+                <CompanyWordmark name={app.company} jobUrl={app.job_url} height={28} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
                 {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
               </div>
               <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>
@@ -209,15 +209,16 @@ export function JobView({
 }
 
 /** Fit as a number plus a bar (no dial). */
-function FitStat({ fit, color, prev, className = "" }: { fit: number | null; color: string; prev: number | null; className?: string }) {
+function FitStat({ fit, prev, className = "" }: { fit: number | null; color?: string; prev: number | null; className?: string }) {
+  const t = fit == null ? null : fitTone(fit);
   return (
-    <div className={`w-full sm:w-[140px] sm:shrink-0 sm:text-right ${className}`}>
-      <div className="flex items-baseline gap-1.5 sm:justify-end">
-        <span className="font-display text-[2rem] font-bold leading-none tabular-nums">{fit ?? "-"}<span className="text-[0.95rem] text-muted">%</span></span>
-        <span className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-muted">fit</span>
+    <div className={`w-full sm:w-[170px] sm:shrink-0 sm:text-right ${className}`}>
+      <div className="flex items-center gap-2 sm:justify-end">
+        {t && <span className={`text-[0.8rem] font-semibold ${t.chip.split(" ")[1]}`}>{t.word}</span>}
+        <FitBadge value={fit} />
       </div>
-      <Meter value={(fit ?? 0) / 100} color={color} className="mt-2" />
-      {prev != null && fit != null && <div className={`mt-1.5 text-[0.76rem] font-semibold ${fit > prev ? "text-good" : "text-mid"}`}>was {prev}%</div>}
+      <Meter value={(fit ?? 0) / 100} color={t?.bar ?? "var(--line)"} height={7} className="mt-2.5" />
+      {prev != null && fit != null && <div className={`mt-1.5 text-[0.78rem] font-semibold ${fit > prev ? "text-good" : "text-muted"}`}>was {prev}%</div>}
     </div>
   );
 }

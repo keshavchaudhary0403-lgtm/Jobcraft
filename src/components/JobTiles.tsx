@@ -1,6 +1,7 @@
 import Link from "next/link";
+import { CompanyWordmark } from "./CompanyWordmark";
 import { ArrowRight, MapPin } from "lucide-react";
-import { CompanyAvatar, Meter, STATUS_META, timeAgo } from "./ui";
+import { FitBadge, STATUS_META, timeAgo } from "./ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { journey } from "@/lib/journey";
@@ -25,16 +26,15 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
     <article className="card card-hover flex flex-col overflow-hidden">
       <Link href={`/jobs/${a.id}`} className="block p-6 pb-5">
         <div className="flex items-center gap-3">
-          <CompanyAvatar name={a.company} jobUrl={a.job_url} size={40} />
           <span className="min-w-0 flex-1">
-            <span className="block truncate text-[0.92rem] font-semibold">{a.company}</span>
+            <CompanyWordmark name={a.company} jobUrl={a.job_url} height={24} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
             <span className="flex items-center gap-2 text-[0.8rem] text-muted">{a.location && <span className="inline-flex items-center gap-1 truncate"><MapPin size={11} />{a.location}</span>}<span>{timeAgo(a.updated_at)}</span></span>
           </span>
           <span className={`chip ${st.cls}`}>{st.label}</span>
         </div>
         <div className="mt-4 flex items-start justify-between gap-4">
           <h2 className="line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>
-          <MiniDonut value={m} />
+          <FitBadge value={m} className="mt-1" />
         </div>
       </Link>
 
@@ -91,14 +91,3 @@ export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt
   );
 }
 
-export function MiniDonut({ value }: { value: number | null }) {
-  const v = value ?? 0;
-  const color = value == null ? "var(--line)" : v >= 70 ? "var(--color-good)" : v >= 50 ? "var(--brand)" : "var(--color-bad)";
-  return (
-    <div className="w-[76px] shrink-0 text-right">
-      <div className="font-display text-[1.55rem] font-bold leading-none tabular-nums">{value ?? "-"}{value != null && <span className="text-[0.85rem] text-muted">%</span>}</div>
-      <div className="mt-0.5 text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-muted">fit</div>
-      <Meter value={v / 100} color={color} className="mt-1.5" height={5} />
-    </div>
-  );
-}

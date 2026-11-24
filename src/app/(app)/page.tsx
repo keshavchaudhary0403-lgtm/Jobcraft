@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowRight, Check, FileText, IndianRupee, Mic, Plus, ScanSearch, Send, Target } from "lucide-react";
+import { ArrowRight, FileText, IndianRupee, Mic, Plus, ScanSearch, Send, Target } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
 import { requireUser } from "@/lib/auth";
 import { JobTile } from "@/components/JobTiles";
+import { Playbook } from "@/components/Playbook";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -73,8 +74,6 @@ export default async function Home() {
     { n: 6, icon: Mic, title: "Mock interview", short: "Interview", sub: "6 questions, scored", done: interviews.length > 0, href: "/interview" },
     { n: 7, icon: IndianRupee, title: "Salary talk", short: "Salary", sub: "Check and practise the offer", done: talks.length > 0, href: "/negotiation" },
   ];
-  const nextStep = path.find((x) => !x.done);
-  const doneCount = path.filter((x) => x.done).length;
 
   return (
     <div className="space-y-5">
@@ -98,36 +97,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* ── Your path: the seven prompt-PDF steps as slim, quiet cards (like the old area cards) ── */}
-      <section className="fade-up">
-        <div className="mb-3 flex items-end justify-between gap-3">
-          <h2 className="text-[1.6rem] font-bold leading-none">Your path to an offer</h2>
-          <span className="text-[0.86rem] font-semibold tabular-nums text-muted">{doneCount}/7 done</span>
-        </div>
-        <ol className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0 md:grid md:grid-cols-4 md:overflow-visible md:pb-0 xl:grid-cols-7">
-          {path.map((x) => {
-            const isNext = x === nextStep;
-            return (
-              <li key={x.n} className="w-[200px] shrink-0 md:w-auto">
-                <Link
-                  href={x.href}
-                  data-tip={`${x.title} - ${x.sub}`}
-                  className={`group flex h-full items-center gap-2.5 rounded-[20px] border-[1.5px] bg-card px-3 py-3 transition hover:border-brand/40 hover:bg-white ${isNext ? "border-brand" : "border-line"}`}
-                >
-                  <span className="relative shrink-0">
-                    <span data-tone={(x.n - 1) % 5} className="tone-chip grid h-10 w-10 place-items-center rounded-full bg-line-2 transition group-hover:scale-105"><x.icon size={17} /></span>
-                    {x.done && <span className="absolute -bottom-0.5 -right-0.5 grid h-[18px] w-[18px] place-items-center rounded-full bg-good text-white ring-2 ring-card"><Check size={10} strokeWidth={3.5} /></span>}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block truncate font-display text-[0.98rem] font-bold leading-tight">{x.short}</span>
-                    <span className={`block truncate text-[0.78rem] ${isNext ? "font-semibold text-clay" : x.done ? "text-good" : "text-muted"}`}>Step {x.n} · {isNext ? "Next" : x.done ? "Done" : "To do"}</span>
-                  </span>
-                </Link>
-              </li>
-            );
-          })}
-        </ol>
-      </section>
+      {/* ── Your hiring playbook: the seven prompt-PDF moves, explained one at a time ── */}
+      <Playbook moves={path.map(({ n, title, done, href }) => ({ n, title, done, href }))} />
 
       {/* ── Jobs + side ── */}
       {all.length === 0 ? (

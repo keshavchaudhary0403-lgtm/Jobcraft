@@ -223,3 +223,22 @@ export function Kpi({
   const cls = "card flex h-full flex-col p-4";
   return href ? <Link href={href} className={`${cls} card-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
 }
+
+/** One look for "fit %" everywhere: colour by score (green strong, blue fair, red weak) on its own soft tint. */
+export function fitTone(v: number) {
+  return v >= 70
+    ? { chip: "bg-good-soft text-good", bar: "var(--color-good)", word: "Strong fit" }
+    : v >= 50
+      ? { chip: "bg-brand-soft text-brand", bar: "var(--brand)", word: "Fair fit" }
+      : { chip: "bg-bad-soft text-bad", bar: "var(--color-bad)", word: "Weak fit" };
+}
+export function FitBadge({ value, size = "md", className = "" }: { value: number | null; size?: "sm" | "md"; className?: string }) {
+  if (value == null) return <span className={`inline-flex items-center rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted ${className}`}>Fit pending</span>;
+  const t = fitTone(value);
+  return (
+    <span className={`inline-flex shrink-0 items-baseline gap-1 rounded-full ${size === "sm" ? "px-2.5 py-0.5" : "px-3 py-1"} ${t.chip} ${className}`} data-tip={t.word}>
+      <b className={`font-display font-bold tabular-nums leading-none ${size === "sm" ? "text-[1rem]" : "text-[1.2rem]"}`}>{value}%</b>
+      <span className={`font-semibold ${size === "sm" ? "text-[0.76rem]" : "text-[0.82rem]"}`}>fit</span>
+    </span>
+  );
+}

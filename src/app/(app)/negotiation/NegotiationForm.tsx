@@ -1,5 +1,6 @@
 "use client";
 
+import { CompanyWordmark } from "@/components/CompanyWordmark";
 import { CtcField, ExperienceField, TextField } from "@/components/BasicFields";
 import { ctcInput, formatCtc, normaliseBasics } from "@/lib/profile-format";
 
@@ -8,7 +9,6 @@ import { useFormStatus } from "react-dom";
 import { JobCard } from "@/components/RoundHistory";
 import type { PracticeGroup } from "@/lib/practice-history";
 import { Check, ExternalLink, IndianRupee, Mic, Pencil } from "lucide-react";
-import { CompanyAvatar } from "@/components/CompanyAvatar";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "@/components/client-ui";
 import type { Application } from "@/lib/types";
@@ -138,9 +138,10 @@ export function NegotiationForm({ apps, preselect, defaults, userId, groups = []
       {/* The offer's card: its numbers, your leverage, the one Start button, and its past talks. */}
       <section className="card overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 p-5">
-          {a ? <CompanyAvatar name={a.company} size={44} /> : <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><IndianRupee size={20} /></span>}
+          {!a && <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><IndianRupee size={20} /></span>}
           <div className="min-w-0 flex-1">
-            <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{a ? `${a.role} @ ${a.company}` : "An offer not in your jobs"}</h3>
+            {a && <CompanyWordmark name={a.company} height={22} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
+            <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{a ? a.role : "An offer not in your jobs"}</h3>
             <p className="text-[0.84rem] text-muted">
               {talks ? `${talks} talk${talks === 1 ? "" : "s"}` : "No talks yet"}
             </p>

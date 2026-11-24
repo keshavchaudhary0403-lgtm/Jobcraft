@@ -1,10 +1,10 @@
 "use client";
 
+import { CompanyWordmark } from "./CompanyWordmark";
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowUpRight, ChevronDown, IndianRupee } from "lucide-react";
 import { CopyButton } from "./client-ui";
-import { CompanyAvatar } from "./CompanyAvatar";
 
 import type { PracticeGroup, RoundRow } from "@/lib/practice-history";
 
@@ -58,9 +58,9 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false }: { g: Pra
   return (
     <section className={flat ? "" : "card overflow-hidden"}>
       {!noHead && <div className="flex flex-wrap items-center gap-3 p-5">
-        {g.company && <CompanyAvatar name={g.company} size={44} />}
         <div className="min-w-0 flex-1">
-          <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.title}</h3>
+          {g.company && <CompanyWordmark name={g.company} height={22} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
+          <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
           <p className="text-[0.84rem] text-muted">
             {kind === "interview" ? (g.rounds.length ? "" : "No rounds yet") : g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
             {best != null && <>{kind === "interview" ? "Best" : " · best"} <b className="text-ink">{best}/10</b></>}

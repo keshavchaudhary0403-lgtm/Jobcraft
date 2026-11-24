@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { CompanyWordmark } from "./CompanyWordmark";
 import { notFound } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 import { requireUser } from "@/lib/auth";
@@ -16,7 +17,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { InterviewScorecard, OfferCheckCard, PracticeModes } from "./PracticeInsights";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { deleteSession } from "@/lib/actions";
-import { CompanyAvatar, timeAgo } from "./ui";
+import { timeAgo } from "./ui";
 
 const CONFIG = {
   interview: { step: "mock_interview" as StepKey, back: "/interview", backLabel: "Interview", tag: "Mock interview", quick: ["Ready"], ai: "Interviewer" },
@@ -75,9 +76,8 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
       {/* Slim header: where you are, which attempt, and its state. Rare actions live in the ⋯ menu. */}
       <header className="card flex flex-wrap items-center gap-3 px-4 py-3.5 fade-up sm:px-5">
         <Link href={hubHref} className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted transition hover:bg-line-2 hover:text-ink" aria-label={`Back to ${cfg.backLabel}`} data-tip={`All ${unit.toLowerCase()}s`}><ChevronLeft size={20} /></Link>
-        {company && <CompanyAvatar name={company} size={42} />}
         <div className="min-w-0 flex-1">
-          <div className="truncate text-[0.82rem] text-muted">{company ? `${company} · ` : ""}{cfg.tag}</div>
+          <div className="flex min-w-0 items-center gap-2 text-[0.82rem] text-muted">{company && <CompanyWordmark name={company} height={20} iconSize={24} nameClass="truncate text-[0.86rem] font-bold text-ink" />}<span className="shrink-0">· {cfg.tag}</span></div>
           <h1 className="truncate text-[1.35rem] font-bold leading-tight sm:text-[1.55rem]">{role}</h1>
         </div>
         <div className="order-last flex w-full items-center gap-2 pl-[6.4rem] sm:order-none sm:w-auto sm:pl-0">
