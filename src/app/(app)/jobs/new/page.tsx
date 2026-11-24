@@ -47,6 +47,39 @@ export default function NewJob() {
   const lastDetected = useRef("");
   const edited = useRef<Set<keyof Fields>>(new Set());
 
+  // A job sent from the Jobcraft Chrome extension: it leaves the details in this tab's sessionStorage
+  // (and fires "jobcraft-import" if the page is already open). Fill the form; the user still checks and adds it.
+  const [imported, setImported] = useState<string | null>(null);
+  useEffect(() => {
+    const take = () => {
+      const raw = sessionStorage.getItem("jobcraft-import");
+      if (!raw) return;
+      sessionStorage.removeItem("jobcraft-import");
+      try {
+        const j = JSON.parse(raw) as { jd?: string; url?: string; company?: string; role?: string; location?: string; site?: string };
+        const text = String(j.jd ?? "").slice(0, 30000);
+        if (text.trim().split(/\s+/).length < 10) return;
+        setJd(text);
+        if (j.url && /^https?:\/\//.test(j.url)) setUrl(j.url.slice(0, 500));
+        const next: Partial<Fields> = {};
+        const flags: Partial<Record<keyof Fields, boolean>> = {};
+        (["company", "role", "location"] as const).forEach((k) => {
+          const v = String(j[k] ?? "").trim().slice(0, 90);
+          if (v) {
+            next[k] = v;
+            flags[k] = true;
+          }
+        });
+        setF((x) => ({ ...x, ...next }));
+        setAuto((x) => ({ ...x, ...flags }));
+        setImported(String(j.site ?? "the job page").slice(0, 40));
+      } catch {}
+    };
+    take();
+    window.addEventListener("jobcraft-import", take);
+    return () => window.removeEventListener("jobcraft-import", take);
+  }, []);
+
   const words = jd.trim().split(/\s+/).filter(Boolean).length;
 
   // After a paste, read company / role / location from the JD (cheap model). User can edit anything.
@@ -138,6 +171,12 @@ export default function NewJob() {
         <h1 className="text-[2.6rem] font-bold leading-none">Add a job<span className="text-clay">.</span></h1>
         <p className="mt-2 text-[1rem] text-muted">Paste a link or the description.</p>
       </header>
+      {imported && (
+        <div className="flex flex-wrap items-center gap-3 rounded-2xl bg-good-soft px-4 py-3 fade-up">
+          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-good text-white"><DownloadCloud size={14} /></span>
+          <span className="flex-1 text-[0.92rem] font-medium text-ink">Sent from {imported}. Check the details, then click <b>Analyse job</b>.</span>
+        </div>
+      )}
 
       <form onSubmit={submit} className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1fr)_380px]">
         {/* Paste pane */}
