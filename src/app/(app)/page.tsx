@@ -1,6 +1,7 @@
 import Link from "next/link";
-import { ArrowRight, BriefcaseBusiness, IndianRupee, Mic, Plus, Send, Target, UserRound } from "lucide-react";
+import { ArrowRight, BriefcaseBusiness, IndianRupee, Mic, Plus, Target, UserRound } from "lucide-react";
 import { requireUser } from "@/lib/auth";
+import { LinkedInIcon } from "@/components/icons";
 import { STATUS_META, profileStrength } from "@/components/ui";
 import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -67,7 +68,7 @@ export default async function Home() {
   const offers = live.filter((a) => a.status === "offer").length;
   const areas = [
     { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, hint: live.length ? `${live.length} active` : "Add your first" },
-    { href: "/linkedin", label: "LinkedIn", icon: Send, hint: profile.linkedin_result ? "Rewritten" : "Not done yet" },
+    { href: "/linkedin", label: "LinkedIn", icon: LinkedInIcon, hint: profile.linkedin_result ? "Rewritten" : "Not done yet" },
     { href: "/interview", label: "Interview", icon: Mic, hint: `${Math.min(interviews.length, 3)}/3 rounds` },
     { href: "/negotiation", label: "Salary", icon: IndianRupee, hint: offers ? `${offers} offer${offers > 1 ? "s" : ""}` : `${negotiations.length} practised` },
     { href: "/profile", label: "Profile", icon: UserRound, hint: `${strength}% complete` },

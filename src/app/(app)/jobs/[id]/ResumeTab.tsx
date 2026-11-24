@@ -3,7 +3,7 @@
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AlertCircle, Check, Download, Hash, Info, Pencil, RotateCcw, Sparkles, X } from "lucide-react";
+import { AlertCircle, Check, Download, Info, Pencil, RotateCcw, Sparkles, X, TrendingUp } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
@@ -189,7 +189,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
           {missing.length > 0 && (
             <section className="card p-4" style={{ background: "var(--color-mustard-soft)" }}>
-              <div className="flex items-center gap-2"><Hash size={15} className="text-mustard-ink" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
+              <div className="flex items-center gap-2"><TrendingUp size={15} className="text-brand" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
               <p className="mt-0.5 text-[0.8rem] text-mustard-ink">Skip any you don&apos;t know.</p>
               <div className="mt-3 space-y-2.5">
                 {missing.map((q) => (

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Award, Check, ExternalLink, FileText, MapPin, RotateCcw, Sparkles, Type } from "lucide-react";
+import { AlertCircle, Award, Check, ExternalLink, FileText, MapPin, RotateCcw, Sparkles, IdCard } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
 import { CharCount, CopyButton, Spinner, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
@@ -110,7 +110,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         <aside className="space-y-5 lg:sticky lg:top-6">
           <section className="card p-5 fade-up">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="0" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><Type size={15} /></span>Pick a headline</h2>
+              <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="0" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><IdCard size={15} /></span>Pick a headline</h2>
               {headline && <CopyButton text={headline} label="Copy" />}
             </div>
             {res ? (
