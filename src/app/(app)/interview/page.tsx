@@ -36,7 +36,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
         </div>
       </header>
 
-      <form action={start} className="grid items-stretch gap-5 fade-up lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
+      <form action={start} className="grid items-start gap-5 fade-up lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <section className="card flex flex-col p-6">
           <div className="mb-4 flex items-center gap-2.5">
             <span data-tone="0" className="tone-chip grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">1</span>

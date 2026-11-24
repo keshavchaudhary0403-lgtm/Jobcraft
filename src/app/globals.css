@@ -140,7 +140,7 @@ textarea.field { height: auto; padding: .6rem .8rem; line-height: 1.55; }
   transition: background .15s, border-color .15s, color .15s, opacity .15s, transform .08s;
 }
 .btn:active:not(:disabled) { transform: scale(.98); }
-.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn:disabled { opacity: 1; cursor: not-allowed; background: var(--line-2) !important; color: var(--faint) !important; box-shadow: none !important; }
 .btn-sm { height: 2.1rem; padding: 0 .85rem; font-size: .86rem; }
 .btn-primary { background: var(--color-brand); color: var(--on-brand); }
 .btn-clay { background: var(--color-clay); color: #fff; }

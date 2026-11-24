@@ -113,7 +113,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
       </section>
 
       {/* ── 3 + start ── */}
-      <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <section className={`card flex flex-col p-6 ${edit ? "ring-2 ring-clay/30" : ""}`}>
           <StepHead n={3} title="Your leverage" action={editActions} />
           {/* Always submitted with the form */}

@@ -206,7 +206,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         )}
 
         {/* Row 3: what they want | answers + gaps */}
-        <div className="grid items-stretch gap-5 xl:grid-cols-2">
+        <div className="grid items-start gap-5 xl:grid-cols-2">
           <section className="card overflow-hidden">
             <header className="flex items-center gap-2.5 px-5 pb-3 pt-5">
               <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-soft text-brand"><Target size={15} /></span>
@@ -292,7 +292,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                       {answered ? `Answer ${questions.length - answered} left` : "Answer questions"} <ArrowRight size={15} />
                     </button>
                   )}
-                  <button className="btn h-10 bg-cream text-side hover:bg-white disabled:opacity-40" disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
+                  <button className="pill-glass h-10 disabled:cursor-not-allowed disabled:opacity-50" title={!answered ? "Answer a question first" : !changedSinceScore ? "Score is up to date" : "Score again with your answers"} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
                     {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score
                   </button>
                 </div>
@@ -317,9 +317,9 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
               const ans = gq ? answers[gq]?.trim() : "";
               return (
                 <div key={g.gap} className="card flex flex-col p-5">
-                  <div className="flex items-start gap-3">
+                  <div className="flex flex-1 items-start gap-3">
                     <span className={`grid h-8 w-8 shrink-0 place-items-center rounded-full ${m.cls}`}><m.icon size={15} /></span>
-                    <div className="min-w-0 flex-1">
+                    <div className="flex min-w-0 flex-1 flex-col self-stretch">
                       <div className="flex flex-wrap items-baseline justify-between gap-x-3">
                         <span className="font-display text-[1.02rem] font-bold leading-snug">{g.gap}</span>
                         <span className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted">{m.label}</span>
@@ -329,7 +329,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                       ) : (
                         <p className="mt-1 line-clamp-2 text-[0.88rem] text-muted" title={g.explanation}>{g.explanation}</p>
                       )}
-                      <div className="mt-3 flex flex-wrap gap-2">
+                      <div className="mt-auto flex flex-wrap gap-2 pt-3">
                         {qi >= 0 && (
                           <button onClick={() => onAsk(qi)} className={`inline-flex h-8 items-center gap-1.5 rounded-full px-3 text-[0.8rem] font-semibold transition ${ans ? "bg-good-soft text-good" : "bg-ocean-soft text-ocean hover:brightness-95"}`}>
                             {ans ? <><CheckCircle2 size={13} /> Answered · edit</> : <><CircleHelp size={13} /> Answer the question</>}
