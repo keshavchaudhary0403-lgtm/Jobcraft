@@ -203,9 +203,8 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         )}
 
         {/* Hero banner */}
-        <section className="dark-card grid gap-6 p-6 text-white fade-up sm:p-7 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-center">
-          <div className="min-w-0">
-            <div className="flex min-w-0 items-center gap-4">
+        <section className="dark-card p-6 text-white fade-up sm:p-7">
+          <div className="flex min-w-0 items-center gap-4">
               <span className="avatar-warm grid h-[76px] w-[76px] shrink-0 place-items-center rounded-full font-display text-[1.7rem] font-bold ring-4 ring-white/20">{initials}</span>
               <div className="min-w-0">
                 <div className="truncate font-display text-[2rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
@@ -216,19 +215,24 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
                 </div>
               </div>
             </div>
-            <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-              {facts.map((f, i) => (
-                <div key={f.label} data-tone={[0, 1, 3, 0][i]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5">
-                  <dt className="flex items-center gap-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{f.icon}{f.label}</dt>
-                  <dd className={`mt-0.5 truncate font-display text-[1.1rem] font-bold ${f.v ? "" : "text-white/60"}`}>{f.v || "-"}</dd>
-                </div>
-              ))}
-            </dl>
-          </div>
-          <div className="flex items-center justify-center gap-5">
-            <Ring dark value={strength} label="Profile" color="var(--hero-accent)" />
-            <Ring dark value={health ?? 0} label="Resume" color={health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "var(--s3)" : "var(--hero-accent)"} text={health == null ? "-" : undefined} />
-          </div>
+          <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-3 xl:grid-cols-6">
+            {facts.map((f, i) => (
+              <div key={f.label} data-tone={[0, 1, 3, 0][i]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5">
+                <dt className="flex items-center gap-1.5 truncate text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{f.icon}{f.label}</dt>
+                <dd className={`mt-0.5 truncate font-display text-[1.1rem] font-bold ${f.v ? "" : "text-white/60"}`}>{f.v || "-"}</dd>
+              </div>
+            ))}
+            {[
+              { label: "Profile", value: strength, show: `${strength}%`, color: "var(--hero-accent)", tone: 1 },
+              { label: "Resume", value: health ?? 0, show: health == null ? "-" : `${health}/100`, color: health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "var(--s3)" : "var(--hero-accent)", tone: 0 },
+            ].map((m) => (
+              <div key={m.label} data-tone={m.tone} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5">
+                <dt className="truncate text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{m.label}</dt>
+                <dd className="mt-0.5 font-display text-[1.1rem] font-bold tabular-nums">{m.show}</dd>
+                <Meter value={m.value / 100} color={m.color} track="rgba(255,255,255,.18)" height={5} className="mt-1.5" />
+              </div>
+            ))}
+          </dl>
         </section>
 
         {/* Chapters + save */}
@@ -277,12 +281,3 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
   );
 }
 
-function Ring({ value, label, color, text, dark }: { value: number; label: string; color: string; text?: string; dark?: boolean }) {
-  return (
-    <div className={`w-[130px] rounded-2xl px-4 py-3 ${dark ? "bg-white/10 ring-1 ring-white/15" : "bg-line-2"}`}>
-      <div className={`text-[0.76rem] font-semibold uppercase tracking-[0.12em] ${dark ? "text-white/70" : "text-muted"}`}>{label}</div>
-      <div className={`mt-0.5 font-display text-[1.6rem] font-bold leading-none tabular-nums ${dark ? "text-white" : ""}`}>{text ?? value}<span className={`text-[0.85rem] ${dark ? "text-white/60" : "text-muted"}`}>{text ? "" : label === "Profile" ? "%" : "/100"}</span></div>
-      <Meter value={value / 100} color={color} track={dark ? "rgba(255,255,255,.18)" : "var(--line)"} className="mt-2" />
-    </div>
-  );
-}

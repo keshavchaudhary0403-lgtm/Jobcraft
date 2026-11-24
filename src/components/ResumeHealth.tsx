@@ -3,7 +3,7 @@
 import { Meter } from "./ui";
 
 import { useMemo, useState } from "react";
-import { ArrowRight, Check, HeartPulse, Sparkles, TrendingUp, Wrench, X } from "lucide-react";
+import { ArrowRight, Check, HeartPulse, ShieldCheck, Sparkles, TrendingUp, Wrench, X } from "lucide-react";
 import { checkBullet, resumeHealth, type BulletReport } from "@/lib/resume-health";
 import { Modal } from "./client-ui";
 
@@ -40,41 +40,46 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
 
   return (
     <section className={`card overflow-hidden fade-up ${compact ? "" : "mb-5"}`}>
-      <div className={`grid gap-6 p-6 ${compact ? "" : "lg:grid-cols-[250px_minmax(0,1fr)]"}`}>
+      <div className={`grid gap-6 p-5 sm:p-6 ${compact ? "" : "lg:grid-cols-[260px_minmax(0,1fr)]"}`}>
         {/* Score */}
-        <div className="flex flex-col items-start rounded-[20px] bg-line-2 px-5 py-5 text-left">
-          <div className="mb-3 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><HeartPulse size={13} className="text-brand" /> Resume health</div>
-          <ScoreRing score={report.score} />
-          <div className={`mt-2 font-semibold ${g.cls}`}>{g.label}</div>
-          {delta !== 0 && (
-            <div className="mt-2 flex items-center gap-1.5 rounded-full bg-good-soft px-3 py-1 text-[0.82rem] font-semibold text-good" data-tip="Since your first check">
-              <TrendingUp size={13} /> {base} → {report.score} <span className="font-normal">({delta > 0 ? "+" : ""}{delta})</span>
-            </div>
-          )}
+        <div className="min-w-0">
+          <div className="flex items-center gap-2.5">
+            <span data-tone="2" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><HeartPulse size={16} /></span>
+            <h2 className="flex-1 text-[1.15rem] font-bold leading-tight">Resume health</h2>
+          </div>
+          <div className="mt-4"><ScoreRing score={report.score} /></div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-2">
+            <span className={`text-[0.92rem] font-semibold ${g.cls}`}>{g.label}</span>
+            {delta !== 0 && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-good-soft px-2.5 py-0.5 text-[0.78rem] font-semibold text-good" data-tip="Since your first check">
+                <TrendingUp size={12} /> {base} → {report.score}
+              </span>
+            )}
+          </div>
           {unsaved !== 0 && <div className="mt-1.5 text-[0.78rem] text-muted">{unsaved > 0 ? `+${unsaved}` : unsaved} from unsaved edits - save to keep</div>}
         </div>
 
         {/* ATS-safe checks */}
-        <div className="min-w-0">
-          <div className="flex flex-wrap items-end justify-between gap-2">
-            <div>
-              <h2 className="text-[1.3rem] font-bold leading-tight">ATS-safe checks</h2>
-              <div className="text-[0.84rem] text-muted">What recruiters and ATS check first.</div>
+        <div className={`min-w-0 ${compact ? "border-t border-line pt-5" : ""}`}>
+          <div className="flex items-center gap-2.5">
+            <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><ShieldCheck size={16} /></span>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-[1.15rem] font-bold leading-tight">ATS-safe checks</h2>
+              <div className="text-[0.82rem] text-muted">What recruiters and ATS check first.</div>
             </div>
-            <span className="chip bg-good-soft text-good">{report.doc.filter((d) => d.ok).length} of {report.doc.length} passed</span>
+            <span className={`chip shrink-0 ${report.doc.every((d) => d.ok) ? "bg-good-soft text-good" : "bg-bad-soft text-bad"}`}>{report.doc.filter((d) => d.ok).length}/{report.doc.length}</span>
           </div>
-          <div className="mt-3 flex h-2 gap-1">{report.doc.map((d) => <span key={d.label} className={`flex-1 rounded-full ${d.ok ? "bg-good" : "bg-bad"}`} />)}</div>
-          <div className={`mt-4 grid gap-2.5 ${compact ? "" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
+          <ul className={`mt-3 divide-y divide-line ${compact ? "" : "sm:grid sm:grid-cols-2 sm:gap-x-6 sm:divide-y-0 xl:grid-cols-3"}`}>
             {report.doc.map((d) => (
-              <div key={d.label} className={`flex items-start gap-2.5 rounded-2xl border-[1.5px] px-3.5 py-2.5 text-[0.88rem] ${d.ok ? "border-line" : "border-bad/30 bg-bad-soft/60"}`} data-tip={d.ok ? undefined : d.tip}>
+              <li key={d.label} className="flex items-start gap-2.5 py-2.5 text-[0.9rem]">
                 <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${d.ok ? "bg-good text-white" : "bg-bad text-white"}`}>{d.ok ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}</span>
                 <span className="font-medium">
                   {d.label}
-                  {!d.ok && <span className="block text-[0.78rem] font-normal text-muted">{d.tip}</span>}
+                  {!d.ok && <span className="block text-[0.8rem] font-normal text-muted">{d.tip}</span>}
                 </span>
-              </div>
+              </li>
             ))}
-          </div>
+          </ul>
         </div>
       </div>
 
@@ -85,12 +90,12 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
             <div className="font-display text-[1.15rem] font-bold">{showAll ? `All bullets (${report.bullets.length})` : weak.length ? `${weak.length} bullet${weak.length > 1 ? "s" : ""} to strengthen` : "Every bullet looks strong"}</div>
             <div className="text-[0.8rem] text-muted">Scored out of 10 on numbers, verbs and length.</div>
           </div>
-          {report.bullets.length > 0 && <button className="pill-link" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only weak ones" : `Show all ${report.bullets.length}`}</button>}
+          {report.bullets.length > 0 && <button className="pill-nav h-8 px-3 text-[0.82rem]" onClick={() => setShowAll(!showAll)}>{showAll ? "Show only weak ones" : `Show all ${report.bullets.length}`}</button>}
         </div>
         <div className={`grid gap-px bg-line ${compact ? "" : "lg:grid-cols-2"}`}>
           {list.map((b) => (
             <div key={b.line} className="flex items-start gap-3 bg-card px-6 py-3.5">
-              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-mustard-ink" : "bg-clay-soft text-clay"}`}>{b.score}</span>
+              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-brand-soft text-brand" : "bg-bad-soft text-bad"}`}>{b.score}</span>
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-[0.92rem] leading-snug text-ink">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
