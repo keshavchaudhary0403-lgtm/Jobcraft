@@ -37,7 +37,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
         </div>
         <div className="mt-5">
           <div className="flex justify-between text-[0.8rem]"><span className="text-muted">Practice goal</span><span className="font-semibold">{done} of 3 rounds</span></div>
-          <div className="mt-1.5 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < done ? "bg-good" : "bg-line-2"}`} />)}</div>
+          <div className="mt-1.5 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < done ? "bg-good" : "bg-line"}`} />)}</div>
         </div>
         <form action={start} className="mt-auto pt-6">
           <input type="hidden" name="application_id" value={app.id} />

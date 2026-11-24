@@ -52,7 +52,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
       <div className="flex items-center gap-4 p-5">
         <div className="donut-3d relative grid h-[120px] w-[120px] shrink-0 place-items-center">
           <svg width="120" height="120" className="-rotate-90">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line-2)" strokeWidth="11" />
+            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" strokeWidth="11" />
             <circle cx="60" cy="60" r="52" fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - r.score / 10)} />
           </svg>
           <span className="absolute font-display text-[2.3rem] font-bold leading-none">{r.score}<span className="text-[0.9rem] text-muted">/10</span></span>

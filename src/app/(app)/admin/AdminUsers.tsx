@@ -389,7 +389,7 @@ export function AdminUsers({ meId }: { meId: string }) {
           ) : (
             <section className="grid gap-5 fade-up lg:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)]">
               <div className={`relative overflow-hidden rounded-[22px] p-7 ${settings.demo_enabled ? "dark-card" : "card"}`}>
-                <div className={`text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${settings.demo_enabled ? "text-white/55" : "text-muted"}`}>Demo login</div>
+                <div className={`text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${settings.demo_enabled ? "text-white/70" : "text-muted"}`}>Demo login</div>
                 <div className="mt-2 font-display text-[3rem] font-bold leading-none">{settings.demo_enabled ? "On" : "Off"}<span className="text-clay">.</span></div>
                 <p className={`mt-3 max-w-lg text-[0.95rem] leading-relaxed ${settings.demo_enabled ? "text-white/75" : "text-muted"}`}>
                   {settings.demo_enabled
@@ -638,7 +638,7 @@ function SpendRing({ pct }: { pct: number | null }) {
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }} data-tip={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         {pct != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(v, 2) / 100)} />}
       </svg>
       <span className="absolute text-[0.78rem] font-bold tabular-nums">{pct == null ? "∞" : `${Math.round(v)}%`}</span>
@@ -831,9 +831,9 @@ function AdminOverview({
               {k.bar != null ? (
                 <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full" style={{ width: `${Math.min(100, Math.max(k.bar * 100, k.bar > 0 ? 4 : 0))}%`, background: "var(--hero-accent)" }} /></div>
               ) : (
-                <div className="mt-2 text-[0.76rem] text-white/50">{k.sub}</div>
+                <div className="mt-2 text-[0.76rem] text-white/65">{k.sub}</div>
               )}
-              {k.bar != null && <div className="mt-1.5 text-[0.76rem] text-white/50">{k.sub}</div>}
+              {k.bar != null && <div className="mt-1.5 text-[0.76rem] text-white/65">{k.sub}</div>}
             </button>
           ))}
         </div>
@@ -974,7 +974,7 @@ function FeatureDonut({ parts, total }: { parts: { label: string; v: number; col
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         {segs.map((p) => <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max(p.len - (segs.length > 1 ? 3 : 0), 1)} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${rupees(p.v)} (${Math.round((p.v / sum) * 100)}%)`}</title></circle>)}
       </svg>
       <div className="donut-hub" style={{ inset: stroke + 6 }}>

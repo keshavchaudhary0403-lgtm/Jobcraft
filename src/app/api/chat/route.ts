@@ -1,7 +1,7 @@
 import { currentUser } from "@/lib/current-user";
 import { aiLimited, gateResponse } from "@/lib/rate-limit";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai } from "@/lib/ai";
+import { AI_MODELS, aiErrorMessage, checkLimits, logUsage, openai, humaniseText } from "@/lib/ai";
 import { buildSystemPrompt, extractResume } from "@/lib/prompts";
 import { DEMO, demoChat } from "@/lib/demo";
 import type { Application, Message, Profile, Session } from "@/lib/types";
@@ -112,8 +112,9 @@ export async function POST(req: Request) {
         });
         for await (const event of stream) {
           if (event.type === "response.output_text.delta" || event.type === "response.refusal.delta") {
-            full += event.delta;
-            controller.enqueue(encoder.encode(event.delta));
+            const d = humaniseText(event.delta); // same plain punctuation as every other AI reply
+            full += d;
+            controller.enqueue(encoder.encode(d));
           }
         }
         const final = await stream.finalResponse();

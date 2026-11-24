@@ -13,13 +13,12 @@ import {
   MessageCircle,
   Pencil,
   Trash2,
-  X,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { CompanyAvatar, STATUS_META } from "@/components/ui";
-import { Menu, Modal, useAsk } from "@/components/client-ui";
+import { Menu, Modal, useAsk, SidePanel } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
 import { ResumeTab } from "./ResumeTab";
@@ -281,23 +280,9 @@ export function JobView({
         </form>
       </Modal>
 
-      {coach && (
-        <div className="fixed inset-0 z-40 flex justify-end bg-slate-900/25 backdrop-blur-[2px]" onClick={() => setCoach(false)}>
-          <div className="flex h-full w-full max-w-lg flex-col bg-bg shadow-2xl" style={{ animation: "slide-in .25s cubic-bezier(.2,.7,.2,1)" }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between border-b border-line bg-white px-5 py-3.5">
-              <div>
-                <div className="font-semibold">Coach</div>
-                <div className="text-[0.82rem] text-muted">Knows your resume and this job</div>
-              </div>
-              <button className="btn-quiet" onClick={() => setCoach(false)} aria-label="Close"><X size={16} /></button>
-            </div>
-            <div className="thin-scroll flex-1 overflow-y-auto px-5 pt-4">
-              <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job..." suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
-            </div>
-          </div>
-          <style>{`@keyframes slide-in { from { transform: translateX(32px); opacity: 0 } }`}</style>
-        </div>
-      )}
+      <SidePanel open={coach} onClose={() => setCoach(false)} title="Coach" sub={`Knows your resume and the ${app.company} job`} icon={<MessageCircle size={18} />}>
+        <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job..." suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
+      </SidePanel>
     </div>
   );
 }

@@ -86,7 +86,7 @@ export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt
   return (
     <div className={`donut-3d relative grid shrink-0 place-items-center ${className}`} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         {segs.map(({ s, len, start }) => (
           <circle key={s} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={STATUS_HEX[s]} strokeWidth={stroke} strokeDasharray={`${Math.max(len - gap, 1)} ${c}`} strokeDashoffset={-start} />
         ))}
@@ -106,7 +106,7 @@ export function MiniDonut({ value }: { value: number | null }) {
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
       </svg>
       <span className="donut-hub" style={{ inset: stroke + 3 }}><span className="flex items-baseline font-display text-[0.98rem] font-bold leading-none tabular-nums">{value ?? "-"}{value != null && <span className="text-[0.68rem] font-semibold text-muted">%</span>}</span></span>

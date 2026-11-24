@@ -80,7 +80,7 @@ export function Onboarding({ userId, first, loginId }: { userId: string; first: 
                 }
               />
               <aside className="dark-card p-6">
-                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/55">From your resume we fill in</div>
+                <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-white/70">From your resume we fill in</div>
                 <ul className="mt-4 space-y-3">
                   {["Your name, title and city", "The role you're going after", "Your skills and strongest result", "Your full resume, ready to tailor"].map((x) => (
                     <li key={x} className="flex items-center gap-3 text-[0.95rem]"><span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard text-white"><Check size={13} strokeWidth={3} /></span>{x}</li>

@@ -219,8 +219,8 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
             <dl className="mt-5 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
               {facts.map((f, i) => (
                 <div key={f.label} data-tone={[0, 1, 3, 0][i]} className="stat-tile rounded-2xl px-3.5 pb-3 pt-3.5">
-                  <dt className="flex items-center gap-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/55">{f.icon}{f.label}</dt>
-                  <dd className={`mt-0.5 truncate font-display text-[1.1rem] font-bold ${f.v ? "" : "text-white/40"}`}>{f.v || "-"}</dd>
+                  <dt className="flex items-center gap-1.5 text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{f.icon}{f.label}</dt>
+                  <dd className={`mt-0.5 truncate font-display text-[1.1rem] font-bold ${f.v ? "" : "text-white/60"}`}>{f.v || "-"}</dd>
                 </div>
               ))}
             </dl>

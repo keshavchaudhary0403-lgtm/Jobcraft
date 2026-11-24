@@ -120,7 +120,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         {visible.length === 0 && !busy && suggestions && (
           <div className="flex flex-wrap gap-2 fade-up">
             {suggestions.map((s) => (
-              <button key={s} onClick={() => send(s)} className="chip border border-line bg-white px-3 py-1.5 text-sm text-slate-600 hover:border-brand/40 hover:text-ink">
+              <button key={s} onClick={() => send(s)} className="pill-nav h-9 whitespace-normal text-left text-[0.85rem]">
                 {s}
               </button>
             ))}
@@ -136,7 +136,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         {quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (
-              <button key={q} className="chip border border-line bg-white px-3 py-1.5 text-sm hover:border-brand/40" disabled={busy} onClick={() => send(q)}>
+              <button key={q} className="pill-nav h-9 text-[0.85rem]" disabled={busy} onClick={() => send(q)}>
                 {q}
               </button>
             ))}
@@ -159,7 +159,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             }}
           />
           <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white transition hover:bg-clay-ink disabled:opacity-30"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white shadow-[0_8px_18px_-10px_var(--act-glow)] transition hover:bg-clay-ink disabled:bg-line disabled:text-faint disabled:shadow-none"
             disabled={busy || !input.trim()}
             onClick={() => {
               const t = input;

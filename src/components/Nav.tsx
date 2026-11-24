@@ -53,7 +53,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       <nav className="mt-6 space-y-6">
         {groups.map((g) => (
           <div key={g.label}>
-            <div className="mb-2 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/35">{g.label}</div>
+            <div className="mb-2 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/60">{g.label}</div>
             <div className="space-y-1">
               {g.items.map(({ href, label, icon: Icon, ...rest }) => {
                 const active = isActive(href);
@@ -91,7 +91,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
         <button onClick={() => setMenu(!menu)} className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
           <span className="avatar-warm grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold">{initials || "?"}</span>
           <span className="min-w-0 flex-1 truncate text-[0.92rem] font-medium text-cream">{name}</span>
-          <ChevronUp size={15} className={`text-white/50 transition ${menu ? "" : "rotate-180"}`} />
+          <ChevronUp size={15} className={`text-white/65 transition ${menu ? "" : "rotate-180"}`} />
         </button>
       </div>
     </>
@@ -126,7 +126,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                 <Plus size={24} />
               </Link>
             ) : (
-              <Link key={t.href} href={t.href} className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.7rem] font-medium transition ${isActive(t.href) ? "text-cream" : "text-white/50"}`}>
+              <Link key={t.href} href={t.href} className={`relative flex flex-col items-center gap-0.5 rounded-2xl py-1.5 text-[0.7rem] font-medium transition ${isActive(t.href) ? "text-cream" : "text-white/65"}`}>
                 <span className={`grid h-8 w-12 place-items-center rounded-full transition ${isActive(t.href) ? "bg-white/15" : ""}`}><t.icon size={19} /></span>
                 {t.label}
                 {"count" in t && (t.count ?? 0) > 0 && <span className="absolute right-3 top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-clay px-1 text-[0.62rem] font-bold text-white">{t.count}</span>}

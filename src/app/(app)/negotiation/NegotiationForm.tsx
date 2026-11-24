@@ -151,7 +151,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
         </section>
 
         <section className="dark-card flex flex-col p-6">
-          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">How the talk plays out</div>
+          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How the talk plays out</div>
           <ol className="mt-4 flex-1 space-y-3">
             {["See if the offer is below, at or above market", "Get a realistic counter range", "Make your counter - HR pushes back", "Say \"stop\" any time for feedback"].map((t, i) => (
               <li key={t} className="flex items-center gap-3">

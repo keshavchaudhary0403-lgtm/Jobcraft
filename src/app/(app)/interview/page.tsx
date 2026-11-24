@@ -58,12 +58,12 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
               <span className="font-semibold uppercase tracking-[0.14em] text-muted">Practice goal</span>
               <span className="text-muted">{rounds >= 3 ? "All 3 rounds done. You're ready." : "3 rounds, new questions each time"}</span>
             </div>
-            <div className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < rounds ? "bg-brand" : "bg-line-2"}`} />)}</div>
+            <div className="grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-2 rounded-full ${i < rounds ? "bg-brand" : "bg-line"}`} />)}</div>
           </div>
         </section>
 
         <section className="dark-card flex flex-col p-6">
-          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/55">How a round works</div>
+          <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-white/70">How a round works</div>
           <ol className="mt-4 flex-1 space-y-3">
             {STEPS.map((t, i) => (
               <li key={t} className="flex items-center gap-3">
@@ -73,8 +73,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             ))}
           </ol>
           <div className="mt-5 grid grid-cols-2 gap-2 text-center">
-            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last != null ? `${last}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/55">last score</div></div>
-            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best != null ? `${best}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/55">best score</div></div>
+            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last != null ? `${last}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/70">last score</div></div>
+            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best != null ? `${best}/10` : <span className="text-[1rem] text-white/60">Not yet</span>}</div><div className="text-[0.8rem] text-white/70">best score</div></div>
           </div>
           <button className="btn btn-clay mt-4 h-12 w-full text-[1rem]"><Mic size={17} /> Start interview</button>
         </section>

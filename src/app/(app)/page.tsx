@@ -168,7 +168,7 @@ export default async function Home() {
                   </span>
                   <span className="mt-4 block font-display text-[1.15rem] font-bold">Mock interview</span>
                   <span className="block text-[0.86rem] text-muted">Practise while you wait{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
-                  <span className="mt-3 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i < interviews.length ? "bg-good" : "bg-line-2"}`} />)}</span>
+                  <span className="mt-3 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i < interviews.length ? "bg-good" : "bg-line"}`} />)}</span>
                   <span className="mt-auto pt-4"><span className="pill-action">Start a round <ArrowRight size={14} /></span></span>
                 </Link>
               )}

@@ -166,13 +166,39 @@ export function Modal({ open, onClose, title, children, width = 520 }: { open: b
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div data-modal className="fixed inset-0 z-50 grid place-items-center bg-slate-900/30 p-4 backdrop-blur-[2px]" onMouseDown={onClose}>
-      <div className="pop flex max-h-[90vh] w-full flex-col overflow-hidden rounded-3xl bg-white shadow-2xl" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-line px-5 py-3.5">
-          <div className="font-semibold">{title}</div>
-          <button className="btn-quiet" onClick={onClose} aria-label="Close"><X size={16} /></button>
+    <div data-modal className="fixed inset-0 z-50 grid place-items-center bg-side/40 p-4 backdrop-blur-[3px]" onMouseDown={onClose}>
+      <div className="pop flex max-h-[90vh] w-full flex-col overflow-hidden rounded-[28px] bg-card shadow-[0_30px_70px_-30px_rgba(0,30,70,.55)]" style={{ maxWidth: width }} onMouseDown={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between gap-3 border-b border-line px-6 py-4">
+          <div className="font-display text-[1.2rem] font-bold">{title}</div>
+          <button className="grid h-9 w-9 place-items-center rounded-full bg-line-2 text-muted transition hover:bg-line hover:text-ink" onClick={onClose} aria-label="Close"><X size={16} /></button>
         </div>
-        <div className="overflow-y-auto p-5">{children}</div>
+        <div className="overflow-y-auto p-6">{children}</div>
+      </div>
+    </div>
+  );
+}
+
+/** Right-side panel in the app's style: floating card, blue header, light body. */
+export function SidePanel({ open, onClose, title, sub, icon, children }: { open: boolean; onClose: () => void; title: string; sub?: string; icon?: React.ReactNode; children: React.ReactNode }) {
+  useEffect(() => {
+    if (!open) return;
+    const esc = (e: KeyboardEvent) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", esc);
+    return () => document.removeEventListener("keydown", esc);
+  }, [open, onClose]);
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex justify-end bg-side/40 backdrop-blur-[3px] sm:p-3" onMouseDown={onClose}>
+      <div className="side-panel flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-bg shadow-[0_30px_70px_-30px_rgba(0,30,70,.6)] sm:rounded-[28px]" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="rail-bg flex items-center gap-3 px-5 py-4 text-white">
+          {icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-white/20">{icon}</span>}
+          <div className="min-w-0 flex-1">
+            <div className="font-display text-[1.2rem] font-bold leading-tight">{title}</div>
+            {sub && <div className="truncate text-[0.82rem] text-white/70">{sub}</div>}
+          </div>
+          <button className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white/12 ring-1 ring-white/20 transition hover:bg-white/20" onClick={onClose} aria-label="Close"><X size={16} /></button>
+        </div>
+        <div className="thin-scroll flex min-h-0 flex-1 flex-col overflow-y-auto px-4 pt-4 sm:px-5">{children}</div>
       </div>
     </div>
   );

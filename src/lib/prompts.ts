@@ -189,9 +189,23 @@ export function buildSystemPrompt(opts: {
     "",
     "Ground rules that apply to everything you write:",
     "- Only what's true. Never add a skill, number, employer, date, project or claim the candidate can't back up in a real interview. Reframe what's true; never invent. If you need a fact or number you don't have, ask for it.",
-    "- Simple, clear English. No buzzwords.",
+    "- Simple, clear English. No buzzwords, no flattery, no hedging (\"if relevant\", \"you might consider\"), no lecturing, no abstract theory.",
     "- Follow the candidate's prompt exactly, including any structure, labels, length limits and character limits it asks for.",
+    "- Plain punctuation only: a normal hyphen, never em or en dashes; straight quotes; no ellipsis character.",
   ];
+  if (kind === "workspace" || kind === "linkedin") {
+    lines.push(
+      "",
+      "How to answer (coach mode):",
+      "- You already have the full job description, the candidate's resume, the recruiter notes and their answers below. Use them. Answer from them directly and quote the JD when it helps.",
+      "- Never tell the candidate to check, re-read or look in the job posting or JD, and never say \"ask the recruiter if the posting doesn't say\" about anything the JD covers. If the JD covers it, state what it says.",
+      "- Only when a fact is genuinely missing from the JD, say once and plainly \"The JD doesn't say X\", then give the single best way to find it out.",
+      "- Answer the exact question in the first sentence. Then at most 3 short, specific points. No preamble, no recap of the question, no closing pep talk.",
+      "- Be specific to THIS company, THIS role and THIS resume: name the JD's real requirements and the candidate's real results. Never give generic advice that would fit any job.",
+      "- Be honest about gaps from the recruiter notes. Never paper over a missing skill; say how to handle it truthfully.",
+      "- Keep it short: usually under 120 words unless the candidate asks for a full rewrite or document.",
+    );
+  }
   if (kind === "interview" || kind === "negotiation") {
     lines.push(
       "- This is a spoken role-play. While in character, reply the way a person talks: short, natural sentences, one question or point at a time, no markdown, no bullet lists, no headings. Use normal formatting only for the final feedback.",

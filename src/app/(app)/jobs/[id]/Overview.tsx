@@ -37,7 +37,6 @@ const GAP = {
   not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-mustard-ink", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
   unsure: { label: "Needs your answer", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
 };
-const TILE = ["bg-ocean-soft text-ocean", "bg-mustard-soft text-mustard-ink", "bg-plum-soft text-plum"];
 
 /** All questions the recruiter wants answered (gap questions + extra ones), no duplicates. */
 export function questionList(a: Analysis | null): string[] {
@@ -138,10 +137,10 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
       <div className={`space-y-5 stagger transition ${busy ? "pointer-events-none opacity-60" : ""}`}>
         {/* Row 1: the read + coverage charts */}
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <section className="card flex flex-col p-6" style={{ background: "var(--color-mustard-soft)" }}>
+          <section className="card flex flex-col border-l-4 border-l-brand p-6">
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">What they&apos;re really hiring for</span>
-              <span className="chip max-w-full whitespace-normal bg-white/70 text-ink">{a.fit_verdict}</span>
+              <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-brand">What they&apos;re really hiring for</span>
+              <span className="chip max-w-full whitespace-normal bg-brand-soft text-brand-ink">{a.fit_verdict}</span>
             </div>
             <p className="mt-3 font-display text-[1.2rem] font-semibold leading-snug sm:text-[1.45rem]">&ldquo;{a.real_problem}&rdquo;</p>
             <div className="mt-auto pt-5">
@@ -194,11 +193,11 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         {a.unwritten_expectations.length > 0 && (
           <section className="grid gap-3 md:grid-cols-3">
             {a.unwritten_expectations.map((x, i) => (
-              <div key={x} className={`flex gap-3 rounded-[20px] p-4 ${TILE[i % 3]}`}>
-                <Lightbulb size={17} className="mt-0.5 shrink-0 opacity-60" />
+              <div key={x} className="card flex gap-3 p-4">
+                <span data-tone={[0, 1, 2][i % 3]} className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><Lightbulb size={16} /></span>
                 <div>
-                  <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] opacity-60">Expected, not written</div>
-                  <p className="mt-1 text-[0.92rem] leading-snug">{x}</p>
+                  <div className="text-[0.76rem] font-semibold uppercase tracking-[0.12em] text-muted">Expected, not written</div>
+                  <p className="mt-1 text-[0.92rem] font-medium leading-snug text-ink">{x}</p>
                 </div>
               </div>
             ))}
@@ -265,7 +264,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 <div className="flex items-center gap-4">
                   <Ring value={pct / 100} label={`${answered}/${questions.length}`} dark />
                   <div className="min-w-0 flex-1">
-                    <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/55">Recruiter&apos;s questions</div>
+                    <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/70">Recruiter&apos;s questions</div>
                     <div className="font-display text-[1.15rem] font-bold leading-snug">
                       {answered === questions.length ? "All answered" : `${questions.length - answered} still open`}
                     </div>
@@ -369,7 +368,7 @@ function Ring({ value, label, dark }: { value: number; label: string; dark?: boo
   return (
     <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.12)" : "var(--line-2)"} strokeWidth={stroke} />
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.18)" : "var(--line)"} strokeWidth={stroke} />
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "var(--color-mustard)" : "var(--brand)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} style={{ transition: "stroke-dashoffset .8s ease" }} />
       </svg>
       <span className="absolute font-display text-[1rem] font-bold tabular-nums">{label}</span>
