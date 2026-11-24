@@ -37,17 +37,26 @@ export function CompanyWordmark({
   // Saved website first; with a saved logo but no website, don't guess (a guess can be another company);
   // otherwise fall back to guessing from the link / name.
   const site = domain || (logo ? null : companyDomain(name, jobUrl));
-  const [failed, setFailed] = useState(false);
+  // Remember which website failed, so a new website (e.g. added in Edit) gets a fresh try.
+  const [failedFor, setFailedFor] = useState<string | null>(null);
+  const failed = !!site && failedFor === site;
+  const setFailed = () => setFailedFor(site);
   const img = useRef<HTMLImageElement>(null);
+  // Same visual weight for every brand: a wide wordmark (KROLL) is drawn a bit shorter, a compact one (EY)
+  // uses the full height - so no logo looks oversized or tiny next to another. Measured once it loads.
+  const [ratio, setRatio] = useState<number | null>(null);
+  const drawH = ratio ? Math.round(Math.min(height, Math.max(height * 0.6, height * Math.sqrt(2.6 / ratio)))) : height;
   // A logo that already failed before the page became interactive never fires onError - catch it here.
   useEffect(() => {
     const i = img.current;
-    if (i && i.complete && i.naturalWidth === 0) setFailed(true);
-  }, []);
+    if (i && i.complete && i.naturalWidth === 0) setFailedFor(site);
+    // already loaded before React attached onLoad (cached image) - measure it now
+    else if (i && i.complete && i.naturalHeight) setRatio(i.naturalWidth / i.naturalHeight);
+  }, [site]);
 
   if (CLIENT_ID && site && !failed)
     return (
-      <span className={`flex min-w-0 items-center ${className}`} style={{ height: Math.max(height, iconSize) }} data-tip={name}>
+      <span className={`flex min-w-0 items-center ${className}`} style={{ height: Math.max(height, iconSize) }}>
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={img}
@@ -55,9 +64,10 @@ export function CompanyWordmark({
           alt={name}
           loading="lazy"
           referrerPolicy="strict-origin-when-cross-origin"
-          onError={() => setFailed(true)}
+          onError={setFailed}
+          onLoad={(e) => { const i = e.currentTarget; if (i.naturalWidth && i.naturalHeight) setRatio(i.naturalWidth / i.naturalHeight); }}
           className="block w-auto max-w-full object-contain object-left"
-          style={{ height, maxWidth: height * 7 }}
+          style={{ height: drawH, maxWidth: height * 4.2 }}
         />
       </span>
     );

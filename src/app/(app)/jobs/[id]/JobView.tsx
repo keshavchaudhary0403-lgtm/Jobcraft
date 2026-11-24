@@ -89,7 +89,7 @@ export function JobView({
   const facts = [
     ["Added", fmtDate(app.created_at)],
     ["Applied", fmtDate(app.applied_on)],
-    ["Company", app.company_type ?? "-"],
+    ["Company type", app.company_type ?? "-"],
     ["Level", a?.seniority ?? "-"],
   ];
 
@@ -98,48 +98,55 @@ export function JobView({
       {dialog}
       <Link href="/jobs" className="pill-nav h-8 px-3 text-[0.84rem]"><ChevronRight size={15} className="rotate-180" /> All jobs</Link>
 
-      {/* ── Hero (compact) ── */}
+      {/* ── Hero: three zones that use the full width ──
+          left = who and what (logo, role, location, actions) · middle = the facts as tiles · right = the fit ring */}
       <section className="card overflow-hidden fade-up">
-        {/* Left: everything about the job. Right: the fit ring, centred top-to-bottom in the corner. */}
-        <div className="flex items-center gap-6 p-5 sm:p-6">
-          <div className="min-w-0 flex-1">
-          <div>
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.92rem] text-muted">
-                <CompanyWordmark name={app.company} jobUrl={app.job_url} domain={app.company_domain} logo={app.company_logo} height={40} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
-                {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
-              </div>
-              <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>
+        <div className="grid items-stretch gap-5 p-5 sm:p-6 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_auto] lg:gap-7">
+          {/* Who and what */}
+          <div className="flex min-w-0 flex-col">
+            <CompanyWordmark name={app.company} jobUrl={app.job_url} domain={app.company_domain} logo={app.company_logo} height={44} iconSize={44} nameClass="truncate text-[1.05rem] font-bold text-ink" />
+            <h1 className="mt-3 text-[1.7rem] font-bold leading-[1.12] sm:text-[2rem]">{app.role}</h1>
+            {app.location && <span className="mt-1.5 inline-flex items-center gap-1.5 text-[0.92rem] text-muted"><MapPin size={14} className="shrink-0" />{app.location}</span>}
+            {a ? <FitStat fit={fit} prev={null} className="mt-4 sm:hidden" /> : null}
+            <div className="mt-auto flex flex-wrap items-center gap-2 pt-5">
+              <Menu<Status>
+                bare
+                align="left"
+                value={app.status}
+                options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
+                onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
+                render={(c) => <span className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[0.86rem] font-semibold ${STATUS_META[c.value].cls}`}><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} />{c.label}<ChevronDown size={14} className="opacity-70" /></span>}
+              />
+              {[
+                { label: "Job description", icon: FileText, on: () => setShowJd(true) },
+                { label: "Edit", icon: Pencil, on: () => setEditing(true) },
+              ].map(({ label, icon: Icon, on }) => (
+                <button key={label} onClick={on} className="btn btn-ghost h-9 px-3.5 text-[0.86rem]"><Icon size={14} /> {label}</button>
+              ))}
+              {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-3.5 text-[0.86rem]">Listing <ExternalLink size={13} /></a>}
+              <button onClick={remove} className="btn btn-danger-soft h-9 w-9 px-0" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
             </div>
           </div>
 
-          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.86rem] text-muted">
-            {facts.map(([k, v]) => <span key={k}>{k} <b className="font-semibold text-ink">{v}</b></span>)}
-          </div>
-          {a ? <FitStat fit={fit} prev={null} className="mt-4 sm:hidden" /> : null}
-
-          <div className="mt-4 flex flex-wrap items-center gap-2">
-            <Menu<Status>
-              bare
-              align="left"
-              value={app.status}
-              options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
-              onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-              render={(c) => <span className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[0.86rem] font-semibold ${STATUS_META[c.value].cls}`}><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} />{c.label}<ChevronDown size={14} className="opacity-70" /></span>}
-            />
-            {[
-              { label: "Job description", icon: FileText, on: () => setShowJd(true) },
-              { label: "Edit", icon: Pencil, on: () => setEditing(true) },
-            ].map(({ label, icon: Icon, on }) => (
-              <button key={label} onClick={on} className="btn btn-ghost h-9 px-3.5 text-[0.86rem]"><Icon size={14} /> {label}</button>
+          {/* The facts, as tiles */}
+          <dl className="grid grid-cols-2 content-center gap-2.5 lg:border-l lg:border-line lg:pl-7">
+            {facts.map(([k, v], i) => (
+              <div key={k} data-tone={i} className="tone-soft rounded-2xl bg-line-2 px-4 py-3">
+                <dt className="text-[0.78rem] font-medium text-muted">{k}</dt>
+                <dd className="mt-0.5 truncate text-[0.98rem] font-semibold text-ink" data-tip={v.length > 22 ? v : undefined}>{v}</dd>
+              </div>
             ))}
-            {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-3.5 text-[0.86rem]">Listing <ExternalLink size={13} /></a>}
-            <button onClick={remove} className="btn btn-danger-soft h-9 w-9 px-0" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
-          </div>
-          </div>
-          {a && <FitStat fit={fit} size={112} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} className="hidden sm:block sm:mr-[19px]" />}
-        </div>
+          </dl>
 
+          {/* Fit (a dashed placeholder until the job is analysed, so every header keeps the same shape) */}
+          <div className="hidden place-items-center sm:grid lg:pl-2">
+            {a ? (
+              <FitStat fit={fit} size={112} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} />
+            ) : (
+              <div className="grid h-[112px] w-[112px] place-items-center rounded-full border-[3px] border-dashed border-line text-center text-[0.78rem] font-semibold leading-tight text-muted">Not<br />analysed</div>
+            )}
+          </div>
+        </div>
       </section>
 
       {/* ── Chapters ── */}
