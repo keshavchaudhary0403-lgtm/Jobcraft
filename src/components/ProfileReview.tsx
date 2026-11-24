@@ -227,7 +227,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           </div>
           <div className="flex items-center justify-center gap-5">
             <Ring dark value={strength} label="Profile" color="var(--hero-accent)" />
-            <Ring dark value={health ?? 0} label="Resume" color={health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "#ffd27a" : "var(--hero-accent)"} text={health == null ? "-" : undefined} />
+            <Ring dark value={health ?? 0} label="Resume" color={health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "var(--s3)" : "var(--hero-accent)"} text={health == null ? "-" : undefined} />
           </div>
         </section>
 

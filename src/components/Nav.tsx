@@ -107,7 +107,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       {/* Mobile: floating top bar + app-style bottom tab bar */}
       <header className="no-print sticky top-0 z-30 px-4 pt-3 sm:px-6 lg:hidden">
         <div className="rail-bg flex h-14 items-center justify-between rounded-[20px] bg-side pl-3.5 pr-2 shadow-[0_12px_30px_-18px_color-mix(in_srgb,var(--side)_90%,transparent)]">
-          <Link href="/" aria-label="Home"><Logo size={30} light /></Link>
+          <Link href="/" aria-label="Home" className="flex items-center"><Logo size={30} light /></Link>
           <div className="flex items-center gap-2">
             <span aria-hidden className="avatar-warm grid h-9 w-9 select-none place-items-center rounded-full text-[0.8rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
             <button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-[14px] bg-white/12 text-white transition active:scale-95" aria-label="Open menu">
@@ -192,7 +192,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
       {/* Desktop: floating rail */}
       <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_color-mix(in_srgb,var(--side)_90%,transparent)] lg:flex">
-        <Link href="/" className="mb-6 px-1.5 pt-1"><Logo size={32} light /></Link>
+        <Link href="/" className="mb-6 flex items-center px-1.5 pt-1"><Logo size={32} light /></Link>
         {body}
       </aside>
     </>

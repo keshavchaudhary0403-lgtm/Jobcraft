@@ -956,7 +956,7 @@ function niceCeil(v: number) {
 }
 
 // Distinct hues in a fixed order so no two spend categories look alike.
-const PALETTE = ["#004e98", "#ff6700", "#1f9d61", "#d98200", "#7a5af0", "#0e9384", "#5b8fd0", "#e0559a", "#a3aec0"];
+const PALETTE = ["#004e98", "#ff6700", "#1f9d61", "#ffa466", "#7a5af0", "#0e9384", "#5b8fd0", "#e0559a", "#a3aec0"];
 
 function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
   const size = 150, stroke = 20, r = (size - stroke) / 2, c = 2 * Math.PI * r;

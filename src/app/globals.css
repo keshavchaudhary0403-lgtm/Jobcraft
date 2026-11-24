@@ -65,16 +65,16 @@
   --line-2: #f0f2f6;
   --cream: #f1f3f7;
   --clay: #ff6700;
-  --clay-soft: #fff0e5;
-  --clay-2: #ff9a55;
-  --clay-ink: #e85d00;
+  --clay-soft: color-mix(in srgb, #ff6700 10%, white);
+  --clay-2: color-mix(in srgb, #ff6700 62%, white);
+  --clay-ink: color-mix(in srgb, #ff6700 88%, black);
   --mustard: #1f6bbd;
   --mustard-soft: #e6eef8;
   --mustard-ink: #004e98;
   --good: #1f9d61;
   --good-soft: #e7f7ee;
-  --mid: #d98200;
-  --mid-soft: #fff4e0;
+  --mid: color-mix(in srgb, #ff6700 82%, black);
+  --mid-soft: color-mix(in srgb, #ff6700 12%, white);
   --bad: #d92d20;
   --bad-soft: #fdecea;
   --ocean: #0a5aa8;
@@ -87,13 +87,14 @@
   --sel: #004e98; --sel-glow: rgba(0,78,152,.5);
   --sel-bg: linear-gradient(120deg, #0a5aa8, #004e98);
   --act-glow: rgba(255,103,0,.55);
-  --hero-accent: #ffb27a;
+  --warm-avatar: color-mix(in srgb, #ff6700 16%, white); --warm-avatar-ink: color-mix(in srgb, #ff6700 62%, black);
+  --hero-accent: color-mix(in srgb, #ff6700 68%, white);
   --t0: #0a5aa8; --t0s: #e6eef8;
-  --t1: #ff6700; --t1s: #fff0e5;
+  --t1: #ff6700; --t1s: color-mix(in srgb, #ff6700 10%, white);
   --t2: #1f9d61; --t2s: #e7f7ee;
-  --t3: #d98200; --t3s: #fff4e0;
+  --t3: color-mix(in srgb, #ff6700 78%, black); --t3s: color-mix(in srgb, #ff6700 14%, white);
   --t4: #0e9384; --t4s: #e4f6f3;
-  --s0: #8fc0ff; --s1: #ffb27a; --s3: #ffd27a;
+  --s0: #8ab8ec; --s1: color-mix(in srgb, #ff6700 68%, white); --s3: color-mix(in srgb, #ff6700 45%, white);
 }
 
 /* Desktop-dense scale: 1rem = 14px */
@@ -216,7 +217,7 @@ aside.bg-side { background: var(--rail-bg); }
 aside.bg-side nav a.bg-cream { background: rgba(255,255,255,.14); color: #fff; box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); }
 aside.bg-side nav a.bg-cream .bg-clay { background: var(--clay); }
 aside.bg-side .bg-mustard { background: var(--hero-accent); }
-aside.bg-side span.bg-mustard, header span.bg-mustard { background: #ffe3d2; color: #8a3a06; }
+aside.bg-side span.bg-mustard, header span.bg-mustard { background: var(--warm-avatar); color: var(--warm-avatar-ink); }
 .dark-card { background: var(--hero-bg); }
 .dark-card .text-mustard, main .bg-side .text-mustard { color: var(--hero-accent); }
 .dark-card .bg-mustard { background: var(--hero-accent); }
@@ -249,4 +250,4 @@ main .bg-side .bg-cream { background: rgba(255,255,255,.95); color: var(--sel); 
 
 /* Mobile: app bars share the rail gradient */
 .rail-bg { background: radial-gradient(60% 140% at 100% 0%, rgba(120,170,255,.35), transparent 60%), linear-gradient(100deg, #0a5aa8, #004e98 55%, #003b75); }
-.avatar-warm { background: #ffe3d2; color: #8a3a06; }
+.avatar-warm { background: var(--warm-avatar); color: var(--warm-avatar-ink); }

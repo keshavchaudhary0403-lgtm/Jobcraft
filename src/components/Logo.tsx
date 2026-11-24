@@ -19,9 +19,9 @@ export function LogoMark({ size = 28, inverse = false }: { size?: number; invers
 
 export function Logo({ size = 28, light = false }: { size?: number; light?: boolean }) {
   return (
-    <span className="inline-flex items-center gap-2.5">
+    <span className="inline-flex items-center gap-2.5 align-middle">
       <LogoMark size={size} inverse={light} />
-      <span className={`font-display text-[1.3rem] font-bold tracking-tight ${light ? "text-white" : "text-ink"}`}>Jobcraft</span>
+      <span className={`font-display text-[1.3rem] font-bold leading-none tracking-tight ${light ? "text-white" : "text-ink"}`}>Jobcraft</span>
     </span>
   );
 }
