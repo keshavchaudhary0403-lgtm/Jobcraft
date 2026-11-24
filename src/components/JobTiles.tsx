@@ -28,9 +28,12 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
         <div className="flex items-center gap-3">
           <span className="min-w-0 flex-1">
             <CompanyWordmark name={a.company} jobUrl={a.job_url} height={34} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
-            <span className="flex items-center gap-2 text-[0.8rem] text-muted">{a.location && <span className="inline-flex items-center gap-1 truncate"><MapPin size={11} />{a.location}</span>}<span>{timeAgo(a.updated_at)}</span></span>
+            {a.location && <span className="mt-0.5 flex items-center gap-1 truncate text-[0.8rem] text-muted"><MapPin size={11} />{a.location}</span>}
           </span>
-          <span className={`chip ${st.cls}`}>{st.label}</span>
+          <span className="flex shrink-0 items-center gap-2">
+            <span className="text-[0.8rem] text-muted">{timeAgo(a.updated_at)}</span>
+            <span className={`chip ${st.cls}`}>{st.label}</span>
+          </span>
         </div>
         <div className="mt-4 flex items-start justify-between gap-4">
           <h2 className="line-clamp-2 text-[1.45rem] font-bold leading-[1.1] hover:text-brand">{a.role}</h2>

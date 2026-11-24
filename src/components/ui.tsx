@@ -224,21 +224,52 @@ export function Kpi({
   return href ? <Link href={href} className={`${cls} card-hover`}>{body}</Link> : <div className={cls}>{body}</div>;
 }
 
-/** One look for "fit %" everywhere: colour by score (green strong, blue fair, red weak) on its own soft tint. */
+/** One look for "fit %" everywhere: green = strong match, orange = fair, red = weak (app status colours). */
+/* Bright, clean versions of the app's green / orange / red - just for the fit score, so it never looks dull. */
+const FIT = {
+  strong: { c: "#16b26a", soft: "#e3f8ee", word: "Strong match" },
+  fair: { c: "var(--clay)", soft: "var(--clay-soft)", word: "Fair match" }, // same orange as the Add job button
+  weak: { c: "#f04438", soft: "#feeceb", word: "Weak match" },
+};
 export function fitTone(v: number) {
-  return v >= 70
-    ? { chip: "bg-good-soft text-good", bar: "var(--color-good)", word: "Strong fit" }
-    : v >= 50
-      ? { chip: "bg-brand-soft text-brand", bar: "var(--brand)", word: "Fair fit" }
-      : { chip: "bg-bad-soft text-bad", bar: "var(--color-bad)", word: "Weak fit" };
+  const f = v >= 70 ? FIT.strong : v >= 50 ? FIT.fair : FIT.weak;
+  return { color: f.c, soft: f.soft, word: f.word, bar: f.c };
 }
 export function FitBadge({ value, size = "md", className = "" }: { value: number | null; size?: "sm" | "md"; className?: string }) {
   if (value == null) return <span className={`inline-flex items-center rounded-full bg-line-2 px-3 py-1 text-[0.8rem] font-semibold text-muted ${className}`}>Fit pending</span>;
   const t = fitTone(value);
   return (
-    <span className={`inline-flex shrink-0 items-baseline gap-1 rounded-full ${size === "sm" ? "px-2.5 py-0.5" : "px-3 py-1"} ${t.chip} ${className}`} data-tip={t.word}>
-      <b className={`font-display font-bold tabular-nums leading-none ${size === "sm" ? "text-[1rem]" : "text-[1.2rem]"}`}>{value}%</b>
-      <span className={`font-semibold ${size === "sm" ? "text-[0.76rem]" : "text-[0.82rem]"}`}>fit</span>
+    <span className={`inline-flex shrink-0 items-center rounded-full text-white ${size === "sm" ? "px-2.5 py-1" : "px-3.5 py-1.5"} ${className}`} style={{ background: t.color, boxShadow: `0 4px 12px -6px ${t.color}` }} data-tip={`${t.word}: ${value}%`}>
+      <b className={`font-display font-bold tabular-nums leading-none ${size === "sm" ? "text-[0.98rem]" : "text-[1.15rem]"}`}>{value}%</b>
     </span>
+  );
+}
+
+/** Fit as a ring: arc fills to the score, coloured by match (green strong, orange fair, red weak). */
+export function FitRing({ value, size = 88, stroke = 9, className = "" }: { value: number; size?: number; stroke?: number; className?: string }) {
+  const t = fitTone(value);
+  const r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const track = t.soft;
+  return (
+    <div className={`relative shrink-0 ${className}`} style={{ width: size, height: size }} data-tip={`${t.word}: ${value}%`}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-90">
+        <circle cx={size / 2} cy={size / 2} r={r} fill="none" strokeWidth={stroke} style={{ stroke: track }} />
+        <circle
+          cx={size / 2}
+          cy={size / 2}
+          r={r}
+          fill="none"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={c}
+          strokeDashoffset={c * (1 - Math.max(0, Math.min(100, value)) / 100)}
+          style={{ stroke: t.bar, transition: "stroke-dashoffset .8s ease" }}
+        />
+      </svg>
+      <span className="absolute inset-0 grid place-items-center font-display font-bold tabular-nums" style={{ fontSize: size * 0.27, color: t.color }}>
+        <span>{value}<span style={{ fontSize: size * 0.14 }}>%</span></span>
+      </span>
+    </div>
   );
 }

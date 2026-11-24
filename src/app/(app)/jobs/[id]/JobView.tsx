@@ -18,7 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { STATUS_META, Meter, FitBadge, fitTone } from "@/components/ui";
+import { STATUS_META, FitRing } from "@/components/ui";
 import { Menu, Modal, useAsk, SidePanel } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
@@ -80,7 +80,6 @@ export function JobView({
   const unanswered = qs.filter((q) => !app.fit_answers?.[q]?.trim()).length;
   const [askAt, setAskAt] = useState<number | null>(null);
   const fit = a ? a.fit_score * 10 : null;
-  const fitColor = fit == null ? "var(--line)" : fit >= 70 ? "var(--color-good)" : fit >= 50 ? "var(--brand)" : "var(--color-bad)";
   const chapters: { key: Tab; label: string; sub: string; done: boolean }[] = [
     { key: "overview", label: "Match", sub: !analysed ? "Reading the job..." : unanswered ? `${unanswered} question${unanswered > 1 ? "s" : ""} open` : `${fit}% fit`, done: analysed && !unanswered },
     { key: "resume", label: "Resume", sub: app.tailored_resume ? "Tailored" : "Not tailored yet", done: !!app.tailored_resume },
@@ -101,22 +100,23 @@ export function JobView({
 
       {/* ── Hero (compact) ── */}
       <section className="card overflow-hidden fade-up">
-        <div className="p-5 sm:p-6">
-          <div className="flex items-start gap-4">
-            <div className="min-w-0 flex-1">
+        {/* Left: everything about the job. Right: the fit ring, centred top-to-bottom in the corner. */}
+        <div className="flex items-center gap-6 p-5 sm:p-6">
+          <div className="min-w-0 flex-1">
+          <div>
+            <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.92rem] text-muted">
                 <CompanyWordmark name={app.company} jobUrl={app.job_url} height={40} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
                 {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
               </div>
               <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>
             </div>
-            {a && <FitStat fit={fit} color={fitColor} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} className="hidden sm:block" />}
           </div>
 
           <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.86rem] text-muted">
             {facts.map(([k, v]) => <span key={k}>{k} <b className="font-semibold text-ink">{v}</b></span>)}
           </div>
-          {a ? <FitStat fit={fit} color={fitColor} prev={null} className="mt-4 sm:hidden" /> : <p className="mt-3 text-[0.88rem] text-muted">Reading the job...</p>}
+          {a ? <FitStat fit={fit} prev={null} className="mt-4 sm:hidden" /> : <p className="mt-3 text-[0.88rem] text-muted">Reading the job...</p>}
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
             <Menu<Status>
@@ -136,6 +136,8 @@ export function JobView({
             {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-3.5 text-[0.86rem]">Listing <ExternalLink size={13} /></a>}
             <button onClick={remove} className="btn h-9 w-9 px-0 text-bad hover:bg-bad-soft" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
           </div>
+          </div>
+          {a && <FitStat fit={fit} size={112} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} className="hidden sm:block sm:mr-[19px]" />}
         </div>
 
       </section>
@@ -209,16 +211,15 @@ export function JobView({
 }
 
 /** Fit as a number plus a bar (no dial). */
-function FitStat({ fit, prev, className = "" }: { fit: number | null; color?: string; prev: number | null; className?: string }) {
-  const t = fit == null ? null : fitTone(fit);
+/** Job header score: a fit ring, coloured by match. Change since last score shows as a small badge. */
+function FitStat({ fit, prev, size = 88, className = "" }: { fit: number | null; size?: number; prev: number | null; className?: string }) {
+  if (fit == null) return <div className={`grid h-[88px] w-[88px] shrink-0 place-items-center rounded-full bg-line-2 text-[0.78rem] font-semibold text-muted ${className}`}>Reading</div>;
   return (
-    <div className={`w-full sm:w-[170px] sm:shrink-0 sm:text-right ${className}`}>
-      <div className="flex items-center gap-2 sm:justify-end">
-        {t && <span className={`text-[0.8rem] font-semibold ${t.chip.split(" ")[1]}`}>{t.word}</span>}
-        <FitBadge value={fit} />
-      </div>
-      <Meter value={(fit ?? 0) / 100} color={t?.bar ?? "var(--line)"} height={7} className="mt-2.5" />
-      {prev != null && fit != null && <div className={`mt-1.5 text-[0.78rem] font-semibold ${fit > prev ? "text-good" : "text-muted"}`}>was {prev}%</div>}
+    <div className={`relative shrink-0 ${className}`}>
+      <FitRing value={fit} size={size} stroke={size >= 100 ? 11 : 9} />
+      {prev != null && prev !== fit && (
+        <span className={`absolute -right-2 -top-1 rounded-full px-1.5 py-0.5 text-[0.7rem] font-bold text-white ring-2 ring-card ${fit > prev ? "bg-good" : "bg-bad"}`} data-tip={`was ${prev}%`}>{fit > prev ? "▲" : "▼"} {Math.abs(fit - prev)}</span>
+      )}
     </div>
   );
 }
