@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Columns3, LayoutGrid, Plus } from "lucide-react";
 import { JobBoard } from "@/components/JobBoard";
-import { JobTile, STATUS_ON_DARK, StatusBar } from "@/components/JobTiles";
+import { JobTile, STATUS_BAR, StatusBar } from "@/components/JobTiles";
 import { requireUser } from "@/lib/auth";
 import { STATUS_META } from "@/components/ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
@@ -62,26 +62,23 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         <JobBoard apps={jobs} />
       ) : (
         <>
-          {/* Banner: where they stand + filter + sort (blue, like the other main screens) */}
-          <section className="dark-card p-5 text-white fade-up sm:p-6">
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="flex min-w-0 items-baseline gap-2">
-                <span className="font-display text-[2.4rem] font-bold leading-none tabular-nums">{jobs.length}</span>
-                <span className="text-[0.95rem] text-white/70">job{jobs.length === 1 ? "" : "s"} tracked</span>
-              </div>
-              <div className="inline-flex shrink-0 gap-1 rounded-full bg-white/10 p-1 ring-1 ring-white/15">
-                <Link href={q({ sort: undefined })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold transition ${sort === "recent" ? "bg-white text-side" : "text-white/75 hover:text-white"}`}>Recent</Link>
-                <Link href={q({ sort: "fit" })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold transition ${sort === "fit" ? "bg-white text-side" : "text-white/75 hover:text-white"}`}>Best fit</Link>
-              </div>
+          {/* Summary row: count + status bar, filter chips, sort. Light, like LinkedIn / Interview / Salary. */}
+          <section className="card flex flex-wrap items-center gap-x-5 gap-y-3 p-4 fade-up sm:p-5">
+            <div className="flex min-w-[150px] flex-col gap-1.5">
+              <div className="flex items-baseline gap-1.5"><span className="font-display text-[1.5rem] font-bold leading-none tabular-nums">{jobs.length}</span><span className="text-[0.86rem] text-muted">job{jobs.length === 1 ? "" : "s"}</span></div>
+              <StatusBar counts={counts} total={jobs.length} height={6} />
             </div>
-            <div className="mt-4"><StatusBar counts={counts} total={jobs.length} height={10} dark /></div>
-            <div className="no-scrollbar -mx-1 mt-4 flex gap-2 overflow-x-auto px-1 py-0.5">
-              <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${!status ? "bg-white text-side" : "bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20"}`}>
+            <div className="ml-auto inline-flex shrink-0 gap-1 rounded-full border-[1.5px] border-line p-1 sm:order-last">
+              <Link href={q({ sort: undefined })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "recent" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Recent</Link>
+              <Link href={q({ sort: "fit" })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "fit" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Best fit</Link>
+            </div>
+            <div className="no-scrollbar -mx-1 flex w-full min-w-0 gap-2 overflow-x-auto px-1 py-0.5 sm:w-auto sm:flex-1">
+              <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${!status ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
                 All <span className="tabular-nums opacity-70">{jobs.length}</span>
               </Link>
               {STATUSES.filter((s) => counts[s]).map((s) => (
-                <Link key={s} href={q({ status: s })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === s ? "bg-white text-side" : "bg-white/10 text-white ring-1 ring-white/15 hover:bg-white/20"}`}>
-                  <span className="h-2 w-2 rounded-full" style={{ background: STATUS_ON_DARK[s] === "#ffffff" && status === s ? "var(--side)" : STATUS_ON_DARK[s] }} />
+                <Link key={s} href={q({ status: s })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === s ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
+                  <span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} />
                   {STATUS_META[s].label} <span className="tabular-nums opacity-70">{counts[s]}</span>
                 </Link>
               ))}

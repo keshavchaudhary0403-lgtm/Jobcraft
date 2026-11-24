@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Check,
   ChevronRight,
+  ChevronDown,
   ExternalLink,
   FileText,
   MapPin,
@@ -17,7 +18,7 @@ import {
 import { createClient } from "@/lib/supabase/client";
 import { STATUSES, type Application, type Message, type Session, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { CompanyAvatar, STATUS_META } from "@/components/ui";
+import { CompanyAvatar, STATUS_META, Meter } from "@/components/ui";
 import { Menu, Modal, useAsk, SidePanel } from "@/components/client-ui";
 import { ChatPanel } from "@/components/ChatPanel";
 import { Overview, questionList } from "./Overview";
@@ -95,7 +96,7 @@ export function JobView({
             : { label: "Practise the interview", sub: "6 questions, by voice", go: () => setTab("practice") };
 
   const fit = a ? a.fit_score * 10 : null;
-  const fitColor = fit == null ? "var(--line)" : fit >= 70 ? "var(--color-good)" : fit >= 50 ? "var(--color-mustard)" : "var(--color-clay)";
+  const fitColor = fit == null ? "var(--line)" : fit >= 70 ? "var(--color-good)" : fit >= 50 ? "var(--brand)" : "var(--color-bad)";
   const steps = [
     { label: "Decoded", done: analysed, go: () => setTab("overview") },
     { label: "Questions", done: analysed && unanswered === 0, go: () => (unanswered ? openQuestions() : setTab("overview")) },
@@ -124,70 +125,43 @@ export function JobView({
       {dialog}
       <Link href="/jobs" className="pill-nav h-8 px-3 text-[0.84rem]"><ChevronRight size={15} className="rotate-180" /> All jobs</Link>
 
-      {/* ── Hero ── */}
+      {/* ── Hero (compact) ── */}
       <section className="card overflow-hidden fade-up">
-        <div className="grid gap-6 p-7 lg:grid-cols-[minmax(0,1fr)_auto]">
-          <div className="min-w-0">
-            {/* Company identity: logo + name only (kept clean for real logos) */}
-            <div className="flex items-center gap-3.5">
-              <CompanyAvatar name={app.company} jobUrl={app.job_url} size={56} />
-              <div className="min-w-0">
-                <div className="truncate font-display text-[1.25rem] font-bold leading-tight">{app.company}</div>
-                {app.location && <div className="mt-0.5 inline-flex items-center gap-1 text-[0.86rem] text-muted"><MapPin size={12} />{app.location}</div>}
+        <div className="p-5 sm:p-6">
+          <div className="flex items-start gap-4">
+            <CompanyAvatar name={app.company} jobUrl={app.job_url} size={52} />
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-x-2 text-[0.92rem] text-muted">
+                <span className="font-semibold text-ink">{app.company}</span>
+                {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
               </div>
+              <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>
             </div>
-            <h1 className="mt-5 text-[2.5rem] font-bold leading-[1.02]">{app.role}</h1>
-            <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-3">
-              {facts.map(([k, v]) => (
-                <div key={k}>
-                  <dt className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-faint">{k}</dt>
-                  <dd className="font-medium">{v}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-6 flex flex-wrap items-center gap-2">
-              <span className="flex items-center gap-2 rounded-full bg-line-2 py-1 pl-3.5 pr-1 text-[0.86rem] text-muted">
-                Status
-                <Menu<Status>
-                  align="left"
-                  value={app.status}
-                  options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
-                  onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
-                  render={(c) => <span className="flex items-center gap-2"><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} /> {c.label}</span>}
-                />
-              </span>
-              {[
-                { label: "Job description", icon: FileText, on: () => setShowJd(true) },
-                { label: "Edit", icon: Pencil, on: () => setEditing(true) },
-              ].map(({ label, icon: Icon, on }) => (
-                <button key={label} onClick={on} className="btn btn-ghost h-10"><Icon size={15} /> {label}</button>
-              ))}
-              {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-10">Listing <ExternalLink size={14} /></a>}
-              <button onClick={remove} className="btn h-10 text-bad hover:bg-bad-soft" aria-label="Delete job"><Trash2 size={15} /></button>
-            </div>
+            {a && <FitStat fit={fit} color={fitColor} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} className="hidden sm:block" />}
           </div>
 
-          {/* Fit dial */}
-          <div className="flex flex-col items-center justify-center rounded-[22px] px-8 py-6" style={{ background: "var(--color-cream)" }}>
-            {a ? (
-              <>
-                <div className="donut-3d relative grid h-[150px] w-[150px] place-items-center">
-                  <svg width="150" height="150" className="-rotate-90">
-                    <circle cx="75" cy="75" r="64" fill="none" stroke="var(--line)" strokeWidth="14" />
-                    <circle cx="75" cy="75" r="64" fill="none" stroke={fitColor} strokeWidth="14" strokeLinecap="round" strokeDasharray={2 * Math.PI * 64} strokeDashoffset={2 * Math.PI * 64 * (1 - (fit ?? 0) / 100)} style={{ transition: "stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)" }} />
-                  </svg>
-                  <div className="absolute text-center">
-                    <div className="font-display text-[2.8rem] font-bold leading-none tabular-nums">{fit}<span className="text-[1.1rem] text-muted">%</span></div>
-                    <div className="mt-1 text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">Your fit</div>
-                  </div>
-                </div>
-                {typeof a.prev_score === "number" && a.prev_score !== a.fit_score && (
-                  <div className={`mt-3 rounded-full px-3 py-1 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mustard-soft text-mustard-ink"}`}>{a.prev_score * 10} → {a.fit_score * 10}</div>
-                )}
-              </>
-            ) : (
-              <div className="grid h-[150px] w-[150px] place-items-center text-center text-[0.9rem] text-muted">Reading the job...</div>
-            )}
+          <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-[0.86rem] text-muted">
+            {facts.map(([k, v]) => <span key={k}>{k} <b className="font-semibold text-ink">{v}</b></span>)}
+          </div>
+          {a ? <FitStat fit={fit} color={fitColor} prev={null} className="mt-4 sm:hidden" /> : <p className="mt-3 text-[0.88rem] text-muted">Reading the job...</p>}
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            <Menu<Status>
+              bare
+              align="left"
+              value={app.status}
+              options={STATUSES.map((s) => ({ value: s, label: STATUS_META[s].label }))}
+              onChange={(status) => update({ status, ...(status === "applied" && !app.applied_on ? { applied_on: new Date().toISOString().slice(0, 10) } : {}) })}
+              render={(c) => <span className={`inline-flex h-9 items-center gap-2 rounded-full px-3.5 text-[0.86rem] font-semibold ${STATUS_META[c.value].cls}`}><span className={`h-2 w-2 rounded-full ${STATUS_META[c.value].dot}`} />{c.label}<ChevronDown size={14} className="opacity-70" /></span>}
+            />
+            {[
+              { label: "Job description", icon: FileText, on: () => setShowJd(true) },
+              { label: "Edit", icon: Pencil, on: () => setEditing(true) },
+            ].map(({ label, icon: Icon, on }) => (
+              <button key={label} onClick={on} className="btn btn-ghost h-9 px-3.5 text-[0.86rem]"><Icon size={14} /> {label}</button>
+            ))}
+            {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-3.5 text-[0.86rem]">Listing <ExternalLink size={13} /></a>}
+            <button onClick={remove} className="btn h-9 w-9 px-0 text-bad hover:bg-bad-soft" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
           </div>
         </div>
 
@@ -202,7 +176,7 @@ export function JobView({
                   <button onClick={x.go} disabled={!analysed && i > 0} className={`relative z-10 grid h-8 w-8 place-items-center rounded-full text-[0.8rem] font-bold transition disabled:cursor-default ${x.done ? "bg-brand text-cream" : isCur ? "bg-clay text-white ring-[5px] ring-clay-soft" : "border-[1.5px] border-line bg-card text-faint"}`}>
                     {x.done ? <Check size={15} strokeWidth={3} /> : i + 1}
                   </button>
-                  <span className={`mt-2 text-[0.8rem] ${isCur ? "font-bold text-clay" : x.done ? "font-medium" : "text-faint"}`}>{x.label}</span>
+                  <span className={`mt-2 whitespace-nowrap text-[0.8rem] ${isCur ? "font-bold text-clay" : x.done ? "hidden font-medium sm:block" : "hidden text-faint sm:block"}`}>{x.label}</span>
                 </li>
               );
             })}
@@ -283,6 +257,20 @@ export function JobView({
       <SidePanel open={coach} onClose={() => setCoach(false)} title="Coach" sub={`Knows your resume and the ${app.company} job`} icon={<MessageCircle size={18} />}>
         <ChatPanel sessionId={coachSessionId} initialMessages={coachMessages} placeholder="Ask anything about this job..." suggestions={["How do I explain my biggest gap?", "What should I research first?", "Rewrite my summary for this role"]} />
       </SidePanel>
+    </div>
+  );
+}
+
+/** Fit as a number plus a bar (no dial). */
+function FitStat({ fit, color, prev, className = "" }: { fit: number | null; color: string; prev: number | null; className?: string }) {
+  return (
+    <div className={`w-full sm:w-[140px] sm:shrink-0 sm:text-right ${className}`}>
+      <div className="flex items-baseline gap-1.5 sm:justify-end">
+        <span className="font-display text-[2rem] font-bold leading-none tabular-nums">{fit ?? "-"}<span className="text-[0.95rem] text-muted">%</span></span>
+        <span className="text-[0.78rem] font-semibold uppercase tracking-[0.1em] text-muted">fit</span>
+      </div>
+      <Meter value={(fit ?? 0) / 100} color={color} className="mt-2" />
+      {prev != null && fit != null && <div className={`mt-1.5 text-[0.76rem] font-semibold ${fit > prev ? "text-good" : "text-mid"}`}>was {prev}%</div>}
     </div>
   );
 }

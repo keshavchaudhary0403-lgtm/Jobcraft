@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import { AI_MODELS, VOICES } from "@/lib/models";
 import { FEATURES, FEATURE_KEYS, effectiveLimit, type FeatureKey, type FeatureLimits } from "@/lib/features";
-import { Panel } from "@/components/ui";
+import { Panel, Meter } from "@/components/ui";
 import { Modal, SaveableNumber, Spinner, useAsk } from "@/components/client-ui";
 
 type AiMode = "real" | "demo" | "off";
@@ -632,16 +632,12 @@ function PersonDrawer({ u, me, settings, onClose, onSave, ask }: { u: U; me: boo
 }
 
 function SpendRing({ pct }: { pct: number | null }) {
-  const size = 46, stroke = 5, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const v = pct ?? 0;
   const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mid)" : "var(--brand)";
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }} data-tip={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-        {pct != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(v, 2) / 100)} />}
-      </svg>
-      <span className="absolute text-[0.78rem] font-bold tabular-nums">{pct == null ? "∞" : `${Math.round(v)}%`}</span>
+    <div className="w-16 shrink-0 text-right">
+      <div className="text-[0.9rem] font-bold tabular-nums">{pct == null ? "No limit" : `${Math.round(v)}%`}</div>
+      {pct != null && <Meter value={v / 100} color={color} className="mt-1" height={5} />}
     </div>
   );
 }
@@ -808,16 +804,15 @@ function AdminOverview({
     <div className="space-y-5 fade-up">
       {/* Headline band */}
       <section className="dark-card grid gap-6 p-7 lg:grid-cols-[auto_minmax(0,1fr)] lg:items-center">
-        <div className="flex items-center gap-6">
-          <div className="flex flex-col items-center gap-2">
-            <BudgetDonut spent={total} budget={budget} />
-            <span className="text-[0.78rem] font-semibold text-white/70">of budget used</span>
-          </div>
-          <div>
-            <div className="text-[0.84rem] text-white/60">Spent in {monthName}</div>
-            <div className="mt-1 font-display text-[2.6rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
-            <div className="mt-2 text-[0.88rem] text-white/60">{budget != null ? <>of <b className="text-white">{rupees(budget)}</b> monthly budget</> : "No total budget set"}</div>
-          </div>
+        <div className="min-w-0 lg:w-[280px]">
+          <div className="text-[0.84rem] text-white/70">Spent in {monthName}</div>
+          <div className="mt-1 font-display text-[2.6rem] font-bold leading-none tabular-nums text-white">{rupees(total)}</div>
+          {budget != null ? (
+            <>
+              <Meter value={total / budget} color={total / budget >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} track="rgba(255,255,255,.18)" height={8} className="mt-3" />
+              <div className="mt-2 text-[0.86rem] text-white/70"><b className="text-white">{Math.round((total / budget) * 100)}%</b> of {rupees(budget)} monthly budget</div>
+            </>
+          ) : <div className="mt-2 text-[0.88rem] text-white/70">No total budget set</div>}
         </div>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {[
@@ -863,8 +858,12 @@ function AdminOverview({
           {features.length === 0 ? (
             <p className="text-muted">No AI use yet this month.</p>
           ) : (
-            <div className="flex flex-col items-center gap-5">
-              <FeatureDonut parts={features.map(([f, v], i) => ({ label: SPEND_LABEL[f] ?? f, v, color: PALETTE[i % PALETTE.length] }))} total={total} />
+            <div className="flex flex-col gap-4">
+              <div className="flex items-baseline gap-2"><span className="font-display text-[1.8rem] font-bold leading-none tabular-nums">{rupees(total)}</span><span className="text-[0.86rem] text-muted">this month</span></div>
+              {/* One stacked bar instead of a donut: every feature's share, left to right */}
+              <div className="flex h-3 w-full gap-1">
+                {features.map(([f, v], i) => <span key={f} className="rounded-full" data-tip={`${SPEND_LABEL[f] ?? f}: ${rupees(v)} (${total ? Math.round((v / total) * 100) : 0}%)`} style={{ flex: Math.max(v, total * 0.01), background: PALETTE[i % PALETTE.length] }} />)}
+              </div>
               <ul className="w-full space-y-2.5">
                 {features.map(([f, v], i) => (
                   <li key={f} className="flex items-center gap-2.5 text-[0.9rem]" data-tip={`${stats.calls[f] ?? 0} requests`}>
@@ -967,38 +966,4 @@ function niceCeil(v: number) {
 // Distinct hues in a fixed order so no two spend categories look alike.
 const PALETTE = ["#0a5aa8", "#ff6700", "#1fae6a", "#ff9f4a", "#7b61ff", "#12b3a8", "#4c9bef", "#f0508c", "#94a3b8"];
 
-function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
-  const size = 170, stroke = 22, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  const sum = parts.reduce((t, p) => t + p.v, 0) || 1;
-  const segs = parts.map((p, i) => ({ ...p, len: (p.v / sum) * c, start: parts.slice(0, i).reduce((t, x) => t + (x.v / sum) * c, 0) }));
-  return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-        {segs.map((p) => <circle key={p.label} cx={size / 2} cy={size / 2} r={r} fill="none" stroke={p.color} strokeWidth={stroke} strokeDasharray={`${Math.max(p.len - (segs.length > 1 ? 3 : 0), 1)} ${c}`} strokeDashoffset={-p.start}><title>{`${p.label}: ${rupees(p.v)} (${Math.round((p.v / sum) * 100)}%)`}</title></circle>)}
-      </svg>
-      <div className="donut-hub" style={{ inset: stroke + 6 }}>
-        <div className="font-display text-[1.4rem] font-bold leading-none tabular-nums">{rupees(total)}</div>
-        <div className="text-[0.78rem] text-muted">this month</div>
-      </div>
-    </div>
-  );
-}
 
-function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }) {
-  const size = 120, stroke = 12, r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  const pct = budget ? Math.min(1, spent / budget) : 0;
-  return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.15)" strokeWidth={stroke} />
-        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "var(--clay)" : "var(--hero-accent)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={`${Math.max(pct * c, stroke * 1.2)} ${c}`} />}
-      </svg>
-      <div className="donut-hub" style={{ inset: stroke + 7 }}>
-        <span className="flex items-baseline font-display font-bold leading-none tabular-nums text-white">
-          {budget != null ? <><span className="text-[1.7rem]">{Math.round(pct * 100)}</span><span className="ml-0.5 text-[0.9rem] text-white/70">%</span></> : <span className="text-[1.2rem]">-</span>}
-        </span>
-      </div>
-    </div>
-  );
-}

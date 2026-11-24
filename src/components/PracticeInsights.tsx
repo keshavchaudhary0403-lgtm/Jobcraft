@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, Mic, MessageSquareText, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp } from "lucide-react";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { CopyButton, Spinner } from "./client-ui";
-import { SubLabel } from "./ui";
+import { SubLabel, Meter } from "./ui";
 
 async function fetchInsight<T>(sessionId: string, kind: "interview_report" | "offer_check"): Promise<{ data?: T; error?: string }> {
   const res = await fetch("/api/sessions/insight", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ sessionId, kind }) });
@@ -45,17 +45,13 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
       </div>
     );
 
-  const color = r.score >= 8 ? "var(--color-good)" : r.score >= 6 ? "var(--color-mustard)" : "var(--color-clay)";
-  const C = 2 * Math.PI * 52;
+  const color = r.score >= 8 ? "var(--color-good)" : r.score >= 6 ? "var(--brand)" : "var(--color-bad)";
   return (
     <div className="card overflow-hidden">
       <div className="flex items-center gap-4 p-5">
-        <div className="donut-3d relative grid h-[120px] w-[120px] shrink-0 place-items-center">
-          <svg width="120" height="120" className="-rotate-90">
-            <circle cx="60" cy="60" r="52" fill="none" stroke="var(--line)" strokeWidth="11" />
-            <circle cx="60" cy="60" r="52" fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - r.score / 10)} />
-          </svg>
-          <span className="absolute font-display text-[2.3rem] font-bold leading-none">{r.score}<span className="text-[0.9rem] text-muted">/10</span></span>
+        <div className="w-[120px] shrink-0">
+          <div className="font-display text-[2.3rem] font-bold leading-none tabular-nums">{r.score}<span className="text-[0.95rem] text-muted">/10</span></div>
+          <Meter value={r.score / 10} color={color} className="mt-2" height={7} />
         </div>
         <div className="min-w-0">
           <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Scorecard</div>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, MapPin } from "lucide-react";
-import { CompanyAvatar, STATUS_META, timeAgo } from "./ui";
+import { CompanyAvatar, Meter, STATUS_META, timeAgo } from "./ui";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
 import { journey } from "@/lib/journey";
@@ -103,16 +103,13 @@ export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt
 }
 
 export function MiniDonut({ value }: { value: number | null }) {
-  const size = 64, stroke = 7, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const v = value ?? 0;
-  const color = value == null ? "var(--line)" : v >= 70 ? "var(--color-good)" : v >= 50 ? "var(--color-mustard)" : "var(--color-clay)";
+  const color = value == null ? "var(--line)" : v >= 70 ? "var(--color-good)" : v >= 50 ? "var(--brand)" : "var(--color-bad)";
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - v / 100)} />
-      </svg>
-      <span className="donut-hub" style={{ inset: stroke + 3 }}><span className="flex items-baseline font-display text-[0.98rem] font-bold leading-none tabular-nums">{value ?? "-"}{value != null && <span className="text-[0.68rem] font-semibold text-muted">%</span>}</span></span>
+    <div className="w-[76px] shrink-0 text-right">
+      <div className="font-display text-[1.55rem] font-bold leading-none tabular-nums">{value ?? "-"}{value != null && <span className="text-[0.85rem] text-muted">%</span>}</div>
+      <div className="mt-0.5 text-[0.72rem] font-semibold uppercase tracking-[0.1em] text-muted">fit</div>
+      <Meter value={v / 100} color={color} className="mt-1.5" height={5} />
     </div>
   );
 }

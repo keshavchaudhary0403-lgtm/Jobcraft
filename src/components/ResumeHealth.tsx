@@ -1,5 +1,7 @@
 "use client";
 
+import { Meter } from "./ui";
+
 import { useMemo, useState } from "react";
 import { ArrowRight, Check, HeartPulse, Sparkles, TrendingUp, Wrench, X } from "lucide-react";
 import { checkBullet, resumeHealth, type BulletReport } from "@/lib/resume-health";
@@ -40,7 +42,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
     <section className={`card overflow-hidden fade-up ${compact ? "" : "mb-5"}`}>
       <div className={`grid gap-6 p-6 ${compact ? "" : "lg:grid-cols-[250px_minmax(0,1fr)]"}`}>
         {/* Score */}
-        <div className="flex flex-col items-center rounded-[20px] px-4 py-5 text-center" style={{ background: "var(--color-cream)" }}>
+        <div className="flex flex-col items-start rounded-[20px] bg-line-2 px-5 py-5 text-left">
           <div className="mb-3 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><HeartPulse size={13} className="text-brand" /> Resume health</div>
           <ScoreRing score={report.score} />
           <div className={`mt-2 font-semibold ${g.cls}`}>{g.label}</div>
@@ -131,19 +133,11 @@ function FixBullet({ bullet, onClose, onApply }: { bullet: BulletReport; onClose
 }
 
 function ScoreRing({ score }: { score: number }) {
-  const r = 46;
-  const c = 2 * Math.PI * r;
-  const color = score >= 85 ? "var(--color-good)" : score >= 70 ? "var(--color-mustard)" : "var(--color-clay)";
+  const color = score >= 85 ? "var(--color-good)" : score >= 70 ? "var(--brand)" : "var(--color-bad)";
   return (
-    <div className="donut-3d relative grid h-[120px] w-[120px] place-items-center">
-      <svg width="120" height="120" className="-rotate-90">
-        <circle cx="60" cy="60" r={r} fill="none" stroke="var(--line)" strokeWidth="11" />
-        <circle cx="60" cy="60" r={r} fill="none" stroke={color} strokeWidth="11" strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - score / 100)} style={{ transition: "stroke-dashoffset .6s ease" }} />
-      </svg>
-      <div className="absolute text-center">
-        <div className="font-display text-[2.3rem] font-bold leading-none">{score}</div>
-        <div className="text-[0.78rem] text-muted">of 100</div>
-      </div>
+    <div className="w-full max-w-[220px]">
+      <div className="font-display text-[2.4rem] font-bold leading-none tabular-nums">{score}<span className="text-[1rem] text-muted">/100</span></div>
+      <Meter value={score / 100} color={color} className="mt-2.5" height={8} />
     </div>
   );
 }

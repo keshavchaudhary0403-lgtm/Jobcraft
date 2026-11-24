@@ -1,5 +1,7 @@
 "use client";
 
+import { Meter } from "@/components/ui";
+
 import { useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
@@ -364,14 +366,10 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
 }
 
 function Ring({ value, label, dark }: { value: number; label: string; dark?: boolean }) {
-  const size = 72, stroke = 8, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.18)" : "var(--line)"} strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "var(--color-mustard)" : "var(--brand)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} style={{ transition: "stroke-dashoffset .8s ease" }} />
-      </svg>
-      <span className="absolute font-display text-[1rem] font-bold tabular-nums">{label}</span>
+    <div className="w-[96px] shrink-0">
+      <div className={`font-display text-[1.6rem] font-bold leading-none tabular-nums ${dark ? "text-white" : ""}`}>{label}</div>
+      <Meter value={value} color={dark ? "var(--hero-accent)" : "var(--brand)"} track={dark ? "rgba(255,255,255,.18)" : "var(--line)"} className="mt-2" />
     </div>
   );
 }

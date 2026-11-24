@@ -41,34 +41,31 @@ export function MatchChip({ score }: { score: number }) {
   return <span className={`chip ${cls}`}>{score * 10}% match</span>;
 }
 
-/** Animated ring, score out of 10. */
-export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { score: number; size?: number; stroke?: number; label?: boolean }) {
-  const r = (size - stroke) / 2;
-  const c = 2 * Math.PI * r;
-  const color = scoreColor(score);
+/** Slim progress bar: the app's one way to show a share or score (no rings). value is 0..1. */
+export function Meter({ value, color = "var(--brand)", track = "var(--line)", height = 6, className = "" }: { value: number; color?: string; track?: string; height?: number; className?: string }) {
+  const v = Math.max(0, Math.min(1, value));
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--line)" strokeWidth={stroke} fill="none" />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={r}
-          stroke={color}
-          strokeWidth={stroke}
-          fill="none"
-          strokeLinecap="round"
-          strokeDasharray={c}
-          strokeDashoffset={c * (1 - score / 10)}
-          style={{ transition: "stroke-dashoffset 1s cubic-bezier(.2,.7,.2,1)" }}
-        />
-      </svg>
-      {label && (
-        <div className="absolute text-center leading-none">
-          <span className="font-semibold tracking-tight" style={{ fontSize: size * 0.3, color }}>{score}</span>
-          <span className="text-faint" style={{ fontSize: size * 0.13 }}>/10</span>
-        </div>
-      )}
+    <div className={`w-full overflow-hidden rounded-full ${className}`} style={{ height, background: track }}>
+      <div className="h-full rounded-full transition-[width] duration-700" style={{ width: `${v > 0 ? Math.max(v * 100, 3) : 0}%`, background: color }} />
+    </div>
+  );
+}
+
+/** Segmented steps for small counts like 2 of 3. */
+export function Steps({ done, total, color = "var(--brand)", track = "var(--line)", height = 6, className = "" }: { done: number; total: number; color?: string; track?: string; height?: number; className?: string }) {
+  return (
+    <div className={`flex w-full gap-1 ${className}`} style={{ height }}>
+      {Array.from({ length: Math.max(total, 1) }, (_, i) => <span key={i} className="flex-1 rounded-full" style={{ background: i < done ? color : track }} />)}
+    </div>
+  );
+}
+
+/** Score out of 10 as a number plus a bar. */
+export function ScoreRing({ score }: { score: number; size?: number; stroke?: number; label?: boolean }) {
+  return (
+    <div className="w-28">
+      <div className="font-display text-[2rem] font-bold leading-none tabular-nums">{score}<span className="text-[0.95rem] text-faint">/10</span></div>
+      <Meter value={score / 10} color={scoreColor(score)} className="mt-2" />
     </div>
   );
 }

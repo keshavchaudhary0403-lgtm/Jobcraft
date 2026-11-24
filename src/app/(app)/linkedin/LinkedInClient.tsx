@@ -1,5 +1,6 @@
 "use client";
 
+import { Steps } from "@/components/ui";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AlertCircle, Award, Check, ExternalLink, FileText, MapPin, RotateCcw, Sparkles, IdCard } from "lucide-react";
@@ -166,19 +167,14 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
   return (
     <section className="card p-5 fade-up">
       <div className="flex items-center gap-3">
-        <div className="donut-3d relative grid h-14 w-14 shrink-0 place-items-center">
-          <svg width="56" height="56" className="-rotate-90">
-            <circle cx="28" cy="28" r="23" fill="none" stroke="var(--line)" strokeWidth="6" />
-            <circle cx="28" cy="28" r="23" fill="none" stroke="var(--color-good)" strokeWidth="6" strokeLinecap="round" strokeDasharray={2 * Math.PI * 23} strokeDashoffset={2 * Math.PI * 23 * (1 - n / STEPS.length)} style={{ transition: "stroke-dashoffset .6s ease" }} />
-          </svg>
-          <span className="absolute font-display text-[0.95rem] font-bold">{n}/{STEPS.length}</span>
-        </div>
+        <span data-tone="2" className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-line-2"><Check size={17} /></span>
         <div className="min-w-0 flex-1">
           <h2 className="text-[1.2rem] font-bold leading-tight">Put it live</h2>
-          <div className="text-[0.8rem] text-muted">About 5 minutes</div>
+          <div className="text-[0.8rem] text-muted">{n} of {STEPS.length} done · about 5 minutes</div>
         </div>
         {url && <a href={url} target="_blank" rel="noreferrer" className="grid h-9 w-9 place-items-center rounded-full border-[1.5px] border-line text-muted hover:text-ink" aria-label="Open LinkedIn"><ExternalLink size={14} /></a>}
       </div>
+      <Steps done={n} total={STEPS.length} color="var(--color-good)" className="mt-3" />
       <ol className="mt-4 space-y-1">
         {items.map((it) => (
           <li key={it.k} className="flex items-center gap-3 rounded-2xl px-2 py-1.5 transition hover:bg-line-2/60" data-tip={it.how}>

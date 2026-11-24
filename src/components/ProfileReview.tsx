@@ -9,7 +9,7 @@ import { Spinner } from "./client-ui";
 import { ResumePreview } from "./ResumePreview";
 import { ResumeHealth } from "./ResumeHealth";
 import { resumeHealth } from "@/lib/resume-health";
-import { profileStrength } from "./ui";
+import { profileStrength, Meter } from "./ui";
 
 function Field({ label, value, onChange, placeholder, wide, area }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string; wide?: boolean; area?: boolean }) {
   return (
@@ -278,17 +278,11 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
 }
 
 function Ring({ value, label, color, text, dark }: { value: number; label: string; color: string; text?: string; dark?: boolean }) {
-  const size = 104, stroke = 10, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
-    <div className="flex flex-col items-center">
-      <div className="donut-3d relative grid place-items-center" style={{ width: size, height: size }}>
-        <svg width={size} height={size} className="-rotate-90">
-          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={dark ? "rgba(255,255,255,.14)" : "var(--line-2)"} strokeWidth={stroke} />
-          <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value / 100)} style={{ transition: "stroke-dashoffset .8s ease" }} />
-        </svg>
-        <span className={`absolute font-display text-[1.6rem] font-bold tabular-nums ${dark ? "text-white" : ""}`}>{text ?? value}</span>
-      </div>
-      <span className={`mt-1.5 text-[0.78rem] font-semibold uppercase tracking-[0.14em] ${dark ? "text-white/60" : "text-muted"}`}>{label}</span>
+    <div className={`w-[130px] rounded-2xl px-4 py-3 ${dark ? "bg-white/10 ring-1 ring-white/15" : "bg-line-2"}`}>
+      <div className={`text-[0.76rem] font-semibold uppercase tracking-[0.12em] ${dark ? "text-white/70" : "text-muted"}`}>{label}</div>
+      <div className={`mt-0.5 font-display text-[1.6rem] font-bold leading-none tabular-nums ${dark ? "text-white" : ""}`}>{text ?? value}<span className={`text-[0.85rem] ${dark ? "text-white/60" : "text-muted"}`}>{text ? "" : label === "Profile" ? "%" : "/100"}</span></div>
+      <Meter value={value / 100} color={color} track={dark ? "rgba(255,255,255,.18)" : "var(--line)"} className="mt-2" />
     </div>
   );
 }

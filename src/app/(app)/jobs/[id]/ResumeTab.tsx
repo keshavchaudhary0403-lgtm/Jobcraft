@@ -1,5 +1,7 @@
 "use client";
 
+import { Meter } from "@/components/ui";
+
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -211,14 +213,10 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 }
 
 function TruthRing({ value }: { value: number }) {
-  const size = 52, stroke = 6, r = (size - stroke) / 2, c = 2 * Math.PI * r;
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line)" strokeWidth={stroke} />
-        <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--color-good)" strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - value)} />
-      </svg>
-      <span className="absolute font-display text-[0.8rem] font-bold">{Math.round(value * 100)}%</span>
+    <div className="w-16 shrink-0 text-right">
+      <div className="font-display text-[1.05rem] font-bold leading-none tabular-nums">{Math.round(value * 100)}%</div>
+      <Meter value={value} color="var(--color-good)" className="mt-1.5" height={5} />
     </div>
   );
 }
