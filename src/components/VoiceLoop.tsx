@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
-import { AlertCircle, Mic, Phone, PhoneOff, Plus, SkipForward } from "lucide-react";
+import { AlertCircle, Mic, Phone, PhoneOff, SkipForward } from "lucide-react";
+import { NewRoundButton } from "./NewRoundButton";
 import { cleanAi } from "@/lib/clean-ai";
 import { Orb } from "./RealtimeCall";
 import { Spinner } from "./client-ui";
@@ -32,7 +32,6 @@ export function VoiceLoop({
   modelName,
   finished: wasFinished,
   asked,
-  newHref,
 }: {
   sessionId: string;
   aiName: string;
@@ -45,7 +44,6 @@ export function VoiceLoop({
   finished: boolean;
   /** Highest question number asked so far in this round (any mode). */
   asked: number;
-  newHref: string;
 }) {
   const [turns, setTurns] = useState<Turn[]>(() => history.map((m, i) => ({ id: `h${i}`, role: m.role, text: cleanAi(m.content) })));
   const [phase, setPhase] = useState<Phase>("off");
@@ -257,7 +255,7 @@ export function VoiceLoop({
         </div>
         <div className="flex items-center gap-2">
           {!on && finished ? (
-            <Link href={newHref} className="btn btn-clay h-12 px-6 text-[1rem]"><Plus size={17} /> {kind === "interview" ? "New round" : "New talk"}</Link>
+            <NewRoundButton sessionId={sessionId} kind={kind} variant="call" />
           ) : !on ? (
             <button onClick={start} className="btn btn-clay h-12 px-6 text-[1rem]"><Phone size={17} /> {ended || turns.length ? "Continue call" : "Start call"}</button>
           ) : (

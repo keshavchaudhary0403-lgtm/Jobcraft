@@ -22,18 +22,30 @@ type Props = {
   placeholder?: string;
   /** Label for the AI side, e.g. "Interviewer". */
   aiName?: string;
+  /** The round already ended: show endBanner instead of the voice controls. */
+  finished?: boolean;
+  endBanner?: React.ReactNode;
 };
 
 type LocalMsg = Pick<Message, "role" | "content" | "step"> & { id: string; pending?: boolean };
 
-export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, autoStart, suggestions, placeholder, aiName = "Coach" }: Props) {
+export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, autoStart, suggestions, placeholder, aiName = "Coach", finished = false, endBanner }: Props) {
   const [messages, setMessages] = useState<LocalMsg[]>(initialMessages);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
+  const [ended, setEnded] = useState(finished);
   const [speakOn, setSpeakOn] = useState(!!voice);
   const bottomRef = useRef<HTMLDivElement>(null);
   const started = useRef(false);
+  const abort = useRef<AbortController | null>(null);
   const v = useVoice();
+
+  /** Stop everything now: the reply being written, the voice reading it, or listening (nothing is sent). */
+  function stopAll() {
+    abort.current?.abort();
+    v.stopSpeaking();
+    v.cancelListening();
+  }
 
   useEffect(() => {
     // Inside a chat card, scroll only the card, never the whole page.
@@ -49,11 +61,14 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
     const aiId = `a${Date.now()}`;
     setMessages((m) => [...m, { id: `u${Date.now()}`, role: "user", content, step }, { id: aiId, role: "assistant", content: "", step, pending: true }]);
     let text = "";
+    const ctrl = new AbortController();
+    abort.current = ctrl;
     try {
       const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ sessionId, content, step }),
+        signal: ctrl.signal,
       });
       if (!res.ok || !res.body) {
         const data = await res.json().catch(() => ({}));
@@ -70,12 +85,16 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
         }
       }
     } catch {
-      text = text || "⚠️ Network problem. Try again.";
+      if (ctrl.signal.aborted) text = text ? `${text}\n\n_(Stopped.)_` : "_(Stopped.)_";
+      else text = text || "⚠️ Network problem. Try again.";
     }
+    abort.current = null;
+    const stopped = ctrl.signal.aborted;
     setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: text, pending: false } : x)));
     setBusy(false);
-    if (voice && speakOn && text && !text.startsWith("⚠️")) v.speak(cleanAi(text));
+    if (voice && speakOn && text && !stopped && !text.startsWith("⚠️")) v.speak(cleanAi(text));
     // The interview / salary talk just ended: let the page open the scorecard by itself.
+    if (/\[\[END\]\]/.test(text)) setEnded(true);
     if (/\[\[END\]\]/.test(text)) window.dispatchEvent(new CustomEvent("jc:practice-ended", { detail: { sessionId } }));
   }
 
@@ -92,7 +111,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
   return (
     <div className="flex flex-col gap-4">
-      {voice && (
+      {!(ended && endBanner) && voice && (
         <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
           <VoiceOrb state={state} />
           <div className="min-w-0 flex-1">
@@ -102,6 +121,11 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/65">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
           </div>
           <div className="flex items-center gap-2">
+            {(busy || v.speaking || v.listening) && (
+              <button onClick={stopAll} className="flex h-12 items-center gap-1.5 rounded-full bg-white/10 px-4 font-semibold text-cream transition hover:bg-white/20" aria-label="Stop">
+                <Square size={14} fill="currentColor" /> Stop
+              </button>
+            )}
             {v.supported.speak && (
               <button className="grid h-12 w-12 place-items-center rounded-full bg-white/10 text-cream transition hover:bg-white/20" onClick={() => { setSpeakOn(!speakOn); v.stopSpeaking(); }} aria-label="Toggle voice replies">
                 {speakOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
@@ -154,6 +178,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
       </div>
 
       <div className="sticky bottom-0 bg-gradient-to-t from-[var(--chat-bg,var(--bg))] via-[var(--chat-bg,var(--bg))] to-transparent pb-4 pt-3">
+        {ended && endBanner ? endBanner : (<>
         {quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (
@@ -179,19 +204,30 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
               }
             }}
           />
-          <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white shadow-[0_8px_18px_-10px_var(--act-glow)] transition hover:bg-clay-ink disabled:opacity-40 disabled:shadow-none"
-            disabled={busy || !input.trim()}
-            onClick={() => {
-              const t = input;
-              setInput("");
-              send(t);
-            }}
-            aria-label="Send"
-          >
-            <ArrowUp size={18} />
-          </button>
+          {busy || v.speaking ? (
+            <button
+              className="flex h-10 shrink-0 items-center gap-1.5 rounded-full bg-side px-4 text-[0.88rem] font-semibold text-white transition hover:opacity-90"
+              onClick={stopAll}
+              aria-label="Stop"
+            >
+              <Square size={12} fill="currentColor" /> Stop
+            </button>
+          ) : (
+            <button
+              className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white shadow-[0_8px_18px_-10px_var(--act-glow)] transition hover:bg-clay-ink disabled:opacity-40 disabled:shadow-none"
+              disabled={!input.trim()}
+              onClick={() => {
+                const t = input;
+                setInput("");
+                send(t);
+              }}
+              aria-label="Send"
+            >
+              <ArrowUp size={18} />
+            </button>
+          )}
         </div>
+        </>)}
       </div>
       </div>
     </div>

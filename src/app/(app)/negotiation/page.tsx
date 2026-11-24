@@ -1,5 +1,6 @@
 import { requireUser } from "@/lib/auth";
-import { SessionList } from "@/components/SessionList";
+import { PracticeHistory } from "@/components/RoundHistory";
+import { groupRounds } from "@/lib/practice-history";
 import { startSession } from "@/lib/actions";
 import type { Application, Session } from "@/lib/types";
 import { NegotiationForm } from "./NegotiationForm";
@@ -11,12 +12,14 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
   const { supabase, profile, user } = await requireUser();
   const [{ data: apps }, { data: sessions }] = await Promise.all([
     supabase.from("applications").select("id, company, role, status, company_type, location, analysis").order("updated_at", { ascending: false }).returns<Application[]>(),
-    supabase.from("sessions").select("*").eq("kind", "negotiation").order("updated_at", { ascending: false }).limit(8).returns<Session[]>(),
+    supabase.from("sessions").select("*").eq("kind", "negotiation").order("updated_at", { ascending: false }).limit(150).returns<Session[]>(),
   ]);
   const sorted = [...(apps ?? [])].sort((a, b) => Number(b.status === "offer") - Number(a.status === "offer"));
   const offers = sorted.filter((a) => a.status === "offer").length;
   const start = startSession.bind(null, "negotiation");
   const list = sessions ?? [];
+  const company = new Map((apps ?? []).map((a) => [a.id, a.company]));
+  const groups = groupRounds(list, (s) => (s.application_id ? company.get(s.application_id) ?? null : ((s.meta as { company?: string } | null)?.company ?? null)));
 
   return (
     <div className="space-y-5">
@@ -41,9 +44,12 @@ export default async function NegotiationPage({ searchParams }: { searchParams: 
       </form>
 
       {list.length > 0 && (
-        <section className="card p-5 fade-up">
-          <div className="mb-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Past talks</div>
-          <SessionList sessions={list} base="/negotiation" />
+        <section className="space-y-3 fade-up">
+          <div className="px-1">
+            <h2 className="text-[1.35rem] font-bold leading-tight">Your practice, by offer</h2>
+            <p className="text-[0.88rem] text-muted">Revisit any talk and its feedback before the real conversation.</p>
+          </div>
+          <PracticeHistory groups={groups} kind="negotiation" />
         </section>
       )}
     </div>

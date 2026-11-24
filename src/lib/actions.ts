@@ -34,6 +34,25 @@ export async function startSession(kind: SessionKind, formData: FormData) {
   redirect(`${base}/${data.id}`);
 }
 
+/** Practise again: a fresh round for the same job (and the same offer for salary talks). */
+export async function restartSession(id: string) {
+  const supabase = await createClient();
+  const user = await currentUser(supabase);
+  if (!user) redirect("/login");
+  const { data: old } = await supabase.from("sessions").select("kind, application_id, meta, title").eq("id", id).single();
+  if (!old) redirect("/interview");
+  // Keep the job and offer details; drop the old round's scorecard. The offer check stays valid for the same offer.
+  const { interview_report: _r, report_turns: _t, ...meta } = (old.meta ?? {}) as Record<string, unknown>;
+  void _r; void _t;
+  const { data, error } = await supabase
+    .from("sessions")
+    .insert({ user_id: user.id, kind: old.kind, application_id: old.application_id, meta, title: old.title })
+    .select("id")
+    .single();
+  if (error) throw new Error(error.message);
+  redirect(`${old.kind === "interview" ? "/interview" : "/negotiation"}/${data.id}`);
+}
+
 export async function deleteSession(id: string, back: string) {
   const supabase = await createClient();
   await supabase.from("sessions").delete().eq("id", id);

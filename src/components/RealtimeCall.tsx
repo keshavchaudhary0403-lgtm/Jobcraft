@@ -2,8 +2,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import { Mic, MicOff, PhoneOff, Phone, Plus, AlertCircle, AudioLines, Headphones } from "lucide-react";
+import { Mic, MicOff, PhoneOff, Phone, AlertCircle, AudioLines, Headphones } from "lucide-react";
+import { NewRoundButton } from "./NewRoundButton";
 import { Spinner } from "./client-ui";
 
 type Turn = { id: string; role: "user" | "assistant"; text: string; live?: boolean };
@@ -16,7 +16,7 @@ const MAX_MINUTES = 25;
  * short-lived secret from our server. Every finished turn is saved to the session
  * transcript (in order) and every response's cost is logged against the user.
  */
-export function RealtimeCall({ sessionId, aiName, kind, history, finished = false, newHref }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[]; finished?: boolean; newHref?: string }) {
+export function RealtimeCall({ sessionId, aiName, kind, history, finished = false }: { sessionId: string; aiName: string; kind: "interview" | "negotiation"; history: { role: "user" | "assistant"; content: string }[]; finished?: boolean }) {
   const initialTurns = history.filter((m) => m.role === "assistant" && m.content.includes("?")).length;
   const router = useRouter();
   const [status, setStatus] = useState<Status>("idle");
@@ -239,8 +239,8 @@ export function RealtimeCall({ sessionId, aiName, kind, history, finished = fals
           )}
         </div>
         <div className="flex items-center gap-2">
-          {!live && finished && status !== "ended" && newHref ? (
-            <Link href={newHref} className="btn btn-clay h-12 px-6 text-[1rem]"><Plus size={17} /> {kind === "interview" ? "New round" : "New talk"}</Link>
+          {!live && finished && status !== "ended" ? (
+            <NewRoundButton sessionId={sessionId} kind={kind} variant="call" />
           ) : !live ? (
             <button onClick={start} disabled={status === "connecting"} className="btn btn-clay h-12 px-6 text-[1rem]">
               {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}

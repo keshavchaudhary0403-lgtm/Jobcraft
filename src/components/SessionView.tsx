@@ -9,6 +9,7 @@ import { ChatPanel } from "./ChatPanel";
 import { cleanAi } from "@/lib/clean-ai";
 import { RealtimeCall } from "./RealtimeCall";
 import { VoiceLoop } from "./VoiceLoop";
+import { NewRoundButton, RoundDoneBanner } from "./NewRoundButton";
 import { getSettings, personalSettings } from "@/lib/ai";
 import { PROVIDERS, providerOf } from "@/lib/models";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -58,7 +59,6 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   const assistantText = (messages ?? []).filter((m) => m.role === "assistant").map((m) => m.content);
   const finished = assistantText.some((t) => /\[\[END\]\]/.test(t));
   const asked = Math.max(0, ...assistantText.flatMap((t) => [...t.matchAll(/\[\[Q(\d)\]\]/g)].map((x) => Number(x[1]))));
-  const newHref = `${cfg.back}${session.application_id ? `?app=${session.application_id}` : ""}`;
   const voiceReady = profile.voice_enabled && profile.ai_mode === "real" && profile.is_active;
   const company = app?.company ?? (meta.company as string | undefined);
 
@@ -76,7 +76,10 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
           </div>
           <h1 className="mt-2 text-[2rem] font-bold leading-[1.05]">{session.title}</h1>
         </div>
-        <DeleteSessionButton action={del} />
+        <div className="flex items-center gap-2">
+          <NewRoundButton sessionId={id} kind={kind} />
+          <DeleteSessionButton action={del} />
+        </div>
       </header>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
@@ -86,9 +89,9 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
             voiceLabel={`${brand} voice`}
             realistic={
               providerOf(mine.model) === "anthropic" ? (
-                <VoiceLoop sessionId={id} aiName={cfg.ai} kind={kind} modelName={brand} finished={finished} asked={asked} newHref={newHref} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} kickoff={(messages ?? []).length === 0 ? { prompt, step: cfg.step } : null} />
+                <VoiceLoop sessionId={id} aiName={cfg.ai} kind={kind} modelName={brand} finished={finished} asked={asked} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} kickoff={(messages ?? []).length === 0 ? { prompt, step: cfg.step } : null} />
               ) : (
-                <RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} finished={finished} newHref={newHref} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />
+                <RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} finished={finished} history={voiceTurns.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />
               )
             }
             classic={
@@ -101,6 +104,8 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
                 quickReplies={cfg.quick}
                 autoStart={{ prompt, step: cfg.step }}
                 placeholder="Or type your answer..."
+                finished={finished}
+                endBanner={<RoundDoneBanner sessionId={id} kind={kind} />}
               />
               </div>
             }

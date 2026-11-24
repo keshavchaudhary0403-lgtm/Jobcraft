@@ -4,6 +4,7 @@ import { CtcField, ExperienceField, TextField } from "@/components/BasicFields";
 import { ctcInput, formatCtc, normaliseBasics } from "@/lib/profile-format";
 
 import { useState } from "react";
+import { useFormStatus } from "react-dom";
 import { Check, ExternalLink, IndianRupee, Pencil } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { Spinner } from "@/components/client-ui";
@@ -14,7 +15,13 @@ import { JobPicker } from "@/components/JobPicker";
 /** "9", "9 LPA", "9,00,000" -> 9 (lakh). */
 const lakh = (s: string) => { const f = formatCtc(s); return f ? Number(ctcInput(f)) : undefined; };
 /** "8-12", "8 to 12 LPA", "₹8L - ₹12L" -> [8, 12] (lakh). */
-const range = (s: string): number[] => s.split(/\s*(?:-|–|—|\bto\b)\s*/i).map((x) => lakh(/\d/.test(x) ? x + (/(l|lakh|lpa|cr|k)\b/i.test(s) && !/(l|lakh|lpa|cr|k)\b/i.test(x) ? " " + (s.match(/(lpa|lakh|cr|l|k)\b/i)?.[1] ?? "") : "") : "")).filter((n): n is number => n != null);
+/** "8-12", "8 to 12 LPA", "₹8L - ₹12L", "8 12" -> [8, 12] (lakh). */
+const range = (s: string): number[] => {
+  const unit = s.match(/(lpa|lakh|lac|cr|crore|k)\b/i)?.[1] ?? "";
+  const parts = s.replace(/,/g, "").split(/\s*(?:-|–|—|\bto\b|\/)\s*/i).filter((x) => /\d/.test(x));
+  const pieces = parts.length === 1 ? (parts[0].match(/\d+(?:\.\d+)?/g) ?? []) : parts; // "8 12" typed with a space
+  return pieces.map((x) => lakh(/[a-z]/i.test(x) || !unit ? x : `${x} ${unit}`)).filter((n): n is number => n != null);
+};
 
 type Defaults = { city: string; current_ctc: string; experience: string; strongest_proof: string };
 type A = Pick<Application, "id" | "company" | "role" | "status" | "company_type" | "location" | "analysis">;
@@ -181,7 +188,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
               </li>
             ))}
           </ol>
-          <button className="btn btn-clay mt-5 h-12 w-full text-[1rem]" disabled={edit} onClick={(e) => { if (o == null || m.length !== 2 || m[1] < m[0]) { e.preventDefault(); setTried(true); } }}>Start practice</button>
+          <StartButton disabled={edit} onClick={(e) => { if (o == null || m.length !== 2 || m[1] < m[0]) { e.preventDefault(); setTried(true); } }} />
           {tried && (o == null || m.length !== 2 || m[1] < m[0]) && <p className="mt-2 rounded-xl bg-white/12 px-3 py-2 text-center text-[0.82rem] font-semibold text-white">Add the offered CTC and the market range above first.</p>}
           {edit && <span className="mt-1.5 text-center text-[0.8rem] text-white/60">Save your details first</span>}
         </section>
@@ -244,5 +251,15 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
       </div>
       <p className="mt-1 text-[0.86rem] text-ink/80">{pos ? P[pos].d : "Green band is the market range. The dot is the offer."}</p>
     </div>
+  );
+}
+
+/** Shows "Starting..." while the new talk is being created, so it never looks like nothing happened. */
+function StartButton({ disabled, onClick }: { disabled: boolean; onClick: (e: React.MouseEvent<HTMLButtonElement>) => void }) {
+  const { pending } = useFormStatus();
+  return (
+    <button className={`btn btn-clay mt-5 h-12 w-full text-[1rem] ${pending ? "pointer-events-none" : ""}`} aria-busy={pending} disabled={disabled} onClick={onClick}>
+      {pending ? <><Spinner /> Starting...</> : "Start practice"}
+    </button>
   );
 }

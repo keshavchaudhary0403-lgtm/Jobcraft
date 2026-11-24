@@ -111,7 +111,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
             <div key={i}>
               <button type="button" onClick={() => setOpen(open === i ? -1 : i)} className="flex w-full items-start gap-3 bg-card px-3.5 py-3 text-left transition hover:bg-line-2/60">
                 <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-bad-soft text-[0.75rem] font-bold text-bad">{i + 1}</span>
-                <span className="flex-1 text-[0.9rem] font-semibold leading-snug">{w.question}</span>
+                <span className="flex-1 text-[0.9rem] font-semibold leading-snug">{w.question.replace(/^Q\d+\s*[:.-]\s*/i, "")}</span>
                 <ChevronDown size={16} className={`mt-0.5 shrink-0 text-faint transition ${open === i ? "rotate-180" : ""}`} />
               </button>
               {open === i && (

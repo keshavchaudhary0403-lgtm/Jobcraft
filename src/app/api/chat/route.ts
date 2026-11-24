@@ -178,6 +178,11 @@ export async function POST(req: Request) {
         await logUsage(admin, { userId: user.id, sessionId, feature: "chat", model, usage: usageFromOpenAI(final.usage) });
         if (final.status === "incomplete") cutShort();
       } catch (err) {
+        if (req.signal.aborted) {
+          // The user pressed Stop: keep what was written so far, no error note.
+          full = full ? `${full}\n\n_(Stopped.)_` : "_(Stopped.)_";
+          return;
+        }
         const msg = aiErrorMessage(err);
         console.error("chat error", err);
         const note = `${full ? "\n\n" : ""}⚠️ ${msg}`;
@@ -201,7 +206,7 @@ export async function POST(req: Request) {
               .eq("id", app.id);
           }
         }
-        controller.close();
+        try { controller.close(); } catch { /* the browser already left (Stop) */ }
       }
     },
   });

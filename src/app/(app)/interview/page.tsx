@@ -1,6 +1,7 @@
 import { Mic } from "lucide-react";
 import { requireUser } from "@/lib/auth";
-import { SessionList } from "@/components/SessionList";
+import { PracticeHistory } from "@/components/RoundHistory";
+import { groupRounds } from "@/lib/practice-history";
 import { JobPicker } from "@/components/JobPicker";
 import { startSession } from "@/lib/actions";
 import type { Application, Session } from "@/lib/types";
@@ -12,7 +13,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
   const { supabase } = await requireUser();
   const [{ data: apps }, { data: sessions }] = await Promise.all([
     supabase.from("applications").select("id, company, role, status, analysis").order("updated_at", { ascending: false }).returns<Application[]>(),
-    supabase.from("sessions").select("*").eq("kind", "interview").order("updated_at", { ascending: false }).limit(8).returns<Session[]>(),
+    supabase.from("sessions").select("*").eq("kind", "interview").order("updated_at", { ascending: false }).limit(150).returns<Session[]>(),
   ]);
   const start = startSession.bind(null, "interview");
   const list = sessions ?? [];
@@ -20,6 +21,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
   const best = scores.length ? Math.max(...scores) : null;
   const last = scores[0] ?? null;
   const rounds = Math.min(list.length, 3);
+  const company = new Map((apps ?? []).map((a) => [a.id, a.company]));
+  const groups = groupRounds(list, (s) => (s.application_id ? company.get(s.application_id) ?? null : ((s.meta as { company?: string } | null)?.company ?? null)));
 
   const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "After six questions: your score and model answers"];
 
@@ -81,9 +84,14 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
       </form>
 
       {list.length > 0 && (
-        <section className="card p-5 fade-up">
-          <div className="mb-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Past rounds</div>
-          <SessionList sessions={list} base="/interview" />
+        <section className="space-y-3 fade-up">
+          <div className="flex items-end justify-between gap-3 px-1">
+            <div>
+              <h2 className="text-[1.35rem] font-bold leading-tight">Your practice, by job</h2>
+              <p className="text-[0.88rem] text-muted">Revisit any round, watch your score climb, and study the questions you found hardest.</p>
+            </div>
+          </div>
+          <PracticeHistory groups={groups} kind="interview" />
         </section>
       )}
     </div>
