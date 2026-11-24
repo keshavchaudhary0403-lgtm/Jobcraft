@@ -134,7 +134,7 @@ export function JobView({
               <button key={label} onClick={on} className="btn btn-ghost h-9 px-3.5 text-[0.86rem]"><Icon size={14} /> {label}</button>
             ))}
             {app.job_url && <a href={app.job_url} target="_blank" rel="noreferrer" className="btn btn-ghost h-9 px-3.5 text-[0.86rem]">Listing <ExternalLink size={13} /></a>}
-            <button onClick={remove} className="btn h-9 w-9 px-0 text-bad hover:bg-bad-soft" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
+            <button onClick={remove} className="btn btn-danger-soft h-9 w-9 px-0" aria-label="Delete job" data-tip="Delete this job"><Trash2 size={15} /></button>
           </div>
           </div>
           {a && <FitStat fit={fit} size={112} prev={typeof a.prev_score === "number" && a.prev_score !== a.fit_score ? a.prev_score * 10 : null} className="hidden sm:block sm:mr-[19px]" />}

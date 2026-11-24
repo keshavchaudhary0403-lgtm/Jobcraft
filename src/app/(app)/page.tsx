@@ -36,7 +36,6 @@ export default async function Home() {
   const interviews = (sessions ?? []).filter((s) => s.kind === "interview");
   const practised = new Set(interviews.map((s) => s.application_id).filter(Boolean) as string[]);
   const talks = (sessions ?? []).filter((s) => s.kind === "negotiation");
-  const scores = interviews.map((s) => (s.meta as { interview_report?: { score?: number } } | null)?.interview_report?.score).filter((x): x is number => typeof x === "number");
   const spent = (usage ?? []).reduce((t, r) => t + Number(r.cost_usd), 0) * settings.usd_to_inr;
   const limit = profile.monthly_limit_inr ?? settings.default_monthly_limit_inr;
   const first = profile.full_name?.split(" ")[0];
@@ -124,18 +123,6 @@ export default async function Home() {
                   <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
                   <span className="block text-[0.86rem] text-muted">Aim for five or more.</span>
                   <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
-                </Link>
-              )}
-              {live.length < 4 && (Math.min(live.length, 5) + 1) % 3 !== 0 && (
-                <Link href="/interview" className="group card card-hover flex min-h-[190px] flex-col p-6">
-                  <span className="flex items-start justify-between gap-3">
-                    <span data-tone="2" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Mic size={19} /></span>
-                    <span className="rounded-full bg-good-soft px-2.5 py-0.5 text-[0.78rem] font-semibold text-good">{Math.min(interviews.length, 3)}/3 rounds</span>
-                  </span>
-                  <span className="mt-4 block font-display text-[1.15rem] font-bold">Mock interview</span>
-                  <span className="block text-[0.86rem] text-muted">Practise while you wait{scores.length ? ` · last ${scores.at(-1)}/10` : ""}</span>
-                  <span className="mt-3 grid grid-cols-3 gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i < interviews.length ? "bg-good" : "bg-line"}`} />)}</span>
-                  <span className="mt-auto pt-4"><span className="pill-action">Start a round <ArrowRight size={14} /></span></span>
                 </Link>
               )}
             </div>
