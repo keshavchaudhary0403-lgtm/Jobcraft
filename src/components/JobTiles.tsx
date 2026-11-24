@@ -67,12 +67,15 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
 export const STATUS_HEX: Record<Status, string> = { saved: "var(--mustard)", applied: "var(--ocean)", interviewing: "var(--plum)", offer: "var(--good)", rejected: "var(--clay)", withdrawn: "var(--faint)" };
 
 /** Horizontal stacked bar of job statuses: reads well at any width, including phones. */
-export function StatusBar({ counts, total, height = 12 }: { counts: Record<Status, number>; total: number; height?: number }) {
+/** Status colours readable on the blue banners. */
+export const STATUS_ON_DARK: Record<Status, string> = { saved: "#9cc7f5", applied: "#ffffff", interviewing: "#7fe0d3", offer: "#5fd99a", rejected: "#ff8a80", withdrawn: "rgba(255,255,255,.4)" };
+
+export function StatusBar({ counts, total, height = 12, dark = false }: { counts: Record<Status, number>; total: number; height?: number; dark?: boolean }) {
   const present = STATUSES.filter((s) => counts[s]);
   return (
     <div className="flex w-full gap-1" style={{ height }}>
-      {total === 0 ? <span className="flex-1 rounded-full bg-line-2" /> : present.map((s) => (
-        <span key={s} data-tip={`${STATUS_META[s].label}: ${counts[s]}`} className="rounded-full" style={{ flex: counts[s], background: STATUS_HEX[s] }} />
+      {total === 0 ? <span className={`flex-1 rounded-full ${dark ? "bg-white/15" : "bg-line-2"}`} /> : present.map((s) => (
+        <span key={s} data-tip={`${STATUS_META[s].label}: ${counts[s]}`} className="rounded-full" style={{ flex: counts[s], background: dark ? STATUS_ON_DARK[s] : STATUS_HEX[s] }} />
       ))}
     </div>
   );

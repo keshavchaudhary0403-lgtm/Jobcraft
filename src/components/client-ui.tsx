@@ -188,8 +188,10 @@ export function SidePanel({ open, onClose, title, sub, icon, children }: { open:
   }, [open, onClose]);
   if (!open) return null;
   return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-side/40 backdrop-blur-[3px] sm:p-3" onMouseDown={onClose}>
-      <div className="side-panel flex h-full w-full max-w-[480px] flex-col overflow-hidden bg-bg shadow-[0_30px_70px_-30px_rgba(0,30,70,.6)] sm:rounded-[28px]" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-end justify-end bg-side/40 backdrop-blur-[3px] sm:items-stretch sm:p-3" onMouseDown={onClose}>
+      {/* Phones: bottom sheet (page stays visible above). Larger screens: floating side panel. */}
+      <div className="side-panel flex h-[86vh] w-full flex-col overflow-hidden rounded-t-[28px] bg-bg shadow-[0_30px_70px_-30px_rgba(0,30,70,.6)] sm:h-full sm:max-w-[480px] sm:rounded-[28px]" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="mx-auto mt-2 h-1.5 w-10 shrink-0 rounded-full bg-white/60 sm:hidden" style={{ position: "relative", zIndex: 1, marginBottom: -14 }} />
         <div className="rail-bg flex items-center gap-3 px-5 py-4 text-white">
           {icon && <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/15 ring-1 ring-white/20">{icon}</span>}
           <div className="min-w-0 flex-1">
