@@ -105,7 +105,7 @@ export function JobView({
           <div className="flex items-start gap-4">
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[0.92rem] text-muted">
-                <CompanyWordmark name={app.company} jobUrl={app.job_url} height={28} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
+                <CompanyWordmark name={app.company} jobUrl={app.job_url} height={40} iconSize={40} nameClass="truncate text-[1rem] font-bold text-ink" />
                 {app.location && <span className="inline-flex items-center gap-1"><MapPin size={12} />{app.location}</span>}
               </div>
               <h1 className="mt-0.5 text-[1.7rem] font-bold leading-[1.1] sm:text-[2rem]">{app.role}</h1>

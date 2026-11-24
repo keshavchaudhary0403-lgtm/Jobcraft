@@ -27,7 +27,7 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
       <Link href={`/jobs/${a.id}`} className="block p-6 pb-5">
         <div className="flex items-center gap-3">
           <span className="min-w-0 flex-1">
-            <CompanyWordmark name={a.company} jobUrl={a.job_url} height={24} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
+            <CompanyWordmark name={a.company} jobUrl={a.job_url} height={34} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
             <span className="flex items-center gap-2 text-[0.8rem] text-muted">{a.location && <span className="inline-flex items-center gap-1 truncate"><MapPin size={11} />{a.location}</span>}<span>{timeAgo(a.updated_at)}</span></span>
           </span>
           <span className={`chip ${st.cls}`}>{st.label}</span>

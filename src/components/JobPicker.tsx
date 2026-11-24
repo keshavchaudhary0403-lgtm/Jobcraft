@@ -85,7 +85,7 @@ export function JobPicker({
               className={`relative flex flex-col rounded-[20px] border-2 p-4 text-left transition ${on ? "border-brand bg-card" : "border-line bg-card hover:border-brand/40"}`}
             >
               <span className="flex items-center gap-2.5">
-                <CompanyWordmark name={a.company} height={22} iconSize={32} className="flex-1" nameClass="truncate text-[0.9rem] font-bold text-ink" />
+                <CompanyWordmark name={a.company} height={30} iconSize={32} className="flex-1" nameClass="truncate text-[0.9rem] font-bold text-ink" />
                 <span className={`grid h-6 w-6 shrink-0 place-items-center rounded-full ${on ? "bg-brand text-white" : "border-[1.5px] border-line"}`}>{on && <Check size={13} strokeWidth={3} />}</span>
               </span>
               <span className="mt-3 line-clamp-2 font-display text-[1.05rem] font-bold leading-snug" data-tip={a.role}>{a.role}</span>
