@@ -4,12 +4,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, ChevronDown, Copy, Loader2, X } from "lucide-react";
 
-export function CopyButton({ text, label = "Copy", className = "" }: { text: string; label?: string; className?: string }) {
+export function CopyButton({ text, label = "Copy", className = "", soft = false }: { text: string; label?: string; className?: string; soft?: boolean }) {
   const [done, setDone] = useState(false);
   return (
     <button
       type="button"
-      className={`btn btn-ghost btn-sm ${className}`}
+      className={`btn ${soft ? "btn-soft" : "btn-ghost"} btn-sm ${className}`}
       onClick={async () => {
         await navigator.clipboard.writeText(text);
         setDone(true);

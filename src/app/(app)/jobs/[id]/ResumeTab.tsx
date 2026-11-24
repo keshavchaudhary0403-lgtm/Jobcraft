@@ -261,12 +261,19 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 </div>
               ) : (
                 <>
-                  <button className={`btn btn-clay relative z-0 mt-4 h-11 w-full ${pdfBusy ? "pointer-events-none" : ""}`} onClick={download} aria-busy={pdfBusy}>{pdfBusy ? <><Spinner size={15} /> Preparing PDF...</> : <><Download size={15} /> Download PDF</>}</button>
+                  {/* Main actions side by side: update the resume (blue) and download it (orange) */}
+                  <div className="mt-4 grid grid-cols-2 gap-2">
+                    <button className={`btn btn-primary h-11 px-3 !shadow-none ${busy ? "pointer-events-none" : ""}`} disabled={busy} onClick={regen} aria-busy={busy}>
+                      {busy ? <Spinner size={15} /> : <RotateCcw size={15} />} {busy ? "Regenerating..." : "Regenerate"}
+                    </button>
+                    <button className={`btn btn-clay relative z-0 h-11 px-3 !shadow-none ${pdfBusy ? "pointer-events-none" : ""}`} onClick={download} aria-busy={pdfBusy}>
+                      {pdfBusy ? <><Spinner size={15} /> Preparing...</> : <><Download size={15} /> Download PDF</>}
+                    </button>
+                  </div>
                   {pdfErr && <p className="mt-2 text-[0.8rem] text-bad">Couldn&apos;t build the file - opened the print window instead. Choose &quot;Save as PDF&quot; there.</p>}
-                  <div className="relative z-10 mt-3 grid grid-cols-3 gap-2">
-                    <CopyButton text={md} />
-                    <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
-                    <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Regenerate</button>
+                  <div className="relative z-10 mt-2 grid grid-cols-2 gap-2">
+                    <CopyButton soft text={md} />
+                    <button className="btn btn-soft btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
                   </div>
                 </>
               )}
