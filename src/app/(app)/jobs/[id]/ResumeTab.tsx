@@ -169,7 +169,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   const v = verified[i];
                   return (
                     <div key={i} className={`px-4 py-3 ${v === false ? "bg-bad-soft/60" : ""}`}>
-                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-bad line-through decoration-bad/40" : ""}`} title={c.why}>{c.change}</div>
+                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-bad line-through decoration-bad/40" : ""}`} data-tip={c.why}>{c.change}</div>
                       <div className="mt-2 flex gap-1.5">
                         <button onClick={() => mark(i, true)} aria-pressed={v === true} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}><Check size={12} /> True</button>
                         <button onClick={() => mark(i, false)} aria-pressed={v === false} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === false ? "bg-clay text-white" : "bg-line-2 text-muted hover:bg-clay-soft hover:text-clay"}`}><X size={12} /> Not true</button>

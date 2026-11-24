@@ -181,7 +181,7 @@ function UpdateChecklist({ url, headline, about, skills }: { url: string | null;
       </div>
       <ol className="mt-4 space-y-1">
         {items.map((it) => (
-          <li key={it.k} className="flex items-center gap-3 rounded-2xl px-2 py-1.5 transition hover:bg-line-2/60" title={it.how}>
+          <li key={it.k} className="flex items-center gap-3 rounded-2xl px-2 py-1.5 transition hover:bg-line-2/60" data-tip={it.how}>
             <button
               onClick={() => toggle(it.k)}
               aria-pressed={!!done[it.k]}

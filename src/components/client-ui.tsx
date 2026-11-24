@@ -236,10 +236,10 @@ export function SaveableNumber({
         </div>
         {dirty && (
           <>
-            <button type="button" className={`btn btn-primary ${size === "sm" ? "btn-sm h-8" : ""}`} onClick={save} disabled={saving} title="Save (Enter)">
+            <button type="button" className={`btn btn-primary ${size === "sm" ? "btn-sm h-8" : ""}`} onClick={save} disabled={saving} data-tip="Save (Enter)">
               {saving ? <Spinner size={13} /> : <Check size={14} />} Save
             </button>
-            <button type="button" className="btn-quiet" onClick={() => { setDraft(original); setErr(""); }} title="Cancel (Esc)" aria-label="Cancel">
+            <button type="button" className="btn-quiet" onClick={() => { setDraft(original); setErr(""); }} data-tip="Cancel (Esc)" aria-label="Cancel">
               <X size={15} />
             </button>
           </>

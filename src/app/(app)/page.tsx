@@ -91,15 +91,15 @@ export default async function Home() {
           {/* Row 1: greeting left, readiness right (same row on every screen size) */}
           <div className="flex items-start justify-between gap-4">
             <h1 className="min-w-0 text-[1.85rem] font-bold leading-[1] text-white sm:text-[2.6rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-            <Link href={lift.href} title="Job-search readiness, made up of the six parts below" className="shrink-0 text-right">
+            <Link href={lift.href} data-tip="Job-search readiness, made up of the six parts below" className="shrink-0 text-right">
               <span className="block font-display text-[2.1rem] font-bold leading-none tabular-nums text-white sm:text-[2.6rem]">{score}<span className="text-[1.05rem] text-white/70 sm:text-[1.3rem]">%</span></span>
               <span className="mt-1 block text-[0.76rem] text-white/65 sm:text-[0.84rem]">ready<span className="hidden sm:inline"> · {word}</span></span>
             </Link>
           </div>
           {/* Row 2: context chips */}
           <div className="mt-3 flex flex-wrap gap-2 text-[0.84rem]">
-            {profile.target_role && <Link href="/profile" title="Your target role" className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Target size={13} className="shrink-0 text-white/70" /><span className="truncate">{profile.target_role}</span></Link>}
-            {limit != null && <span title="AI credit left this month" className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/70 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
+            {profile.target_role && <Link href="/profile" className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Target size={13} className="shrink-0 text-white/70" /><span className="truncate">{profile.target_role}</span></Link>}
+            {limit != null && <span className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/70 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
           </div>
 
           {/* Six parts, as glass tiles */}

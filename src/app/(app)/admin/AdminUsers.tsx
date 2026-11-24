@@ -636,7 +636,7 @@ function SpendRing({ pct }: { pct: number | null }) {
   const v = pct ?? 0;
   const color = v >= 90 ? "var(--color-bad)" : v >= 70 ? "var(--color-mid)" : "var(--brand)";
   return (
-    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }} title={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
+    <div className="donut-3d relative grid shrink-0 place-items-center" style={{ width: size, height: size }} data-tip={pct == null ? "No limit" : `${Math.round(v)}% of limit used`}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         {pct != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(v, 2) / 100)} />}
@@ -733,7 +733,7 @@ function Switch({ on, onChange, disabled, title }: { on: boolean; onChange: (v: 
       type="button"
       role="switch"
       aria-checked={on}
-      title={title}
+      data-tip={title}
       disabled={disabled}
       onClick={() => onChange(!on)}
       className={`relative h-6 w-11 shrink-0 rounded-full transition disabled:cursor-not-allowed disabled:opacity-40 ${on ? "bg-brand" : "bg-line"}`}
@@ -867,7 +867,7 @@ function AdminOverview({
               <FeatureDonut parts={features.map(([f, v], i) => ({ label: SPEND_LABEL[f] ?? f, v, color: PALETTE[i % PALETTE.length] }))} total={total} />
               <ul className="w-full space-y-2.5">
                 {features.map(([f, v], i) => (
-                  <li key={f} className="flex items-center gap-2.5 text-[0.9rem]" title={`${stats.calls[f] ?? 0} requests`}>
+                  <li key={f} className="flex items-center gap-2.5 text-[0.9rem]" data-tip={`${stats.calls[f] ?? 0} requests`}>
                     <span className="h-2.5 w-2.5 shrink-0 rounded-full" style={{ background: PALETTE[i % PALETTE.length] }} />
                     <span className="flex-1 truncate font-medium">{SPEND_LABEL[f] ?? f}</span>
                     <span className="tabular-nums text-muted">{total ? Math.round((v / total) * 100) : 0}%</span>

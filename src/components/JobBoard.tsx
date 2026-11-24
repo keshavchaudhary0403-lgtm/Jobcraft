@@ -83,7 +83,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                     >
                       <div className="flex items-center gap-2">
                         <CompanyAvatar name={a.company} jobUrl={a.job_url} size={26} />
-                        <span className="min-w-0 flex-1 truncate text-[0.84rem] font-medium" title={a.company}>{a.company}</span>
+                        <span className="min-w-0 flex-1 truncate text-[0.84rem] font-medium" data-tip={a.company}>{a.company}</span>
                         <GripVertical size={14} className="shrink-0 text-faint opacity-0 transition group-hover:opacity-100" />
                       </div>
                       <div className="mt-2 line-clamp-2 font-display text-[1rem] font-bold leading-snug">{a.role}</div>

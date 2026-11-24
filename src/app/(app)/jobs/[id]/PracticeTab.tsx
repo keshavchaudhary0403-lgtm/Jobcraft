@@ -58,7 +58,7 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
                 const i = Math.max(0, rounds.length - 10) + j;
                 const sc = scoreOf(s);
                 return (
-                  <Link key={s.id} href={`/interview/${s.id}`} title={sc != null ? `Round ${i + 1}: ${sc}/10` : `Round ${i + 1}: no scorecard yet`} className="group flex flex-1 flex-col items-center justify-end gap-1">
+                  <Link key={s.id} href={`/interview/${s.id}`} data-tip={sc != null ? `Round ${i + 1}: ${sc}/10` : `Round ${i + 1}: no scorecard yet`} className="group flex flex-1 flex-col items-center justify-end gap-1">
                     <span className="text-[0.78rem] font-semibold tabular-nums text-muted">{sc ?? "-"}</span>
                     <span className={`w-full max-w-[38px] rounded-t-lg transition group-hover:opacity-80 ${sc == null ? "bg-line" : sc >= 8 ? "bg-good" : sc >= 6 ? "bg-mustard" : "bg-bad"}`} style={{ height: `${sc != null ? Math.max(sc * 10, 8) : 12}%` }} />
                   </Link>

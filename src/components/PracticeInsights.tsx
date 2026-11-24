@@ -89,7 +89,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
         </div>
       </div>
       <div className="border-t border-line p-4">
-        <button type="button" className="btn btn-ghost h-10 w-full" disabled={busy} onClick={run} title={stale ? "You've answered more since this scorecard" : "Score again"}>
+        <button type="button" className="btn btn-ghost h-10 w-full" disabled={busy} onClick={run} data-tip={stale ? "You've answered more since this scorecard" : "Score again"}>
           {busy ? <Spinner size={13} /> : <RotateCcw size={14} />} {stale ? "Update scorecard" : "Score again"}
         </button>
         {err && <p className="mt-2 text-[0.84rem] text-bad">{err}</p>}

@@ -137,7 +137,7 @@ export function NegotiationForm({ apps, preselect, defaults, userId }: { apps: A
                 {[["Current CTC", saved.current_ctc], ["Experience", saved.experience], ["City", saved.city]].map(([k, v], i) => (
                   <div key={k} data-tone={i % 5} className="tone-soft flex items-center justify-between gap-3 rounded-2xl bg-line-2/70 px-4 py-2.5">
                     <span className="text-[0.8rem] text-muted">{k}</span>
-                    <span className="truncate font-display text-[1.1rem] font-bold" title={v}>{v || "-"}</span>
+                    <span className="truncate font-display text-[1.1rem] font-bold" data-tip={v}>{v || "-"}</span>
                   </div>
                 ))}
               </div>

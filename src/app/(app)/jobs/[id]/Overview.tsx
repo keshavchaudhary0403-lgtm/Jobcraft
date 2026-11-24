@@ -182,7 +182,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 {a.ats_keywords.map((k) => {
                   const miss = !!a.keywords_missing && missingKw.has(k);
                   return (
-                    <span key={k} title={miss ? "Not on your resume yet" : "On your resume"} className={`rounded-full px-2.5 py-0.5 text-[0.78rem] ${miss ? "border-[1.5px] border-dashed border-bad/40 text-bad" : "bg-brand-soft text-brand"}`}>{k}</span>
+                    <span key={k} data-tip={miss ? "Not on your resume yet" : "On your resume"} className={`rounded-full px-2.5 py-0.5 text-[0.78rem] ${miss ? "border-[1.5px] border-dashed border-bad/40 text-bad" : "bg-brand-soft text-brand"}`}>{k}</span>
                   );
                 })}
               </div>
@@ -292,7 +292,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                       {answered ? `Answer ${questions.length - answered} left` : "Answer questions"} <ArrowRight size={15} />
                     </button>
                   )}
-                  <button className="pill-glass h-10 disabled:cursor-not-allowed disabled:opacity-50" title={!answered ? "Answer a question first" : !changedSinceScore ? "Score is up to date" : "Score again with your answers"} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
+                  <button className="pill-glass h-10 disabled:cursor-not-allowed disabled:opacity-50" data-tip={!answered ? "Answer a question first" : !changedSinceScore ? "Score is up to date" : "Score again with your answers"} disabled={busy || !answered || !changedSinceScore} onClick={analyse}>
                     {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score
                   </button>
                 </div>
@@ -325,9 +325,9 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                         <span className="text-[0.8rem] font-semibold uppercase tracking-[0.08em] text-muted">{m.label}</span>
                       </div>
                       {g.how_to_close ? (
-                        <p className="mt-1 line-clamp-2 text-[0.88rem] leading-relaxed text-muted" title={`${g.explanation}\n\n${g.how_to_close}`}>{g.how_to_close}</p>
+                        <p className="mt-1 line-clamp-2 text-[0.88rem] leading-relaxed text-muted" data-tip={`${g.explanation}\n\n${g.how_to_close}`}>{g.how_to_close}</p>
                       ) : (
-                        <p className="mt-1 line-clamp-2 text-[0.88rem] text-muted" title={g.explanation}>{g.explanation}</p>
+                        <p className="mt-1 line-clamp-2 text-[0.88rem] text-muted" data-tip={g.explanation}>{g.explanation}</p>
                       )}
                       <div className="mt-auto flex flex-wrap gap-2 pt-3">
                         {qi >= 0 && (

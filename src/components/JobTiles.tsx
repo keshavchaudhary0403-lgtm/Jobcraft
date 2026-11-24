@@ -45,7 +45,7 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
           {next && <span className="font-semibold text-clay">{steps[cur].label}</span>}
         </div>
         <div className="mt-2 flex gap-1">
-          {steps.map((s, i) => <span key={s.label} title={s.label} className={`h-2 flex-1 rounded-full ${s.done ? "bg-brand" : i === cur ? "bg-clay" : "bg-line"}`} />)}
+          {steps.map((s, i) => <span key={s.label} data-tip={s.label} className={`h-2 flex-1 rounded-full ${s.done ? "bg-brand" : i === cur ? "bg-clay" : "bg-line"}`} />)}
         </div>
       </div>
 
@@ -72,7 +72,7 @@ export function StatusBar({ counts, total, height = 12 }: { counts: Record<Statu
   return (
     <div className="flex w-full gap-1" style={{ height }}>
       {total === 0 ? <span className="flex-1 rounded-full bg-line-2" /> : present.map((s) => (
-        <span key={s} title={`${STATUS_META[s].label}: ${counts[s]}`} className="rounded-full" style={{ flex: counts[s], background: STATUS_HEX[s] }} />
+        <span key={s} data-tip={`${STATUS_META[s].label}: ${counts[s]}`} className="rounded-full" style={{ flex: counts[s], background: STATUS_HEX[s] }} />
       ))}
     </div>
   );
