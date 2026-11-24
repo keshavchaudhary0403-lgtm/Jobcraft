@@ -181,7 +181,7 @@ export function JobView({
                   </div>
                 </div>
                 {typeof a.prev_score === "number" && a.prev_score !== a.fit_score && (
-                  <div className={`mt-3 rounded-full px-3 py-1 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mustard-soft text-[#8a6414]"}`}>{a.prev_score * 10} → {a.fit_score * 10}</div>
+                  <div className={`mt-3 rounded-full px-3 py-1 text-[0.8rem] font-semibold ${a.fit_score > a.prev_score ? "bg-good-soft text-good" : "bg-mustard-soft text-mustard-ink"}`}>{a.prev_score * 10} → {a.fit_score * 10}</div>
                 )}
               </>
             ) : (
@@ -229,7 +229,7 @@ export function JobView({
               disabled={!analysed && c.key !== "overview"}
               className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3.5 text-left transition disabled:opacity-40 ${on ? "border-side bg-side text-cream" : "border-line bg-card hover:border-brand/40"}`}
             >
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
+              <span data-tone={on || c.done ? undefined : i % 5} className={`tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : c.done ? "bg-brand text-cream" : "bg-line-2 text-muted"}`}>{c.done && !on ? <Check size={15} strokeWidth={3} /> : String(i + 1).padStart(2, "0")}</span>
               <span className="min-w-0">
                 <span className="block font-display text-[1.1rem] font-bold leading-tight">{c.label}</span>
                 <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>
@@ -247,7 +247,7 @@ export function JobView({
       </section>
 
       {/* Coach */}
-      <button onClick={() => setCoach(true)} className="fixed bottom-28 right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-side px-4 font-semibold lg:bottom-6 sm:right-6 sm:pl-5 sm:pr-6 text-cream shadow-[0_20px_40px_-16px_rgba(22,48,43,.7)] transition hover:bg-brand">
+      <button onClick={() => setCoach(true)} className="fixed bottom-28 right-4 z-30 flex h-14 items-center gap-2 rounded-full bg-side px-4 font-semibold lg:bottom-6 sm:right-6 sm:pl-5 sm:pr-6 text-cream shadow-[0_20px_40px_-16px_color-mix(in srgb, var(--side) 70%, transparent)] transition hover:bg-brand">
         <MessageCircle size={18} className="text-mustard" /> <span className="hidden sm:inline">Ask the coach</span>
       </button>
 

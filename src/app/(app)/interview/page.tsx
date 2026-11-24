@@ -39,7 +39,7 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
       <form action={start} className="grid items-stretch gap-5 fade-up lg:grid-cols-[minmax(0,1.5fr)_minmax(0,1fr)]">
         <section className="card flex flex-col p-6">
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">1</span>
+            <span data-tone="0" className="tone-chip grid h-7 w-7 place-items-center rounded-full bg-side font-display text-[0.8rem] font-bold text-cream">1</span>
             <h2 className="flex-1 text-[1.2rem] font-bold leading-none">Pick the job</h2>
           </div>
           <JobPicker
@@ -73,8 +73,8 @@ export default async function InterviewPage({ searchParams }: { searchParams: Pr
             ))}
           </ol>
           <div className="mt-5 grid grid-cols-2 gap-2 text-center">
-            <div className="rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last ?? "-"}</div><div className="text-[0.8rem] text-white/55">last score</div></div>
-            <div className="rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best ?? "-"}</div><div className="text-[0.8rem] text-white/55">best score</div></div>
+            <div data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{last ?? "-"}</div><div className="text-[0.8rem] text-white/55">last score</div></div>
+            <div data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] px-3 py-2.5"><div className="font-display text-[1.3rem] font-bold">{best ?? "-"}</div><div className="text-[0.8rem] text-white/55">best score</div></div>
           </div>
           <button className="btn btn-clay mt-4 h-12 w-full text-[1rem]"><Mic size={17} /> Start interview</button>
         </section>

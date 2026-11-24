@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Bricolage_Grotesque, DM_Sans, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   title: { default: "Jobcraft", template: "%s · Jobcraft" },
   description: "Your AI job search copilot - tailored resumes, outreach, interview and salary practice.",
 };
+
+export const viewport: Viewport = { themeColor: "#004e98" };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (

@@ -250,7 +250,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
             </>
           )}
         </div>
-        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-[#ffb59f]"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
+        {error && <p className="flex w-full items-start gap-1.5 text-[0.86rem] text-clay-2"><AlertCircle size={14} className="mt-0.5 shrink-0" /> {error}</p>}
       </div>
 
       <div className="card min-h-[320px] p-5">
@@ -283,7 +283,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
 
 function Orb({ state }: { state: "ai" | "you" | "idle" | "off" }) {
   const active = state === "ai" || state === "you";
-  const color = state === "you" ? "from-[#f0a27f] to-[#e0653f]" : "from-[#9cc5b2] to-[#e2a92c]";
+  const color = state === "you" ? "from-clay-2 to-clay" : "from-brand-2 to-mustard";
   return (
     <div className="relative grid h-24 w-24 shrink-0 place-items-center">
       {active && (

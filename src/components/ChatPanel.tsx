@@ -159,7 +159,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
             }}
           />
           <button
-            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white transition hover:bg-[#c9532f] disabled:opacity-30"
+            className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-clay text-white transition hover:bg-clay-ink disabled:opacity-30"
             disabled={busy || !input.trim()}
             onClick={() => {
               const t = input;
@@ -179,7 +179,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
 function VoiceOrb({ state }: { state: "idle" | "listening" | "thinking" | "speaking" }) {
   const active = state !== "idle";
-  const color = state === "listening" ? "from-[#f0a27f] to-[#e0653f]" : "from-[#9cc5b2] to-[#e2a92c]";
+  const color = state === "listening" ? "from-clay-2 to-clay" : "from-brand-2 to-mustard";
   return (
     <div className="relative grid h-20 w-20 shrink-0 place-items-center">
       {active && (

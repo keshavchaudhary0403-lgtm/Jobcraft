@@ -66,7 +66,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         <ul className="space-y-3">
           {[
             ["01", "Reordered around their top skills", "bg-clay-soft text-clay"],
-            ["02", "Bullets rewritten with real results", "bg-mustard-soft text-[#8a6414]"],
+            ["02", "Bullets rewritten with real results", "bg-mustard-soft text-mustard-ink"],
             ["03", "Their ATS keywords, where true", "bg-ocean-soft text-ocean"],
             ["04", "You check every change", "bg-good-soft text-good"],
           ].map(([n, t, c]) => (
@@ -76,7 +76,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             </li>
           ))}
         </ul>
-        <div className="hidden rotate-2 rounded-2xl border border-line bg-white p-5 shadow-[0_24px_50px_-30px_rgba(22,48,43,.5)] md:block">
+        <div className="hidden rotate-2 rounded-2xl border border-line bg-white p-5 shadow-[0_24px_50px_-30px_color-mix(in srgb, var(--side) 50%, transparent)] md:block">
           <div className="h-3 w-2/3 rounded bg-ink/80" />
           <div className="mt-2 h-2 w-1/2 rounded bg-line" />
           {[0, 1, 2].map((i) => (
@@ -189,8 +189,8 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
 
           {missing.length > 0 && (
             <section className="card p-4" style={{ background: "var(--color-mustard-soft)" }}>
-              <div className="flex items-center gap-2"><Hash size={15} className="text-[#8a6414]" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
-              <p className="mt-0.5 text-[0.8rem] text-[#6e4f0f]">Skip any you don&apos;t know.</p>
+              <div className="flex items-center gap-2"><Hash size={15} className="text-mustard-ink" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
+              <p className="mt-0.5 text-[0.8rem] text-mustard-ink">Skip any you don&apos;t know.</p>
               <div className="mt-3 space-y-2.5">
                 {missing.map((q) => (
                   <div key={q}>

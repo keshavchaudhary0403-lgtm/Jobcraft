@@ -14,7 +14,7 @@ export function PageHeader({ title, sub, action }: { title: string; sub?: string
 }
 
 export const STATUS_META: Record<Status, { label: string; cls: string; dot: string }> = {
-  saved: { label: "Saved", cls: "bg-mustard-soft text-[#8a6414]", dot: "bg-mustard" },
+  saved: { label: "Saved", cls: "bg-mustard-soft text-mustard-ink", dot: "bg-mustard" },
   applied: { label: "Applied", cls: "bg-ocean-soft text-ocean", dot: "bg-ocean" },
   interviewing: { label: "Interviewing", cls: "bg-plum-soft text-plum", dot: "bg-plum" },
   offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-good" },
@@ -33,7 +33,7 @@ export function StatusPill({ status }: { status: Status }) {
 }
 
 export function scoreColor(score: number) {
-  return score >= 7 ? "#2f7a52" : score >= 5 ? "#b5701a" : "#c8452c";
+  return score >= 7 ? "var(--good)" : score >= 5 ? "var(--mid)" : "var(--bad)";
 }
 
 export function MatchChip({ score }: { score: number }) {
@@ -49,7 +49,7 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
   return (
     <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={r} stroke="#efe8dc" strokeWidth={stroke} fill="none" />
+        <circle cx={size / 2} cy={size / 2} r={r} stroke="var(--line-2)" strokeWidth={stroke} fill="none" />
         <circle
           cx={size / 2}
           cy={size / 2}
@@ -74,9 +74,14 @@ export function ScoreRing({ score, size = 104, stroke = 9, label = true }: { sco
 }
 
 // Soft tinted monograms (like app icons) - never loud solid blocks.
-const AVATAR_HUES = [14, 38, 150, 205, 285, 162, 26, 340];
+const AVATAR_TONES = [
+  ["var(--brand-soft)", "var(--brand-ink)"],
+  ["var(--clay-soft)", "var(--clay-ink)"],
+  ["var(--mustard-soft)", "var(--mustard-ink)"],
+  ["var(--good-soft)", "var(--good)"],
+];
 export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number }) {
-  const h = AVATAR_HUES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_HUES.length];
+  const [bgTone, fgTone] = AVATAR_TONES[[...name].reduce((a, ch) => a + ch.charCodeAt(0), 0) % AVATAR_TONES.length];
   return (
     <div
       className="grid shrink-0 place-items-center font-bold"
@@ -85,8 +90,8 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
         height: size,
         borderRadius: 999,
         fontSize: size * 0.42,
-        background: `hsl(${h} 55% 90%)`,
-        color: `hsl(${h} 45% 30%)`,
+        background: bgTone,
+        color: fgTone,
       }}
     >
       {(name.trim()[0] ?? "?").toUpperCase()}
@@ -94,7 +99,7 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   );
 }
 
-const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-[#8a6414]", lilac: "bg-plum-soft text-plum", rose: "bg-clay-soft text-clay", mint: "bg-brand-soft text-brand" };
+const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-mustard-ink", lilac: "bg-plum-soft text-plum", rose: "bg-clay-soft text-clay", mint: "bg-brand-soft text-brand" };
 export function StatTile({ icon, label, value, sub, tone = "sky", href, interactive }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES; href?: string; interactive?: boolean }) {
   const Tag = href ? Link : "div";
   return (

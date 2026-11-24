@@ -28,7 +28,7 @@ function Section({ title, sub, children, className = "", n }: { title: string; s
   return (
     <section className={`card flex flex-col p-6 ${className}`}>
       <div className="mb-4 flex items-start gap-3">
-        {n && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-clay-soft font-display text-[0.82rem] font-bold text-clay">{n}</span>}
+        {n && <span data-tone={(Number(n) - 1) % 5} className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-full bg-clay-soft font-display text-[0.82rem] font-bold text-clay">{n}</span>}
         <div className="min-w-0">
           <h2 className="text-[1.25rem] font-bold leading-tight">{title}</h2>
           {sub && <div className="mt-0.5 text-[0.85rem] text-muted">{sub}</div>}
@@ -88,8 +88,8 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
 
   const skillsBox = (
     <div className="flex flex-wrap gap-2">
-      {d.skills.map((s) => (
-        <span key={s} className="chip border-[1.5px] border-line bg-card py-1 pl-3 text-[0.86rem] font-medium text-ink">
+      {d.skills.map((s, i) => (
+        <span key={s} data-tone={i % 5} className="tone-soft chip border-[1.5px] border-line bg-card py-1 pl-3 text-[0.86rem] font-medium text-ink">
           {s}
           <button onClick={() => set("skills", d.skills.filter((x) => x !== s))} aria-label={`Remove ${s}`} className="grid h-4 w-4 place-items-center rounded-full text-faint hover:bg-clay-soft hover:text-clay">
             <X size={11} />
@@ -235,7 +235,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
             const on = view === c.k;
             return (
               <button key={c.k} onClick={() => setView(c.k)} className={`flex items-center gap-3 rounded-[20px] border-[1.5px] px-4 py-3 text-left transition ${on ? "border-side bg-side text-cream" : "border-line bg-card hover:border-brand/40"}`}>
-                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}>{String(i + 1).padStart(2, "0")}</span>
+                <span data-tone={on ? undefined : i % 5} className={`tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold ${on ? "bg-cream text-side" : "bg-line-2 text-muted"}`}>{String(i + 1).padStart(2, "0")}</span>
                 <span className="min-w-0">
                   <span className="flex items-center gap-1.5 font-display text-[1.1rem] font-bold leading-tight"><c.icon size={15} /> {c.label}</span>
                   <span className={`block truncate text-[0.8rem] ${on ? "text-cream/65" : "text-muted"}`}>{c.sub}</span>

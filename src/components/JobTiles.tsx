@@ -60,7 +60,7 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
   );
 }
 
-export const STATUS_HEX: Record<Status, string> = { saved: "#e2a92c", applied: "#3b6e78", interviewing: "#a65a32", offer: "#2f7a52", rejected: "#e0653f", withdrawn: "#a39e92" };
+export const STATUS_HEX: Record<Status, string> = { saved: "var(--mustard)", applied: "var(--ocean)", interviewing: "var(--plum)", offer: "var(--good)", rejected: "var(--clay)", withdrawn: "var(--faint)" };
 
 export function StatusDonut({ counts, total, size = 170 }: { counts: Record<Status, number>; total: number; size?: number }) {
   const stroke = Math.round(size * 0.13), r = (size - stroke) / 2, c = 2 * Math.PI * r;

@@ -134,7 +134,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
 
   const P = {
     below: { label: "Below market", cls: "text-clay", at: 18, icon: ArrowDownRight },
-    at: { label: "At market", cls: "text-[#8a6414]", at: 50, icon: ArrowRight },
+    at: { label: "At market", cls: "text-mustard-ink", at: 50, icon: ArrowRight },
     above: { label: "Above market", cls: "text-good", at: 82, icon: ArrowUpRight },
   }[o.position];
   return (
@@ -142,7 +142,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
       <div className="p-5">
         <div className="flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><Scale size={13} /> Is this offer fair?</div>
         <div className={`mt-1 flex items-center gap-1.5 font-display text-[1.5rem] font-bold ${P.cls}`}><P.icon size={20} /> {P.label}</div>
-        <div className="relative mt-4 h-3 rounded-full bg-[linear-gradient(90deg,#fbe5dc,#faf0d4_50%,#e1f0e6)]">
+        <div className="relative mt-4 h-3 rounded-full bg-[linear-gradient(90deg,var(--clay-soft),var(--mustard-soft)_50%,var(--good-soft))]">
           <span className="absolute top-1/2 h-6 w-6 -translate-x-1/2 -translate-y-1/2 rounded-full border-[3px] border-white bg-side shadow" style={{ left: `${P.at}%` }} />
         </div>
         <div className="mt-1.5 flex justify-between text-[0.78rem] text-faint"><span>Below</span><span>At</span><span>Above</span></div>

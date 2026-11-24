@@ -820,7 +820,7 @@ function AdminOverview({
           ].map((k) => (
             <button key={k.label} onClick={k.go} className="rounded-2xl bg-white/[.07] p-4 text-left transition hover:bg-white/[.12]">
               <div className="text-[0.78rem] text-white/55">{k.label}</div>
-              <div className={`mt-1 font-display text-[1.8rem] font-bold leading-none tabular-nums ${k.warn ? "text-[#f0a27f]" : ""}`}>{k.value}</div>
+              <div className={`mt-1 font-display text-[1.8rem] font-bold leading-none tabular-nums ${k.warn ? "text-clay-2" : ""}`}>{k.value}</div>
               <div className="mt-1.5 text-[0.76rem] text-white/45">{k.sub}</div>
             </button>
           ))}
@@ -951,7 +951,7 @@ function niceCeil(v: number) {
   return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p;
 }
 
-const PALETTE = ["#1f4d3f", "#e0653f", "#e2a92c", "#3b6e78", "#a65a32", "#2f7a52", "#9cc5b2", "#f0a27f", "#a39e92"];
+const PALETTE = ["var(--side)", "var(--clay)", "var(--mustard)", "var(--ocean)", "var(--plum)", "var(--good)", "var(--brand-2)", "var(--clay-2)", "var(--faint)"];
 
 function FeatureDonut({ parts, total }: { parts: { label: string; v: number; color: string }[]; total: number }) {
   const size = 150, stroke = 20, r = (size - stroke) / 2, c = 2 * Math.PI * r;
@@ -978,7 +978,7 @@ function BudgetDonut({ spent, budget }: { spent: number; budget: number | null }
     <div className="relative grid shrink-0 place-items-center" style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="rgba(255,255,255,.12)" strokeWidth={stroke} />
-        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "#f0a27f" : "#e2a92c"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
+        {budget != null && <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={pct >= 0.9 ? "var(--clay-2)" : "var(--mustard)"} strokeWidth={stroke} strokeLinecap="round" strokeDasharray={c} strokeDashoffset={c * (1 - Math.max(pct, 0.02))} />}
       </svg>
       <span className="absolute font-display text-[1.4rem] font-bold tabular-nums">{budget != null ? `${Math.round(pct * 100)}%` : "-"}</span>
     </div>

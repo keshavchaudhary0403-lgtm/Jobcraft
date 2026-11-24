@@ -24,7 +24,7 @@ export function JobCard({ a }: { a: Application }) {
       <div className="mt-auto flex items-end justify-between gap-3 pt-6">
         <div>
           <div className="flex items-baseline gap-1">
-            <span className={`font-display text-[2.4rem] font-bold leading-none tabular-nums ${m == null ? "text-faint" : m >= 70 ? "text-good" : m >= 50 ? "text-[#b5701a]" : "text-clay"}`}>{m ?? "-"}</span>
+            <span className={`font-display text-[2.4rem] font-bold leading-none tabular-nums ${m == null ? "text-faint" : m >= 70 ? "text-good" : m >= 50 ? "text-mid" : "text-clay"}`}>{m ?? "-"}</span>
             {m != null && <span className="text-[0.82rem] text-muted">% fit</span>}
           </div>
           <div className="mt-2 flex w-32 gap-1">{steps.map((d, i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${d ? "bg-brand" : "bg-line"}`} />)}</div>

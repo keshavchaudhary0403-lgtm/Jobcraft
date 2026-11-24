@@ -75,7 +75,7 @@ export function ResumeDrop({ onParsed, compact = false }: { onParsed: (d: Parsed
         }}
         className={`group relative flex cursor-pointer flex-col items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed text-center transition ${
           compact ? "px-6 py-7" : "px-6 py-14"
-        } ${drag ? "border-brand bg-brand-soft" : "border-line bg-white hover:border-brand/50 hover:bg-[#fbfdfd]"}`}
+        } ${drag ? "border-brand bg-brand-soft" : "border-line bg-white hover:border-brand/50 hover:bg-card"}`}
       >
         <div className="ai-gradient pointer-events-none absolute inset-0 opacity-70" />
         <div className={`relative grid place-items-center rounded-2xl bg-gradient-to-br from-brand to-brand-ink text-on-brand shadow-lg transition group-hover:scale-105 ${compact ? "h-11 w-11" : "h-14 w-14"}`}>

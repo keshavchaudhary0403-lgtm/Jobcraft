@@ -83,7 +83,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
       <div ref={ref} className="relative mt-auto">
         {menu && (
-          <div className="pop absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-3xl border border-line bg-card p-2 text-ink shadow-[0_30px_60px_-30px_rgba(22,48,43,.55)]">
+          <div className="pop absolute bottom-full left-0 right-0 mb-2 overflow-hidden rounded-3xl border border-line bg-card p-2 text-ink shadow-[0_30px_60px_-30px_color-mix(in srgb, var(--side) 55%, transparent)]">
             <Link href="/profile" onClick={() => { setMenu(false); setOpen(false); }} className="flex h-11 items-center gap-3 rounded-2xl px-3 text-[0.95rem] hover:bg-line-2"><UserRound size={16} className="text-muted" /> My profile</Link>
             {isAdmin && <Link href="/admin" onClick={() => { setMenu(false); setOpen(false); }} className="flex h-11 items-center gap-3 rounded-2xl px-3 text-[0.95rem] hover:bg-line-2"><Settings2 size={16} className="text-muted" /> Admin</Link>}
             <button onClick={logout} className="flex h-11 w-full items-center gap-3 rounded-2xl px-3 text-[0.95rem] text-bad hover:bg-bad-soft"><LogOut size={16} /> Log out</button>
@@ -94,7 +94,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
           <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/10"><div className="h-full rounded-full bg-mustard" style={{ width: `${strength}%` }} /></div>
         </Link>
         <button onClick={() => setMenu(!menu)} className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-mustard text-[0.8rem] font-bold text-side">{initials || "?"}</span>
+          <span className="avatar-warm grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold">{initials || "?"}</span>
           <span className="min-w-0 flex-1 truncate text-[0.92rem] font-medium text-cream">{name}</span>
           <ChevronUp size={15} className={`text-white/50 transition ${menu ? "" : "rotate-180"}`} />
         </button>
@@ -106,17 +106,17 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
     <>
       {/* Mobile: floating top pill + app-style bottom tab bar */}
       <header className="no-print sticky top-0 z-30 px-3 pt-3 lg:hidden">
-        <div className="flex items-center justify-between rounded-full bg-side/95 py-1.5 pl-3 pr-1.5 shadow-[0_12px_30px_-18px_rgba(22,48,43,.9)] backdrop-blur">
+        <div className="flex items-center justify-between rail-bg rounded-full bg-side/95 py-1.5 pl-3 pr-1.5 shadow-[0_12px_30px_-18px_color-mix(in srgb, var(--side) 90%, transparent)] backdrop-blur">
           <Link href="/"><Logo size={28} light /></Link>
           <button onClick={() => setOpen(true)} className="flex items-center gap-1.5 rounded-full bg-white/10 py-1 pl-1 pr-3 text-cream" aria-label="Open menu">
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-mustard text-[0.78rem] font-bold text-side">{initials || "?"}</span>
+            <span className="avatar-warm grid h-8 w-8 place-items-center rounded-full text-[0.78rem] font-bold">{initials || "?"}</span>
             <Menu size={16} />
           </button>
         </div>
       </header>
 
       <nav className="no-print fixed inset-x-3 bottom-3 z-30 lg:hidden" style={{ paddingBottom: "env(safe-area-inset-bottom)" }}>
-        <div className="grid grid-cols-5 items-center rounded-[26px] bg-side/95 px-1.5 py-1.5 shadow-[0_18px_40px_-18px_rgba(22,48,43,.9)] backdrop-blur">
+        <div className="grid grid-cols-5 items-center rail-bg rounded-[26px] bg-side/95 px-1.5 py-1.5 shadow-[0_18px_40px_-18px_color-mix(in srgb, var(--side) 90%, transparent)] backdrop-blur">
           {[
             { href: "/", label: "Home", icon: House },
             { href: "/jobs", label: "Jobs", icon: BriefcaseBusiness, count: jobs },
@@ -125,7 +125,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
             { href: "/negotiation", label: "Salary", icon: IndianRupee },
           ].map((t) =>
             t === null ? (
-              <Link key="add" href="/jobs/new" aria-label="Add job" className="mx-auto -mt-7 grid h-14 w-14 place-items-center rounded-full bg-clay text-white shadow-[0_12px_24px_-10px_rgba(224,101,63,.9)] ring-4 ring-bg transition active:scale-95">
+              <Link key="add" href="/jobs/new" aria-label="Add job" className="mx-auto -mt-7 grid h-14 w-14 place-items-center rounded-full bg-clay text-white shadow-[0_12px_24px_-10px_color-mix(in srgb, var(--clay) 90%, transparent)] ring-4 ring-bg transition active:scale-95">
                 <Plus size={24} />
               </Link>
             ) : (
@@ -145,7 +145,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
           <div className="sheet-up absolute inset-x-0 bottom-0 rounded-t-[28px] bg-card p-4 pb-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="mx-auto mb-4 h-1.5 w-10 rounded-full bg-line" />
             <div className="flex items-center gap-3 px-1">
-              <span className="grid h-12 w-12 place-items-center rounded-full bg-mustard text-[0.9rem] font-bold text-side">{initials || "?"}</span>
+              <span className="avatar-warm grid h-12 w-12 place-items-center rounded-full text-[0.9rem] font-bold">{initials || "?"}</span>
               <div className="min-w-0 flex-1">
                 <div className="truncate font-display text-[1.15rem] font-bold">{name}</div>
                 <div className="text-[0.82rem] text-muted">Profile {strength}% complete</div>
@@ -159,7 +159,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                 { href: "/profile", label: "My profile", icon: UserRound },
                 ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Settings2 }] : []),
               ].map(({ href, label, icon: Icon }) => (
-                <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3.5 font-semibold ${isActive(href) ? "border-side bg-side text-cream" : "border-line"}`}>
+                <Link key={href} href={href} onClick={() => setOpen(false)} className={`flex items-center gap-3 rounded-2xl border-[1.5px] px-4 py-3.5 font-semibold ${isActive(href) ? "border-brand bg-brand-soft text-brand-ink" : "border-line"}`}>
                   <Icon size={18} /> {label}
                 </Link>
               ))}
@@ -170,7 +170,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       )}
 
       {/* Desktop: floating rail */}
-      <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_rgba(22,48,43,.9)] lg:flex">
+      <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_color-mix(in srgb, var(--side) 90%, transparent)] lg:flex">
         <Link href="/" className="mb-6 px-1.5 pt-1"><Logo size={32} light /></Link>
         {body}
       </aside>

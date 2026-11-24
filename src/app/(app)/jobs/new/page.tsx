@@ -117,7 +117,7 @@ export default function NewJob() {
       <div key={k}>
         <label className="label flex items-center justify-between">
           <span>{label}</span>
-          {auto[k] && <span className="chip bg-mustard-soft px-1.5 py-0 text-[0.78rem] text-[#8a6414]"><Sparkles size={10} /> from JD</span>}
+          {auto[k] && <span className="chip bg-mustard-soft px-1.5 py-0 text-[0.78rem] text-mustard-ink"><Sparkles size={10} /> from JD</span>}
         </label>
         <div className="relative">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-faint">{icon}</span>
@@ -212,7 +212,7 @@ export default function NewJob() {
             <ol className="grid grid-cols-4 gap-1 border-t border-line pt-4 text-center text-[0.78rem] text-muted">
               {["Decode", "Fit score", "Resume", "Outreach"].map((x, i) => (
                 <li key={x}>
-                  <span className="mx-auto mb-1 grid h-6 w-6 place-items-center rounded-full bg-line-2 font-display text-[0.78rem] font-bold text-ink">{i + 1}</span>
+                  <span data-tone={i % 5} className="tone-chip mx-auto mb-1 grid h-6 w-6 place-items-center rounded-full bg-line-2 font-display text-[0.78rem] font-bold text-ink">{i + 1}</span>
                   {x}
                 </li>
               ))}

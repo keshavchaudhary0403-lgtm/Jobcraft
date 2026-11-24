@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { AlertCircle, Check, ExternalLink, MapPin, RotateCcw, Sparkles } from "lucide-react";
+import { AlertCircle, Award, Check, ExternalLink, FileText, MapPin, RotateCcw, Sparkles, Type } from "lucide-react";
 import type { LinkedInResult } from "@/lib/tasks";
 import { CharCount, CopyButton, Spinner, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
@@ -55,7 +55,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
       <div className={`grid items-start gap-5 lg:grid-cols-[minmax(0,1fr)_380px] transition ${busy ? "opacity-60" : ""}`}>
         {/* Live preview */}
         <section className="card overflow-hidden fade-up">
-          <div className="grain relative h-32" style={{ background: "linear-gradient(120deg, #16302b, #234a40 55%, #2b6352)" }}>
+          <div className="grain relative h-32" style={{ background: "linear-gradient(120deg, var(--side), var(--side-2) 55%, var(--brand))" }}>
             <span className="absolute right-5 top-4 rounded-full bg-white/10 px-3 py-1 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-cream/80">Live preview</span>
           </div>
           <div className="px-7 pb-7">
@@ -71,7 +71,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             <div className="mt-6 grid gap-6 border-t border-line pt-6 xl:grid-cols-[minmax(0,1fr)_240px]">
               <div className="min-w-0">
                 <div className="mb-2 flex items-center justify-between">
-                  <h2 className="text-[1.2rem] font-bold">About</h2>
+                  <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="1" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><FileText size={15} /></span>About</h2>
                   {res && <span className="flex items-center gap-2"><CharCount text={res.about} max={150} unit="words" /><CopyButton text={res.about} /></span>}
                 </div>
                 {res ? (
@@ -82,20 +82,20 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
               </div>
               <div>
                 <div className="mb-3 flex items-center justify-between">
-                  <h2 className="text-[1.2rem] font-bold">Top skills</h2>
+                  <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="3" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><Award size={15} /></span>Top skills</h2>
                   {res && <CopyButton text={res.skills.join(", ")} label="Copy" />}
                 </div>
                 <ol className="space-y-2">
                   {res
                     ? res.skills.map((s, i) => (
                         <li key={s} className="flex items-center gap-2.5 rounded-2xl border-[1.5px] border-line px-3 py-2 text-[0.9rem] font-medium">
-                          <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard-soft font-display text-[0.78rem] font-bold text-[#8a6414]">{i + 1}</span>{s}
+                          <span data-tone={i % 5} className="tone-chip grid h-6 w-6 shrink-0 place-items-center rounded-full bg-mustard-soft font-display text-[0.78rem] font-bold text-mustard-ink">{i + 1}</span>{s}
                         </li>
                       ))
                     : [0, 1, 2, 3, 4].map((i) => <li key={i} className={`h-10 rounded-2xl ${busy ? "skeleton" : "bg-line-2"}`} />)}
                 </ol>
                 {res && (
-                  <div className="mt-4 rounded-2xl px-4 py-3" style={{ background: "var(--color-cream)" }}>
+                  <div data-tone="2" className="tone-soft mt-4 rounded-2xl px-4 py-3" style={{ background: "var(--color-cream)" }}>
                     <div className="text-[0.78rem] font-semibold uppercase tracking-[0.14em] text-muted">About length</div>
                     <div className="mt-1 font-display text-[1.4rem] font-bold">{aboutWords}<span className="text-[0.85rem] font-medium text-muted"> / 150 words</span></div>
                     <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-line"><div className={`h-full rounded-full ${aboutWords > 150 ? "bg-clay" : "bg-good"}`} style={{ width: `${Math.min(100, (aboutWords / 150) * 100)}%` }} /></div>
@@ -110,7 +110,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
         <aside className="space-y-5 lg:sticky lg:top-6">
           <section className="card p-5 fade-up">
             <div className="mb-3 flex items-center justify-between">
-              <h2 className="text-[1.2rem] font-bold">Pick a headline</h2>
+              <h2 className="flex items-center gap-2.5 text-[1.2rem] font-bold"><span data-tone="0" className="tone-chip grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-line-2 text-brand"><Type size={15} /></span>Pick a headline</h2>
               {headline && <CopyButton text={headline} label="Copy" />}
             </div>
             {res ? (
@@ -120,7 +120,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
                   return (
                     <button key={i} type="button" onClick={() => setPick(i)} className={`w-full rounded-[18px] border-[1.5px] p-3.5 text-left transition ${on ? "border-side bg-side text-cream" : "border-line hover:border-brand/40"}`}>
                       <div className="mb-1.5 flex items-center gap-2 text-[0.8rem]">
-                        <span className={`grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
+                        <span data-tone={on ? undefined : i % 5} className={`tone-chip grid h-6 w-6 place-items-center rounded-full font-display font-bold ${on ? "bg-mustard text-side" : "bg-line-2 text-muted"}`}>{on ? <Check size={12} strokeWidth={3} /> : i + 1}</span>
                         <span className={`ml-auto ${on ? "text-cream/60" : ""}`}><CharCount text={h} max={220} /></span>
                       </div>
                       <div className="text-[0.9rem] leading-snug">{h}</div>

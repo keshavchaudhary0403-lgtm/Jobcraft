@@ -72,8 +72,8 @@ export default function LoginPage() {
               </div>
               <div className="relative grid h-[68px] w-[68px] place-items-center">
                 <svg width="68" height="68" className="-rotate-90">
-                  <circle cx="34" cy="34" r="28" fill="none" stroke="#e6ddcf" strokeWidth="8" />
-                  <circle cx="34" cy="34" r="28" fill="none" stroke="#2f7a52" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 28} strokeDashoffset={2 * Math.PI * 28 * 0.22} />
+                  <circle cx="34" cy="34" r="28" fill="none" stroke="var(--line)" strokeWidth="8" />
+                  <circle cx="34" cy="34" r="28" fill="none" stroke="var(--good)" strokeWidth="8" strokeLinecap="round" strokeDasharray={2 * Math.PI * 28} strokeDashoffset={2 * Math.PI * 28 * 0.22} />
                 </svg>
                 <span className="absolute font-display text-[1.05rem] font-bold">78%</span>
               </div>

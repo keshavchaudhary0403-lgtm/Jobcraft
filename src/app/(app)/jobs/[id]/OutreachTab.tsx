@@ -104,7 +104,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
           <div className="grid h-full gap-4 md:grid-cols-2">
             {[
               { icon: <UserPlus size={18} />, tone: "bg-clay-soft text-clay", title: "Connection note", limit: "Under 250 characters", lines: [92, 100, 78, 55], bar: 70 },
-              { icon: <Send size={18} />, tone: "bg-mustard-soft text-[#8a6414]", title: "Message", limit: "Under 110 words", lines: [100, 96, 88, 100, 92, 70, 84, 40], bar: 55 },
+              { icon: <Send size={18} />, tone: "bg-mustard-soft text-mustard-ink", title: "Message", limit: "Under 110 words", lines: [100, 96, 88, 100, 92, 70, 84, 40], bar: 55 },
             ].map((x) => (
               <div key={x.title} className="card flex flex-col p-5">
                 <div className="flex items-center gap-3">

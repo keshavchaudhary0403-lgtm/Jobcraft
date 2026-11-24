@@ -51,12 +51,12 @@ export default async function Home() {
   const saved = live.filter((a) => a.status === "saved");
   const prepDone = saved.reduce((t, a) => t + journey(a, practised).slice(0, 4).filter((s) => s.done).length, 0);
   const parts = [
-    { label: "Resume", color: "#e2a92c", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
-    { label: "Match", color: "#9cc5b2", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
-    { label: "Prep", color: "#f0a27f", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
-    { label: "Applying", color: "#8fb5bb", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
-    { label: "Interview", color: "#d9a27f", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
-    { label: "LinkedIn", color: "#fdfaf4", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
+    { label: "Resume", color: "var(--mustard)", value: (health ?? 0) / 100, weight: 20, lift: "Strengthen your resume", href: "/profile" },
+    { label: "Match", color: "var(--brand-2)", value: (avg ?? 0) / 100, weight: 20, lift: "Add jobs that fit you better", href: "/jobs/new" },
+    { label: "Prep", color: "color-mix(in srgb, var(--clay) 70%, white)", value: saved.length ? prepDone / (saved.length * 4) : all.length ? 1 : 0, weight: 15, lift: "Finish prepping saved jobs", href: "/jobs" },
+    { label: "Applying", color: "var(--brand-2)", value: Math.min(thisWeek / GOAL, 1), weight: 20, lift: thisWeek ? "Apply to more this week" : "Send your first application", href: "/jobs" },
+    { label: "Interview", color: "var(--clay-2)", value: Math.min(interviews.length / 3, 1), weight: 15, lift: "Do a mock interview", href: "/interview" },
+    { label: "LinkedIn", color: "#ffffff", value: profile.linkedin_result ? 1 : 0, weight: 10, lift: "Rewrite your LinkedIn", href: "/linkedin" },
   ];
   const score = Math.round(parts.reduce((t, p) => t + p.weight * p.value, 0));
   const lift = [...parts].sort((x, y) => y.weight * (1 - y.value) - x.weight * (1 - x.value))[0];
@@ -103,17 +103,17 @@ export default async function Home() {
           </Link>
 
           <div className="grid grid-cols-3 gap-3">
-            <Link href="/jobs" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+            <Link href="/jobs" data-tone="0" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
               <div className="text-[0.8rem] text-white/55">This week</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{thisWeek}<span className="text-[0.9rem] text-white/45">/{GOAL}</span></div>
               <div className="mt-2 flex gap-1">{week.map((d) => <span key={d.key} title={`${d.n} applied`} className={`h-1.5 flex-1 rounded-full ${d.n ? "bg-clay" : "bg-white/15"}`} />)}</div>
             </Link>
-            <Link href="/interview" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+            <Link href="/interview" data-tone="1" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
               <div className="text-[0.8rem] text-white/55">Mock rounds</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">{Math.min(interviews.length, 3)}<span className="text-[0.9rem] text-white/45">/3</span></div>
-              <div className="mt-2 flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < interviews.length ? "bg-[#d9a27f]" : "bg-white/15"}`} />)}</div>
+              <div className="mt-2 flex gap-1">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 flex-1 rounded-full ${i < interviews.length ? "bg-clay-2" : "bg-white/15"}`} />)}</div>
             </Link>
-            <Link href="/profile" className="rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
+            <Link href="/profile" data-tone="3" className="stat-tile rounded-2xl bg-white/[.07] p-4 transition hover:bg-white/[.12]">
               <div className="text-[0.8rem] text-white/55">AI left</div>
               <div className="font-display text-[1.7rem] font-bold leading-tight tabular-nums">₹{limit != null ? Math.max(0, limit - spent).toFixed(0) : "-"}</div>
               <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-white/15"><div className="h-full rounded-full bg-mustard" style={{ width: `${limit ? Math.max(2, Math.min(100, 100 - (spent / limit) * 100)) : 0}%` }} /></div>
@@ -132,7 +132,7 @@ export default async function Home() {
       <nav className="thin-scroll -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 fade-up sm:mx-0 sm:px-0 md:grid md:grid-cols-5 md:overflow-visible md:pb-0">
         {areas.map((x, i) => (
           <Link key={x.href} href={x.href} className="group flex min-w-[220px] shrink-0 items-center gap-3 rounded-[20px] border-[1.5px] border-line bg-card px-4 py-3.5 transition hover:border-brand/40 hover:bg-white md:min-w-0">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
+            <span data-tone={i % 5} className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2 text-brand transition group-hover:bg-side group-hover:text-cream"><x.icon size={17} /></span>
             <span className="min-w-0">
               <span className="block font-display text-[1.05rem] font-bold leading-tight"><span className="text-faint">0{i + 1} </span>{x.label}</span>
               <span className="block truncate text-[0.78rem] text-muted">{x.hint}</span>
@@ -202,7 +202,7 @@ export default async function Home() {
 
             {gaps.length > 0 && (
               <section className="card p-5" style={{ background: "var(--color-mustard-soft)" }}>
-                <div className="flex items-center gap-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-[#8a6414]"><Target size={14} /> Gaps across your jobs</div>
+                <div className="flex items-center gap-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink"><Target size={14} /> Gaps across your jobs</div>
                 <ul className="mt-3 space-y-2.5">
                   {gaps.map(([g, v]) => (
                     <li key={g} className="flex items-start gap-2.5">

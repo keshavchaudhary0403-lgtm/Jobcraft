@@ -29,15 +29,15 @@ import { useVoice } from "@/components/useVoice";
 
 const MATCH = {
   strong: { icon: CheckCircle2, cls: "bg-good-soft text-good", label: "Proven" },
-  partial: { icon: CircleDashed, cls: "bg-mustard-soft text-[#8a6414]", label: "Partly" },
+  partial: { icon: CircleDashed, cls: "bg-mustard-soft text-mustard-ink", label: "Partly" },
   missing: { icon: XCircle, cls: "bg-clay-soft text-clay", label: "Missing" },
 };
 const GAP = {
   lacking: { label: "Missing", cls: "bg-clay-soft text-clay", icon: XCircle, hint: "You don't have this yet - handle it honestly." },
-  not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-[#8a6414]", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
+  not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-mustard-ink", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
   unsure: { label: "Needs your answer", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
 };
-const TILE = ["bg-ocean-soft text-[#2a525a]", "bg-mustard-soft text-[#6e4f0f]", "bg-plum-soft text-[#7a3f22]"];
+const TILE = ["bg-ocean-soft text-ocean", "bg-mustard-soft text-mustard-ink", "bg-plum-soft text-plum"];
 
 /** All questions the recruiter wants answered (gap questions + extra ones), no duplicates. */
 export function questionList(a: Analysis | null): string[] {
@@ -140,13 +140,13 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
           <section className="card flex flex-col p-6" style={{ background: "var(--color-mustard-soft)" }}>
             <div className="flex flex-wrap items-start justify-between gap-2">
-              <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-[#8a6414]">What they&apos;re really hiring for</span>
+              <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">What they&apos;re really hiring for</span>
               <span className="chip max-w-full whitespace-normal bg-white/70 text-ink">{a.fit_verdict}</span>
             </div>
             <p className="mt-3 font-display text-[1.2rem] font-semibold leading-snug sm:text-[1.45rem]">&ldquo;{a.real_problem}&rdquo;</p>
             <div className="mt-auto pt-5">
-              <div className="border-t border-[#e8d6a8] pt-4">
-                <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-[#8a6414]">Why this score</div>
+              <div className="border-t border-mustard pt-4">
+                <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-mustard-ink">Why this score</div>
                 <p className="mt-1.5 text-[0.94rem] leading-relaxed text-ink/80">{a.fit_reasoning}</p>
               </div>
             </div>
@@ -296,7 +296,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                     {busy ? <Spinner /> : <RotateCcw size={15} />} Re-score
                   </button>
                 </div>
-                {error && <p className="mt-2 text-[0.86rem] text-[#f6b8a6]">{error}</p>}
+                {error && <p className="mt-2 text-[0.86rem] text-clay-2">{error}</p>}
               </section>
             )}
 

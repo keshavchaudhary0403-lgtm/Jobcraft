@@ -6,13 +6,13 @@ export function LogoMark({ size = 28, inverse = false }: { size?: number; invers
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden>
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" style={{ stopColor: "#2b6352" }} />
-          <stop offset="1" style={{ stopColor: "#16302b" }} />
+          <stop offset="0" style={{ stopColor: "var(--side-2)" }} />
+          <stop offset="1" style={{ stopColor: "var(--side)" }} />
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="32" fill={inverse ? "#ffffff" : `url(#${id})`} />
-      <path d="M38 18v18.5a9.5 9.5 0 0 1-19 0" fill="none" stroke={inverse ? "var(--brand)" : "#fff"} strokeWidth="6.5" strokeLinecap="round" />
-      <path d="M46 12.5l1.9 4.6 4.6 1.9-4.6 1.9-1.9 4.6-1.9-4.6-4.6-1.9 4.6-1.9z" fill="#e2a92c" />
+      <path d="M38 18v18.5a9.5 9.5 0 0 1-19 0" fill="none" stroke={inverse ? "var(--side)" : "#fff"} strokeWidth="6.5" strokeLinecap="round" />
+      <path d="M46 12.5l1.9 4.6 4.6 1.9-4.6 1.9-1.9 4.6-1.9-4.6-4.6-1.9 4.6-1.9z" fill="var(--clay)" />
     </svg>
   );
 }

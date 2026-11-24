@@ -88,7 +88,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
         <div className={`grid gap-px bg-line ${compact ? "" : "lg:grid-cols-2"}`}>
           {list.map((b) => (
             <div key={b.line} className="flex items-start gap-3 bg-card px-6 py-3.5">
-              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-[#8a6414]" : "bg-clay-soft text-clay"}`}>{b.score}</span>
+              <span className={`mt-0.5 grid h-8 w-10 shrink-0 place-items-center rounded-full font-display text-[0.9rem] font-bold tabular-nums ${b.score >= 8 ? "bg-good-soft text-good" : b.score >= 6 ? "bg-mustard-soft text-mustard-ink" : "bg-clay-soft text-clay"}`}>{b.score}</span>
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-[0.92rem] leading-snug text-ink">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
