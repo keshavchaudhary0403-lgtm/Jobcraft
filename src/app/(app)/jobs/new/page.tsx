@@ -277,7 +277,7 @@ export default function NewJob() {
               <div className="rounded-2xl bg-mid-soft p-4">
                 <div className="flex items-center gap-2 text-[0.92rem] font-semibold text-mid"><Copy size={15} /> Already saved</div>
                 <p className="mt-1 text-[0.86rem] text-ink/80">
-                  <b>{dupe.role}</b> at <b>{dupe.company}</b> is in your jobs ({dupe.by === "link" ? "same link" : "same company and role"}), saved {new Date(dupe.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}{dupe.analysed ? " and analysed" : ""}.
+                  <b>{dupe.role}</b> at <b>{dupe.company}</b> is in your jobs ({dupe.by === "link" ? "same link" : "same company, role and city"}), saved {new Date(dupe.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}{dupe.analysed ? " and analysed" : ""}.
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <Link href={`/jobs/${dupe.id}`} className="btn btn-primary h-10 px-3 !shadow-none">Open it</Link>

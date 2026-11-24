@@ -22,9 +22,23 @@ export function jobKey(url?: string | null) {
 
 const norm = (s?: string | null) => (s ?? "").toLowerCase().replace(/\(.*?\)/g, "").replace(/[^a-z0-9]+/g, " ").trim();
 
-export function sameJob(a: { job_url?: string | null; company?: string | null; role?: string | null }, b: { job_url?: string | null; company?: string | null; role?: string | null }) {
+/** The city part of a location: "Delhi, India (On-site)" -> "delhi". */
+const city = (s?: string | null) => (s ?? "").toLowerCase().replace(/\(.*?\)/g, "").split(/[,|/·-]/)[0].replace(/[^a-z]/g, "");
+
+type J = { job_url?: string | null; company?: string | null; role?: string | null; location?: string | null };
+
+/**
+ * "link": same job link - definitely the same job.
+ * "name": same company + role in the same city (or a city is missing, so we can't tell) - probably the same job.
+ * Same company + role in a DIFFERENT city is a separate opening - not a duplicate.
+ */
+export function sameJob(a: J, b: J) {
   const ka = jobKey(a.job_url), kb = jobKey(b.job_url);
   if (ka && kb && ka === kb) return "link" as const;
-  if (norm(a.company) && norm(a.company) === norm(b.company) && norm(a.role) && norm(a.role) === norm(b.role)) return "name" as const;
+  if (norm(a.company) && norm(a.company) === norm(b.company) && norm(a.role) && norm(a.role) === norm(b.role)) {
+    const ca = city(a.location), cb = city(b.location);
+    if (ca && cb && ca !== cb) return null;
+    return "name" as const;
+  }
   return null;
 }

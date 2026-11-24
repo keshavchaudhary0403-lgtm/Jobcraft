@@ -129,7 +129,7 @@ function renderActions(job) {
   } else if (r?.kind === "exists" && r.by === "link") {
     html = strip("info", ICON.tick, "Already in your Jobcraft", `${when ? `Saved ${when} · ` : ""}${r.analysed ? "analysed" : "not analysed yet"}`) + openBtn("Open in Jobcraft");
   } else if (r?.kind === "exists") {
-    html = strip("warn", ICON.copy, "Similar job already saved", `${esc(r.role)} at ${esc(r.company)} - same company and role.`) +
+    html = strip("warn", ICON.copy, "Similar job already saved", `${esc(r.role)} at ${esc(r.company)}${r.location ? ` in ${esc(r.location)}` : ""} - same company, role${r.location ? " and city" : ""}.`) +
       `<div class="two">${openBtn("Open saved job")}<button class="btn btn-outline" id="send" data-force="1">Save anyway</button></div>`;
   } else {
     html = `<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save to Jobcraft ${ICON.arrow}</button>`;
@@ -143,7 +143,7 @@ function renderActions(job) {
 async function checkSaved(job) {
   const url = current.url;
   try {
-    const res = await fetch(`${TARGETS[targetSel.value]}/api/jobs/check`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: job.url, company: job.company, role: job.role }) });
+    const res = await fetch(`${TARGETS[targetSel.value]}/api/jobs/check`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: job.url, company: job.company, role: job.role, location: job.location }) });
     if (!res.ok) return;
     const { match } = await res.json();
     if (match) known.set(url, { kind: "exists", ...match });

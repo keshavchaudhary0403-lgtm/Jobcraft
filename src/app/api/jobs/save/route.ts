@@ -23,11 +23,12 @@ export async function POST(req: Request) {
   const job_url = b.url && /^https?:\/\//.test(b.url) ? b.url.trim().slice(0, 500) : null;
 
   if (!b.force) {
-    const { data: mine } = await supabase.from("applications").select("id, company, role, job_url, created_at, analysis").eq("user_id", user.id);
-    const hit = (mine ?? []).find((a) => sameJob(a, { job_url, company, role }));
+    const { data: mine } = await supabase.from("applications").select("id, company, role, location, job_url, created_at, analysis").eq("user_id", user.id);
+    const loc = formatCity(String(b.location ?? "")) || null;
+    const hit = (mine ?? []).find((a) => sameJob(a, { job_url, company, role, location: loc }));
     if (hit) {
       return Response.json(
-        { duplicate: { id: hit.id, company: hit.company, role: hit.role, created_at: hit.created_at, analysed: !!hit.analysis, by: sameJob(hit, { job_url, company, role }) } },
+        { duplicate: { id: hit.id, company: hit.company, role: hit.role, created_at: hit.created_at, analysed: !!hit.analysis, by: sameJob(hit, { job_url, company, role, location: loc }), location: hit.location } },
         { status: 409 },
       );
     }
