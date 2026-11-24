@@ -5,7 +5,7 @@ import { Meter } from "@/components/ui";
 import { useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { AlertCircle, Check, Download, Info, Pencil, RotateCcw, Sparkles, X, TrendingUp } from "lucide-react";
+import { AlertCircle, Check, Download, FileText, Info, Pencil, RotateCcw, ShieldCheck, Sparkles, X, TrendingUp } from "lucide-react";
 import type { Application } from "@/lib/types";
 import type { ResumeResult } from "@/lib/tasks";
 import { createClient } from "@/lib/supabase/client";
@@ -20,6 +20,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
   const [editing, setEditing] = useState(false);
   const [draft, setDraft] = useState(md);
   const [nums, setNums] = useState<Record<string, string>>({});
+  const [numErr, setNumErr] = useState(false);
   const [verified, setVerified] = useState<Record<string, boolean>>(r?.verified ?? {});
   const paper = useRef<HTMLDivElement>(null);
   const [ask, dialog] = useAsk();
@@ -137,86 +138,98 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
           {error && <p className="mt-2 text-sm text-bad">{error}</p>}
         </div>
 
-        {/* Rail */}
-        <aside className="space-y-4 xl:sticky xl:top-6">
-          <section className="card p-4">
-            {editing ? (
-              <div className="grid grid-cols-2 gap-2">
-                <button className="btn btn-primary h-11" onClick={saveEdit}><Check size={15} /> Save</button>
-                <button className="btn btn-ghost h-11" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
+        {/* Rail: one card, sections like the scorecard. Scrolls as a whole beside the resume. */}
+        <aside className="thin-scroll pb-20 xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto xl:rounded-[22px]">
+          <div className="card overflow-hidden">
+            <section className="p-5">
+              <div className="flex items-center gap-2.5">
+                <span data-tone="0" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><FileText size={16} /></span>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-[1.1rem] font-bold leading-tight">Your tailored resume</h3>
+                  <p className="text-[0.8rem] text-muted">One page, ATS-safe, only what&apos;s true.</p>
+                </div>
               </div>
-            ) : (
-              <>
-                <button className="btn btn-clay h-11 w-full" onClick={download}><Download size={15} /> Download PDF</button>
-                <div className="mt-2 grid grid-cols-3 gap-2">
-                  <CopyButton text={md} />
-                  <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
-                  <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Redo</button>
+              {editing ? (
+                <div className="mt-4 grid grid-cols-2 gap-2">
+                  <button className="btn btn-primary h-11" onClick={saveEdit}><Check size={15} /> Save</button>
+                  <button className="btn btn-ghost h-11" onClick={() => { setDraft(md); setEditing(false); }}>Cancel</button>
                 </div>
-              </>
-            )}
-          </section>
-
-          {changes.length > 0 && (
-            <section className="card overflow-hidden">
-              <header className="flex items-center gap-3 p-4">
-                <TruthRing value={truthPct} />
-                <div className="min-w-0">
-                  <h3 className="text-[1.1rem] font-bold leading-tight">Is every change true?</h3>
-                  <p className="text-[0.8rem] text-muted">{checked} of {changes.length} checked · you&apos;ll be asked in interviews</p>
-                </div>
-              </header>
-              <div className="thin-scroll max-h-[420px] divide-y divide-line overflow-y-auto border-t border-line">
-                {changes.map((c, i) => {
-                  const v = verified[i];
-                  return (
-                    <div key={i} className={`px-4 py-3 ${v === false ? "bg-bad-soft/60" : ""}`}>
-                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-bad line-through decoration-bad/40" : ""}`} data-tip={c.why}>{c.change}</div>
-                      <div className="mt-2 flex gap-1.5">
-                        <button onClick={() => mark(i, true)} aria-pressed={v === true} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}><Check size={12} /> True</button>
-                        <button onClick={() => mark(i, false)} aria-pressed={v === false} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === false ? "bg-clay text-white" : "bg-line-2 text-muted hover:bg-clay-soft hover:text-clay"}`}><X size={12} /> Not true</button>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-              {untrue.length > 0 && (
-                <div className="flex items-center gap-3 border-t border-line bg-line-2 px-4 py-3">
-                  <span className="flex-1 text-[0.84rem]">{untrue.length} marked not true</span>
-                  <button className="btn btn-clay btn-sm" disabled={busy} onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these</button>
-                </div>
+              ) : (
+                <>
+                  <button className="btn btn-clay mt-4 h-11 w-full" onClick={download}><Download size={15} /> Download PDF</button>
+                  <div className="mt-2 grid grid-cols-3 gap-2">
+                    <CopyButton text={md} />
+                    <button className="btn btn-ghost btn-sm" onClick={() => setEditing(true)}><Pencil size={13} /> Edit</button>
+                    <button className="btn btn-ghost btn-sm" disabled={busy} onClick={regen}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Redo</button>
+                  </div>
+                </>
               )}
             </section>
-          )}
 
-          {missing.length > 0 && (
-            <section className="card p-4" style={{ background: "var(--color-mustard-soft)" }}>
-              <div className="flex items-center gap-2"><TrendingUp size={15} className="text-brand" /><h3 className="text-[1.1rem] font-bold">Add real numbers</h3></div>
-              <p className="mt-0.5 text-[0.8rem] text-mustard-ink">Skip any you don&apos;t know.</p>
-              <div className="mt-3 space-y-2.5">
-                {missing.map((q) => (
-                  <div key={q}>
-                    <label className="mb-1 block text-[0.84rem] font-medium">{q}</label>
-                    <input className="field h-10 bg-white" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="e.g. 40%" />
+            {changes.length > 0 && (
+              <section className="border-t border-line p-5">
+                <div className="flex items-center gap-2.5">
+                  <span data-tone="2" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><ShieldCheck size={16} /></span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-[1.1rem] font-bold leading-tight">Check every change</h3>
+                    <p className="text-[0.8rem] text-muted">You&apos;ll be asked about these in interviews.</p>
                   </div>
-                ))}
-              </div>
-              <button className="btn btn-primary mt-3 w-full" disabled={!filled || busy} onClick={() => generate({ numbers: Object.entries(nums).filter(([, v]) => v.trim()).map(([q, v]) => `${q} → ${v}`).join("\n") })}>
-                {busy ? <Spinner /> : <Sparkles size={15} />} Update resume
-              </button>
-            </section>
-          )}
+                  <span className="shrink-0 text-[0.84rem] font-semibold tabular-nums text-muted">{checked}/{changes.length}</span>
+                </div>
+                <Meter value={truthPct} color="var(--color-good)" height={6} className="mt-3" />
+                <div className="mt-3 divide-y divide-line overflow-hidden rounded-2xl ring-1 ring-line">
+                  {changes.map((c, i) => {
+                    const v = verified[i];
+                    return (
+                      <div key={i} className={`px-3.5 py-3 ${v === false ? "bg-bad-soft/60" : v === true ? "bg-good-soft/40" : "bg-card"}`}>
+                        <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-bad line-through decoration-bad/40" : ""}`} data-tip={c.why}>{c.change}</div>
+                        <div className="mt-2 flex gap-1.5">
+                          <button onClick={() => mark(i, true)} aria-pressed={v === true} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}><Check size={12} /> True</button>
+                          <button onClick={() => mark(i, false)} aria-pressed={v === false} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === false ? "bg-bad text-white" : "bg-line-2 text-muted hover:bg-bad-soft hover:text-bad"}`}><X size={12} /> Not true</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {untrue.length > 0 && (
+                  <div className="mt-3 flex items-center gap-3 rounded-2xl bg-bad-soft px-4 py-3">
+                    <span className="flex-1 text-[0.86rem] font-medium text-bad">{untrue.length} marked not true</span>
+                    <button className="btn btn-clay btn-sm" disabled={busy} onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these</button>
+                  </div>
+                )}
+              </section>
+            )}
+
+            {missing.length > 0 && (
+              <section className="border-t border-line p-5">
+                <div className="flex items-center gap-2.5">
+                  <span data-tone="3" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><TrendingUp size={16} /></span>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="text-[1.1rem] font-bold leading-tight">Add real numbers</h3>
+                    <p className="text-[0.8rem] text-muted">Numbers make bullets stronger. Skip any you don&apos;t know.</p>
+                  </div>
+                </div>
+                <div className="mt-3 space-y-3">
+                  {missing.map((q) => (
+                    <div key={q}>
+                      <label className="label">{q}</label>
+                      <input className="field" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="e.g. 40% or ₹12 lakh" />
+                    </div>
+                  ))}
+                </div>
+                <button
+                  className="btn btn-primary mt-4 h-11 w-full"
+                  disabled={busy}
+                  onClick={() => (filled ? generate({ numbers: Object.entries(nums).filter(([, v]) => v.trim()).map(([q, v]) => `${q} → ${v}`).join("\n") }) : setNumErr(true))}
+                >
+                  {busy ? <Spinner /> : <Sparkles size={15} />} Update resume
+                </button>
+                {numErr && !filled && <p className="mt-2 text-[0.82rem] font-medium text-bad">Add at least one number first.</p>}
+              </section>
+            )}
+          </div>
         </aside>
       </div>
-    </div>
-  );
-}
-
-function TruthRing({ value }: { value: number }) {
-  return (
-    <div className="w-16 shrink-0 text-right">
-      <div className="font-display text-[1.05rem] font-bold leading-none tabular-nums">{Math.round(value * 100)}%</div>
-      <Meter value={value} color="var(--color-good)" className="mt-1.5" height={5} />
     </div>
   );
 }
