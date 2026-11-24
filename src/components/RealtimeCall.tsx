@@ -204,6 +204,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
     setStatus("ended");
     await Promise.race([queue.current, new Promise((r) => setTimeout(r, 4000))]);
     router.refresh();
+    window.dispatchEvent(new CustomEvent("jc:practice-ended", { detail: { sessionId } }));
   }
 
   function toggleMute() {

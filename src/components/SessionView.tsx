@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/auth";
 import { buildPrompt, type NegotiationInputs, type StepKey } from "@/lib/prompts";
 import type { Application, Message, Session } from "@/lib/types";
 import { ChatPanel } from "./ChatPanel";
+import { cleanAi } from "@/lib/clean-ai";
 import { RealtimeCall } from "./RealtimeCall";
 import { InterviewScorecard, OfferCheckCard, PracticeModes } from "./PracticeInsights";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
@@ -64,12 +65,13 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
         <DeleteSessionButton action={del} />
       </header>
 
-      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_380px]">
+      <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
         <div className="min-w-0 fade-up">
           <PracticeModes
             available={voiceReady}
-            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: m.content }))} />}
+            realistic={<RealtimeCall sessionId={id} aiName={cfg.ai} kind={kind} history={visible.map((m) => ({ role: m.role, content: cleanAi(m.content) }))} />}
             classic={
+              <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
               <ChatPanel
                 sessionId={id}
                 initialMessages={messages ?? []}
@@ -79,10 +81,11 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
                 autoStart={{ prompt, step: cfg.step }}
                 placeholder="Or type your answer..."
               />
+              </div>
             }
           />
         </div>
-        <aside className="space-y-4 xl:sticky xl:top-6 fade-up">
+        <aside className="thin-scroll space-y-4 fade-up xl:sticky xl:top-6 xl:max-h-[calc(100vh-3rem)] xl:overflow-y-auto xl:pb-2">
           {kind === "negotiation" && <OfferCheckCard sessionId={id} initial={(meta.offer_check as OfferCheck | undefined) ?? null} />}
           {kind === "interview" && <InterviewScorecard sessionId={id} initial={report} answers={answers} stale={stale} />}
         </aside>

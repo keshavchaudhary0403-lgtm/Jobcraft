@@ -54,7 +54,7 @@ ${spoken.length ? "We are continuing an interview already in progress - pick up 
 You ARE the HR manager from your very first word - never mention roles, modes or that this is practice. Open warmly, state the offer, and ask one question. Push back like real HR: one objection or question per turn, two or three short sentences, then stop and let the candidate talk. When the candidate says "stop", give two or three sentences of spoken feedback and one thing to improve.`;
 
   const instructions = [
-    buildSystemPrompt({ profile, app, kind }),
+    buildSystemPrompt({ profile, app, kind, channel: "voice" }),
     "",
     "=== HOW THIS CALL WORKS ===",
     rules,

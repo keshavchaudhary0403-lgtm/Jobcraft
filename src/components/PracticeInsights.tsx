@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, Mic, MessageSquareText, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp } from "lucide-react";
+import { AlertCircle, ArrowDownRight, ArrowRight, ArrowUpRight, ChevronDown, Mic, MessageSquareText, MessagesSquare, RotateCcw, Scale, Sparkles, Target, ThumbsDown, ThumbsUp, Trophy } from "lucide-react";
 import type { InterviewReport, OfferCheck } from "@/lib/tasks";
 import { CopyButton, Spinner } from "./client-ui";
 import { SubLabel, Meter } from "./ui";
@@ -18,73 +18,122 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
   const [r, setR] = useState(initial);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState("");
+  const [open, setOpen] = useState(0);
+  const running = useRef(false);
 
   async function run() {
+    if (running.current) return;
+    running.current = true;
     setBusy(true);
     setErr("");
     const res = await fetchInsight<InterviewReport>(sessionId, "interview_report");
     setBusy(false);
+    running.current = false;
     if (res.data) {
       setR(res.data);
       router.refresh();
     } else setErr(res.error ?? "Couldn't build the scorecard.");
   }
 
+  // Open the scorecard by itself the moment the interview ends.
+  useEffect(() => {
+    const onEnd = (e: Event) => {
+      if ((e as CustomEvent).detail?.sessionId === sessionId) run();
+    };
+    window.addEventListener("jc:practice-ended", onEnd);
+    return () => window.removeEventListener("jc:practice-ended", onEnd);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId]);
+
+  const head = (
+    <div className="flex items-center gap-2.5">
+      <span data-tone="3" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><Trophy size={16} /></span>
+      <h2 className="flex-1 text-[1.15rem] font-bold leading-tight">Your scorecard</h2>
+    </div>
+  );
+
   if (!r)
     return (
-      <div className="card p-6 text-center">
-        <div className="mx-auto w-[140px]">
-          <div className="font-display text-[2rem] font-bold leading-none text-faint">?<span className="text-[0.95rem]">/10</span></div>
-          <Meter value={0} className="mt-2" height={7} />
-        </div>
-        <div className="mt-4 font-display text-[1.25rem] font-bold">Your scorecard</div>
-        <p className="mt-1 text-[0.88rem] text-muted">
-          {answers < 2 ? "Answer at least two questions to get an honest score and what a 9/10 answer sounds like." : "Done? Get your score, best moments and fixes for the weakest answers."}
-        </p>
-        <button type="button" className="btn btn-clay mt-4 h-11 w-full" disabled={busy || answers < 2} onClick={run}>{busy ? <Spinner /> : <Sparkles size={15} />} Get my scorecard</button>
+      <div className="card p-5">
+        {head}
+        {busy ? (
+          <div className="mt-5 flex items-center gap-3 rounded-2xl bg-brand-soft px-4 py-4 text-[0.9rem] font-medium text-brand-ink">
+            <Spinner /> Scoring your answers...
+          </div>
+        ) : (
+          <>
+            <div className="mt-4">
+              <div className="font-display text-[2rem] font-bold leading-none text-faint">?<span className="text-[0.95rem]">/10</span></div>
+              <Meter value={0} className="mt-2" height={7} />
+            </div>
+            <p className="mt-3 text-[0.88rem] text-muted">
+              {answers < 2 ? "Answer at least two questions. Your scorecard opens by itself when the interview ends." : "It opens by itself when the interview ends, or get it now."}
+            </p>
+            <button type="button" className="btn btn-clay mt-4 h-11 w-full" disabled={answers < 2} onClick={run}><Sparkles size={15} /> Get my scorecard</button>
+          </>
+        )}
         {err && <p className="mt-2 text-[0.84rem] text-bad"><AlertCircle size={13} className="mr-1 inline" />{err}</p>}
       </div>
     );
 
   const color = r.score >= 8 ? "var(--color-good)" : r.score >= 6 ? "var(--brand)" : "var(--color-bad)";
   return (
-    <div className="card overflow-hidden">
-      <div className="flex items-center gap-4 p-5">
-        <div className="w-[120px] shrink-0">
-          <div className="font-display text-[2.3rem] font-bold leading-none tabular-nums">{r.score}<span className="text-[0.95rem] text-muted">/10</span></div>
-          <Meter value={r.score / 10} color={color} className="mt-2" height={7} />
+    <div className="card overflow-hidden fade-up">
+      <div className="p-5">
+        {head}
+        <div className="mt-4 flex items-end gap-4">
+          <div className="font-display text-[2.6rem] font-bold leading-none tabular-nums">{r.score}<span className="text-[1rem] text-muted">/10</span></div>
+          <p className="min-w-0 pb-0.5 text-[0.9rem] font-medium leading-snug">{r.verdict}</p>
         </div>
-        <div className="min-w-0">
-          <div className="text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Scorecard</div>
-          <div className="mt-1 font-display text-[1.1rem] font-bold leading-snug">{r.verdict}</div>
+        <Meter value={r.score / 10} color={color} className="mt-3" height={8} />
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl bg-brand-soft px-3.5 py-3 text-[0.88rem] text-brand-ink">
+          <Target size={15} className="mt-0.5 shrink-0" />
+          <span><b className="font-semibold">Work on next:</b> {r.next_focus}</span>
         </div>
       </div>
-      <div className="mx-5 flex items-start gap-2 rounded-2xl bg-brand-soft px-3.5 py-3 text-[0.88rem]"><Target size={15} className="mt-0.5 shrink-0 text-brand" /> <span><b className="font-semibold">Work on next:</b> {r.next_focus}</span></div>
 
-      <div className="mt-4 border-t border-line px-5 py-4">
-        <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-good"><ThumbsUp size={13} /> Strongest moments</div>
-        <ul className="space-y-2">
-          {r.strongest.map((x, i) => (
-            <li key={i} className="text-[0.88rem] leading-snug"><b className="font-semibold">{x.moment}</b> <span className="text-muted">- {x.why}</span></li>
-          ))}
-        </ul>
-      </div>
       <div className="border-t border-line px-5 py-4">
-        <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-bad"><ThumbsDown size={13} /> Weakest answers</div>
-        <div className="space-y-2">
-          {r.weakest.map((w, i) => (
-            <details key={i} className="group rounded-2xl border-[1.5px] border-line px-3.5 py-2.5 open:bg-line-2/40">
-              <summary className="cursor-pointer list-none text-[0.9rem] font-semibold leading-snug">{w.question}</summary>
-              <p className="mt-2 text-[0.85rem] text-muted">{w.why_weak}</p>
-              <div className="mt-2 rounded-xl bg-good-soft p-3">
-                <SubLabel>A 9/10 answer</SubLabel>
-                <p className="text-[0.88rem] leading-relaxed">{w.better_answer}</p>
-                <div className="mt-2"><CopyButton text={w.better_answer} /></div>
-              </div>
-            </details>
+        <div className="flex items-center gap-2"><span data-tone="2" className="tone-chip grid h-7 w-7 place-items-center rounded-lg bg-line-2"><ThumbsUp size={13} /></span><span className="font-semibold">Strongest moments</span><span className="ml-auto text-[0.8rem] text-muted">{r.strongest.length}</span></div>
+        <div className="mt-3 grid gap-2">
+          {r.strongest.map((x, i) => (
+            <div key={i} className="rounded-xl border-l-4 border-good bg-good-soft/60 px-3.5 py-2.5">
+              <div className="text-[0.9rem] font-semibold leading-snug">{x.moment}</div>
+              <div className="mt-0.5 text-[0.84rem] leading-snug text-muted">{x.why}</div>
+            </div>
           ))}
         </div>
       </div>
+
+      <div className="border-t border-line px-5 py-4">
+        <div className="flex items-center gap-2"><span className="grid h-7 w-7 place-items-center rounded-lg bg-bad-soft text-bad"><ThumbsDown size={13} /></span><span className="font-semibold">Weakest answers</span><span className="ml-auto text-[0.8rem] text-muted">{r.weakest.length}</span></div>
+        <div className="mt-3 divide-y divide-line overflow-hidden rounded-2xl ring-1 ring-line">
+          {r.weakest.map((w, i) => (
+            <div key={i}>
+              <button type="button" onClick={() => setOpen(open === i ? -1 : i)} className="flex w-full items-start gap-3 bg-card px-3.5 py-3 text-left transition hover:bg-line-2/60">
+                <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-bad-soft text-[0.75rem] font-bold text-bad">{i + 1}</span>
+                <span className="flex-1 text-[0.9rem] font-semibold leading-snug">{w.question}</span>
+                <ChevronDown size={16} className={`mt-0.5 shrink-0 text-faint transition ${open === i ? "rotate-180" : ""}`} />
+              </button>
+              {open === i && (
+                <div className="grid gap-3 bg-line-2/50 px-3.5 pb-4 pt-2 fade-up">
+                  <div className="rounded-xl border-l-4 border-bad bg-card px-3.5 py-2.5">
+                    <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-bad">Why it was weak</div>
+                    <p className="mt-1 text-[0.88rem] leading-relaxed">{w.why_weak}</p>
+                  </div>
+                  <div className="rounded-xl border-l-4 border-good bg-card px-3.5 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-good">A 9/10 answer</div>
+                      <CopyButton text={w.better_answer} />
+                    </div>
+                    <p className="mt-1 text-[0.88rem] leading-relaxed">{w.better_answer}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+
       <div className="border-t border-line p-4">
         <button type="button" className="btn btn-ghost h-10 w-full" disabled={busy} onClick={run} data-tip={stale ? "You've answered more since this scorecard" : "Score again"}>
           {busy ? <Spinner size={13} /> : <RotateCcw size={14} />} {stale ? "Update scorecard" : "Score again"}

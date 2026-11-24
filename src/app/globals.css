@@ -282,3 +282,6 @@ aside.bg-side .avatar-warm, header .avatar-warm, .rail-bg .avatar-warm, .dark-ca
 .side-panel { animation: side-in .28s cubic-bezier(.2,.8,.2,1) both; }
 @keyframes side-in { from { transform: translateY(40px); opacity: 0; } }
 @media (min-width: 640px) { @keyframes side-in { from { transform: translateX(40px); opacity: 0; } } }
+
+.prose-ai h3 { font-family: var(--font-bricolage), ui-sans-serif; font-size: 1rem; font-weight: 700; margin: .8em 0 .25em; }
+.prose-ai h3:first-child { margin-top: .1em; }

@@ -182,8 +182,10 @@ export function buildSystemPrompt(opts: {
   profile: Profile;
   app?: Application | null;
   kind: "workspace" | "linkedin" | "interview" | "negotiation";
+  /** "voice" = realistic voice call (anything said is heard), "chat" = text / basic voice. */
+  channel?: "chat" | "voice";
 }): string {
-  const { profile, app, kind } = opts;
+  const { profile, app, kind, channel = "chat" } = opts;
   const lines: string[] = [
     "You are Jobcraft, a warm, direct job-search coach for a candidate in India. Keep replies short and practical.",
     "",
@@ -208,8 +210,18 @@ export function buildSystemPrompt(opts: {
   }
   if (kind === "interview") {
     lines.push(
-      "- Keep count of the 6 main questions: begin each main question with \"Question N of 6:\" (for example \"Question 2 of 6:\"). Follow-ups on the same topic are not numbered and do not count. Ask at most one follow-up per main question.",
-      "- After the candidate answers Question 6 of 6, ask nothing more: end the interview and give the final feedback straight away.",
+      channel === "chat"
+        ? "- Keep count of the 6 main questions with a hidden tag: start each main question with [[Q1]], [[Q2]] ... [[Q6]]. The app removes the tag, so the candidate never sees or hears it. Never say or write question numbers in words. Follow-ups are not tagged and do not count; ask at most one follow-up per main question."
+        : "- Keep count of the 6 main questions silently. Never say question numbers out loud. Follow-ups do not count; ask at most one follow-up per main question.",
+      "- When the 6th question has been answered, do not give the detailed feedback in the conversation: close the interview in character in one or two short sentences (thank them, say you'll be in touch) and tell them their full scorecard is ready on screen.",
+    );
+  }
+  if (kind === "negotiation") {
+    lines.push(
+      "- The offer check (below / at / above market and the counter range) is already on screen. Do not repeat it. Start directly in character as HR.",
+      channel === "chat"
+        ? "- When the candidate says \"stop\", step out of character and reply in exactly this format and nothing else:\n### How you did\n(two short sentences)\n### One thing to improve\n(one sentence)"
+        : "- When the candidate says \"stop\", step out of character: two short sentences on how they did, then one thing to improve.",
     );
   }
   if (kind === "interview" || kind === "negotiation") {

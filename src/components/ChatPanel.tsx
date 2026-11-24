@@ -5,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import { ArrowUp, Lightbulb, Mic, PenLine, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
 import type { Message } from "@/lib/types";
+import { cleanAi } from "@/lib/clean-ai";
 import { useVoice } from "./useVoice";
 import { CopyButton } from "./client-ui";
 
@@ -35,7 +36,10 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
   const v = useVoice();
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+    // Inside a chat card, scroll only the card, never the whole page.
+    const box = bottomRef.current?.closest("[data-chat-scroll]") as HTMLElement | null;
+    if (box) box.scrollTo({ top: box.scrollHeight, behavior: "smooth" });
+    else bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "end" });
   }, [messages]);
 
   async function send(content: string, step: string | null = null) {
@@ -70,7 +74,9 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
     }
     setMessages((m) => m.map((x) => (x.id === aiId ? { ...x, content: text, pending: false } : x)));
     setBusy(false);
-    if (voice && speakOn && text && !text.startsWith("⚠️")) v.speak(text);
+    if (voice && speakOn && text && !text.startsWith("⚠️")) v.speak(cleanAi(text));
+    // The interview / salary talk just ended: let the page open the scorecard by itself.
+    if (/\[\[END\]\]/.test(text)) window.dispatchEvent(new CustomEvent("jc:practice-ended", { detail: { sessionId } }));
   }
 
   useEffect(() => {
@@ -142,12 +148,12 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
           </div>
         )}
         {visible.map((m) => (
-          <Bubble key={m.id} msg={m} aiName={aiName} onSpeak={voice ? () => v.speak(m.content) : undefined} />
+          <Bubble key={m.id} msg={m} aiName={aiName} onSpeak={voice ? () => v.speak(cleanAi(m.content)) : undefined} />
         ))}
         <div ref={bottomRef} />
       </div>
 
-      <div className="sticky bottom-0 bg-gradient-to-t from-bg via-bg to-transparent pb-4 pt-3">
+      <div className="sticky bottom-0 bg-gradient-to-t from-[var(--chat-bg,var(--bg))] via-[var(--chat-bg,var(--bg))] to-transparent pb-4 pt-3">
         {quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (
@@ -220,8 +226,8 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
     );
   return (
     <div className="fade-up">
-      <div className="mb-1.5 flex items-center gap-2"><CoachAvatar small /><span className="text-[0.8rem] font-semibold text-muted">{aiName}</span></div>
-      <div className="rounded-[18px] rounded-tl-md bg-card px-4 py-3 shadow-[0_8px_24px_-18px_rgba(0,50,110,.35)] ring-1 ring-line">
+      <div className="mb-1.5 flex items-center gap-2"><CoachAvatar small /><span className="text-[0.8rem] font-semibold text-muted">{aiName}</span>{/###\s*How you did/i.test(msg.content) && <span className="rounded-full bg-good-soft px-2 py-0.5 text-[0.72rem] font-semibold text-good">Feedback</span>}</div>
+      <div className={`rounded-[18px] rounded-tl-md bg-card px-4 py-3 shadow-[0_8px_24px_-18px_rgba(0,50,110,.35)] ${/###\s*How you did/i.test(msg.content) ? "border-l-4 border-good ring-1 ring-good/30" : "ring-1 ring-line"}`}>
         {msg.pending && !msg.content ? (
           <div className="flex gap-1 py-1.5">
             {[0, 1, 2].map((i) => (
@@ -230,13 +236,13 @@ function Bubble({ msg, aiName, onSpeak }: { msg: LocalMsg; aiName: string; onSpe
           </div>
         ) : (
           <div className="prose-ai">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>{msg.content}</ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{cleanAi(msg.content)}</ReactMarkdown>
           </div>
         )}
       </div>
       {!msg.pending && msg.content && (
         <div className="mt-1.5 flex gap-1">
-          <CopyButton text={msg.content} className="border-0 bg-transparent px-2 py-1 text-faint shadow-none hover:text-ink" />
+          <CopyButton text={cleanAi(msg.content)} className="border-0 bg-transparent px-2 py-1 text-faint shadow-none hover:text-ink" />
           {onSpeak && (
             <button className="btn-quiet rounded-lg text-xs" onClick={onSpeak}><Volume2 size={13} /></button>
           )}
