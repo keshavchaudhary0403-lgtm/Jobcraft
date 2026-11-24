@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { ArrowRight, Check, Mic, Plus, Target } from "lucide-react";
+import { ArrowRight, Check, FileText, IndianRupee, Mic, Plus, ScanSearch, Send, Target } from "lucide-react";
+import { LinkedInIcon } from "@/components/icons";
 import { requireUser } from "@/lib/auth";
 import { JobTile } from "@/components/JobTiles";
 import type { Application } from "@/lib/types";
@@ -64,13 +65,13 @@ export default async function Home() {
   const job = live.find((x) => x.analysis) ?? live[0];
   const jobHref = (tab?: string) => (job ? `/jobs/${job.id}${tab ? `?tab=${tab}` : ""}` : "/jobs/new");
   const path = [
-    { n: 1, title: "Decode the job", sub: "What they really want", done: all.some((x) => x.analysis), href: job ? jobHref() : "/jobs/new" },
-    { n: 2, title: "Honest fit", sub: "Score, gaps, questions", done: all.some((x) => x.analysis && Object.values(x.fit_answers ?? {}).some((v) => String(v).trim())), href: jobHref() },
-    { n: 3, title: "Tailor resume", sub: "Built for this job", done: all.some((x) => x.tailored_resume), href: jobHref("resume") },
-    { n: 4, title: "LinkedIn", sub: "Found by recruiters", done: !!profile.linkedin_result, href: "/linkedin" },
-    { n: 5, title: "Outreach", sub: "Note to the hiring manager", done: all.some((x) => x.outreach), href: jobHref("outreach") },
-    { n: 6, title: "Mock interview", sub: "6 questions, scored", done: interviews.length > 0, href: "/interview" },
-    { n: 7, title: "Salary talk", sub: "Check and practise the offer", done: talks.length > 0, href: "/negotiation" },
+    { n: 1, icon: ScanSearch, title: "Decode the job", sub: "What they really want", done: all.some((x) => x.analysis), href: job ? jobHref() : "/jobs/new" },
+    { n: 2, icon: Target, title: "Honest fit", sub: "Score, gaps, questions", done: all.some((x) => x.analysis && Object.values(x.fit_answers ?? {}).some((v) => String(v).trim())), href: jobHref() },
+    { n: 3, icon: FileText, title: "Tailor resume", sub: "Built for this job", done: all.some((x) => x.tailored_resume), href: jobHref("resume") },
+    { n: 4, icon: LinkedInIcon, title: "LinkedIn", sub: "Found by recruiters", done: !!profile.linkedin_result, href: "/linkedin" },
+    { n: 5, icon: Send, title: "Outreach", sub: "Note to the hiring manager", done: all.some((x) => x.outreach), href: jobHref("outreach") },
+    { n: 6, icon: Mic, title: "Mock interview", sub: "6 questions, scored", done: interviews.length > 0, href: "/interview" },
+    { n: 7, icon: IndianRupee, title: "Salary talk", sub: "Check and practise the offer", done: talks.length > 0, href: "/negotiation" },
   ];
   const nextStep = path.find((x) => !x.done);
   const doneCount = path.filter((x) => x.done).length;
@@ -113,13 +114,17 @@ export default async function Home() {
               <li key={x.n} className="w-[150px] shrink-0 snap-start md:w-auto">
                 <Link
                   href={x.href}
-                  className={`group flex h-full flex-col rounded-2xl border-2 p-3.5 transition ${isNext ? "border-brand bg-card ring-4 ring-brand/15" : x.done ? "border-transparent bg-line-2/60 hover:border-brand/30" : "border-line bg-card hover:border-brand/40"}`}
+                  className={`group flex h-full flex-col rounded-2xl border-2 p-3.5 transition ${isNext ? "border-brand bg-card ring-4 ring-brand/15" : x.done ? "border-transparent bg-good-soft/55 hover:border-good/30" : "border-line bg-card hover:border-brand/40"}`}
                 >
                   <span className="flex items-center justify-between">
-                    <span className={`grid h-7 w-7 place-items-center rounded-full font-display text-[0.82rem] font-bold ${x.done ? "bg-good text-white" : isNext ? "bg-brand text-white" : "bg-line-2 text-muted"}`}>
-                      {x.done ? <Check size={14} strokeWidth={3} /> : x.n}
-                    </span>
-                    {isNext && <span className="rounded-full bg-clay px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-white">Next</span>}
+                    <span data-tone={(x.n - 1) % 5} className="tone-chip grid h-9 w-9 place-items-center rounded-xl bg-line-2"><x.icon size={17} /></span>
+                    {isNext ? (
+                      <span className="rounded-full bg-clay px-2 py-0.5 text-[0.7rem] font-bold uppercase tracking-[0.08em] text-white">Next</span>
+                    ) : x.done ? (
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-good text-white" aria-label="done"><Check size={13} strokeWidth={3} /></span>
+                    ) : (
+                      <span className="font-display text-[0.82rem] font-bold text-faint">{x.n}</span>
+                    )}
                   </span>
                   <span className="mt-2.5 block font-display text-[1rem] font-bold leading-tight">{x.title}</span>
                   <span className="mt-0.5 block text-[0.8rem] leading-snug text-muted">{x.sub}</span>

@@ -202,7 +202,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
             )}
 
             {missing.length > 0 && (
-              <section className="border-t border-line p-5">
+              <section className="border-t border-line p-5" style={{ background: "var(--color-mustard-soft)" }}>
                 <div className="flex items-center gap-2.5">
                   <span data-tone="3" className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2"><TrendingUp size={16} /></span>
                   <div className="min-w-0 flex-1">
@@ -214,7 +214,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                   {missing.map((q) => (
                     <div key={q}>
                       <label className="label">{q}</label>
-                      <input className="field" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="e.g. 40% or ₹12 lakh" />
+                      <input className="field bg-white" value={nums[q] ?? ""} onChange={(e) => setNums({ ...nums, [q]: e.target.value })} placeholder="e.g. 40% or ₹12 lakh" />
                     </div>
                   ))}
                 </div>

@@ -203,29 +203,29 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
           </header>
         )}
 
-        {/* Who you are, in one calm line. The details are in the form below. */}
-        <section className="card flex flex-wrap items-center gap-4 p-5 fade-up">
-          <span className="avatar-warm grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-[1.25rem] font-bold">{initials}</span>
+        {/* Blue banner like Home and Admin: who you are, and two tinted scores. Details live in the form below. */}
+        <section className="dark-card flex flex-wrap items-center gap-5 p-6 text-white fade-up sm:p-7">
+          <span className="avatar-warm grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full font-display text-[1.6rem] font-bold ring-4 ring-white/20">{initials}</span>
           <div className="min-w-0 flex-1">
-            <div className="truncate font-display text-[1.5rem] font-bold leading-tight">{d.full_name || "Your name"}</div>
-            <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[0.92rem] text-muted">
+            <div className="truncate font-display text-[1.9rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/70">
               <span>{d.current_title || "Current title"}</span>
-              <span className="text-faint">→</span>
-              <span className="font-semibold text-ink">{d.target_role || "Target role"}</span>
+              <span className="text-[var(--hero-accent)]">→</span>
+              <span className="font-semibold text-white">{d.target_role || "Target role"}</span>
             </div>
           </div>
-          <div className="flex gap-2">
+          <dl className="grid w-full grid-cols-2 gap-2.5 sm:w-auto">
             {[
-              { label: "Profile", show: `${strength}%`, v: strength / 100 },
-              { label: "Resume", show: health == null ? "-" : `${health}/100`, v: (health ?? 0) / 100 },
+              { label: "Profile", value: strength, show: `${strength}%`, color: "var(--hero-accent)", tone: 1 },
+              { label: "Resume", value: health ?? 0, show: health == null ? "-" : `${health}/100`, color: health == null ? "rgba(255,255,255,.2)" : health >= 80 ? "#5fd99a" : health >= 60 ? "var(--s3)" : "var(--hero-accent)", tone: 0 },
             ].map((m) => (
-              <div key={m.label} className="w-28 rounded-2xl bg-line-2/70 px-3.5 py-2.5">
-                <div className="text-[0.74rem] text-muted">{m.label}</div>
-                <div className="font-display text-[1.1rem] font-bold tabular-nums">{m.show}</div>
-                <Meter value={m.v} height={4} className="mt-1" />
+              <div key={m.label} data-tone={m.tone} className="stat-tile w-full rounded-2xl px-4 pb-3 pt-3.5 sm:w-36">
+                <dt className="truncate text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-white/70">{m.label}</dt>
+                <dd className="mt-0.5 font-display text-[1.25rem] font-bold tabular-nums">{m.show}</dd>
+                <Meter value={m.value / 100} color={m.color} track="rgba(255,255,255,.18)" height={5} className="mt-1.5" />
               </div>
             ))}
-          </div>
+          </dl>
         </section>
 
         {/* Chapters + save */}
