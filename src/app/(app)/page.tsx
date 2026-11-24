@@ -201,7 +201,7 @@ export default async function Home() {
                 <ul className="mt-3 space-y-2.5">
                   {gaps.map(([g, v]) => (
                     <li key={g} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 grid h-6 min-w-6 place-items-center rounded-full bg-clay px-1 text-[0.78rem] font-bold text-white">{v.n}×</span>
+                      <span className="mt-0.5 grid h-6 min-w-6 place-items-center rounded-full bg-brand px-1 text-[0.78rem] font-bold text-white">{v.n}×</span>
                       <span className="text-[0.9rem] font-medium leading-snug">{g}</span>
                     </li>
                   ))}

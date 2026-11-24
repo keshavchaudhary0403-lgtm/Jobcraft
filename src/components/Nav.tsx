@@ -72,7 +72,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                   >
                     <Icon size={17} />
                     <span className="flex-1">{label}</span>
-                    {count > 0 && <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[0.78rem] font-bold tabular-nums ${active ? "bg-clay text-white" : "bg-white/15 text-white"}`}>{count}</span>}
+                    {count > 0 && <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[0.78rem] font-bold tabular-nums ${active ? "bg-white text-side" : "bg-white/15 text-white"}`}>{count}</span>}
                   </Link>
                 );
               })}

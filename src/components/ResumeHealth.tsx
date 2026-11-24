@@ -41,7 +41,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
       <div className={`grid gap-6 p-6 ${compact ? "" : "lg:grid-cols-[250px_minmax(0,1fr)]"}`}>
         {/* Score */}
         <div className="flex flex-col items-center rounded-[20px] px-4 py-5 text-center" style={{ background: "var(--color-cream)" }}>
-          <div className="mb-3 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><HeartPulse size={13} className="text-clay" /> Resume health</div>
+          <div className="mb-3 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted"><HeartPulse size={13} className="text-brand" /> Resume health</div>
           <ScoreRing score={report.score} />
           <div className={`mt-2 font-semibold ${g.cls}`}>{g.label}</div>
           {delta !== 0 && (
@@ -61,11 +61,11 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
             </div>
             <span className="chip bg-good-soft text-good">{report.doc.filter((d) => d.ok).length} of {report.doc.length} passed</span>
           </div>
-          <div className="mt-3 flex h-2 gap-1">{report.doc.map((d) => <span key={d.label} className={`flex-1 rounded-full ${d.ok ? "bg-good" : "bg-clay"}`} />)}</div>
+          <div className="mt-3 flex h-2 gap-1">{report.doc.map((d) => <span key={d.label} className={`flex-1 rounded-full ${d.ok ? "bg-good" : "bg-bad"}`} />)}</div>
           <div className={`mt-4 grid gap-2.5 ${compact ? "" : "sm:grid-cols-2 xl:grid-cols-3"}`}>
             {report.doc.map((d) => (
-              <div key={d.label} className={`flex items-start gap-2.5 rounded-2xl border-[1.5px] px-3.5 py-2.5 text-[0.88rem] ${d.ok ? "border-line" : "border-clay/40 bg-clay-soft/50"}`} title={d.ok ? undefined : d.tip}>
-                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${d.ok ? "bg-good text-white" : "bg-clay text-white"}`}>{d.ok ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}</span>
+              <div key={d.label} className={`flex items-start gap-2.5 rounded-2xl border-[1.5px] px-3.5 py-2.5 text-[0.88rem] ${d.ok ? "border-line" : "border-bad/30 bg-bad-soft/60"}`} title={d.ok ? undefined : d.tip}>
+                <span className={`mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full ${d.ok ? "bg-good text-white" : "bg-bad text-white"}`}>{d.ok ? <Check size={11} strokeWidth={3} /> : <X size={11} strokeWidth={3} />}</span>
                 <span className="font-medium">
                   {d.label}
                   {!d.ok && <span className="block text-[0.78rem] font-normal text-muted">{d.tip}</span>}
@@ -92,7 +92,7 @@ export function ResumeHealth({ value, onChange, savedValue, start, compact }: { 
               <div className="min-w-0 flex-1">
                 <p className="line-clamp-2 text-[0.92rem] leading-snug text-ink">{b.text}</p>
                 <div className="mt-1.5 flex flex-wrap gap-1">
-                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-clay-soft py-0 text-[0.78rem] text-clay">{c.fail}</span>)}
+                  {b.checks.filter((c) => !c.ok).map((c) => <span key={c.key} className="chip bg-bad-soft py-0 text-[0.78rem] text-bad">{c.fail}</span>)}
                   {b.score >= 8 && <span className="chip bg-good-soft py-0 text-[0.78rem] text-good"><Check size={10} /> Strong</span>}
                 </div>
               </div>

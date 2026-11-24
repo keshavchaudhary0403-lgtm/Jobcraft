@@ -31,12 +31,22 @@ export function JobPicker({
     setId(v);
     onPick?.(v);
   };
+  // Keep the picker short as jobs pile up: first few + the selected one, then "Show all".
+  const LIMIT = compact ? 4 : 5;
+  const [showAll, setShowAll] = useState(false);
+  const head = apps.slice(0, LIMIT);
+  const visible = showAll || apps.length <= LIMIT ? apps : head.some((a) => a.id === id) || !id ? head : [...head, apps.find((a) => a.id === id)!].filter(Boolean);
+  const more = apps.length > LIMIT && (
+    <button type="button" onClick={() => setShowAll(!showAll)} className="mt-2.5 text-[0.86rem] font-semibold text-brand hover:underline">
+      {showAll ? "Show fewer" : `Show all ${apps.length} jobs`}
+    </button>
+  );
   if (compact)
     return (
       <div>
         <input type="hidden" name="application_id" value={id} />
         <div className="space-y-2">
-          {apps.map((a) => {
+          {visible.map((a) => {
             const an = a.analysis as Analysis | null;
             const on = id === a.id;
             return (
@@ -54,6 +64,7 @@ export function JobPicker({
             <span data-tone="1" className="tone-chip grid h-8 w-8 place-items-center rounded-xl bg-line-2"><Plus size={14} /></span>{otherLabel}
           </button>
         </div>
+        {more}
         {id === "" && <div className="mt-3 fade-up">{otherFields}</div>}
       </div>
     );
@@ -62,7 +73,7 @@ export function JobPicker({
     <div>
       <input type="hidden" name="application_id" value={id} />
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-        {apps.map((a) => {
+        {visible.map((a) => {
           const an = a.analysis as Analysis | null;
           const on = id === a.id;
           return (
@@ -94,6 +105,7 @@ export function JobPicker({
           <span className="font-display text-[1.02rem] font-bold">{otherLabel}</span>
         </button>
       </div>
+      {more}
       {id === "" && <div className="mt-4 fade-up">{otherFields}</div>}
     </div>
   );

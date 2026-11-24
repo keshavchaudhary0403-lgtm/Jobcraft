@@ -48,18 +48,19 @@ export function PracticeTab({ app, interviews }: { app: Application; interviews:
       {/* Rounds history */}
       <section className="card flex flex-col p-6">
         <div className="flex items-baseline justify-between">
-          <h3 className="text-[1.25rem] font-bold">Your rounds</h3>
+          <h3 className="text-[1.25rem] font-bold">Your rounds{rounds.length > 10 && <span className="ml-2 text-[0.8rem] font-medium text-muted">last 10</span>}</h3>
           {best != null && <span className="text-[0.82rem] text-muted">Best <b className="font-display text-ink">{best}/10</b></span>}
         </div>
         {rounds.length ? (
           <>
             <div className="mt-4 flex h-32 items-end gap-2 border-b border-line pb-1">
-              {rounds.map((s, i) => {
+              {rounds.slice(-10).map((s, j) => {
+                const i = Math.max(0, rounds.length - 10) + j;
                 const sc = scoreOf(s);
                 return (
                   <Link key={s.id} href={`/interview/${s.id}`} title={sc != null ? `Round ${i + 1}: ${sc}/10` : `Round ${i + 1}: no scorecard yet`} className="group flex flex-1 flex-col items-center justify-end gap-1">
                     <span className="text-[0.78rem] font-semibold tabular-nums text-muted">{sc ?? "-"}</span>
-                    <span className={`w-full max-w-[38px] rounded-t-lg transition group-hover:opacity-80 ${sc == null ? "bg-line" : sc >= 8 ? "bg-good" : sc >= 6 ? "bg-mustard" : "bg-clay"}`} style={{ height: `${sc != null ? Math.max(sc * 10, 8) : 12}%` }} />
+                    <span className={`w-full max-w-[38px] rounded-t-lg transition group-hover:opacity-80 ${sc == null ? "bg-line" : sc >= 8 ? "bg-good" : sc >= 6 ? "bg-mustard" : "bg-bad"}`} style={{ height: `${sc != null ? Math.max(sc * 10, 8) : 12}%` }} />
                   </Link>
                 );
               })}

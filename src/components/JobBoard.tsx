@@ -56,7 +56,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                 if (dragId) move(dragId, col);
                 setDragId(null);
               }}
-              className={`flex min-h-[460px] flex-col rounded-[22px] border-[1.5px] p-3 transition ${over === col.key ? "border-clay/60 bg-clay-soft/60" : "border-line bg-card/60"}`}
+              className={`flex min-h-[460px] flex-col rounded-[22px] border-[1.5px] p-3 transition ${over === col.key ? "border-brand/50 bg-brand-soft/60" : "border-line bg-card/60"}`}
             >
               <header className="mb-2 px-1.5 pt-1">
                 <div className="flex items-center gap-2">
@@ -66,7 +66,7 @@ export function JobBoard({ apps }: { apps: Application[] }) {
                 </div>
                 <div className="mt-0.5 text-[0.78rem] text-faint">{col.hint}</div>
               </header>
-              <div className="flex flex-1 flex-col gap-2">
+              <div className="thin-scroll -mr-1 flex max-h-[68vh] flex-1 flex-col gap-2 overflow-y-auto pr-1">
                 {list.map((a) => {
                   const an = a.analysis as Analysis | null;
                   return (

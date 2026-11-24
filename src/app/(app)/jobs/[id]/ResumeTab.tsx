@@ -57,7 +57,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
     return (
       <div className="card grid items-center gap-8 overflow-hidden p-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_240px] fade-up">
         <div>
-          <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-clay">Step 3 · Resume</span>
+          <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-brand">Step 3 · Resume</span>
           <h3 className="mt-2 text-[2rem] font-bold leading-tight">A resume made for this job<span className="text-clay">.</span></h3>
           <p className="mt-2 max-w-md text-muted">Rebuilt around what they want. Only what&apos;s true.</p>
           <button className="btn btn-clay mt-6 h-11" onClick={() => generate()}><Sparkles size={16} /> Create resume</button>
@@ -65,13 +65,13 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
         </div>
         <ul className="space-y-3">
           {[
-            ["01", "Reordered around their top skills", "bg-clay-soft text-clay"],
-            ["02", "Bullets rewritten with real results", "bg-mustard-soft text-mustard-ink"],
-            ["03", "Their ATS keywords, where true", "bg-ocean-soft text-ocean"],
-            ["04", "You check every change", "bg-good-soft text-good"],
+            ["01", "Reordered around their top skills", "0"],
+            ["02", "Bullets rewritten with real results", "1"],
+            ["03", "Their ATS keywords, where true", "3"],
+            ["04", "You check every change", "2"],
           ].map(([n, t, c]) => (
             <li key={n} className="flex items-center gap-3">
-              <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full font-display text-[0.85rem] font-bold ${c}`}>{n}</span>
+              <span data-tone={c} className="tone-chip grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-line-2 font-display text-[0.85rem] font-bold">{n}</span>
               <span className="font-medium">{t}</span>
             </li>
           ))}
@@ -80,7 +80,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
           <div className="h-3 w-2/3 rounded bg-ink/80" />
           <div className="mt-2 h-2 w-1/2 rounded bg-line" />
           {[0, 1, 2].map((i) => (
-            <div key={i} className="mt-4 space-y-1.5"><div className="h-2 w-1/3 rounded bg-clay/70" /><div className="h-1.5 rounded bg-line" /><div className="h-1.5 w-5/6 rounded bg-line" /><div className="h-1.5 w-4/6 rounded bg-line" /></div>
+            <div key={i} className="mt-4 space-y-1.5"><div className="h-2 w-1/3 rounded bg-brand/60" /><div className="h-1.5 rounded bg-line" /><div className="h-1.5 w-5/6 rounded bg-line" /><div className="h-1.5 w-4/6 rounded bg-line" /></div>
           ))}
         </div>
       </div>
@@ -168,8 +168,8 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 {changes.map((c, i) => {
                   const v = verified[i];
                   return (
-                    <div key={i} className={`px-4 py-3 ${v === false ? "bg-clay-soft/50" : ""}`}>
-                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-clay line-through decoration-clay/40" : ""}`} title={c.why}>{c.change}</div>
+                    <div key={i} className={`px-4 py-3 ${v === false ? "bg-bad-soft/60" : ""}`}>
+                      <div className={`text-[0.88rem] font-medium leading-snug ${v === false ? "text-bad line-through decoration-bad/40" : ""}`} title={c.why}>{c.change}</div>
                       <div className="mt-2 flex gap-1.5">
                         <button onClick={() => mark(i, true)} aria-pressed={v === true} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === true ? "bg-good text-white" : "bg-line-2 text-muted hover:bg-good-soft hover:text-good"}`}><Check size={12} /> True</button>
                         <button onClick={() => mark(i, false)} aria-pressed={v === false} className={`flex h-7 items-center gap-1 rounded-full px-2.5 text-[0.76rem] font-semibold transition ${v === false ? "bg-clay text-white" : "bg-line-2 text-muted hover:bg-clay-soft hover:text-clay"}`}><X size={12} /> Not true</button>
@@ -179,7 +179,7 @@ export function ResumeTab({ app, onUpdate }: { app: Application; onUpdate: (p: P
                 })}
               </div>
               {untrue.length > 0 && (
-                <div className="flex items-center gap-3 border-t border-line bg-clay-soft/50 px-4 py-3">
+                <div className="flex items-center gap-3 border-t border-line bg-line-2 px-4 py-3">
                   <span className="flex-1 text-[0.84rem]">{untrue.length} marked not true</span>
                   <button className="btn btn-clay btn-sm" disabled={busy} onClick={() => generate({ untrue: untrue.map((c) => `- ${c.change}`).join("\n") })}>{busy ? <Spinner size={13} /> : <RotateCcw size={13} />} Fix these</button>
                 </div>

@@ -30,10 +30,10 @@ import { useVoice } from "@/components/useVoice";
 const MATCH = {
   strong: { icon: CheckCircle2, cls: "bg-good-soft text-good", label: "Proven" },
   partial: { icon: CircleDashed, cls: "bg-mustard-soft text-mustard-ink", label: "Partly" },
-  missing: { icon: XCircle, cls: "bg-clay-soft text-clay", label: "Missing" },
+  missing: { icon: XCircle, cls: "bg-bad-soft text-bad", label: "Missing" },
 };
 const GAP = {
-  lacking: { label: "Missing", cls: "bg-clay-soft text-clay", icon: XCircle, hint: "You don't have this yet - handle it honestly." },
+  lacking: { label: "Missing", cls: "bg-bad-soft text-bad", icon: XCircle, hint: "You don't have this yet - handle it honestly." },
   not_shown: { label: "Not on resume", cls: "bg-mustard-soft text-mustard-ink", icon: EyeOff, hint: "You likely have it - your resume doesn't show it." },
   unsure: { label: "Needs your answer", cls: "bg-ocean-soft text-ocean", icon: CircleHelp, hint: "Answer the question so the score is accurate." },
 };
@@ -130,7 +130,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
     <div className="space-y-5">
       {dialog}
       {busy && (
-        <div className="flex items-center gap-2.5 rounded-2xl bg-clay-soft px-4 py-3 text-[0.92rem] font-medium text-clay fade-up">
+        <div className="flex items-center gap-2.5 rounded-2xl bg-brand-soft px-4 py-3 text-[0.92rem] font-medium text-brand fade-up">
           <Spinner size={15} /> Re-scoring with your latest answers...
         </div>
       )}
@@ -163,12 +163,12 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
               <div className="mt-3 flex h-3 gap-1 overflow-hidden rounded-full">
                 {counts.strong > 0 && <span className="rounded-full bg-good" style={{ flex: counts.strong }} />}
                 {counts.partial > 0 && <span className="rounded-full bg-mustard" style={{ flex: counts.partial }} />}
-                {counts.missing > 0 && <span className="rounded-full bg-clay" style={{ flex: counts.missing }} />}
+                {counts.missing > 0 && <span className="rounded-full bg-bad" style={{ flex: counts.missing }} />}
               </div>
               <div className="mt-2 flex flex-wrap gap-3 text-[0.78rem] text-muted">
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-good" />{counts.strong} proven</span>
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-mustard" />{counts.partial} partly</span>
-                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-clay" />{counts.missing} missing</span>
+                <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-full bg-bad" />{counts.missing} missing</span>
               </div>
             </div>
             {/* ATS keyword coverage */}
@@ -182,7 +182,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 {a.ats_keywords.map((k) => {
                   const miss = !!a.keywords_missing && missingKw.has(k);
                   return (
-                    <span key={k} title={miss ? "Not on your resume yet" : "On your resume"} className={`rounded-full px-2.5 py-0.5 text-[0.78rem] ${miss ? "border-[1.5px] border-dashed border-clay/50 text-clay" : "bg-brand-soft text-brand"}`}>{k}</span>
+                    <span key={k} title={miss ? "Not on your resume yet" : "On your resume"} className={`rounded-full px-2.5 py-0.5 text-[0.78rem] ${miss ? "border-[1.5px] border-dashed border-bad/40 text-bad" : "bg-brand-soft text-brand"}`}>{k}</span>
                   );
                 })}
               </div>
@@ -209,7 +209,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
         <div className="grid items-stretch gap-5 xl:grid-cols-2">
           <section className="card overflow-hidden">
             <header className="flex items-center gap-2.5 px-5 pb-3 pt-5">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-clay-soft text-clay"><Target size={15} /></span>
+              <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-soft text-brand"><Target size={15} /></span>
               <h3 className="flex-1 text-[1.25rem] font-bold">What they want</h3>
               <span className="text-[0.78rem] text-muted">Most stressed first</span>
             </header>
@@ -220,7 +220,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
                 return (
                   <div key={sk.skill}>
                     <button onClick={() => setOpen(isOpen ? null : i)} aria-expanded={isOpen} className={`flex w-full items-center gap-3 px-5 py-3 text-left transition hover:bg-line-2/60 ${isOpen ? "bg-line-2/50" : ""}`}>
-                      <span className={`h-9 w-1.5 shrink-0 rounded-full ${sk.match === "strong" ? "bg-good" : sk.match === "partial" ? "bg-mustard" : "bg-clay"}`} />
+                      <span className={`h-9 w-1.5 shrink-0 rounded-full ${sk.match === "strong" ? "bg-good" : sk.match === "partial" ? "bg-mustard" : "bg-bad"}`} />
                       <div className="min-w-0 flex-1">
                         <div className="font-semibold leading-snug">{sk.skill}</div>
                         <div className="line-clamp-1 text-[0.82rem] text-muted">{sk.why}</div>

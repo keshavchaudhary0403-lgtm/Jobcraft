@@ -18,7 +18,7 @@ export const STATUS_META: Record<Status, { label: string; cls: string; dot: stri
   applied: { label: "Applied", cls: "bg-ocean-soft text-ocean", dot: "bg-ocean" },
   interviewing: { label: "Interviewing", cls: "bg-plum-soft text-plum", dot: "bg-plum" },
   offer: { label: "Offer", cls: "bg-good-soft text-good", dot: "bg-good" },
-  rejected: { label: "Rejected", cls: "bg-clay-soft text-clay", dot: "bg-clay" },
+  rejected: { label: "Rejected", cls: "bg-bad-soft text-bad", dot: "bg-bad" },
   withdrawn: { label: "Withdrawn", cls: "bg-line-2 text-muted", dot: "bg-faint" },
 };
 
@@ -99,7 +99,7 @@ export function CompanyAvatar({ name, size = 36 }: { name: string; size?: number
   );
 }
 
-const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-mustard-ink", lilac: "bg-plum-soft text-plum", rose: "bg-clay-soft text-clay", mint: "bg-brand-soft text-brand" };
+const TONES = { sky: "bg-ocean-soft text-ocean", sun: "bg-mustard-soft text-mustard-ink", lilac: "bg-plum-soft text-plum", rose: "bg-bad-soft text-bad", mint: "bg-brand-soft text-brand" };
 export function StatTile({ icon, label, value, sub, tone = "sky", href, interactive }: { icon: React.ReactNode; label: string; value: React.ReactNode; sub?: string; tone?: keyof typeof TONES; href?: string; interactive?: boolean }) {
   const Tag = href ? Link : "div";
   return (
@@ -169,7 +169,7 @@ export function Panel({
   return (
     <section className={`card overflow-hidden ${className}`}>
       <div className="flex items-center gap-2.5 border-b border-line px-5 py-3.5">
-        {icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-clay-soft text-clay">{icon}</span>}
+        {icon && <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-brand-soft text-brand">{icon}</span>}
         <div className="min-w-0 flex-1">
           <div className="font-display text-[1.05rem] font-bold leading-tight">{title}</div>
           {sub && <div className="text-[0.8rem] text-muted">{sub}</div>}

@@ -257,7 +257,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
         <div className="mb-3 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Transcript</div>
         {turns.length === 0 ? (
           <div className="grid min-h-[240px] place-items-center text-center text-muted">
-            <div><Mic size={22} className="mx-auto text-clay" /><p className="mt-3 max-w-sm text-[0.92rem]">Live captions appear here, and the full transcript is saved.</p></div>
+            <div><Mic size={22} className="mx-auto text-brand" /><p className="mt-3 max-w-sm text-[0.92rem]">Live captions appear here, and the full transcript is saved.</p></div>
           </div>
         ) : (
           <div className="flex flex-col gap-3">

@@ -87,12 +87,12 @@
   --sel: #004e98; --sel-glow: rgba(0,78,152,.5);
   --sel-bg: linear-gradient(120deg, #0a5aa8, #004e98);
   --act-glow: rgba(255,103,0,.55);
-  --warm-avatar: color-mix(in srgb, #ff6700 16%, white); --warm-avatar-ink: color-mix(in srgb, #ff6700 62%, black);
+  --warm-avatar: #e6eef8; --warm-avatar-ink: #004e98;
   --hero-accent: color-mix(in srgb, #ff6700 68%, white);
   --t0: #0a5aa8; --t0s: #e6eef8;
-  --t1: #ff6700; --t1s: color-mix(in srgb, #ff6700 10%, white);
+  --t1: #1f86d6; --t1s: #e4f1fc;
   --t2: #1f9d61; --t2s: #e7f7ee;
-  --t3: color-mix(in srgb, #ff6700 78%, black); --t3s: color-mix(in srgb, #ff6700 14%, white);
+  --t3: #4a5fd0; --t3s: #eceffc;
   --t4: #0e9384; --t4s: #e4f6f3;
   --s0: #8ab8ec; --s1: color-mix(in srgb, #ff6700 68%, white); --s3: color-mix(in srgb, #ff6700 45%, white);
 }
@@ -251,6 +251,7 @@ main .bg-side .bg-cream { background: rgba(255,255,255,.95); color: var(--sel); 
 /* Mobile: app bars share the rail gradient */
 .rail-bg { background: radial-gradient(60% 140% at 100% 0%, rgba(120,170,255,.35), transparent 60%), linear-gradient(100deg, #0a5aa8, #004e98 55%, #003b75); }
 .avatar-warm { background: var(--warm-avatar); color: var(--warm-avatar-ink); }
+aside.bg-side .avatar-warm, header .avatar-warm, .rail-bg .avatar-warm, .dark-card .avatar-warm { background: #ffffff; color: #004e98; }
 
 /* ── Donuts: a gentle lift and a softly raised centre ── */
 .donut-3d > svg { filter: drop-shadow(0 4px 8px rgba(0, 50, 110, .10)); }
@@ -260,3 +261,5 @@ main .bg-side .bg-cream { background: rgba(255,255,255,.95); color: var(--sel); 
   box-shadow: 0 6px 14px -10px rgba(0, 50, 110, .35);
 }
 .dark-card .donut-hub { background: rgba(255,255,255,.08); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.no-scrollbar { scrollbar-width: none; }
+.no-scrollbar::-webkit-scrollbar { display: none; }

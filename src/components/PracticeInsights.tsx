@@ -62,7 +62,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
           <div className="mt-1 font-display text-[1.1rem] font-bold leading-snug">{r.verdict}</div>
         </div>
       </div>
-      <div className="mx-5 flex items-start gap-2 rounded-2xl bg-clay-soft px-3.5 py-3 text-[0.88rem]"><Target size={15} className="mt-0.5 shrink-0 text-clay" /> <span><b className="font-semibold">Work on next:</b> {r.next_focus}</span></div>
+      <div className="mx-5 flex items-start gap-2 rounded-2xl bg-brand-soft px-3.5 py-3 text-[0.88rem]"><Target size={15} className="mt-0.5 shrink-0 text-brand" /> <span><b className="font-semibold">Work on next:</b> {r.next_focus}</span></div>
 
       <div className="mt-4 border-t border-line px-5 py-4">
         <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-good"><ThumbsUp size={13} /> Strongest moments</div>
@@ -73,7 +73,7 @@ export function InterviewScorecard({ sessionId, initial, answers, stale }: { ses
         </ul>
       </div>
       <div className="border-t border-line px-5 py-4">
-        <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-clay"><ThumbsDown size={13} /> Weakest answers</div>
+        <div className="mb-2 flex items-center gap-1.5 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-bad"><ThumbsDown size={13} /> Weakest answers</div>
         <div className="space-y-2">
           {r.weakest.map((w, i) => (
             <details key={i} className="group rounded-2xl border-[1.5px] border-line px-3.5 py-2.5 open:bg-line-2/40">
@@ -133,7 +133,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
     );
 
   const P = {
-    below: { label: "Below market", cls: "text-clay", at: 18, icon: ArrowDownRight },
+    below: { label: "Below market", cls: "text-bad", at: 18, icon: ArrowDownRight },
     at: { label: "At market", cls: "text-mustard-ink", at: 50, icon: ArrowRight },
     above: { label: "Above market", cls: "text-good", at: 82, icon: ArrowUpRight },
   }[o.position];
@@ -163,7 +163,7 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
           {o.objections.map((x, i) => (
             <details key={i} className="rounded-2xl border-[1.5px] border-line px-3.5 py-2.5 open:bg-line-2/40">
               <summary className="flex cursor-pointer list-none items-start gap-2 text-[0.88rem]"><MessageSquareText size={14} className="mt-0.5 shrink-0 text-muted" /> &ldquo;{x.hr_says}&rdquo;</summary>
-              <p className="mt-2 flex items-start gap-2 text-[0.88rem] font-medium"><Mic size={14} className="mt-0.5 shrink-0 text-clay" /> {x.you_say}</p>
+              <p className="mt-2 flex items-start gap-2 text-[0.88rem] font-medium"><Mic size={14} className="mt-0.5 shrink-0 text-brand" /> {x.you_say}</p>
             </details>
           ))}
         </div>

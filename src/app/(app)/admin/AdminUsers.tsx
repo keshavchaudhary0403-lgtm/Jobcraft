@@ -252,7 +252,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                         {u.voice_enabled && <span className="chip bg-plum-soft text-plum"><AudioLines size={12} /> Voice</span>}
                         {u.is_demo && <span className="chip bg-ocean-soft text-ocean">Demo login</span>}
                         {custom > 0 && <span className="chip bg-line-2 text-muted">{custom} custom limit{custom > 1 ? "s" : ""}</span>}
-                        {!u.is_active && <span className="chip bg-clay-soft text-clay">Paused</span>}
+                        {!u.is_active && <span className="chip bg-line-2 text-muted">Paused</span>}
                       </div>
                       <div className="mt-auto flex items-baseline justify-between border-t border-line pt-3 mt-4 text-[0.86rem]">
                         <span className="text-muted">This month</span>
@@ -292,7 +292,7 @@ export function AdminUsers({ meId }: { meId: string }) {
                   })}
                 </div>
                 {pendingModel && (
-                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-clay-soft px-4 py-3 fade-up">
+                  <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-brand-soft px-4 py-3 fade-up">
                     <span className="text-[0.9rem]">Switch everyone to <b>{AI_MODELS[pendingModel as keyof typeof AI_MODELS]?.label.split(" -")[0]}</b>?</span>
                     <span className="flex gap-2">
                       <button className="btn btn-ghost btn-sm" onClick={() => setPendingModel(null)}>Cancel</button>
@@ -880,7 +880,7 @@ function AdminOverview({
         </Panel>
 
         <Panel title="People and their limits" sub="Spend this month against each person's limit" icon={<Users size={15} />} bodyClass="divide-y divide-line">
-          {people.map(({ u, limit }) => {
+          {people.slice(0, 6).map(({ u, limit }) => {
             const pct = limit ? Math.min(100, (u.spent_inr / limit) * 100) : 0;
             const level = !limit ? "No limit" : pct >= 90 ? "Almost out" : pct >= 70 ? "Getting close" : "Fine";
             return (
@@ -904,6 +904,7 @@ function AdminOverview({
               </button>
             );
           })}
+          {people.length > 6 && <button onClick={() => go("people")} className="flex w-full items-center justify-center gap-1 px-5 py-3 text-[0.88rem] font-semibold text-brand hover:bg-line-2/60">See all {people.length} people <ChevronRight size={14} /></button>}
         </Panel>
         </div>
       </div>

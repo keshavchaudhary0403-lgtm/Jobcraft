@@ -10,7 +10,7 @@ export const STATUS_BAR: Record<Status, string> = {
   applied: "bg-ocean",
   interviewing: "bg-plum",
   offer: "bg-good",
-  rejected: "bg-clay",
+  rejected: "bg-bad",
   withdrawn: "bg-faint",
 };
 
@@ -62,13 +62,13 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
 
 export const STATUS_HEX: Record<Status, string> = { saved: "var(--mustard)", applied: "var(--ocean)", interviewing: "var(--plum)", offer: "var(--good)", rejected: "var(--clay)", withdrawn: "var(--faint)" };
 
-export function StatusDonut({ counts, total, size = 170 }: { counts: Record<Status, number>; total: number; size?: number }) {
+export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt-3" }: { counts: Record<Status, number>; total: number; size?: number; className?: string }) {
   const stroke = Math.round(size * 0.13), r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const present = STATUSES.filter((s) => counts[s]);
   const gap = present.length > 1 ? 4 : 0;
   const segs = present.map((s, i) => ({ s, len: (counts[s] / total) * c, start: present.slice(0, i).reduce((t, x) => t + (counts[x] / total) * c, 0) }));
   return (
-    <div className="donut-3d relative mx-auto mt-3 grid shrink-0 place-items-center" style={{ width: size, height: size }}>
+    <div className={`donut-3d relative grid shrink-0 place-items-center ${className}`} style={{ width: size, height: size }}>
       <svg width={size} height={size} className="-rotate-90">
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--line-2)" strokeWidth={stroke} />
         {segs.map(({ s, len, start }) => (
@@ -77,7 +77,7 @@ export function StatusDonut({ counts, total, size = 170 }: { counts: Record<Stat
       </svg>
       <div className="donut-hub" style={{ inset: stroke + 5 }}>
         <div className="font-display font-bold leading-none tabular-nums" style={{ fontSize: size * 0.2 }}>{total}</div>
-        <div className="text-[0.76rem] text-muted">job{total === 1 ? "" : "s"}</div>
+        {size >= 100 && <div className="text-[0.76rem] text-muted">job{total === 1 ? "" : "s"}</div>}
       </div>
     </div>
   );

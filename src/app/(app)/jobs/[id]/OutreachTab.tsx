@@ -86,7 +86,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
               return (
                 <section key={m.key} className="card flex flex-col p-5">
                   <header className="flex items-center gap-2.5">
-                    <span className="grid h-8 w-8 place-items-center rounded-full bg-clay-soft text-clay">{m.icon}</span>
+                    <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand-soft text-brand">{m.icon}</span>
                     <h3 className="flex-1 text-[1.2rem] font-bold">{m.title}</h3>
                     <span className={`text-[0.8rem] font-semibold tabular-nums ${over ? "text-bad" : "text-muted"}`}>{m.used}/{m.max} {m.unit}</span>
                   </header>
@@ -103,7 +103,7 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
         ) : (
           <div className="grid h-full gap-4 md:grid-cols-2">
             {[
-              { icon: <UserPlus size={18} />, tone: "bg-clay-soft text-clay", title: "Connection note", limit: "Under 250 characters", lines: [92, 100, 78, 55], bar: 70 },
+              { icon: <UserPlus size={18} />, tone: "bg-brand-soft text-brand", title: "Connection note", limit: "Under 250 characters", lines: [92, 100, 78, 55], bar: 70 },
               { icon: <Send size={18} />, tone: "bg-mustard-soft text-mustard-ink", title: "Message", limit: "Under 110 words", lines: [100, 96, 88, 100, 92, 70, 84, 40], bar: 55 },
             ].map((x) => (
               <div key={x.title} className="card flex flex-col p-5">

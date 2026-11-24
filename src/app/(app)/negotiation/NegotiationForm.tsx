@@ -198,7 +198,7 @@ function MarketScale({ offered, lo, hi }: { offered?: number; lo?: number; hi?: 
   const max = Math.max(O, H) * 1.15;
   const pct = (v: number) => ((v - min) / (max - min)) * 100;
   const pos = !ready ? null : O < L ? "below" : O > H ? "above" : "at";
-  const P = { below: { t: "Below market", c: "text-clay", d: "Push for the range - you have room." }, at: { t: "At market", c: "text-mustard-ink", d: "Fair. Aim for the top of the range." }, above: { t: "Above market", c: "text-good", d: "Strong offer. Negotiate the extras." } } as const;
+  const P = { below: { t: "Below market", c: "text-bad", d: "Push for the range - you have room." }, at: { t: "At market", c: "text-mustard-ink", d: "Fair. Aim for the top of the range." }, above: { t: "Above market", c: "text-good", d: "Strong offer. Negotiate the extras." } } as const;
   return (
     <div className={ready ? "" : "opacity-45"}>
       <div className="flex items-baseline justify-between">

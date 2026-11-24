@@ -50,61 +50,58 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
       </header>
 
       {!jobs.length ? (
-        <Link href="/jobs/new" className="flex items-center gap-5 rounded-[22px] border-[1.5px] border-dashed border-clay/50 bg-card p-8 transition hover:border-clay fade-up">
-          <span className="grid h-14 w-14 place-items-center rounded-full bg-clay text-white"><Plus size={24} /></span>
+        <Link href="/jobs/new" className="card card-hover flex items-center gap-5 p-6 fade-up">
+          <span data-tone="1" className="tone-chip grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-line-2"><Plus size={24} /></span>
           <span className="flex-1">
             <span className="block font-display text-[1.35rem] font-bold">Add the first job you want</span>
             <span className="block text-muted">Paste the description. We do the rest.</span>
           </span>
+          <span className="hidden items-center gap-1 font-semibold text-clay sm:inline-flex">Add a job <ArrowRight size={15} /></span>
         </Link>
       ) : board ? (
         <JobBoard apps={jobs} />
       ) : (
-        <div className="grid items-start gap-5 lg:grid-cols-[290px_minmax(0,1fr)]">
-          {/* Overview: status donut doubles as the filter */}
-          <aside className="card p-5 lg:sticky lg:top-6 fade-up">
-            <div className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Where they stand</div>
-            <StatusDonut counts={counts} total={jobs.length} />
-            <ul className="mt-4 space-y-1">
-              <li>
-                <Link href={q({ status: undefined })} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[0.92rem] transition ${!status ? "bg-side text-cream" : "hover:bg-line-2"}`}>
-                  <span className="flex-1 font-semibold">All jobs</span><span className="tabular-nums opacity-70">{jobs.length}</span>
-                </Link>
-              </li>
-              {STATUSES.filter((s) => counts[s]).map((s) => (
-                <li key={s}>
-                  <Link href={q({ status: s })} className={`flex items-center gap-2.5 rounded-xl px-3 py-2 text-[0.92rem] transition ${status === s ? "bg-side text-cream" : "hover:bg-line-2"}`}>
-                    <span className={`h-2.5 w-2.5 rounded-full ${STATUS_BAR[s]}`} />
-                    <span className="flex-1 font-medium">{STATUS_META[s].label}</span><span className="tabular-nums opacity-70">{counts[s]}</span>
-                  </Link>
-                </li>
-              ))}
-            </ul>
-            <div className="mt-4 border-t border-line pt-4">
-              <div className="mb-2 text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted">Sort by</div>
-              <div className="grid grid-cols-2 gap-1 rounded-full border-[1.5px] border-line p-1">
-                <Link href={q({ sort: undefined })} className={`rounded-full py-1.5 text-center text-[0.86rem] font-semibold ${sort === "recent" ? "bg-side text-cream" : "text-muted hover:text-ink"}`}>Recent</Link>
-                <Link href={q({ sort: "fit" })} className={`rounded-full py-1.5 text-center text-[0.86rem] font-semibold ${sort === "fit" ? "bg-side text-cream" : "text-muted hover:text-ink"}`}>Best fit</Link>
+        <>
+          {/* Summary bar: where they stand + filter + sort. Stays compact however many jobs there are. */}
+          <section className="card flex flex-wrap items-center gap-4 p-4 fade-up sm:flex-nowrap sm:p-5">
+            <div className="flex shrink-0 items-center gap-3">
+              <StatusDonut counts={counts} total={jobs.length} size={72} className="" />
+              <div>
+                <div className="hidden text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-muted sm:block">Where they stand</div>
+                <div className="font-display text-[1.15rem] font-bold">{jobs.length} job{jobs.length === 1 ? "" : "s"}</div>
               </div>
             </div>
-          </aside>
+            <div className="no-scrollbar order-last -mx-1 flex w-full min-w-0 gap-2 overflow-x-auto px-1 py-1 sm:order-none sm:w-auto sm:flex-1 sm:border-l sm:border-line sm:pl-4">
+              <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.88rem] font-semibold transition ${!status ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
+                All <span className="tabular-nums opacity-70">{jobs.length}</span>
+              </Link>
+              {STATUSES.filter((s) => counts[s]).map((s) => (
+                <Link key={s} href={q({ status: s })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.88rem] font-semibold transition ${status === s ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
+                  <span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} />
+                  {STATUS_META[s].label} <span className="tabular-nums opacity-70">{counts[s]}</span>
+                </Link>
+              ))}
+            </div>
+            <div className="ml-auto inline-flex shrink-0 gap-1 rounded-full border-[1.5px] border-line p-1">
+              <Link href={q({ sort: undefined })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "recent" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Recent</Link>
+              <Link href={q({ sort: "fit" })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "fit" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Best fit</Link>
+            </div>
+          </section>
 
-          {/* Job tiles */}
-          <section className="grid gap-5 md:grid-cols-2 stagger">
+          {/* Job tiles: full width, grows row by row */}
+          <section className="grid gap-5 md:grid-cols-2 2xl:grid-cols-3 stagger">
             {shown.map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
-            {!status && shown.length > 0 && (
-              <Link href="/jobs/new" className={`card card-hover flex items-center gap-4 p-6 ${shown.length % 2 === 0 ? "md:col-span-2" : "min-h-[170px]"}`}>
-                <span data-tone="1" className="tone-chip grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
-                <span className="min-w-0 flex-1">
-                  <span className="block font-display text-[1.15rem] font-bold">Add another job</span>
-                  <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
-                </span>
-                <span className="inline-flex shrink-0 items-center gap-1 text-[0.9rem] font-semibold text-clay">Add <ArrowRight size={14} /></span>
+            {!status && (
+              <Link href="/jobs/new" className="card card-hover flex min-h-[200px] flex-col p-6">
+                <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
+                <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
+                <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
+                <span className="mt-auto inline-flex items-center gap-1 pt-4 text-[0.9rem] font-semibold text-clay">Add a job <ArrowRight size={14} /></span>
               </Link>
             )}
-            {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2">No jobs in this stage.</div>}
+            {!shown.length && <div className="card p-10 text-center text-muted md:col-span-2 2xl:col-span-3">No jobs in this stage.</div>}
           </section>
-        </div>
+        </>
       )}
     </div>
   );
