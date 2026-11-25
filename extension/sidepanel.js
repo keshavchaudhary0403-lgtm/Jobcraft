@@ -1,8 +1,8 @@
 /* Jobcraft side panel: shows the job in the active tab and sends it to Jobcraft's Add job page. */
-const TARGETS = { live: "https://jobcraft-sooty.vercel.app", local: "http://localhost:3000" };
+/** Where jobs are sent. (For local testing, change this to "http://localhost:3000".) */
+const BASE = "https://jobcraft-sooty.vercel.app";
 const app = document.getElementById("app");
 const refreshBtn = document.getElementById("refresh");
-const targetSel = document.getElementById("target");
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let current = { tabId: null, url: "", job: null };
 
@@ -47,7 +47,7 @@ async function read(force = false) {
     return empty(ICON.doc, "Open a job to send it", "Go to a job on LinkedIn, Naukri or a company careers page.", howTo());
   }
   const origin = new URL(url).origin;
-  if (Object.values(TARGETS).some((t) => url.startsWith(t))) {
+  if ([BASE, "http://localhost:3000"].some((t) => url.startsWith(t))) {
     return empty(ICON.check, "You're in Jobcraft", "Switch to a job tab (LinkedIn, Naukri or a careers page) and it shows up here.");
   }
   const allowed = await chrome.permissions.contains({ origins: [origin + "/*"] });
@@ -119,7 +119,7 @@ function renderActions(job) {
   const box = document.getElementById("actions");
   if (!box) return;
   const r = known.get(current.url);
-  const base = TARGETS[targetSel.value];
+  const base = BASE;
   const when = r?.created_at ? new Date(r.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" }) : "";
   const openBtn = (label) => r?.id ? `<a class="btn btn-primary" target="_blank" href="${base}/jobs/${esc(r.id)}">${label} ${ICON.ext}</a>` : "";
   const strip = (tone, icon, title, sub) => `<div class="strip ${tone}"><span class="strip-ico">${icon}</span><div><b>${title}</b><span>${sub}</span></div></div>`;
@@ -143,7 +143,7 @@ function renderActions(job) {
 async function checkSaved(job) {
   const url = current.url;
   try {
-    const res = await fetch(`${TARGETS[targetSel.value]}/api/jobs/check`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: job.url, company: job.company, role: job.role, location: job.location }) });
+    const res = await fetch(`${BASE}/api/jobs/check`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ url: job.url, company: job.company, role: job.role, location: job.location }) });
     if (!res.ok) return;
     const { match } = await res.json();
     if (match) known.set(url, { kind: "exists", ...match });
@@ -160,7 +160,7 @@ async function save(job, force) {
   btn.textContent = "Saving...";
   const logo = await logoData(job.logoUrl);
   const payload = { site: job.site, url: job.url, company: val("company"), role: val("role"), location: val("location"), jd: job.jd, website: job.website || "", logo };
-  const base = TARGETS[targetSel.value];
+  const base = BASE;
   try {
     const res = await fetch(`${base}/api/jobs/save`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, force }) });
     const data = await res.json().catch(() => ({}));
@@ -200,7 +200,7 @@ async function logoData(src) {
 
 /** Fallback: open Jobcraft's Add job page, filled in, to save it there. */
 async function openAddJob(payload) {
-  const tab = await chrome.tabs.create({ url: `${TARGETS[targetSel.value]}/jobs/new` });
+  const tab = await chrome.tabs.create({ url: `${BASE}/jobs/new` });
   const listener = async (id, info) => {
     if (id !== tab.id || info.status !== "complete") return;
     chrome.tabs.onUpdated.removeListener(listener);
@@ -228,6 +228,4 @@ chrome.tabs.onUpdated.addListener((id, info, tab) => {
 chrome.windows.onFocusChanged.addListener(() => later(200));
 refreshBtn.onclick = () => read(true);
 
-chrome.storage.local.get("target").then(({ target = "live" }) => { targetSel.value = target; });
-targetSel.onchange = () => chrome.storage.local.set({ target: targetSel.value });
 read(true);
