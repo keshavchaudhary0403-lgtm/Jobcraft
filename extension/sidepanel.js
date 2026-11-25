@@ -134,7 +134,7 @@ function renderActions(job) {
   } else {
     html = `<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save to Jobcraft ${ICON.arrow}</button>`;
   }
-  box.innerHTML = r?.kind === "saved" || (r?.kind === "exists" && r.by === "link") ? html : `${html}<div class="sub">Saves the job only - no AI runs. Pick which jobs to analyse later in Jobcraft.</div>`;
+  box.innerHTML = html;
   const b = document.getElementById("send");
   if (b) b.onclick = () => save(job, b.dataset.force === "1");
 }
