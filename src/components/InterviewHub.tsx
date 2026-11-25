@@ -37,7 +37,7 @@ export function InterviewHub({ apps, preselect, groups, otherFields }: { apps: P
 
   return (
     <div className="space-y-5">
-      <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
         <section className="card p-6">
           <h2 className="mb-4 text-[1.2rem] font-bold leading-none">Which job are you practising for?</h2>
           <JobPicker apps={apps} preselect={initial} onPick={setSel} otherFields={otherFields} />

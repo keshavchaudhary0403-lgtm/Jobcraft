@@ -5,7 +5,7 @@
  */
 export function HowItWorks({ title, steps, tip }: { title: string; steps: string[]; tip: string }) {
   return (
-    <section className="dark-card flex flex-col p-6 sm:p-7">
+    <section className="dark-card flex flex-col p-6 sm:p-7 lg:sticky lg:top-6">
       <h2 className="text-[1.2rem] font-bold leading-none text-white">{title}</h2>
       <ol className="relative mt-5 flex flex-1 flex-col justify-between gap-4">
         {/* the line that joins the numbers */}
