@@ -46,7 +46,7 @@ export function InterviewHub({ apps, preselect, groups, otherFields }: { apps: P
       </div>
 
       {track ? (
-        <JobCard g={track} kind="interview" cta={<StartRound label={`Start round ${track.rounds.length + 1}`} />} />
+        <JobCard g={track} kind="interview" brand={{ jobUrl: app?.job_url, domain: app?.company_domain, logo: app?.company_logo }} cta={<StartRound label={`Start round ${track.rounds.length + 1}`} />} />
       ) : (
         <section className="card flex flex-wrap items-center gap-4 p-5">
           <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>

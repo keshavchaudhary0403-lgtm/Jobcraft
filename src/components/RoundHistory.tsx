@@ -45,7 +45,8 @@ export function PracticeHistory({ groups, kind }: { groups: PracticeGroup[]; kin
 
 /** One job's practice track. `cta` sits in the header (e.g. Start round N); `flat` drops the card shell. */
 /** `heading` replaces the company logo + role (used inside a job page, where the banner already shows them). */
-export function JobCard({ g, kind, cta, flat = false, noHead = false, heading }: { g: PracticeGroup; kind: "interview" | "negotiation"; cta?: React.ReactNode; flat?: boolean; noHead?: boolean; heading?: React.ReactNode }) {
+/** `brand` passes the job's saved logo/website so the header matches the job picker (else the logo is guessed from the name). */
+export function JobCard({ g, kind, cta, flat = false, noHead = false, heading, brand }: { g: PracticeGroup; kind: "interview" | "negotiation"; cta?: React.ReactNode; flat?: boolean; noHead?: boolean; heading?: React.ReactNode; brand?: { jobUrl?: string | null; domain?: string | null; logo?: string | null } }) {
   const base = kind === "interview" ? "/interview" : "/negotiation";
   const items = kind === "interview" ? prepItems(g.rounds) : [];
   const [tab, setTab] = useState<"rounds" | "prep">("rounds");
@@ -62,7 +63,7 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false, heading }:
         <div className="min-w-0 flex-1">
           {heading ?? (
             <>
-              {g.company && <CompanyWordmark name={g.company} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
+              {g.company && <CompanyWordmark name={g.company} jobUrl={brand?.jobUrl} domain={brand?.domain} logo={brand?.logo} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
               <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
             </>
           )}
