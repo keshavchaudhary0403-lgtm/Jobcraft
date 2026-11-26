@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { Nav } from "@/components/Nav";
+import { RefreshOnReturn } from "@/components/RefreshOnReturn";
 import { profileStrength } from "@/components/ui";
 import { requireUser } from "@/lib/auth";
 
@@ -10,6 +11,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const name = profile.full_name || user.email?.replace(/@phone\.jobcraft\.invalid$/, "") || "You";
   return (
     <div className="min-h-screen bg-bg">
+      <RefreshOnReturn />
       <Nav name={name} isAdmin={profile.is_admin} jobs={count ?? 0} strength={profileStrength(profile)} avatarUrl={user.avatarUrl} />
       <main className="lg:pl-[248px]">
         <div>

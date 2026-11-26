@@ -95,7 +95,7 @@ a.btn { text-decoration: none; }
 .strip .strip-ico { color: #fff; }
 
 /* Bottom bar rows: Recheck (light) + the main action, same height */
-.row { display: grid; grid-template-columns: 2fr 3fr; gap: 8px; }
+.row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 .row.one { grid-template-columns: 1fr; }
 .row.three { grid-template-columns: 44px 1fr 1fr; }
 .row .btn { height: 44px; font-size: 14.5px; min-width: 0; padding: 0 12px; white-space: nowrap; }
