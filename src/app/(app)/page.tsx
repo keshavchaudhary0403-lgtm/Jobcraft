@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { ArrowRight, FileText, IndianRupee, Mic, Plus, ScanSearch, Send, Target } from "lucide-react";
+import { FileText, IndianRupee, Mic, Plus, ScanSearch, Send, Target } from "lucide-react";
 import { LinkedInIcon } from "@/components/icons";
 import { requireUser } from "@/lib/auth";
-import { JobTile } from "@/components/JobTiles";
+import { JobsGrid } from "@/components/JobsGrid";
 import { Playbook } from "@/components/Playbook";
 import type { Application } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
@@ -79,20 +79,23 @@ export default async function Home() {
       {/* ── Hero band ── */}
       <section className="dark-card hero-band flex flex-col justify-center overflow-hidden fade-up">
         <div className="p-6 sm:p-7">
-          {/* Row 1: greeting left, readiness right (same row on every screen size) */}
-          <div className="flex items-start justify-between gap-4">
-            <h1 className="min-w-0 text-[1.85rem] font-bold leading-[1] text-white sm:text-[2.6rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
-            <Link href={lift.href} data-tip="How ready your job search is: resume, job match, prep, applications, mock interviews and LinkedIn" className="shrink-0 text-right">
-              <span className="block font-display text-[2.1rem] font-bold leading-none tabular-nums text-white sm:text-[2.6rem]">{score}<span className="text-[1.05rem] text-white/85 sm:text-[1.3rem]">%</span></span>
-              <span className="mt-1 block text-[0.76rem] text-white/85 sm:text-[0.84rem]">ready<span className="hidden sm:inline"> · {word}</span></span>
+          {/* Row 1: greeting and the readiness number share one baseline. */}
+          <div className="flex items-baseline justify-between gap-4">
+            <h1 className="min-w-0 text-[1.85rem] font-bold leading-none text-white sm:text-[2.6rem]">{greeting()}{first ? `, ${first}` : ""}<span className="text-clay">.</span></h1>
+            <Link href={lift.href} data-tip="How ready your job search is: resume, job match, prep, applications, mock interviews and LinkedIn" className="shrink-0 font-display text-[1.85rem] font-bold leading-none tabular-nums text-white sm:text-[2.6rem]">
+              {score}<span className="ml-0.5 text-[0.55em] text-white/85">%</span>
             </Link>
           </div>
-          {/* Row 2: context chips */}
-          <div className="mt-3 flex flex-wrap gap-2 text-[0.84rem]">
-            {profile.target_role && <Link href="/profile" className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Target size={13} className="shrink-0 text-white/85" /><span className="truncate">{profile.target_role}</span></Link>}
-            {limit != null && <span className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/85 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
+          {/* Row 2: context chips left, what the number means right - centred on one line. */}
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+            <div className="flex min-w-0 flex-wrap gap-2 text-[0.84rem]">
+              {profile.target_role && <Link href="/profile" className="inline-flex max-w-full items-center gap-1.5 rounded-full bg-white/12 px-3 py-1 font-semibold text-white ring-1 ring-white/15 transition hover:bg-white/20"><Target size={13} className="shrink-0 text-white/85" /><span className="truncate">{profile.target_role}</span></Link>}
+              {limit != null && <span className="inline-flex items-center rounded-full bg-white/8 px-3 py-1 text-white/85 ring-1 ring-white/10"><b className="mr-1 text-white">₹{Math.max(0, limit - spent).toFixed(0)}</b> AI credit</span>}
+            </div>
+            <Link href={lift.href} className="ml-auto shrink-0 text-right text-[0.84rem] text-white/85 hover:text-white">
+              Search readiness<span className="hidden sm:inline"> · <b className="font-semibold text-white">{word}</b></span>
+            </Link>
           </div>
-
         </div>
       </section>
 
@@ -111,21 +114,9 @@ export default async function Home() {
       ) : (
         <div>
           <section className="fade-up">
-            <div className="mb-3 flex items-end justify-between">
-              <h2 className="text-[1.6rem] font-bold leading-none">Your jobs</h2>
-              <Link href="/jobs" className="pill-nav">All {all.length} <ArrowRight size={14} /></Link>
-            </div>
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 stagger">
-              {live.slice(0, 5).map((a) => <JobTile key={a.id} a={a} practised={practised} />)}
-              {live.length < 5 && (
-                <Link href="/jobs/new" className="group card card-hover flex min-h-[190px] flex-col p-6">
-                  <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
-                  <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
-                  <span className="block text-[0.86rem] text-muted">Aim for five or more.</span>
-                  <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
-                </Link>
-              )}
-            </div>
+            <h2 className="mb-3 text-[1.6rem] font-bold leading-none">Your jobs</h2>
+            {/* Same compact list as the Jobs page: latest 6, with a search across every live job. */}
+            <JobsGrid jobs={live} practised={[...practised]} variant="home" limit={6} />
           </section>
 
         </div>

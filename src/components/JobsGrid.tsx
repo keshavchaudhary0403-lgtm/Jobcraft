@@ -1,32 +1,100 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Check, CheckSquare, Plus, Sparkles, Trash2, X } from "lucide-react";
-import type { Application } from "@/lib/types";
-import { JobTile } from "./JobTiles";
+import { ArrowRight, Check, ChevronRight, ListChecks, Minus, Search, Sparkles, Trash2, X } from "lucide-react";
+import { STATUSES, type Application, type Status } from "@/lib/types";
+import type { Analysis } from "@/lib/tasks";
+import { JobRowContent, STATUS_BAR } from "./JobTiles";
+import { STATUS_META } from "./ui";
 import { WorkingInline, useAsk } from "./client-ui";
 import { createClient } from "@/lib/supabase/client";
 
+type Filter = "" | "new" | Status;
+type Sort = "recent" | "fit";
+
+const fitOf = (a: Application) => (a.analysis as Analysis | null)?.fit_score ?? -1;
+
 /**
- * Jobs grid with a Select mode: pick jobs, then analyse them with AI (one by one, credit per job)
- * or delete them. Saved jobs never run AI on their own.
+ * The app's job list: compact rows (many jobs in one view) with search, status filters and sort, all instant.
+ * `full` (Jobs page) adds bulk select: tap "Select", tick rows (Shift-click = range, Ctrl/Cmd+A = all, Esc = done),
+ * then Analyse (AI, one by one, credit per job) or Delete from the floating bar. Saved jobs never run AI on their own.
+ * `home` shows the latest few with a search across all of them.
  */
-export function JobsGrid({ jobs, practised, addCard }: { jobs: Application[]; practised: string[]; addCard: boolean }) {
+export function JobsGrid({
+  jobs,
+  practised,
+  variant = "full",
+  initialFilter = "",
+  initialSort = "recent",
+  limit = 5,
+}: {
+  jobs: Application[];
+  practised: string[];
+  variant?: "full" | "home";
+  initialFilter?: string;
+  initialSort?: string;
+  limit?: number;
+}) {
   const router = useRouter();
-  const done = new Set(practised);
+  const done = useMemo(() => new Set(practised), [practised]);
+  const full = variant === "full";
+
+  // ── Search / filter / sort ──
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState<Filter>((["", "new", ...STATUSES] as string[]).includes(initialFilter) ? (initialFilter as Filter) : "");
+  const [sort, setSort] = useState<Sort>(initialSort === "fit" ? "fit" : "recent");
+  const q = query.trim().toLowerCase();
+  const unanalysed = jobs.filter((a) => !a.analysis);
+  const counts = Object.fromEntries(STATUSES.map((s) => [s, jobs.filter((a) => a.status === s).length])) as Record<Status, number>;
+  const shown = jobs
+    .filter((a) => !filter || (filter === "new" ? !a.analysis : a.status === filter))
+    .filter((a) => !q || `${a.role} ${a.company} ${a.location ?? ""}`.toLowerCase().includes(q))
+    .sort((x, y) => (sort === "fit" ? fitOf(y) - fitOf(x) : 0));
+  const visible = full || q ? shown : shown.slice(0, limit);
+
+  // ── Select ──
   const [selecting, setSelecting] = useState(false);
   const [picked, setPicked] = useState<Set<string>>(new Set());
   const [progress, setProgress] = useState<{ i: number; n: number } | null>(null);
   const [note, setNote] = useState<{ ok: boolean; text: string } | null>(null);
   const [ask, dialog] = useAsk();
-
-  const unanalysed = jobs.filter((a) => !a.analysis);
+  const lastIndex = useRef<number | null>(null);
   const sel = jobs.filter((a) => picked.has(a.id));
   const toAnalyse = sel.filter((a) => !a.analysis);
-  const toggle = (id: string) => setPicked((p) => { const n = new Set(p); if (n.has(id)) n.delete(id); else n.add(id); return n; });
-  const stop = () => { setSelecting(false); setPicked(new Set()); };
+  const allShownPicked = shown.length > 0 && shown.every((a) => picked.has(a.id));
+  const someShownPicked = shown.some((a) => picked.has(a.id)) && !allShownPicked;
+  const stop = () => { setSelecting(false); setPicked(new Set()); lastIndex.current = null; };
+
+  /** Toggle one row; with Shift, set the whole range since the last click to this row's new state. */
+  function pick(index: number, shift: boolean) {
+    const id = shown[index].id;
+    const prev = lastIndex.current; // read now - the updater below runs after lastIndex is overwritten
+    setPicked((p) => {
+      const n = new Set(p);
+      const on = !n.has(id);
+      if (shift && prev != null) {
+        for (let i = Math.min(prev, index); i <= Math.max(prev, index); i++) { if (on) n.add(shown[i].id); else n.delete(shown[i].id); }
+      } else if (on) n.add(id);
+      else n.delete(id);
+      return n;
+    });
+    lastIndex.current = index;
+  }
+
+  // Keyboard while selecting: Esc finishes, Ctrl/Cmd+A picks every row shown (not while typing or in a dialog).
+  useEffect(() => {
+    if (!selecting) return;
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("input, textarea, [contenteditable], [data-modal]") || progress) return;
+      if (e.key === "Escape") stop();
+      else if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") { e.preventDefault(); setPicked(new Set(shown.map((a) => a.id))); }
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [selecting, shown, progress]);
 
   async function analyseSelected() {
     if (!toAnalyse.length) return;
@@ -72,67 +140,154 @@ export function JobsGrid({ jobs, practised, addCard }: { jobs: Application[]; pr
     router.refresh();
   }
 
+  const chip = (on: boolean) => `flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${on ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`;
+
   return (
-    <section className="space-y-4">
+    <section className={`space-y-4 ${picked.size ? "pb-24" : ""}`}>
       {dialog}
-      {/* Select bar */}
-      <div className="flex flex-wrap items-center gap-2.5">
-        {!selecting ? (
-          <>
-            <button className="btn btn-soft h-10 px-4" onClick={() => setSelecting(true)} disabled={!jobs.length}><CheckSquare size={15} /> Select</button>
-            {unanalysed.length > 0 && (
-              <span className="text-[0.86rem] text-muted">{unanalysed.length} saved job{unanalysed.length > 1 ? "s" : ""} not analysed yet - select them to run AI.</span>
-            )}
-          </>
-        ) : (
-          <div className="flex w-full flex-wrap items-center gap-2.5 rounded-2xl bg-brand-soft px-3 py-2.5 fade-up">
-            <span className="pl-1 text-[0.92rem] font-semibold text-brand-ink">{picked.size} selected</span>
-            <button className="btn btn-ghost btn-sm" onClick={() => setPicked(new Set(unanalysed.map((a) => a.id)))} disabled={!unanalysed.length}>Not analysed ({unanalysed.length})</button>
-            <button className="btn btn-ghost btn-sm" onClick={() => setPicked(new Set(jobs.map((a) => a.id)))}>All ({jobs.length})</button>
-            <span className="ml-auto flex flex-wrap gap-2">
-              <button className="btn btn-clay h-10 px-4 !shadow-none" disabled={!toAnalyse.length || !!progress} onClick={analyseSelected}><Sparkles size={15} /> Analyse {toAnalyse.length || ""}</button>
-              <button className="btn btn-danger-soft h-10 px-4" disabled={!sel.length || !!progress} onClick={deleteSelected}><Trash2 size={15} /> Delete {sel.length || ""}</button>
-              <button className="btn btn-ghost h-10 w-10 px-0" onClick={stop} aria-label="Cancel selecting" data-tip="Cancel"><X size={16} /></button>
-            </span>
-          </div>
+
+      {/* ── Toolbar: search · Select · sort ── */}
+      <div className="flex flex-wrap items-center gap-2.5 fade-up">
+        <label className="relative min-w-0 flex-1 basis-[240px]">
+          <Search size={16} className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-faint" />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={full ? "Search jobs by role, company or city" : `Search all ${jobs.length} jobs`}
+            aria-label="Search jobs"
+            className="h-[2.6rem] w-full rounded-full border-[1.5px] border-line bg-card pl-10 pr-10 text-[0.92rem] outline-none transition placeholder:text-faint focus:border-brand"
+          />
+          {query && (
+            <button type="button" onClick={() => setQuery("")} aria-label="Clear search" className="absolute right-2 top-1/2 grid h-7 w-7 -translate-y-1/2 place-items-center rounded-full text-faint hover:bg-line-2 hover:text-ink"><X size={14} /></button>
+          )}
+        </label>
+        {full && (
+          <button
+            type="button"
+            onClick={() => (selecting ? stop() : setSelecting(true))}
+            disabled={!jobs.length || !!progress}
+            aria-pressed={selecting}
+            className={`inline-flex h-[2.6rem] shrink-0 items-center gap-2 rounded-full border-[1.5px] px-4 text-[0.86rem] font-semibold transition disabled:opacity-50 ${selecting ? "border-side bg-side text-white" : "border-line bg-card text-ink hover:border-brand/40 hover:text-brand"}`}
+          >
+            {selecting ? <><X size={15} /> Cancel</> : <><ListChecks size={16} /> Select</>}
+          </button>
         )}
+        <div className="inline-flex shrink-0 gap-1 rounded-full border-[1.5px] border-line bg-card p-1" role="group" aria-label="Sort">
+          {(["recent", "fit"] as const).map((k) => (
+            <button key={k} type="button" aria-pressed={sort === k} onClick={() => setSort(k)} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === k ? "bg-side text-white" : "text-muted hover:text-ink"}`}>
+              {k === "recent" ? "Recent" : "Best fit"}
+            </button>
+          ))}
+        </div>
       </div>
+
+      {/* ── Filters (or, while selecting, the selection header in the same spot) ── */}
+      {full && (
+        <div className="flex min-h-[2.4rem] items-center gap-2 fade-up">
+          {selecting ? (
+            <>
+              <button
+                type="button"
+                role="checkbox"
+                aria-checked={allShownPicked ? true : someShownPicked ? "mixed" : false}
+                onClick={() => setPicked((p) => { const n = new Set(p); shown.forEach((a) => (allShownPicked ? n.delete(a.id) : n.add(a.id))); return n; })}
+                className="flex h-9 items-center gap-2.5 rounded-full pl-4 pr-3 text-[0.9rem] font-semibold text-ink hover:bg-line-2 sm:pl-5"
+              >
+                <Box on={allShownPicked} mixed={someShownPicked} />
+                {allShownPicked ? "All selected" : `Select all ${shown.length}`}
+              </button>
+              {unanalysed.length > 0 && (
+                <button type="button" onClick={() => setPicked(new Set(unanalysed.map((a) => a.id)))} className={chip(false)}>
+                  Only not analysed <span className="tabular-nums opacity-70">{unanalysed.length}</span>
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="no-scrollbar -mx-1 flex min-w-0 gap-2 overflow-x-auto px-1 py-0.5">
+              <button type="button" onClick={() => setFilter("")} className={chip(!filter)}>All <span className="tabular-nums opacity-70">{jobs.length}</span></button>
+              {unanalysed.length > 0 && (
+                <button type="button" onClick={() => setFilter("new")} className={chip(filter === "new")}><span className="h-2 w-2 rounded-full bg-faint" />Not analysed <span className="tabular-nums opacity-70">{unanalysed.length}</span></button>
+              )}
+              {STATUSES.filter((s) => counts[s]).map((s) => (
+                <button key={s} type="button" onClick={() => setFilter(s)} className={chip(filter === s)}>
+                  <span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} />{STATUS_META[s].label} <span className="tabular-nums opacity-70">{counts[s]}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       {progress && <WorkingInline text={`Analysing ${progress.i} of ${progress.n}... keep this tab open`} />}
       {note && (
-        <div className={`flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[0.9rem] font-medium fade-up ${note.ok ? "bg-good-soft text-good" : "bg-bad-soft text-bad"}`}>
+        <div role="status" className={`flex items-center gap-2.5 rounded-2xl px-4 py-3 text-[0.9rem] font-medium fade-up ${note.ok ? "bg-good-soft text-good" : "bg-bad-soft text-bad"}`}>
           {note.ok && <Check size={15} strokeWidth={3} />} {note.text}
         </div>
       )}
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3 stagger">
-        {jobs.map((a) => (
-          <div key={a.id} className="relative">
-            <JobTile a={a} practised={done} />
-            {selecting && (
-              <button
-                type="button"
-                onClick={() => toggle(a.id)}
-                aria-pressed={picked.has(a.id)}
-                aria-label={`Select ${a.role} at ${a.company}`}
-                className={`absolute inset-0 rounded-[22px] text-left transition ${picked.has(a.id) ? "bg-brand/[.06] ring-2 ring-brand" : "bg-white/0 hover:bg-brand/[.03] ring-1 ring-transparent hover:ring-brand/30"}`}
-              >
-                <span className={`absolute -left-2 -top-2 grid h-7 w-7 place-items-center rounded-lg border-2 shadow-sm ${picked.has(a.id) ? "border-brand bg-brand text-white" : "border-line bg-white"}`}>
-                  {picked.has(a.id) && <Check size={15} strokeWidth={3} />}
-                </span>
-              </button>
-            )}
-          </div>
-        ))}
-        {addCard && !selecting && (
-          <Link href="/jobs/new" className="group card card-hover flex min-h-[200px] flex-col p-6">
-            <span data-tone="1" className="tone-chip grid h-11 w-11 place-items-center rounded-xl bg-line-2"><Plus size={20} /></span>
-            <span className="mt-4 block font-display text-[1.15rem] font-bold">Add another job</span>
-            <span className="block text-[0.86rem] text-muted">Paste a link or the description.</span>
-            <span className="mt-auto pt-4"><span className="pill-action">Add a job <ArrowRight size={14} /></span></span>
-          </Link>
+      {/* ── The list ── */}
+      <ul className="card divide-y divide-line overflow-hidden p-0 fade-up" aria-label={selecting ? "Select jobs" : "Jobs"}>
+        {visible.map((a, i) => {
+          const on = picked.has(a.id);
+          const row = "flex min-h-[66px] w-full items-center gap-4 px-4 py-3.5 text-left transition sm:px-5"; // same height with or without a location line
+          return (
+            <li key={a.id}>
+              {selecting ? (
+                <button
+                  type="button"
+                  role="checkbox"
+                  aria-checked={on}
+                  onClick={(e) => pick(i, e.shiftKey)}
+                  onMouseDown={(e) => e.shiftKey && e.preventDefault()}
+                  className={`${row} ${on ? "bg-brand-soft/70" : "hover:bg-line-2/70"}`}
+                >
+                  <JobRowContent a={a} practised={done} lead={<Box on={on} />} />
+                </button>
+              ) : (
+                <Link href={`/jobs/${a.id}`} className={`${row} group hover:bg-line-2/70`}>
+                  <JobRowContent a={a} practised={done} trailing={<ChevronRight size={17} className="hidden shrink-0 text-faint transition group-hover:translate-x-0.5 group-hover:text-brand sm:block" />} />
+                </Link>
+              )}
+            </li>
+          );
+        })}
+        {!visible.length && (
+          <li className="px-5 py-10 text-center text-muted">
+            {q ? <>No jobs match &ldquo;{query}&rdquo;. <button type="button" onClick={() => setQuery("")} className="font-semibold text-brand">Clear search</button></> : filter ? <>No jobs here. <button type="button" onClick={() => setFilter("")} className="font-semibold text-brand">Show all</button></> : "No jobs yet."}
+          </li>
         )}
-        {!jobs.length && <div className="card p-10 text-center text-muted md:col-span-2 xl:col-span-3">No jobs here.</div>}
-      </div>
+      </ul>
+      {!full && !q && shown.length > limit && (
+        <div className="flex justify-center">
+          <Link href="/jobs" className="pill-nav">See all {shown.length} jobs <ArrowRight size={14} /></Link>
+        </div>
+      )}
+
+      {/* ── Floating action bar: once something is picked; above the phone tab bar, centred on the content ── */}
+      {full && picked.size > 0 && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-[calc(6.5rem+env(safe-area-inset-bottom))] z-40 flex justify-center px-3 lg:bottom-6 lg:pl-[248px]">
+          <div role="toolbar" aria-label="Selected jobs" className="pop pointer-events-auto flex max-w-full items-center gap-2 overflow-x-auto rounded-full bg-side py-1.5 pl-5 pr-1.5 text-white shadow-[0_18px_40px_-14px_rgba(0,40,90,.55)]">
+            <span className="whitespace-nowrap text-[0.92rem] font-semibold tabular-nums">{picked.size} selected</span>
+            <span className="mx-1 h-5 w-px shrink-0 bg-white/25" aria-hidden />
+            <button className="btn btn-clay btn-sm shrink-0 !shadow-none" disabled={!toAnalyse.length || !!progress} onClick={analyseSelected} title={!toAnalyse.length ? "The selected jobs are already analysed" : undefined}>
+              <Sparkles size={14} /> Analyse{toAnalyse.length ? ` ${toAnalyse.length}` : ""}
+            </button>
+            <button className="btn btn-sm shrink-0 bg-white/12 text-white hover:bg-bad" disabled={!!progress} onClick={deleteSelected}>
+              <Trash2 size={14} /> Delete
+            </button>
+            <button className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-white/85 hover:bg-white/15" onClick={() => setPicked(new Set())} aria-label="Clear selection" data-tip="Clear selection"><X size={16} /></button>
+          </div>
+        </div>
+      )}
     </section>
+  );
+}
+
+/** Round-cornered checkbox used by the list rows and the select-all header. */
+function Box({ on, mixed = false }: { on: boolean; mixed?: boolean }) {
+  return (
+    <span aria-hidden className={`grid h-[1.3rem] w-[1.3rem] shrink-0 place-items-center rounded-md border-2 transition ${on || mixed ? "border-brand bg-brand text-white" : "border-line bg-white"}`}>
+      {on ? <Check size={13} strokeWidth={3} /> : mixed ? <Minus size={13} strokeWidth={3} /> : null}
+    </span>
   );
 }

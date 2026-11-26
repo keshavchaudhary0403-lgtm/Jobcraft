@@ -25,7 +25,10 @@ export const requireUser = cache(async () => {
     const { error } = await supabase.from("profiles").update(patch).eq("id", id);
     if (!error) Object.assign(profile, patch);
   }
-  const user = { id, email: (data!.claims.email as string | undefined) ?? profile.email ?? undefined };
+  // Profile photo URL lives in the user's own auth metadata (set from the Profile page).
+  const meta = (data!.claims.user_metadata ?? {}) as { avatar_url?: unknown };
+  const avatarUrl = typeof meta.avatar_url === "string" && meta.avatar_url.startsWith("https://") ? meta.avatar_url : null;
+  const user = { id, email: (data!.claims.email as string | undefined) ?? profile.email ?? undefined, avatarUrl };
   return { supabase, user, profile };
 });
 

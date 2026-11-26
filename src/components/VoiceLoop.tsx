@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { AlertCircle, Mic, Phone, PhoneOff, SkipForward } from "lucide-react";
+import { AlertCircle, Mic, Phone, PhoneOff, Play, SkipForward } from "lucide-react";
 import { cleanAi } from "@/lib/clean-ai";
 import { Orb } from "./RealtimeCall";
 import { Spinner } from "./client-ui";
@@ -251,7 +251,7 @@ export function VoiceLoop({
         </div>
         <div className="flex w-full items-center gap-2 sm:w-auto [&>.btn]:flex-1 sm:[&>.btn]:flex-none">
           {!on && finished ? null : !on ? (
-            <button onClick={start} className="btn btn-clay h-12 px-6 text-[1rem]"><Phone size={17} /> {ended || turns.length ? "Continue call" : "Start call"}</button>
+            <button onClick={start} className="btn btn-clay h-12 px-6 text-[1rem]">{ended || turns.length ? <><Phone size={17} /> Continue call</> : <><Play size={16} /> Start</>}</button>
           ) : (
             <>
               {(phase === "speaking" || phase === "hearing") && (

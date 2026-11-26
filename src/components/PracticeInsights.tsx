@@ -239,8 +239,8 @@ export function OfferCheckCard({ sessionId, initial }: { sessionId: string; init
 }
 
 /** Switch between the realistic voice call and the classic chat (+ browser voice). */
-export function PracticeModes({ realistic, classic, available, voiceLabel = "Voice call" }: { realistic: React.ReactNode; classic: React.ReactNode; available: boolean; voiceLabel?: string }) {
-  const [mode, setMode] = useState<"realistic" | "classic">(available ? "realistic" : "classic");
+export function PracticeModes({ realistic, classic, available, voiceLabel = "Voice call", initial = "realistic" }: { realistic: React.ReactNode; classic: React.ReactNode; available: boolean; voiceLabel?: string; initial?: "realistic" | "classic" }) {
+  const [mode, setMode] = useState<"realistic" | "classic">(available ? initial : "classic");
   if (!available) return <div className="flex h-full flex-col">{classic}</div>;
   return (
     <div className="flex h-full flex-col gap-4">

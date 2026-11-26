@@ -1,5 +1,6 @@
 "use client";
 
+import { ProfilePhoto } from "./ProfilePhoto";
 import { useEffect, useState } from "react";
 import { AlertCircle, Check, ExternalLink, FileText, NotebookPen, Plus, Tags, Trophy, UserRound, X } from "lucide-react";
 import { keepUploadedResume, uploadedResumeInfo } from "@/lib/actions";
@@ -57,7 +58,7 @@ function UploadedFile({ file, pending }: { file: { name: string; uploadedAt: str
   );
 }
 
-export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline, scoreStart, head, pendingFile, onFileKept }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft; scoreStart?: number | null; head?: { loginId: string; actions: React.ReactNode }; pendingFile?: string | null; onFileKept?: () => void }) {
+export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", tabs, baseline, scoreStart, head, pendingFile, onFileKept }: { userId: string; initial: ProfileDraft; onSaved?: () => void; cta?: string; tabs?: boolean; baseline?: ProfileDraft; scoreStart?: number | null; head?: { loginId: string; actions: React.ReactNode; photo?: { url: string | null; locked?: boolean } }; pendingFile?: string | null; onFileKept?: () => void }) {
   const [file, setFile] = useState<{ name: string; uploadedAt: string } | null>(null);
   useEffect(() => {
     uploadedResumeInfo().then(setFile).catch(() => {});
@@ -240,7 +241,11 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
 
         {/* Blue banner like Home and Admin: who you are, and two tinted scores. Details live in the form below. */}
         <section className="dark-card hero-band flex flex-wrap items-center gap-5 p-6 text-white fade-up sm:p-7">
-          <span className="avatar-warm grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full font-display text-[1.6rem] font-bold ring-4 ring-white/20">{initials}</span>
+          {head?.photo ? (
+            <ProfilePhoto url={head.photo.url} initials={initials} size={72} disabled={head.photo.locked} />
+          ) : (
+            <span className="avatar-warm grid h-[72px] w-[72px] shrink-0 place-items-center rounded-full font-display text-[1.6rem] font-bold ring-4 ring-white/20">{initials}</span>
+          )}
           <div className="min-w-0 flex-1">
             <div className="truncate font-display text-[1.9rem] font-bold leading-[1.05]">{d.full_name || "Your name"}</div>
             <div className="mt-1 flex flex-wrap items-center gap-2 text-[0.95rem] text-white/85">
@@ -264,7 +269,7 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         </section>
 
         {/* Chapters + save */}
-        <div className="sticky top-[68px] lg:top-3 z-20 -mx-1 grid gap-3 bg-bg/90 px-1 py-2 backdrop-blur md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto]">
+        <div className="sticky top-[68px] lg:top-3 z-20 -mx-1 grid gap-3 bg-bg/90 px-1 py-2 backdrop-blur md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_auto] xl:grid-cols-3 xl:gap-5">
           {chapters.map((c, i) => {
             const on = view === c.k;
             return (

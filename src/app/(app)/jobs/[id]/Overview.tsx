@@ -163,7 +163,7 @@ export function Overview({ app, onUpdate, askAt, onAsk, onGo }: Props) {
       <div className={`space-y-5 stagger transition ${busy ? "pointer-events-none opacity-60" : ""}`}>
         {/* Row 1: the read + coverage charts */}
         <div className="grid gap-5 xl:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)]">
-          <section className="card flex flex-col border-l-4 border-l-brand p-6">
+          <section className="card flex flex-col p-6">
             <div className="flex flex-wrap items-start justify-between gap-2">
               <span className="text-[0.76rem] font-semibold uppercase tracking-[0.14em] text-brand">What they&apos;re really hiring for</span>
               <span className="chip max-w-full whitespace-normal bg-brand-soft text-brand-ink">{a.fit_verdict}</span>

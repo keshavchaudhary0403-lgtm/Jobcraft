@@ -66,7 +66,7 @@ export function LinkedInClient({ initial, name, title, city, targetRole, url }: 
             ) : (
               <div className="mt-2 space-y-1.5"><div className={`h-3 w-3/4 rounded ${busy ? "skeleton" : "bg-line-2"}`} /><div className={`h-3 w-1/2 rounded ${busy ? "skeleton" : "bg-line-2"}`} /></div>
             )}
-            <div className="mt-2 flex items-center gap-1 text-[0.88rem] text-muted">{city && <><MapPin size={13} /> {city}</>}{title && <span className="ml-2">· {title}</span>}</div>
+            <div className="mt-2 flex flex-wrap items-center gap-x-1.5 text-[0.88rem] text-muted">{city && <><MapPin size={13} />{city}</>}{city && title && <span aria-hidden>·</span>}{title && <span>{title}</span>}</div>
 
             <div className="mt-6 grid gap-6 border-t border-line pt-6 xl:grid-cols-[minmax(0,1fr)_240px]">
               <div className="min-w-0">

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { ArrowUp, AudioLines, Lightbulb, Mic, PenLine, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
+import { ArrowUp, AudioLines, Lightbulb, MessagesSquare, Mic, PenLine, Play, Search, Sparkles, Square, Target, Volume2, VolumeX } from "lucide-react";
 import type { Message } from "@/lib/types";
 import { cleanAi } from "@/lib/clean-ai";
 import { useVoice } from "./useVoice";
@@ -16,8 +16,8 @@ type Props = {
   voice?: boolean;
   /** One-tap replies, e.g. "Ready". */
   quickReplies?: string[];
-  /** Hidden instruction sent automatically when the session is empty. */
-  autoStart?: { prompt: string; step: string };
+  /** Hidden opening instruction for an empty session - sent only when the person presses Start (never on its own). */
+  autoStart?: { prompt: string; step: string; label?: string; hint?: string };
   suggestions?: string[];
   placeholder?: string;
   /** Label for the AI side, e.g. "Interviewer". */
@@ -25,11 +25,14 @@ type Props = {
   /** The round already ended: show endBanner instead of the voice controls. */
   finished?: boolean;
   endBanner?: React.ReactNode;
+  /** Practice-session layout, matching the live voice tab: standalone blue header (mode chip + question bars)
+   *  above a separate "Transcript" card that scrolls and holds the input. */
+  practice?: { modeLabel: string; questionBars?: boolean };
 };
 
 type LocalMsg = Pick<Message, "role" | "content" | "step"> & { id: string; pending?: boolean };
 
-export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, autoStart, suggestions, placeholder, aiName = "Coach", finished = false, endBanner }: Props) {
+export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, autoStart, suggestions, placeholder, aiName = "Coach", finished = false, endBanner, practice }: Props) {
   const [messages, setMessages] = useState<LocalMsg[]>(initialMessages);
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
@@ -98,28 +101,44 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
     if (/\[\[END\]\]/.test(text)) window.dispatchEvent(new CustomEvent("jc:practice-ended", { detail: { sessionId } }));
   }
 
-  useEffect(() => {
-    if (autoStart && !started.current && initialMessages.length === 0) {
-      started.current = true;
-      send(autoStart.prompt, autoStart.step);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  // A brand-new practice session waits for the person to press Start - opening the tab doesn't call the AI.
+  const [waiting, setWaiting] = useState(!!autoStart && initialMessages.length === 0);
+  function begin() {
+    if (!autoStart || started.current) return;
+    started.current = true;
+    setWaiting(false);
+    send(autoStart.prompt, autoStart.step);
+  }
 
   const visible = messages.filter((m) => !(m.role === "user" && m.step) && m.step !== "voice"); // hide backend prompts and voice-call turns
   const state = v.listening ? "listening" : busy ? "thinking" : v.speaking ? "speaking" : "idle";
 
+  // Main questions asked so far (hidden [[Qn]] tags), for the same 6-bar progress the voice tab shows.
+  const asked = Math.max(0, ...messages.filter((m) => m.role === "assistant").flatMap((m) => [...m.content.matchAll(/\[\[Q(\d)\]\]/g)].map((x) => Number(x[1]))));
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className={practice ? "flex h-full flex-col gap-4" : "flex flex-col gap-4"}>
       {!ended && voice && (
-        <div className="dark-card flex flex-wrap items-center gap-5 p-5 fade-up">
+        <div className="dark-card flex shrink-0 flex-wrap items-center gap-5 p-5 fade-up">
           <VoiceOrb state={state} />
           <div className="min-w-0 flex-1">
+            {practice && (
+              <div className="mb-2 flex flex-wrap items-center gap-2 text-[0.78rem]">
+                <span className="rounded-full bg-white/10 px-2.5 py-0.5 font-semibold">{practice.modeLabel}</span>
+                {practice.questionBars && asked > 0 && <span className="rounded-full bg-mustard px-2.5 py-0.5 font-semibold text-side">Question {Math.min(asked, 6)} of 6</span>}
+              </div>
+            )}
             <div className="font-display text-[1.35rem] font-bold leading-tight">
-              {state === "listening" ? "Listening..." : state === "thinking" ? `${aiName} is thinking...` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
+              {waiting ? "Ready when you are" : state === "listening" ? "Listening..." : state === "thinking" ? `${aiName} is thinking...` : state === "speaking" ? `${aiName} is speaking` : "Your turn"}
             </div>
-            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/85">{v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
+            <div className="mt-0.5 min-h-5 text-[0.86rem] text-cream/85">{waiting ? (autoStart?.hint ?? "Press Start when you're ready.") : v.listening ? v.transcript || "Tap ■ when you finish your answer" : v.supported.listen ? "Tap the mic and answer out loud - or type below." : "Voice works in Chrome, Edge and Safari. You can type below."}</div>
+            {practice?.questionBars && (
+              <div className="mt-3 grid max-w-xs grid-cols-6 gap-1">{[1, 2, 3, 4, 5, 6].map((n) => <span key={n} className={`h-1.5 rounded-full ${n <= asked ? "bg-mustard" : "bg-white/15"}`} />)}</div>
+            )}
           </div>
+          {waiting ? (
+            <button type="button" onClick={begin} className="btn btn-clay h-12 px-6 text-[1rem]"><Play size={16} /> {autoStart?.label ?? "Start"}</button>
+          ) : (
           <div className="flex items-center gap-2">
             {(busy || v.speaking || v.listening) && (
               <button onClick={stopAll} className="flex h-12 items-center gap-1.5 rounded-full bg-white/10 px-4 font-semibold text-cream transition hover:bg-white/20" aria-label="Stop">
@@ -142,11 +161,22 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
               </button>
             )}
           </div>
+          )}
         </div>
       )}
 
-      <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-3">
+      <div
+        {...(practice ? { "data-chat-scroll": "" } : {})}
+        className={practice ? "card thin-scroll flex min-h-[320px] min-w-0 flex-1 flex-col gap-4 overflow-y-auto px-5 pt-5 xl:min-h-0" : "flex min-w-0 flex-col gap-4"}
+        style={practice ? ({ "--chat-bg": "var(--card)" } as React.CSSProperties) : undefined}
+      >
+      {practice && <div className="-mb-1 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-muted">Transcript</div>}
+      <div className={practice ? "flex flex-1 flex-col gap-3" : "flex flex-col gap-3"}>
+        {practice && visible.length === 0 && !busy && (
+          <div className="grid min-h-[200px] flex-1 place-items-center text-center text-muted">
+            <div><MessagesSquare size={22} className="mx-auto text-brand" /><p className="mt-3 max-w-sm text-[0.92rem]">{waiting ? "Press Start above. The conversation appears here, and the full transcript is saved." : "The conversation appears here, and the full transcript is saved."}</p></div>
+          </div>
+        )}
         {visible.length === 0 && !busy && suggestions && (
           <div className="fade-up">
             {/* Welcome: who the coach is + colourful starter tiles */}
@@ -179,7 +209,7 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
 
       <div className="sticky bottom-0 bg-gradient-to-t from-[var(--chat-bg,var(--bg))] via-[var(--chat-bg,var(--bg))] to-transparent pb-4 pt-3">
         {ended ? (endBanner ?? <p className="rounded-2xl bg-line-2/70 px-4 py-3 text-center text-[0.86rem] text-muted">This round is complete. Your scorecard is on the right.</p>) : (<>
-        {quickReplies && quickReplies.length > 0 && (
+        {!waiting && quickReplies && quickReplies.length > 0 && (
           <div className="mb-2 flex gap-2">
             {quickReplies.map((q) => (
               <button key={q} className="pill-nav h-9 text-[0.85rem]" disabled={busy} onClick={() => send(q)}>
@@ -192,7 +222,8 @@ export function ChatPanel({ sessionId, initialMessages, voice, quickReplies, aut
           <textarea
             className="max-h-40 flex-1 resize-none bg-transparent px-3 py-2.5 text-sm outline-none placeholder:text-faint"
             rows={1}
-            placeholder={placeholder ?? "Message..."}
+            placeholder={waiting ? `Press ${autoStart?.label ?? "Start"} above to begin` : placeholder ?? "Message..."}
+            disabled={waiting}
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => {

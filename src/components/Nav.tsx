@@ -4,12 +4,13 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { BriefcaseBusiness, ChevronRight, ChevronUp, House, IndianRupee, LogOut, Menu, Mic, Plus, Settings2, UserRound, X } from "lucide-react";
-import { Logo } from "./Logo";
+import { Logo, LogoMark } from "./Logo";
 import { LinkedInIcon } from "./icons";
+import { Avatar } from "./ProfilePhoto";
 
-type Props = { name: string; isAdmin: boolean; jobs: number; strength: number };
+type Props = { name: string; isAdmin: boolean; jobs: number; strength: number; avatarUrl?: string | null };
 
-export function Nav({ name, isAdmin, jobs, strength }: Props) {
+export function Nav({ name, isAdmin, jobs, strength, avatarUrl = null }: Props) {
   const path = usePathname();
   const [menu, setMenu] = useState(false);
   const [open, setOpen] = useState(false);
@@ -53,7 +54,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
       <nav className="mt-6 space-y-6">
         {groups.map((g) => (
           <div key={g.label}>
-            <div className="mb-2 px-3 text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/80">{g.label}</div>
+            <div className="mb-2 px-[13px] text-[0.78rem] font-semibold uppercase tracking-[0.16em] text-white/80">{g.label}</div>
             <div className="space-y-1">
               {g.items.map(({ href, label, icon: Icon, ...rest }) => {
                 const active = isActive(href);
@@ -63,9 +64,9 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
                     key={href}
                     href={href}
                     onClick={() => setOpen(false)}
-                    className={`flex h-11 items-center gap-3 rounded-full px-3.5 text-[0.95rem] transition ${active ? "bg-cream font-semibold text-side" : "text-white/85 hover:bg-white/[.08] hover:text-white"}`}
+                    className={`flex h-11 items-center gap-3 rounded-full pl-1 pr-3 text-[0.95rem] transition ${active ? "bg-cream font-semibold text-side" : "text-white/85 hover:bg-white/[.08] hover:text-white"}`}
                   >
-                    <Icon size={17} />
+                    <span className="grid h-[36px] w-[36px] shrink-0 place-items-center"><Icon size={17} /></span>
                     <span className="flex-1">{label}</span>
                     {count > 0 && <span className={`grid h-5 min-w-5 place-items-center rounded-full px-1.5 text-[0.78rem] font-bold tabular-nums ${active ? "bg-white text-side" : "bg-white/15 text-white"}`}>{count}</span>}
                   </Link>
@@ -84,8 +85,8 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
             <button onClick={logout} className="flex h-11 w-full items-center gap-3 rounded-2xl px-3 text-[0.95rem] text-bad hover:bg-bad-soft"><LogOut size={16} /> Log out</button>
           </div>
         )}
-        <button onClick={() => setMenu(!menu)} className={`flex w-full items-center gap-3 rounded-2xl p-2 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
-          <span className="avatar-warm grid h-9 w-9 shrink-0 place-items-center rounded-full text-[0.8rem] font-bold">{initials || "?"}</span>
+        <button onClick={() => setMenu(!menu)} className={`flex h-11 w-full items-center gap-3 rounded-full pl-1 pr-3 text-left transition ${menu ? "bg-white/[.1]" : "hover:bg-white/[.06]"}`} aria-label="Account menu">
+          <Avatar url={avatarUrl} initials={initials} size={36} />
           <span className="min-w-0 flex-1 truncate text-[0.92rem] font-medium text-cream">{name}</span>
           <ChevronUp size={15} className={`text-white/85 transition ${menu ? "" : "rotate-180"}`} />
         </button>
@@ -100,7 +101,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
         <div className="rail-bg flex h-14 items-center justify-between rounded-[20px] bg-side pl-3.5 pr-2 shadow-[0_12px_30px_-18px_color-mix(in_srgb,var(--side)_90%,transparent)]">
           <Link href="/" aria-label="Home" className="flex items-center"><Logo size={30} light /></Link>
           <div className="flex items-center gap-2">
-            <span aria-hidden className="avatar-warm grid h-9 w-9 select-none place-items-center rounded-full text-[0.8rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
+            <span aria-hidden className="select-none"><Avatar url={avatarUrl} initials={initials} size={36} className="ring-2 ring-white/25" /></span>
             <button onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-[14px] bg-white/12 text-white transition active:scale-95" aria-label="Open menu">
               <Menu size={18} />
             </button>
@@ -145,7 +146,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
             {/* Profile card in the app's hero style */}
             <Link href="/profile" onClick={() => setOpen(false)} className="dark-card block rounded-[22px] p-4 text-white">
               <div className="flex items-center gap-3">
-                <span className="avatar-warm grid h-12 w-12 shrink-0 place-items-center rounded-full text-[0.95rem] font-bold ring-2 ring-white/25">{initials || "?"}</span>
+                <Avatar url={avatarUrl} initials={initials} size={48} className="ring-2 ring-white/25" />
                 <span className="min-w-0 flex-1">
                   <span className="block truncate font-display text-[1.15rem] font-bold">{name}</span>
                   <span className="block text-[0.8rem] text-white/85">Profile strength</span>
@@ -183,7 +184,7 @@ export function Nav({ name, isAdmin, jobs, strength }: Props) {
 
       {/* Desktop: floating rail */}
       <aside className="no-print fixed inset-y-3 left-3 z-30 hidden w-[232px] flex-col rounded-[28px] bg-side p-4 shadow-[0_20px_50px_-30px_color-mix(in_srgb,var(--side)_90%,transparent)] lg:flex">
-        <Link href="/" className="mb-6 flex items-center px-1.5 pt-1"><Logo size={32} light /></Link>
+        <Link href="/" className="mb-6 flex h-11 items-center gap-3 pl-1" aria-label="Jobcraft home"><LogoMark size={36} inverse /><span className="font-display text-[1.3rem] font-bold leading-none tracking-tight text-white">Jobcraft</span></Link>
         {body}
       </aside>
     </>

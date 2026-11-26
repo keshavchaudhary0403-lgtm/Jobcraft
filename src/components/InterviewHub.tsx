@@ -22,7 +22,7 @@ function StartRound({ label }: { label: string }) {
   );
 }
 
-const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "After six questions: your score and model answers"];
+const STEPS = ["The hiring manager asks one question at a time", "Answer out loud - vague answers get a follow-up", "After six questions: your score and model answers", "Weak answers go to Questions to prepare for next time"];
 
 /**
  * Interview hub: pick a job, and right under it see that job's practice track -
@@ -37,7 +37,7 @@ export function InterviewHub({ apps, preselect, groups, otherFields }: { apps: P
 
   return (
     <div className="space-y-5">
-      <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+      <div className="grid items-stretch gap-5 lg:grid-cols-[minmax(0,2.3fr)_minmax(0,1fr)]">
         <section className="card p-6">
           <h2 className="mb-4 text-[1.2rem] font-bold leading-none">Which job are you practising for?</h2>
           <JobPicker apps={apps} preselect={initial} onPick={setSel} otherFields={otherFields} />

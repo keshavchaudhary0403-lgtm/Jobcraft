@@ -96,3 +96,34 @@ export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt
   );
 }
 
+
+/**
+ * One job as a compact row - the app's standard way to list jobs (Jobs page, Home, practice pickers).
+ * Pure layout: the caller wraps it in a link, a checkbox button or a radio button and passes `lead` (e.g. the box).
+ */
+export function JobRowContent({ a, practised, lead, showNext = true, showTime = true, trailing }: { a: Application; practised?: Set<string>; lead?: React.ReactNode; showNext?: boolean; showTime?: boolean; trailing?: React.ReactNode }) {
+  const an = a.analysis as Analysis | null;
+  const steps = showNext ? journey(a, practised ?? new Set()) : [];
+  const next = showNext && !["rejected", "withdrawn"].includes(a.status) ? steps.find((s) => !s.done) : undefined;
+  const st = STATUS_META[a.status];
+  return (
+    <>
+      {lead}
+      <span className="hidden w-[180px] shrink-0 sm:block">
+        <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={22} iconSize={28} nameClass="truncate text-[0.86rem] font-bold text-ink" />
+      </span>
+      <span className="min-w-0 flex-1">
+        <span className="block truncate font-semibold text-ink" title={a.role}>{a.role}</span>
+        <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.82rem] text-muted">
+          <span className="truncate font-semibold text-ink sm:hidden">{a.company}</span>
+          {a.location && <span className="hidden min-w-0 items-center gap-1 truncate sm:flex"><MapPin size={12} className="shrink-0" />{a.location}</span>}
+        </span>
+      </span>
+      {next && <span className="hidden w-[200px] shrink-0 truncate text-[0.84rem] text-muted xl:block" title={next.cta}>Next: <span className="font-semibold text-ink">{next.cta}</span></span>}
+      {showTime && <span className="hidden w-[4.5rem] shrink-0 text-right text-[0.8rem] text-muted md:block" suppressHydrationWarning>{timeAgo(a.updated_at)}</span>}
+      <span className={`chip hidden shrink-0 sm:inline-flex ${st.cls}`}>{st.label}</span>
+      <span className="flex w-[7.5rem] shrink-0 justify-end"><FitBadge value={an ? an.fit_score * 10 : null} size="sm" className="whitespace-nowrap" /></span>
+      {trailing}
+    </>
+  );
+}

@@ -1,11 +1,8 @@
 import Link from "next/link";
 import { ArrowRight, Plus } from "lucide-react";
-import { STATUS_BAR } from "@/components/JobTiles";
 import { JobsGrid } from "@/components/JobsGrid";
 import { requireUser } from "@/lib/auth";
-import { STATUS_META } from "@/components/ui";
-import { STATUSES, type Application, type Status } from "@/lib/types";
-import type { Analysis } from "@/lib/tasks";
+import type { Application } from "@/lib/types";
 
 export const metadata = { title: "Jobs" };
 
@@ -19,20 +16,6 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
   ]);
   const jobs = all ?? [];
   const practised = new Set((sessions ?? []).map((s) => s.application_id).filter(Boolean) as string[]);
-  const counts = Object.fromEntries(STATUSES.map((s) => [s, jobs.filter((a) => a.status === s).length])) as Record<Status, number>;
-  const fit = (a: Application) => (a.analysis as Analysis | null)?.fit_score ?? -1;
-  const unanalysed = jobs.filter((a) => !a.analysis).length;
-  const shown = jobs
-    .filter((a) => !status || (status === "new" ? !a.analysis : a.status === status))
-    .sort((x, y) => (sort === "fit" ? fit(y) - fit(x) : 0));
-  const q = (p: Record<string, string | undefined>) => {
-    const u = new URLSearchParams();
-    const merged = { status, sort: sort === "recent" ? undefined : sort, ...p };
-    for (const [k, v] of Object.entries(merged)) if (v) u.set(k, v);
-    const s = u.toString();
-    return `/jobs${s ? `?${s}` : ""}`;
-  };
-
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -55,33 +38,8 @@ export default async function JobsPage({ searchParams }: { searchParams: Promise
         </Link>
       ) : (
         <>
-          {/* Summary row: count + status bar, filter chips, sort. Light, like LinkedIn / Interview / Salary. */}
-          <section className="flex flex-wrap items-center gap-x-4 gap-y-3 fade-up">
-            <div className="ml-auto inline-flex shrink-0 gap-1 rounded-full border-[1.5px] border-line p-1 sm:order-last">
-              <Link href={q({ sort: undefined })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "recent" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Recent</Link>
-              <Link href={q({ sort: "fit" })} className={`rounded-full px-3.5 py-1.5 text-[0.84rem] font-semibold ${sort === "fit" ? "bg-side text-white" : "text-muted hover:text-ink"}`}>Best fit</Link>
-            </div>
-            <div className="no-scrollbar -mx-1 flex w-full min-w-0 gap-2 overflow-x-auto px-1 py-0.5 sm:w-auto sm:flex-1">
-              <Link href={q({ status: undefined })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${!status ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
-                All <span className="tabular-nums opacity-70">{jobs.length}</span>
-              </Link>
-              {unanalysed > 0 && (
-                <Link href={q({ status: "new" })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === "new" ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
-                  <span className="h-2 w-2 rounded-full bg-faint" />
-                  Not analysed <span className="tabular-nums opacity-70">{unanalysed}</span>
-                </Link>
-              )}
-              {STATUSES.filter((s) => counts[s]).map((s) => (
-                <Link key={s} href={q({ status: s })} className={`flex shrink-0 items-center gap-2 rounded-full px-3.5 py-1.5 text-[0.86rem] font-semibold transition ${status === s ? "bg-side text-white" : "bg-line-2 text-ink hover:bg-line"}`}>
-                  <span className={`h-2 w-2 rounded-full ${STATUS_BAR[s]}`} />
-                  {STATUS_META[s].label} <span className="tabular-nums opacity-70">{counts[s]}</span>
-                </Link>
-              ))}
-            </div>
-          </section>
-
-          {/* Job tiles with Select mode (analyse or delete several at once) */}
-          <JobsGrid jobs={shown} practised={[...practised]} addCard={!status} />
+          {/* Search, filters, sort and Select all live in the list itself (instant, no page reload). */}
+          <JobsGrid jobs={jobs} practised={[...practised]} initialFilter={status} initialSort={sort} />
         </>
       )}
     </div>

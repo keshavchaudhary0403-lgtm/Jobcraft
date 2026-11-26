@@ -65,6 +65,13 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   rq = session.application_id ? rq.eq("application_id", session.application_id) : rq.is("application_id", null).eq("title", session.title);
   const { data: siblings } = await rq;
   const roundNo = Math.max(1, (siblings ?? []).findIndex((r) => r.id === id) + 1);
+  // The next round is always after the LAST one for this job (not after the one being viewed).
+  const nextNo = Math.max(roundNo, (siblings ?? []).length) + 1;
+  // One rule everywhere (same as the rounds list): a round is complete once it has a score, or the interviewer ended it.
+  const done = finished || (kind === "interview" && typeof report?.score === "number");
+  // Open the tab where this round's conversation actually happened.
+  const chatTurns = visible.filter((m) => m.step !== "voice").length;
+  const startMode = voiceTurns.length === 0 && chatTurns > 0 ? "classic" : "realistic";
   const hubHref = `${cfg.back}${session.application_id ? `?app=${session.application_id}` : ""}`;
   const role = app?.role ?? (meta.role as string | undefined) ?? session.title;
   const voiceReady = profile.voice_enabled && profile.ai_mode === "real" && profile.is_active;
@@ -74,25 +81,37 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
   return (
     <div className="space-y-5">
       {/* Slim header: where you are, which attempt, and its state. Rare actions live in the ⋯ menu. */}
-      <header className="card flex flex-wrap items-center gap-3 px-4 py-3.5 fade-up sm:px-5">
+      <header className="card flex flex-wrap items-center gap-3 p-3 fade-up sm:p-4">
         <Link href={hubHref} className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted transition hover:bg-line-2 hover:text-ink" aria-label={`Back to ${cfg.backLabel}`} data-tip={`All ${unit.toLowerCase()}s`}><ChevronLeft size={20} /></Link>
-        <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-center gap-2 text-[0.82rem] text-muted">{company && <CompanyWordmark name={company} height={28} iconSize={24} nameClass="truncate text-[0.86rem] font-bold text-ink" />}<span className="shrink-0">· {cfg.tag}</span></div>
-          <h1 className="truncate text-[1.35rem] font-bold leading-tight sm:text-[1.55rem]">{role}</h1>
+        {/* Same highlighted block as the practice hub: logo | divider | what this is + the role. */}
+        <div className="flex min-w-0 flex-1 items-center gap-4 rounded-2xl bg-brand-soft/60 px-4 py-3 ring-1 ring-inset ring-brand/10">
+          {company && (
+            <>
+              <span className="hidden w-[260px] shrink-0 sm:block">
+                <CompanyWordmark name={company} jobUrl={app?.job_url} domain={app?.company_domain} logo={app?.company_logo} height={32} iconSize={34} nameClass="truncate text-[0.9rem] font-bold text-ink" />
+              </span>
+              <span aria-hidden className="hidden h-11 w-px shrink-0 bg-brand/20 sm:block" />
+            </>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-brand">{cfg.tag} · {unit} {roundNo}</div>
+            <h1 className="mt-0.5 truncate text-[1.3rem] font-bold leading-tight sm:text-[1.45rem]" title={role ?? undefined}>{role}</h1>
+            {company && <p className="truncate text-[0.86rem] font-semibold text-ink sm:hidden">{company}</p>}
+          </div>
         </div>
-        <div className="order-last flex w-full items-center gap-2 pl-[6.4rem] sm:order-none sm:w-auto sm:pl-0">
-          <span className="chip bg-line-2 font-semibold text-ink">{unit} {roundNo}</span>
-          <span className={`chip font-semibold ${finished ? "bg-good-soft text-good" : "bg-brand-soft text-brand"}`}>{finished ? "Complete" : "In progress"}</span>
+        <div className="flex items-center gap-2">
+          <span className={`chip font-semibold ${done ? "bg-good-soft text-good" : "bg-brand-soft text-brand"}`}>{done ? "Complete" : "In progress"}</span>
           <span className="hidden text-[0.8rem] text-muted md:inline">{timeAgo(session.created_at)}</span>
+          <RoundMenu onDelete={del} kind={kind} />
         </div>
-        <RoundMenu onDelete={del} kind={kind} />
       </header>
 
       <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)]">
         <div className="practice-col min-w-0 fade-up">
-          <RoundStage sessionId={id} kind={kind} finished={finished} roundNo={roundNo} hubHref={hubHref} review={<ReviewTranscript messages={messages ?? []} aiName={cfg.ai} />}>
+          <RoundStage sessionId={id} kind={kind} finished={done} roundNo={roundNo} nextNo={nextNo} hubHref={hubHref} review={<ReviewTranscript messages={messages ?? []} aiName={cfg.ai} />}>
           <PracticeModes
             available={voiceReady}
+            initial={startMode}
             voiceLabel={`${brand} voice`}
             realistic={
               providerOf(mine.model) === "anthropic" ? (
@@ -102,16 +121,21 @@ export async function SessionView({ id, kind }: { id: string; kind: keyof typeof
               )
             }
             classic={
-              <div data-chat-scroll className="card thin-scroll h-[70vh] min-h-[460px] overflow-y-auto px-4 pt-4 sm:px-5 xl:h-full xl:min-h-0" style={{ "--chat-bg": "var(--card)" } as React.CSSProperties}>
+              <div className="flex h-[78vh] min-h-[520px] flex-col xl:h-full xl:min-h-0">
               <ChatPanel
                 sessionId={id}
                 initialMessages={messages ?? []}
                 voice
                 aiName={cfg.ai}
                 quickReplies={cfg.quick}
-                autoStart={{ prompt, step: cfg.step }}
+                autoStart={{
+                  prompt,
+                  step: cfg.step,
+                  hint: kind === "interview" ? "The hiring manager asks one question at a time. Type your answers, or tap the mic to say them." : "HR makes the offer and pushes back. Type your replies, or tap the mic to say them.",
+                }}
                 placeholder="Or type your answer..."
-                finished={finished}
+                finished={done}
+                practice={{ modeLabel: "Chat + basic voice", questionBars: kind === "interview" }}
               />
               </div>
             }

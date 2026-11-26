@@ -16,6 +16,7 @@ export function RoundStage({
   kind,
   finished,
   roundNo,
+  nextNo,
   hubHref,
   review,
   children,
@@ -24,6 +25,8 @@ export function RoundStage({
   kind: "interview" | "negotiation";
   finished: boolean;
   roundNo: number;
+  /** Number of the next round for this job (total rounds + 1). */
+  nextNo?: number;
   hubHref: string;
   review: React.ReactNode;
   children: React.ReactNode;
@@ -51,7 +54,7 @@ export function RoundStage({
           <div className="flex flex-wrap items-center gap-2">
             <Link href={hubHref} className="flex h-12 items-center gap-1.5 rounded-full bg-white/10 px-4 font-semibold text-cream transition hover:bg-white/20"><LayoutList size={16} /> All {unit.toLowerCase()}s</Link>
             <button type="button" disabled={pending} onClick={() => start(() => restartSession(sessionId))} className="btn btn-clay h-12 px-6 text-[1rem]">
-              {pending ? <Spinner /> : <RotateCcw size={16} />} Start {unit.toLowerCase()} {roundNo + 1}
+              {pending ? <Spinner /> : <RotateCcw size={16} />} Start {unit.toLowerCase()} {nextNo ?? roundNo + 1}
             </button>
           </div>
         </div>

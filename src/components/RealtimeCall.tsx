@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Mic, MicOff, PhoneOff, Phone, AlertCircle, AudioLines, Headphones } from "lucide-react";
+import { AlertCircle, AudioLines, Headphones, Mic, MicOff, Phone, PhoneOff, Play } from "lucide-react";
 import { Spinner } from "./client-ui";
 
 type Turn = { id: string; role: "user" | "assistant"; text: string; live?: boolean };
@@ -240,7 +240,7 @@ export function RealtimeCall({ sessionId, aiName, kind, history }: { sessionId: 
         <div className="flex w-full items-center gap-2 sm:w-auto [&>.btn]:flex-1 sm:[&>.btn]:flex-none">
           {!live ? (
             <button onClick={start} disabled={status === "connecting"} className="btn btn-clay h-12 px-6 text-[1rem]">
-              {status === "connecting" ? <Spinner /> : <Phone size={17} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start call"}
+              {status === "connecting" ? <Spinner /> : status === "ended" || initialTurns > 0 ? <Phone size={17} /> : <Play size={16} />} {status === "ended" || initialTurns > 0 ? "Continue call" : "Start"}
             </button>
           ) : (
             <>

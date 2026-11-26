@@ -3,7 +3,7 @@
 import { CompanyWordmark } from "./CompanyWordmark";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown, IndianRupee } from "lucide-react";
+import { ArrowUpRight, ChevronDown, IndianRupee, TrendingUp } from "lucide-react";
 import { CopyButton } from "./client-ui";
 
 import type { PracticeGroup, RoundRow } from "@/lib/practice-history";
@@ -60,27 +60,60 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false, heading, b
   return (
     <section className={flat ? "" : "card overflow-hidden"}>
       {!noHead && <div className="flex flex-wrap items-center gap-3 p-5">
-        <div className="min-w-0 flex-1">
-          {heading ?? (
-            <>
-              {g.company && <CompanyWordmark name={g.company} jobUrl={brand?.jobUrl} domain={brand?.domain} logo={brand?.logo} height={30} iconSize={28} className="mb-1.5" nameClass="truncate text-[0.88rem] font-bold text-ink" />}
-              <h3 className="line-clamp-1 text-[1.1rem] font-bold leading-tight">{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
-            </>
-          )}
-          <p className="text-[0.84rem] text-muted">
-            {kind === "interview" ? (g.rounds.length ? "" : "No rounds yet") : g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}</> : `No ${unit}s yet`}
-            {best != null && <>{kind === "interview" ? "Best" : " · best"} <b className="text-ink">{best}/10</b></>}
-            {gain > 0 && <span className="text-good"> · up {gain} since your first</span>}
-          </p>
-        </div>
+        {heading ? (
+          <div className="min-w-0 flex-1">
+            {heading}
+            {/* Indented by the heading's icon (2.25rem) + gap (0.625rem) so it lines up under the title text. */}
+            <p className="mt-0.5 pl-[2.875rem] text-[0.86rem] text-muted">
+              {g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}{scores.length < g.rounds.length && <> · {scores.length} scored</>}</> : `No ${unit}s yet`}
+              {gain > 0 && <span className="font-semibold text-good"> · up {gain} since your first</span>}
+            </p>
+          </div>
+        ) : (
+          /* The selected job as one highlighted block: logo | divider | "Practising for" + role + details. */
+          <div className="flex min-w-0 flex-1 items-center gap-4 rounded-2xl bg-brand-soft/60 px-4 py-3 ring-1 ring-inset ring-brand/10">
+            {g.company && (
+              <>
+                <span className="hidden w-[260px] shrink-0 sm:block">
+                  <CompanyWordmark name={g.company} jobUrl={brand?.jobUrl} domain={brand?.domain} logo={brand?.logo} height={32} iconSize={34} nameClass="truncate text-[0.9rem] font-bold text-ink" />
+                </span>
+                <span aria-hidden className="hidden h-11 w-px shrink-0 bg-brand/20 sm:block" />
+              </>
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-[0.74rem] font-semibold uppercase tracking-[0.12em] text-brand">{kind === "interview" ? "Practising for" : "Past talks for"}</div>
+              <h3 className="mt-0.5 truncate text-[1.2rem] font-bold leading-tight text-ink" title={g.company ? g.title.split(" @ ")[0] : g.title}>{g.company ? g.title.split(" @ ")[0] : g.title}</h3>
+              <p className="mt-0.5 truncate text-[0.86rem] text-muted">
+                {g.company && <span className="font-semibold text-ink sm:hidden">{g.company} · </span>}
+                {g.rounds.length ? <>{g.rounds.length} {unit}{g.rounds.length === 1 ? "" : "s"}{scores.length < g.rounds.length && <> · {scores.length} scored</>}</> : `No ${unit}s yet`}
+                {gain > 0 && <span className="font-semibold text-good"> · up {gain} since your first</span>}
+              </p>
+            </div>
+          </div>
+        )}
+        {/* Score summary: best, and the last few scores in order (labelled, so the arrow reads as a trend). */}
         {scores.length > 0 && (
-          <div className="flex flex-wrap items-center gap-1">
-            {scores.slice(-6).map((s, i) => (
-              <span key={i} className="flex items-center gap-1">
-                {i > 0 && <span className="text-[0.8rem] text-faint">→</span>}
-                <span className={`grid h-8 w-8 place-items-center rounded-full font-display text-[0.88rem] font-bold ${scoreTone(s)}`}>{s}</span>
-              </span>
-            ))}
+          <div className="flex items-center gap-4 rounded-2xl bg-line-2/70 px-4 py-2.5">
+            <div>
+              <div className="text-[0.74rem] font-semibold uppercase tracking-[0.1em] text-muted">Best</div>
+              <div className="font-display text-[1.25rem] font-bold leading-tight tabular-nums">{best}<span className="text-[0.8rem] text-faint">/10</span></div>
+            </div>
+            {scores.length > 1 && (
+              <>
+                <span className="h-9 w-px bg-line" aria-hidden />
+                <div data-tip={`Score per scored ${unit}, oldest to newest`}>
+                  <div className="flex items-center gap-1 text-[0.74rem] font-semibold uppercase tracking-[0.1em] text-muted"><TrendingUp size={12} /> Score trend</div>
+                  <div className="mt-1 flex items-center gap-1">
+                    {scores.slice(-5).map((s, i) => (
+                      <span key={i} className="flex items-center gap-1">
+                        {i > 0 && <span className="text-[0.75rem] text-faint">→</span>}
+                        <span className={`grid h-7 w-7 place-items-center rounded-full font-display text-[0.82rem] font-bold ${scoreTone(s)}`}>{s}</span>
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
         {cta && <div className="w-full sm:w-auto">{cta}</div>}
@@ -101,27 +134,33 @@ export function JobCard({ g, kind, cta, flat = false, noHead = false, heading, b
       {tab === "rounds" && g.rounds.length === 0 ? (
         <p className="m-5 mt-3 rounded-2xl bg-line-2/70 px-4 py-6 text-center text-[0.88rem] text-muted">Your {unit}s for this {kind === "interview" ? "job" : "offer"} will show up here, with their scores.</p>
       ) : tab === "rounds" ? (
-        <ol className="grid gap-2.5 px-5 pb-5 pt-3 sm:grid-cols-2 xl:grid-cols-3">
+        <ol className="mx-5 mb-5 mt-3 divide-y divide-line overflow-hidden rounded-2xl ring-1 ring-line">
           {[...g.rounds].reverse().map((r) => {
             const n = g.rounds.indexOf(r) + 1;
             const s = r.report?.score;
+            const scored = typeof s === "number";
             const pos = r.offer?.position;
             return (
               <li key={r.id}>
-                <Link href={`${base}/${r.id}`} className="group flex items-center gap-3 rounded-2xl bg-line-2/70 px-3 py-2.5 ring-1 ring-transparent transition hover:bg-brand-soft/60 hover:ring-brand/25">
+                <Link href={`${base}/${r.id}`} className="group flex items-center gap-4 bg-card px-4 py-3 transition hover:bg-line-2/70">
                   {kind === "negotiation" ? (
                     <span data-tone="2" className="tone-chip grid h-10 w-10 shrink-0 place-items-center rounded-full bg-line-2"><IndianRupee size={16} /></span>
                   ) : (
-                    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-[0.95rem] font-bold ${typeof s === "number" ? scoreTone(s) : "bg-line-2 text-faint"}`}>{typeof s === "number" ? s : "-"}</span>
+                    <span className={`grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-[0.95rem] font-bold ${scored ? scoreTone(s) : "bg-line-2 text-faint"}`}>{scored ? s : "-"}</span>
                   )}
                   <span className="min-w-0 flex-1">
-                    <span className="block text-[0.92rem] font-semibold">{kind === "interview" ? "Round" : "Talk"} {n}</span>
-                    <span className="flex flex-wrap items-center gap-1.5 text-[0.78rem] text-muted">
-                      {when(r.created_at)}
-                      {pos && POS[pos] && <span className={`chip py-0 text-[0.74rem] ${POS[pos].c}`}>{POS[pos].t}</span>}
-                    </span>
+                    <span className="block text-[0.95rem] font-semibold">{kind === "interview" ? "Round" : "Talk"} {n}</span>
+                    <span className="block text-[0.8rem] text-muted">{when(r.created_at)}</span>
                   </span>
-                  <ArrowUpRight size={15} className="shrink-0 text-faint transition group-hover:text-ink" />
+                  {kind === "negotiation" ? (
+                    pos && POS[pos] && <span className={`chip ${POS[pos].c}`}>{POS[pos].t}</span>
+                  ) : scored ? (
+                    <span className="hidden text-[0.88rem] text-muted sm:block">Score <b className="text-ink">{s}/10</b></span>
+                  ) : (
+                    <span className="chip bg-line-2 text-muted">Not finished</span>
+                  )}
+                  <span className="hidden items-center gap-1 text-[0.84rem] font-semibold text-brand sm:flex">{scored ? "Review" : "Open"} <ArrowUpRight size={15} className="transition group-hover:translate-x-0.5 group-hover:-translate-y-0.5" /></span>
+                  <ArrowUpRight size={15} className="shrink-0 text-faint sm:hidden" />
                 </Link>
               </li>
             );

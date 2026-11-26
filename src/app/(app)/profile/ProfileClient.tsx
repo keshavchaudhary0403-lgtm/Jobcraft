@@ -9,7 +9,7 @@ import type { ProfileDraft } from "@/lib/profile-draft";
 import { createClient } from "@/lib/supabase/client";
 import { Modal } from "@/components/client-ui";
 
-export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: { userId: string; initial: ProfileDraft; loginId: string; isDemo?: boolean; scoreStart?: number | null }) {
+export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart, avatarUrl = null }: { userId: string; initial: ProfileDraft; loginId: string; isDemo?: boolean; scoreStart?: number | null; avatarUrl?: string | null }) {
   const router = useRouter();
   const [draft, setDraft] = useState(initial);
   const [version, setVersion] = useState(0);
@@ -31,6 +31,7 @@ export function ProfileClient({ userId, initial, loginId, isDemo, scoreStart }: 
         onSaved={() => router.refresh()}
         head={{
           loginId,
+          photo: { url: avatarUrl, locked: isDemo },
           actions: (
             <>
               {!isDemo && <button className="btn btn-ghost h-11" onClick={() => setPwOpen(true)}><KeyRound size={15} /> Change password</button>}
