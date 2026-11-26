@@ -2,7 +2,6 @@
 /** Where jobs are sent. (For local testing, change this to "http://localhost:3000".) */
 const BASE = "https://jobcraft-sooty.vercel.app";
 const app = document.getElementById("app");
-const refreshBtn = document.getElementById("refresh");
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 let current = { tabId: null, url: "", job: null };
 
@@ -13,6 +12,8 @@ const ICON = {
   tick: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   copy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
   ext: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>',
+  refresh: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>',
+  person: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
   arrow: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
 };
 
@@ -22,13 +23,23 @@ function siteIcon(site) {
   return `<span class="chip-ico ico-web">${ICON.doc.replace(/24/g, "18")}</span>`;
 }
 
+/** The recheck button: reads the page again. Sits next to the main button at the bottom. */
+const recheck = () => `<button class="btn-icon" id="refresh" title="Read this page again" aria-label="Read this page again">${ICON.refresh}</button>`;
+const spin = (on) => document.getElementById("refresh")?.classList.toggle("spin", on);
+function wireRecheck() {
+  const b = document.getElementById("refresh");
+  if (b) b.onclick = () => read(true);
+}
+
 function empty(icon, title, text, extra = "") {
-  app.innerHTML = `<div class="card empty"><div class="big">${icon}</div><b>${esc(title)}</b><p>${text}</p>${extra}</div>`;
+  app.innerHTML = `<div class="card empty"><div class="big">${icon}</div><b>${esc(title)}</b><p>${text}</p>${extra}</div><div class="actions"><div class="row">${recheck()}<span class="row-hint">Read this page again</span></div></div>`;
+  wireRecheck();
 }
 
 function loading() {
   app.innerHTML = `<div class="card"><div class="head"><span class="chip-ico ico-web"></span><div class="head-text"><div class="skel" style="width:60%"></div><div class="skel" style="width:40%;margin-top:6px"></div></div></div>
-    <div class="fields"><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div></div></div>`;
+    <div class="fields"><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div></div></div>
+    <div class="actions"><div class="row">${recheck()}<div class="skel" style="height:46px;flex:1;border-radius:999px"></div></div></div>`;
 }
 
 async function activeTab() {
@@ -62,17 +73,15 @@ async function read(force = false) {
     return;
   }
 
-  refreshBtn.classList.add("spin");
   loading();
+  spin(true);
   let job = null;
   try {
     const [res] = await chrome.scripting.executeScript({ target: { tabId: tab.id }, func: jobcraftExtract });
     job = res?.result || null;
   } catch {
-    refreshBtn.classList.remove("spin");
     return empty(ICON.lock, "Can't read this page", "Chrome doesn't allow reading this page. Copy the description into Jobcraft instead.");
   }
-  refreshBtn.classList.remove("spin");
   // ignore results from a tab the user already left
   const now = await activeTab();
   if (!now || now.id !== tab.id || now.url !== url) return;
@@ -86,11 +95,17 @@ function howTo() {
 
 function render(job) {
   if (!job || (!job.jd && !job.role)) {
-    return empty(ICON.doc, "No job on this page", "Open a single job's page. Or highlight the job description, then press refresh above.", howTo());
+    return empty(ICON.doc, "No job on this page", "Open a single job's page. Or highlight the job description, then press recheck below.", howTo());
   }
   const status = job.words >= 80 ? `<span class="pill ok">✓ Found</span>` : job.words >= 30 ? `<span class="pill warn">Short</span>` : `<span class="pill bad">No description</span>`;
   const how = job.how === "selection" ? `<div class="note good">Using the text you highlighted.</div>`
-    : job.how === "guess" ? `<div class="note">Best guess for this site. For an exact copy, highlight the description and press refresh.</div>` : "";
+    : job.how === "guess" ? `<div class="note">Best guess for this site. For an exact copy, highlight the description and press recheck.</div>` : "";
+  // Only when the post names its hiring team (LinkedIn "Meet the hiring team") - saved with the job.
+  const team = (job.contacts || []).length
+    ? `<div class="card"><div class="desc-head"><b>Hiring team</b><span class="pill info">Saved with the job</span></div><div class="people">${job.contacts
+        .map((c) => `<a class="person" href="${esc(c.url)}" target="_blank" rel="noreferrer"><span class="person-ico">${ICON.person}</span><span class="person-text"><b>${esc(c.name)}</b>${c.title ? `<span>${esc(c.title)}</span>` : ""}</span>${ICON.ext}</a>`)
+        .join("")}</div></div>`
+    : "";
   app.innerHTML = `
     <div class="card">
       <div class="head">${job.logoUrl ? `<img class="co-logo" src="${esc(job.logoUrl)}" alt="" />` : siteIcon(job.site)}<div class="head-text"><b>${esc(job.site)}</b><span>${esc(job.url.replace(/^https?:\/\/(www\.)?/, ""))}</span></div>${status}</div>
@@ -100,9 +115,10 @@ function render(job) {
         <div><label>Location</label><input class="field" id="location" value="${esc(job.location)}" placeholder="City (optional)" /></div>
       </div>
     </div>
+    ${team}
     ${job.jd ? `<div class="card"><div class="desc-head"><b>Job description</b><span class="pill info">${job.words} words</span></div><div class="desc">${esc(job.jd)}</div></div>` : ""}
     ${how}
-    ${job.words < 30 ? `<div class="note warn">Can't find the description? Highlight it on the page, then press refresh above.</div>` : ""}
+    ${job.words < 30 ? `<div class="note warn">Can't find the description? Highlight it on the page, then press recheck below.</div>` : ""}
     <div class="actions" id="actions"></div>`;
   renderActions(job);
   if (!known.has(current.url)) checkSaved(job);
@@ -125,16 +141,17 @@ function renderActions(job) {
   const strip = (tone, icon, title, sub) => `<div class="strip ${tone}"><span class="strip-ico">${icon}</span><div><b>${title}</b><span>${sub}</span></div></div>`;
   let html;
   if (r?.kind === "saved") {
-    html = strip("good", ICON.tick, "Saved to Jobcraft", "No AI has run - analyse it when you're ready.") + openBtn("Open in Jobcraft");
+    html = strip("good", ICON.tick, "Saved to Jobcraft", "No AI has run - analyse it when you're ready.") + `<div class="row">${recheck()}${openBtn("Open in Jobcraft")}</div>`;
   } else if (r?.kind === "exists" && r.by === "link") {
-    html = strip("info", ICON.tick, "Already in your Jobcraft", `${when ? `Saved ${when} · ` : ""}${r.analysed ? "analysed" : "not analysed yet"}`) + openBtn("Open in Jobcraft");
+    html = strip("info", ICON.tick, "Already in your Jobcraft", `${when ? `Saved ${when} · ` : ""}${r.analysed ? "analysed" : "not analysed yet"}`) + `<div class="row">${recheck()}${openBtn("Open in Jobcraft")}</div>`;
   } else if (r?.kind === "exists") {
     html = strip("warn", ICON.copy, "Similar job already saved", `${esc(r.role)} at ${esc(r.company)}${r.location ? ` in ${esc(r.location)}` : ""} - same company, role${r.location ? " and city" : ""}.`) +
-      `<div class="two">${openBtn("Open saved job")}<button class="btn btn-outline" id="send" data-force="1">Save anyway</button></div>`;
+      `<div class="row">${recheck()}<div class="two">${openBtn("Open saved job")}<button class="btn btn-outline" id="send" data-force="1">Save anyway</button></div></div>`;
   } else {
-    html = `<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save to Jobcraft ${ICON.arrow}</button>`;
+    html = `<div class="row">${recheck()}<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save to Jobcraft ${ICON.arrow}</button></div>`;
   }
   box.innerHTML = html;
+  wireRecheck();
   const b = document.getElementById("send");
   if (b) b.onclick = () => save(job, b.dataset.force === "1");
 }
@@ -159,7 +176,7 @@ async function save(job, force) {
   btn.disabled = true;
   btn.textContent = "Saving...";
   const logo = await logoData(job.logoUrl);
-  const payload = { site: job.site, url: job.url, company: val("company"), role: val("role"), location: val("location"), jd: job.jd, website: job.website || "", logo };
+  const payload = { site: job.site, url: job.url, company: val("company"), role: val("role"), location: val("location"), jd: job.jd, website: job.website || "", logo, contacts: job.contacts || [] };
   const base = BASE;
   try {
     const res = await fetch(`${base}/api/jobs/save`, { method: "POST", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...payload, force }) });
@@ -226,6 +243,5 @@ chrome.tabs.onUpdated.addListener((id, info, tab) => {
   else if (info.status === "complete") later(600);
 });
 chrome.windows.onFocusChanged.addListener(() => later(200));
-refreshBtn.onclick = () => read(true);
 
 read(true);

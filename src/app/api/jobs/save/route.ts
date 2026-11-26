@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { formatCity, formatTitle } from "@/lib/profile-format";
 import { sameJob } from "@/lib/job-dupes";
 import { findDomain, saveLogo, toDomain } from "@/lib/company-brand";
+import { hiringFromContacts } from "@/lib/hiring-contact";
 
 /**
  * Save a job (from Add job or the Chrome extension). Saves only - no AI runs here.
@@ -14,7 +15,7 @@ export async function POST(req: Request) {
   const user = await currentUser(supabase);
   if (!user) return Response.json({ error: "Log in to Jobcraft first." }, { status: 401 });
 
-  const b = (await req.json().catch(() => ({}))) as { jd?: string; url?: string; company?: string; role?: string; location?: string; company_type?: string; force?: boolean; website?: string; logo?: string };
+  const b = (await req.json().catch(() => ({}))) as { jd?: string; url?: string; company?: string; role?: string; location?: string; company_type?: string; force?: boolean; website?: string; logo?: string; contacts?: unknown };
   const jd = String(b.jd ?? "").trim().slice(0, 30000);
   const company = formatTitle(String(b.company ?? ""), 80);
   const role = formatTitle(String(b.role ?? ""));
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
 
   // The company's website (for the official wordmark): from the job page if it showed one, else an exact-name match.
   const company_domain = toDomain(b.website) ?? (await findDomain(company));
-  const row = { user_id: user.id, jd, job_url, company, role, location: formatCity(String(b.location ?? "")) || null, company_type: String(b.company_type ?? "").trim() || null };
+  const row = { user_id: user.id, jd, job_url, company, role, location: formatCity(String(b.location ?? "")) || null, company_type: String(b.company_type ?? "").trim() || null, hiring_contact: hiringFromContacts(b.contacts) };
   let { data, error } = await supabase.from("applications").insert({ ...row, company_domain }).select("id").single();
   const brandColumns = !(error && /company_domain|column/i.test(error.message));
   if (!brandColumns) ({ data, error } = await supabase.from("applications").insert(row).select("id").single()); // before migration 011

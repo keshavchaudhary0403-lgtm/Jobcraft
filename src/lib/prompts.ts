@@ -6,6 +6,7 @@
  * as a "candidate file", so every prompt works even if the user jumps steps -
  * the same effect as "keep one chat open" in the original workflow.
  */
+import { hiringLabel } from "./hiring-contact";
 import type { Application, Profile } from "./types";
 
 export type StepKey =
@@ -127,7 +128,7 @@ After the resume, list every change you made and why, so I can verify each one i
 
     case "outreach":
       return `You have my resume and the job description in this chat. I want to reach the person hiring for this role on LinkedIn${
-        app?.hiring_contact ? ` (${app.hiring_contact})` : ""
+        app?.hiring_contact ? ` (${hiringLabel(app.hiring_contact)})` : ""
       }, this might be the hiring manager or a recruiter. The goal is to show that I understand THEIR business and can help solve a real problem they have, not just list what I've done.
 Give me two things, clearly labelled:
 
@@ -246,7 +247,7 @@ export function buildSystemPrompt(opts: {
       `Role: ${app.role}`,
       app.company_type ? `Company type: ${app.company_type}` : "",
       app.job_url ? `Job link: ${app.job_url}` : "",
-      app.hiring_contact ? `Hiring contact: ${app.hiring_contact}` : "",
+      app.hiring_contact ? `Hiring contact: ${hiringLabel(app.hiring_contact)}` : "",
       "",
       "--- JOB DESCRIPTION ---",
       app.jd,

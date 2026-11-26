@@ -1,6 +1,6 @@
 /**
  * Runs inside the job page the user is looking at, only when they click the extension.
- * Reads that one page: company, role, location, link and the job description. Nothing else.
+ * Reads that one page: company, role, location, link, the job description and (LinkedIn) the hiring team it names. Nothing else.
  * Must be self-contained (it is injected with chrome.scripting.executeScript).
  */
 async function jobcraftExtract() {
@@ -92,6 +92,33 @@ async function jobcraftExtract() {
         .find(Boolean);
       if (hit) out.location = hit[1].replace(/\s*\((on-site|remote|hybrid)\)\s*$/i, "").trim();
     }
+    // "Meet the hiring team": the people LinkedIn names on this job (only when the post shows them).
+    out.contacts = [];
+    // the heading is an h2 in the older layout and a plain <p> in the newer one: take the innermost element with that text
+    const team = [...document.querySelectorAll("h2, h3, h4, p, span, div")].filter((e) => /^meet the hiring team$/i.test((e.innerText || "").trim())).pop();
+    if (team) {
+      let box = team.parentElement;
+      while (box && !box.querySelector('a[href*="/in/"]') && box !== document.body) box = box.parentElement;
+      const seen = new Set();
+      const noise = /^(message|follow|connect|job poster|verified|premium|·|•|\d+(st|nd|rd|th)\+?( degree connection)?|view .*profile|mutual connection.*)$/i;
+      for (const a of box && box !== document.body ? box.querySelectorAll('a[href*="/in/"]') : []) {
+        const slug = (a.getAttribute("href").match(/\/in\/([^/?#]+)/) || [])[1];
+        if (!slug || seen.has(slug)) continue;
+        // the person's card: the largest block around this link that holds no other profile
+        let card = a;
+        while (card.parentElement && card.parentElement !== box && new Set([...card.parentElement.querySelectorAll('a[href*="/in/"]')].map((l) => (l.getAttribute("href").match(/\/in\/([^/?#]+)/) || [])[1])).size === 1) card = card.parentElement;
+        const lines = text(card).split("\n")
+          .map((l) => l.replace(/\s*[•·]\s*(1st|2nd|3rd\+?)\b.*$/i, "").replace(/\s*\((he|she|they)\/\w+\)\s*$/i, "").trim())
+          .filter((l) => l && !noise.test(l));
+        const name = (text(a).split("\n")[0] || lines[0] || "").replace(/\s*[•·]\s*(1st|2nd|3rd\+?)\b.*$/i, "").trim();
+        if (!name || name.length > 60 || /linkedin/i.test(name)) continue;
+        seen.add(slug);
+        const title = lines.find((l) => l !== name && l.length > 3 && l.length < 160) || "";
+        out.contacts.push({ name, title, url: `https://www.linkedin.com/in/${slug}/` });
+        if (out.contacts.length >= 3) break;
+      }
+    }
+
     // fallback: a short "City, Country · 2 days ago" line that isn't the title block
     if (!out.location) {
       const line = [...scope.querySelectorAll("p, span")].find((e) => {

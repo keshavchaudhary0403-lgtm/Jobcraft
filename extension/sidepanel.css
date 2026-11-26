@@ -92,3 +92,22 @@ a.btn { text-decoration: none; }
 .strip.info { background: var(--brand-soft); border-color: transparent; } .strip.info .strip-ico { background: var(--brand); } .strip.info b { color: var(--side); }
 .strip.warn { background: var(--mid-soft); border-color: transparent; } .strip.warn .strip-ico { background: var(--clay); } .strip.warn b { color: var(--mid); }
 .strip .strip-ico { color: #fff; }
+
+/* Bottom bar: recheck (round) beside the main button, so the main button isn't full width */
+.row { display: flex; align-items: center; gap: 8px; }
+.row > .btn, .row > .two { flex: 1; min-width: 0; }
+.row-hint { font-size: 12.5px; color: var(--muted); }
+.btn-icon { width: 46px; height: 46px; flex-shrink: 0; border-radius: 999px; border: 0; cursor: pointer; display: grid; place-items: center;
+  background: #fff; color: var(--side); box-shadow: inset 0 0 0 1.5px var(--line); transition: background .15s, box-shadow .15s; }
+.btn-icon:hover { background: var(--brand-soft); box-shadow: inset 0 0 0 1.5px #c9dbef; }
+.btn-icon.spin svg { animation: spin .8s linear infinite; }
+
+/* Hiring team (only when the post names it) */
+.people { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.person { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 14px; background: var(--line-2); color: var(--ink); text-decoration: none; transition: background .15s; }
+.person:hover { background: var(--brand-soft); }
+.person > svg { color: var(--muted); flex-shrink: 0; }
+.person-ico { width: 32px; height: 32px; border-radius: 999px; display: grid; place-items: center; background: #fff; color: var(--brand); flex-shrink: 0; }
+.person-text { flex: 1; min-width: 0; }
+.person-text b { display: block; font-size: 13.5px; line-height: 1.25; }
+.person-text span { display: block; font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }

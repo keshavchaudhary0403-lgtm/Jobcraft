@@ -6,16 +6,22 @@ import type { Application } from "@/lib/types";
 import type { Analysis, Outreach } from "@/lib/tasks";
 import { CopyButton, Spinner, Working, useAsk } from "@/components/client-ui";
 import { useGenerate } from "@/components/useGenerate";
+import { hiringLabel, hiringPeople } from "@/lib/hiring-contact";
 
 export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p: Partial<Application>) => void }) {
   const o = app.outreach as Outreach | null;
-  const [contact, setContact] = useState(app.hiring_contact ?? "");
+  // Names (and LinkedIn links) of the hiring team - from the post, or saved by the Chrome extension.
+  const named = hiringPeople(app.hiring_contact);
+  const [contact, setContact] = useState(hiringLabel(app.hiring_contact));
   const { run, busy, error } = useGenerate<Outreach>("outreach", app.id);
 
   const [ask, dialog] = useAsk();
   async function generate() {
-    const res = await run(contact.trim() ? { contact: contact.trim() } : undefined);
-    if (res) onUpdate({ outreach: res, hiring_contact: contact.trim() || app.hiring_contact });
+    // Only send a contact the user changed - keeps the saved profile links otherwise.
+    const typed = contact.trim();
+    const changed = typed && typed !== hiringLabel(app.hiring_contact) ? typed : "";
+    const res = await run(changed ? { contact: changed } : undefined);
+    if (res) onUpdate({ outreach: res, hiring_contact: changed || app.hiring_contact });
   }
 
   const an = app.analysis as Analysis | null;
@@ -44,9 +50,27 @@ export function OutreachTab({ app, onUpdate }: { app: Application; onUpdate: (p:
       <aside className="flex flex-col gap-4">
         <section className="dark-card p-5">
           <div className="flex items-center gap-2 text-[0.8rem] font-semibold uppercase tracking-[0.14em] text-white/85"><UserSearch size={14} /> 1 · Find who hires</div>
-          {app.hiring_contact && (
-            <div className="mt-3 flex items-center gap-2 rounded-xl bg-white/10 px-3 py-2.5 text-[0.88rem]">
-              <BadgeCheck size={15} className="shrink-0 text-mustard" /> <span>Named in the post: <b className="font-semibold">{app.hiring_contact}</b></span>
+          {named.length > 0 && (
+            <div className="mt-3 space-y-1.5">
+              <div className="flex items-center gap-1.5 text-[0.78rem] text-white/80"><BadgeCheck size={13} className="text-mustard" /> Named in the post</div>
+              {named.map((p) => {
+                // "Name, Title" -> name on top, title below
+                const cut = p.label.indexOf(",");
+                const who = (
+                  <span className="min-w-0 flex-1">
+                    <b className="block truncate font-semibold">{cut > 0 ? p.label.slice(0, cut) : p.label}</b>
+                    {cut > 0 && <span className="block truncate text-[0.78rem] text-white/80">{p.label.slice(cut + 1).trim()}</span>}
+                  </span>
+                );
+                return p.url ? (
+                  <a key={p.label} href={p.url} target="_blank" rel="noreferrer" className="flex items-center gap-2.5 rounded-xl bg-white/10 px-3 py-2.5 text-[0.88rem] transition hover:bg-white/15">
+                    {who}
+                    <span className="flex shrink-0 items-center gap-1 rounded-full bg-cream px-2.5 py-1 text-[0.76rem] font-semibold text-side">Profile <ArrowUpRight size={12} /></span>
+                  </a>
+                ) : (
+                  <div key={p.label} className="flex items-center rounded-xl bg-white/10 px-3 py-2.5 text-[0.88rem]">{who}</div>
+                );
+              })}
             </div>
           )}
           <div className="mt-4 text-[0.78rem] text-white/80">Hiring manager</div>
