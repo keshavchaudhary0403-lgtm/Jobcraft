@@ -13,7 +13,7 @@ button, input, select { font: inherit; }
 
 .band { margin: 12px 12px 0; padding: 16px; border-radius: 22px; color: #fff; display: flex; align-items: center; gap: 12px;
   background: radial-gradient(120% 140% at 100% 0%, #2f7fd0 0%, transparent 55%), linear-gradient(135deg, #0a5aa8, #004e98); }
-.logo { width: 38px; height: 38px; border-radius: 50%; background: #fff; flex-shrink: 0; }
+.logo { width: 44px; height: 44px; flex-shrink: 0; display: block; }
 .band-text { flex: 1; min-width: 0; }
 .band-text b { display: block; font-size: 17px; letter-spacing: -.01em; }
 .band-text span { display: block; font-size: 12.5px; color: rgba(255,255,255,.85); }
@@ -49,7 +49,8 @@ label i { font-style: normal; color: var(--clay); margin-left: 2px; }
 .note.warn { background: var(--mid-soft); color: var(--mid); }
 .note.good { background: var(--good-soft); color: var(--good); }
 
-.actions { position: sticky; bottom: 0; padding: 4px 0 2px; background: linear-gradient(transparent, var(--canvas) 30%); }
+/* Docked bottom bar: solid, full width, never over the content */
+.actions { position: sticky; bottom: 0; z-index: 5; margin: auto -12px -12px; padding: 12px; background: var(--card); border-top: 1px solid var(--line); box-shadow: 0 -12px 28px -22px rgba(0,78,152,.35); }
 .btn { width: 100%; height: 46px; border: 0; border-radius: 999px; cursor: pointer; font-weight: 700; font-size: 15px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: background .15s; }
 .btn-clay { background: var(--clay); color: #fff; } .btn-clay:hover { background: var(--clay-ink); }
 .btn-clay:disabled { opacity: .45; cursor: default; }
@@ -93,14 +94,14 @@ a.btn { text-decoration: none; }
 .strip.warn { background: var(--mid-soft); border-color: transparent; } .strip.warn .strip-ico { background: var(--clay); } .strip.warn b { color: var(--mid); }
 .strip .strip-ico { color: #fff; }
 
-/* Bottom bar: recheck (round) beside the main button, so the main button isn't full width */
-.row { display: flex; align-items: center; gap: 8px; }
-.row > .btn, .row > .two { flex: 1; min-width: 0; }
-.row-hint { font-size: 12.5px; color: var(--muted); }
-.btn-icon { width: 46px; height: 46px; flex-shrink: 0; border-radius: 999px; border: 0; cursor: pointer; display: grid; place-items: center;
-  background: #fff; color: var(--side); box-shadow: inset 0 0 0 1.5px var(--line); transition: background .15s, box-shadow .15s; }
-.btn-icon:hover { background: var(--brand-soft); box-shadow: inset 0 0 0 1.5px #c9dbef; }
-.btn-icon.spin svg { animation: spin .8s linear infinite; }
+/* Bottom bar rows: Recheck (light) + the main action, same height */
+.row { display: grid; grid-template-columns: 2fr 3fr; gap: 8px; }
+.row.one { grid-template-columns: 1fr; }
+.row.three { grid-template-columns: 44px 1fr 1fr; }
+.row .btn { height: 44px; font-size: 14.5px; min-width: 0; padding: 0 12px; white-space: nowrap; }
+.btn-soft2 { background: var(--brand-soft); color: var(--side); font-weight: 700; } .btn-soft2:hover { background: #d9e6f5; }
+.btn-square { padding: 0 !important; }
+.btn-soft2.spin svg { animation: spin .8s linear infinite; }
 
 /* Hiring team (only when the post names it) */
 .people { display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }

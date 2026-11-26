@@ -12,9 +12,9 @@ const ICON = {
   tick: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>',
   copy: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>',
   ext: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h6v6"/><path d="M20 4 10 14"/><path d="M19 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h5"/></svg>',
-  refresh: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>',
+  refresh: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 0 1 15.5-6.2L21 8"/><path d="M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15.5 6.2L3 16"/><path d="M3 21v-5h5"/></svg>',
   person: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>',
-  arrow: '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
+  arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
 };
 
 function siteIcon(site) {
@@ -24,7 +24,8 @@ function siteIcon(site) {
 }
 
 /** The recheck button: reads the page again. Sits next to the main button at the bottom. */
-const recheck = () => `<button class="btn-icon" id="refresh" title="Read this page again" aria-label="Read this page again">${ICON.refresh}</button>`;
+const recheck = (label = "Recheck") => `<button class="btn btn-soft2" id="refresh" title="Read this page again">${ICON.refresh}<span>${label}</span></button>`;
+const recheckIcon = () => `<button class="btn btn-soft2 btn-square" id="refresh" title="Read this page again" aria-label="Read this page again">${ICON.refresh}</button>`;
 const spin = (on) => document.getElementById("refresh")?.classList.toggle("spin", on);
 function wireRecheck() {
   const b = document.getElementById("refresh");
@@ -32,14 +33,14 @@ function wireRecheck() {
 }
 
 function empty(icon, title, text, extra = "") {
-  app.innerHTML = `<div class="card empty"><div class="big">${icon}</div><b>${esc(title)}</b><p>${text}</p>${extra}</div><div class="actions"><div class="row">${recheck()}<span class="row-hint">Read this page again</span></div></div>`;
+  app.innerHTML = `<div class="card empty"><div class="big">${icon}</div><b>${esc(title)}</b><p>${text}</p>${extra}</div><div class="actions"><div class="row one">${recheck("Read this page again")}</div></div>`;
   wireRecheck();
 }
 
 function loading() {
   app.innerHTML = `<div class="card"><div class="head"><span class="chip-ico ico-web"></span><div class="head-text"><div class="skel" style="width:60%"></div><div class="skel" style="width:40%;margin-top:6px"></div></div></div>
     <div class="fields"><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div><div class="skel" style="height:42px"></div></div></div>
-    <div class="actions"><div class="row">${recheck()}<div class="skel" style="height:46px;flex:1;border-radius:999px"></div></div></div>`;
+    <div class="actions"><div class="row">${recheck()}<div class="skel" style="height:44px;border-radius:999px"></div></div></div>`;
 }
 
 async function activeTab() {
@@ -146,9 +147,9 @@ function renderActions(job) {
     html = strip("info", ICON.tick, "Already in your Jobcraft", `${when ? `Saved ${when} · ` : ""}${r.analysed ? "analysed" : "not analysed yet"}`) + `<div class="row">${recheck()}${openBtn("Open in Jobcraft")}</div>`;
   } else if (r?.kind === "exists") {
     html = strip("warn", ICON.copy, "Similar job already saved", `${esc(r.role)} at ${esc(r.company)}${r.location ? ` in ${esc(r.location)}` : ""} - same company, role${r.location ? " and city" : ""}.`) +
-      `<div class="row">${recheck()}<div class="two">${openBtn("Open saved job")}<button class="btn btn-outline" id="send" data-force="1">Save anyway</button></div></div>`;
+      `<div class="row three">${recheckIcon()}${openBtn("Open saved job")}<button class="btn btn-outline" id="send" data-force="1">Save anyway</button></div>`;
   } else {
-    html = `<div class="row">${recheck()}<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save to Jobcraft ${ICON.arrow}</button></div>`;
+    html = `<div class="row">${recheck()}<button class="btn btn-clay" id="send" ${job.words < 30 ? "disabled" : ""}>Save job ${ICON.arrow}</button></div>`;
   }
   box.innerHTML = html;
   wireRecheck();
@@ -187,7 +188,7 @@ async function save(job, force) {
       known.set(current.url, { kind: "saved", id: data.id, by: "link" });
     } else if (res.status === 400) {
       btn.disabled = false;
-      btn.innerHTML = `Save to Jobcraft ${ICON.arrow}`;
+      btn.innerHTML = `Save job ${ICON.arrow}`;
       document.getElementById("actions").insertAdjacentHTML("afterbegin", `<div class="note warn">${esc(data.error || "Check the details.")}</div>`);
       return;
     } else {
