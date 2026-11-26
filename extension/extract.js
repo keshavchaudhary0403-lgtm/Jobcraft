@@ -29,7 +29,45 @@ async function jobcraftExtract() {
   // ---------- LinkedIn ----------
   if (/(^|\.)linkedin\.com$/.test(host)) {
     out.site = "LinkedIn";
-    const id = new URLSearchParams(location.search).get("currentJobId") || (location.pathname.match(/\/jobs\/view\/(\d+)/) || [])[1];
+    // LinkedIn swaps jobs without reloading: the address changes first, the tab title and the job panel follow.
+    // So read only once the panel for the job in the address is in (and the tab title, "Role | Company | LinkedIn", matches it).
+    const titleParts = () => document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*\|\s*LinkedIn\s*$/i, "").split(/\s*\|\s*/);
+    const aboutHead = () => [...document.querySelectorAll("h2, h3, h4, p, span, div")].filter((e) => /^about the job$/i.test((e.innerText || "").trim())).pop();
+    const jobId = () => new URLSearchParams(location.search).get("currentJobId") || (location.pathname.match(/\/jobs\/view\/(\d+)/) || [])[1] || "";
+    // The open job's panel: climb from "About the job" to the block that also holds the job's title link -
+    // a link to this job's id (/jobs/view/<id>) whose text is the role. A panel still showing the previous job
+    // has no such link. Stay in the job's column so it never reaches the job list on the left.
+    // In search results (jobs swap in place) the title is a link to the job's id; on a job's own page it is plain text.
+    const inSearch = () => new URLSearchParams(location.search).has("currentJobId");
+    const titleLink = (p, id, role) =>
+      inSearch()
+        ? [...p.querySelectorAll(`a[href*="${id}"]`)].some((a) => (a.innerText || "").trim().split("\n")[0].trim() === role)
+        : [...p.querySelectorAll("h1, h2, a, p, span, div")].some((e) => e.children.length <= 3 && (e.innerText || "").trim() === role);
+    const paneFor = (id, role) => {
+      const head = aboutHead();
+      if (!head || !id || !role) return null;
+      const left = head.getBoundingClientRect().left;
+      let p = head;
+      while (p && !titleLink(p, id, role)) {
+        p = p.parentElement;
+        if (!p || p === document.body) return null;
+        const r = p.getBoundingClientRect();
+        if (r.width > 0 && r.left < left - 80) return null; // (zero-size wrappers don't count)
+      }
+      return p;
+    };
+    const words = (el) => (el?.innerText || "").split(/\s+/).filter(Boolean).length;
+    const oldLayout = () => document.querySelector(".job-details-jobs-unified-top-card__job-title, .top-card-layout__title") && document.querySelector("#job-details, .jobs-description__content, .show-more-less-html__markup");
+    let ready = false;
+    for (let i = 0; i < 24 && !ready; i++) {
+      const parts = titleParts();
+      // ready = this job's panel is in (its title link matches the tab title) and has its description
+      const pane = parts.length >= 2 ? paneFor(jobId(), parts[0]) : null;
+      ready = !!oldLayout() || (!!pane && words(pane) > 120);
+      if (!ready) await new Promise((r) => setTimeout(r, 250));
+    }
+    if (!ready) out.waiting = true; // still loading - the panel asks to press Recheck
+    const id = jobId();
     if (id) out.url = `https://www.linkedin.com/jobs/view/${id}/`;
     out.role = first(
       ".job-details-jobs-unified-top-card__job-title h1",
@@ -56,11 +94,16 @@ async function jobcraftExtract() {
 
     // LinkedIn's newer layout has no stable class names: use the "About the job" heading,
     // and the tab title, which reads "Role | Company | LinkedIn".
-    if (!out.jd) {
-      const head = [...document.querySelectorAll("h2, h3")].find((e) => /^about the job$/i.test((e.innerText || "").trim()));
+    const parts = titleParts();
+    if (!out.role && parts.length >= 2) out.role = parts[0];
+    if (!out.company && parts.length >= 2) out.company = parts[1];
+    // The open job's panel (not the job list on the left, not the rest of the page)
+    const pane = paneFor(id, out.role);
+    if (!out.jd && pane) {
+      const head = [...pane.querySelectorAll("h2, h3, h4, p, span, div")].filter((e) => /^about the job$/i.test((e.innerText || "").trim())).pop();
       if (head) {
         let box = head;
-        while (box && (box.innerText || "").split(/\s+/).length < 80) box = box.parentElement;
+        while (box && box !== pane && words(box) < 80) box = box.parentElement;
         if (box) {
           // open the full description, as the user would by clicking "more"
           const more = [...box.querySelectorAll("button, a, span[role=button]")].find((b) => /^(…\s*)?(see |show )?more$/i.test((b.innerText || b.getAttribute("aria-label") || "").trim()));
@@ -74,15 +117,9 @@ async function jobcraftExtract() {
         }
       }
     }
-    const parts = document.title.replace(/^\(\d+\)\s*/, "").replace(/\s*\|\s*LinkedIn\s*$/i, "").split(/\s*\|\s*/);
-    if (!out.role && parts.length >= 2) out.role = parts[0];
-    if (!out.company && parts.length >= 2) out.company = parts[1];
-    // Only look inside the open job's panel (not the job list on the left)
-    let pane = [...document.querySelectorAll("h2, h3")].find((e) => /^about the job$/i.test((e.innerText || "").trim()));
-    while (pane && out.role && !(pane.innerText || "").includes(out.role)) pane = pane.parentElement;
-    const scope = pane || document;
+    const scope = pane;
     // Location sits right after the company in the job's header: "Curefit • Delhi, India (On-site) · 3 days ago"
-    if (!out.location && out.company) {
+    if (!out.location && out.company && scope) {
       const esc = out.company.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
       const re = new RegExp("^" + esc + "\\s*[•·]\\s*([^•·\\n]+)");
       const hit = [...scope.querySelectorAll("p, span, div")]
@@ -120,13 +157,16 @@ async function jobcraftExtract() {
     }
 
     // fallback: a short "City, Country · 2 days ago" line that isn't the title block
-    if (!out.location) {
+    if (!out.location && scope) {
       const line = [...scope.querySelectorAll("p, span")].find((e) => {
         const t = (e.innerText || "").trim();
-        return t.length < 90 && /·/.test(t) && /(ago|applicant|clicked apply|reposted)/i.test(t) && !(out.role && t.includes(out.role));
+        return t.length < 160 && !t.includes("\n") && /·/.test(t) && /(ago|applicant|clicked apply|reposted|people)/i.test(t) && !(out.role && t.includes(out.role));
       });
       if (line) out.location = line.innerText.split("·")[0].trim();
     }
+    out.location = out.location.replace(/\s*\((on-site|remote|hybrid)\)\s*$/i, "").trim();
+    // never guess from the whole LinkedIn page (it reads the menus and the job list)
+    out.noGuess = true;
   }
 
   // ---------- Naukri ----------
@@ -148,7 +188,7 @@ async function jobcraftExtract() {
   }
 
   // ---------- Any other careers page: the biggest block of readable text ----------
-  if (!out.jd) {
+  if (!out.jd && !out.noGuess) {
     let best = null, score = 0;
     for (const el of document.querySelectorAll("main, article, section, [role=main], div")) {
       if (el.closest("nav, header, footer, aside")) continue;

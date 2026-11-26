@@ -119,7 +119,7 @@ function render(job) {
     ${team}
     ${job.jd ? `<div class="card"><div class="desc-head"><b>Job description</b><span class="pill info">${job.words} words</span></div><div class="desc">${esc(job.jd)}</div></div>` : ""}
     ${how}
-    ${job.words < 30 ? `<div class="note warn">Can't find the description? Highlight it on the page, then press recheck below.</div>` : ""}
+    ${job.waiting && job.words < 30 ? `<div class="note warn">LinkedIn is still loading this job. Press Recheck in a moment.</div>` : job.words < 30 ? `<div class="note warn">Can't find the description? Highlight it on the page, then press Recheck.</div>` : ""}
     <div class="actions" id="actions"></div>`;
   renderActions(job);
   if (!known.has(current.url)) checkSaved(job);
