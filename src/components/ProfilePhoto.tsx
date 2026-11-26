@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { Camera, ImagePlus, Trash2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -53,15 +54,31 @@ export function ProfilePhoto({ url: initialUrl, initials, size = 72, disabled = 
   const [url, setUrl] = useState(initialUrl ?? null);
   const [busy, setBusy] = useState(false);
   const [menu, setMenu] = useState(false);
+  const pop = useRef<HTMLDivElement>(null);
+  // Where the menu opens: fixed to the screen, so the banner (which clips) and the sticky tabs can't hide it.
+  const [at, setAt] = useState<{ top: number; left: number } | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
     if (!menu) return;
-    const close = (e: MouseEvent) => box.current && !box.current.contains(e.target as Node) && setMenu(false);
+    const r = box.current?.getBoundingClientRect();
+    if (r) setAt({ top: r.bottom + 8, left: r.left });
+    const close = (e: MouseEvent) => {
+      const t = e.target as Node;
+      if (!box.current?.contains(t) && !pop.current?.contains(t)) setMenu(false);
+    };
     const esc = (e: KeyboardEvent) => e.key === "Escape" && setMenu(false);
+    const off = () => setMenu(false);
     document.addEventListener("mousedown", close);
     document.addEventListener("keydown", esc);
-    return () => { document.removeEventListener("mousedown", close); document.removeEventListener("keydown", esc); };
+    window.addEventListener("scroll", off, true);
+    window.addEventListener("resize", off);
+    return () => {
+      document.removeEventListener("mousedown", close);
+      document.removeEventListener("keydown", esc);
+      window.removeEventListener("scroll", off, true);
+      window.removeEventListener("resize", off);
+    };
   }, [menu]);
 
   async function remember(next: string | null) {
@@ -113,6 +130,18 @@ export function ProfilePhoto({ url: initialUrl, initials, size = 72, disabled = 
     }
   }
 
+  // The error note sits under the photo the same way; it goes away on scroll or after a few seconds.
+  const [errAt, setErrAt] = useState<{ top: number; left: number } | null>(null);
+  useEffect(() => {
+    if (!error) return;
+    const r = box.current?.getBoundingClientRect();
+    if (r) setErrAt({ top: r.bottom + 8, left: r.left });
+    const off = () => setError("");
+    const t = setTimeout(off, 6000);
+    window.addEventListener("scroll", off, true);
+    return () => { clearTimeout(t); window.removeEventListener("scroll", off, true); };
+  }, [error]);
+
   const pick = () => { setMenu(false); input.current?.click(); };
 
   return (
@@ -125,7 +154,7 @@ export function ProfilePhoto({ url: initialUrl, initials, size = 72, disabled = 
           tabIndex={-1}
           aria-hidden
           onClick={() => (url ? setMenu(!menu) : pick())}
-          className="group absolute inset-0 grid place-items-center rounded-full bg-transparent text-white transition hover:bg-side/90"
+          className={`group absolute inset-0 grid place-items-center rounded-full bg-transparent text-white transition ${url ? "hover:bg-black/45" : "hover:bg-side/90"}`}
         >
           <span className="flex flex-col items-center gap-0.5 opacity-0 transition group-hover:opacity-100">
             <Camera size={18} />
@@ -149,13 +178,17 @@ export function ProfilePhoto({ url: initialUrl, initials, size = 72, disabled = 
         </button>
       )}
       <input ref={input} type="file" accept="image/jpeg,image/png,image/webp,image/*" className="hidden" onChange={(e) => e.target.files?.[0] && upload(e.target.files[0])} />
-      {menu && (
-        <div role="menu" className="pop absolute left-0 top-full z-20 mt-2 w-48 overflow-hidden rounded-2xl border border-line bg-card p-1.5 text-ink shadow-xl">
+      {menu && at && createPortal(
+        <div ref={pop} role="menu" style={{ top: at.top, left: at.left }} className="pop fixed z-[60] w-48 overflow-hidden rounded-2xl border border-line bg-card p-1.5 text-ink shadow-xl">
           <button role="menuitem" type="button" onClick={pick} className="flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-[0.9rem] hover:bg-line-2"><ImagePlus size={16} className="text-muted" /> Change photo</button>
           <button role="menuitem" type="button" onClick={remove} className="flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-[0.9rem] text-bad hover:bg-bad-soft"><Trash2 size={16} /> Remove photo</button>
-        </div>
+        </div>,
+        document.body,
       )}
-      {error && <p role="alert" className="absolute left-0 top-full z-10 mt-2 w-64 rounded-xl bg-bad-soft px-3 py-2 text-[0.8rem] font-medium text-bad shadow">{error}</p>}
+      {error && errAt && createPortal(
+        <p role="alert" style={{ top: errAt.top, left: errAt.left }} className="fixed z-[60] w-64 rounded-xl bg-bad-soft px-3 py-2 text-[0.8rem] font-medium text-bad shadow">{error}</p>,
+        document.body,
+      )}
     </div>
   );
 }
