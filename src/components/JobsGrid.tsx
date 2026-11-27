@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { ArrowRight, Check, ChevronRight, ListChecks, Minus, Search, Sparkles, Trash2, X } from "lucide-react";
 import { STATUSES, type Application, type Status } from "@/lib/types";
 import type { Analysis } from "@/lib/tasks";
-import { JobRowContent, STATUS_BAR } from "./JobTiles";
+import { JobRowContent, JobRowHeader, STATUS_BAR } from "./JobTiles";
 import { STATUS_META } from "./ui";
-import { WorkingInline, useAsk } from "./client-ui";
+import { Spinner, WorkingInline, useAsk } from "./client-ui";
 import { createClient } from "@/lib/supabase/client";
 
 type Filter = "" | "new" | Status;
@@ -125,6 +125,32 @@ export function JobsGrid({
     router.refresh();
   }
 
+  // ── One job, from its row ──
+  const [busy, setBusy] = useState<Record<string, "analyse" | "delete">>({});
+  const mark = (id: string, v?: "analyse" | "delete") => setBusy((b) => { const n = { ...b }; if (v) n[id] = v; else delete n[id]; return n; });
+
+  async function analyseOne(a: Application) {
+    setNote(null);
+    mark(a.id, "analyse");
+    const res = await fetch("/api/generate", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ task: "analysis", applicationId: a.id }) }).catch(() => null);
+    if (!res?.ok) {
+      const data = await res?.json().catch(() => ({}));
+      setNote({ ok: false, text: data?.error ?? `Couldn't analyse ${a.role} - try again.` });
+    }
+    router.refresh();
+    mark(a.id);
+  }
+
+  async function deleteOne(a: Application) {
+    const ok = await ask({ title: "Delete job", body: <>Delete <b>{a.role}</b> at <b>{a.company}</b>? Its resume, outreach and practice sessions go too. This can&apos;t be undone.</>, confirm: "Delete", danger: true });
+    if (ok === null) return;
+    mark(a.id, "delete");
+    const { error } = await createClient().from("applications").delete().eq("id", a.id);
+    if (error) setNote({ ok: false, text: error.message });
+    router.refresh();
+    mark(a.id);
+  }
+
   async function deleteSelected() {
     if (!sel.length) return;
     const ok = await ask({
@@ -146,6 +172,8 @@ export function JobsGrid({
     <section className={`space-y-4 ${picked.size ? "pb-24" : ""}`}>
       {dialog}
 
+      {/* On the Jobs page, search, filters and the column labels stay pinned while the list scrolls. */}
+      <div className={full ? `sticky top-[68px] z-20 -mx-2 space-y-3 bg-bg/95 px-2 pt-2 backdrop-blur lg:top-0 lg:-mt-3 lg:pt-3 ${visible.length ? "sm:!mb-0" : ""}` : "contents"}>
       {/* ── Toolbar: search · Select · sort ── */}
       <div className="flex flex-wrap items-center gap-2.5 fade-up">
         <label className="relative min-w-0 flex-1 basis-[240px]">
@@ -225,11 +253,19 @@ export function JobsGrid({
         </div>
       )}
 
+      {full && visible.length > 0 && (
+        <div className="hidden items-center gap-4 rounded-t-[22px] border border-line bg-brand-soft px-5 py-3.5 sm:flex xl:gap-6">
+          <JobRowHeader lead={selecting ? <span className="w-[1.3rem] shrink-0" /> : undefined} trailing={<span className="flex w-9 shrink-0 justify-center whitespace-nowrap text-[0.76rem] font-bold uppercase tracking-[0.12em] text-brand-ink xl:ml-14">Delete</span>} />
+        </div>
+      )}
+      </div>
+
+
       {/* ── The list ── */}
-      <ul className="card divide-y divide-line overflow-hidden p-0 fade-up" aria-label={selecting ? "Select jobs" : "Jobs"}>
+      <ul className={`card divide-y divide-line overflow-hidden p-0 fade-up ${full && visible.length ? "sm:rounded-t-none sm:border-t-0" : ""}`} aria-label={selecting ? "Select jobs" : "Jobs"}>
         {visible.map((a, i) => {
           const on = picked.has(a.id);
-          const row = "flex min-h-[66px] w-full items-center gap-4 px-4 py-3.5 text-left transition sm:px-5"; // same height with or without a location line
+          const row = "flex min-h-[66px] w-full items-center gap-4 xl:gap-6 px-4 py-3.5 text-left transition sm:px-5"; // same height with or without a location line
           return (
             <li key={a.id}>
               {selecting ? (
@@ -241,12 +277,34 @@ export function JobsGrid({
                   onMouseDown={(e) => e.shiftKey && e.preventDefault()}
                   className={`${row} ${on ? "bg-brand-soft/70" : "hover:bg-line-2/70"}`}
                 >
-                  <JobRowContent a={a} practised={done} lead={<Box on={on} />} />
+                  <JobRowContent a={a} practised={done} lead={<Box on={on} />} headed trailing={<span className="hidden w-9 shrink-0 sm:block xl:ml-14" />} />
                 </button>
               ) : (
-                <Link href={`/jobs/${a.id}`} className={`${row} group hover:bg-line-2/70`}>
-                  <JobRowContent a={a} practised={done} trailing={<ChevronRight size={17} className="hidden shrink-0 text-faint transition group-hover:translate-x-0.5 group-hover:text-brand sm:block" />} />
-                </Link>
+                full ? (
+                  // Whole row opens the job (stretched link underneath); Analyse and Delete sit above it.
+                  <div className={`${row} group relative hover:bg-line-2/70`}>
+                    <Link href={`/jobs/${a.id}`} className="absolute inset-0" aria-label={`${a.role} at ${a.company}`} />
+                    <JobRowContent
+                      a={a}
+                      practised={done}
+                      headed
+                      action={!a.analysis ? (
+                        <button type="button" disabled={!!busy[a.id] || !!progress} onClick={() => analyseOne(a)} className="btn btn-clay btn-sm whitespace-nowrap !shadow-none">
+                          {busy[a.id] === "analyse" ? <><Spinner /> Analysing…</> : <><Sparkles size={14} /> Analyse with AI</>}
+                        </button>
+                      ) : undefined}
+                      trailing={
+                        <button type="button" disabled={!!busy[a.id] || !!progress} onClick={() => deleteOne(a)} className="btn relative z-10 hidden h-9 w-9 shrink-0 xl:ml-14 btn-danger-soft !rounded-full px-0 sm:inline-flex" aria-label={`Delete ${a.role}`} data-tip="Delete job">
+                          {busy[a.id] === "delete" ? <Spinner /> : <Trash2 size={16} />}
+                        </button>
+                      }
+                    />
+                  </div>
+                ) : (
+                  <Link href={`/jobs/${a.id}`} className={`${row} group hover:bg-line-2/70`}>
+                    <JobRowContent a={a} practised={done} trailing={<ChevronRight size={17} className="hidden shrink-0 text-faint transition group-hover:translate-x-0.5 group-hover:text-brand sm:block" />} />
+                  </Link>
+                )
               )}
             </li>
           );

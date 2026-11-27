@@ -30,7 +30,7 @@ export function JobTile({ a, practised }: { a: Application; practised: Set<strin
         <div className="flex h-[64px] items-start gap-3">
           <span className="min-w-0 flex-1">
             <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={34} iconSize={36} nameClass="truncate text-[0.95rem] font-bold text-ink" />
-            {a.location && <span className="mt-2 flex items-center gap-1.5 truncate text-[0.82rem] text-muted"><MapPin size={12} className="shrink-0" />{a.location}</span>}
+            {a.location && <span className="mt-2 flex items-center gap-1.5 truncate text-[0.82rem] text-muted"><MapPin size={13} className="shrink-0" />{a.location}</span>}
           </span>
           <span className="flex h-9 shrink-0 items-center gap-2">
             <span className="text-[0.8rem] text-muted" suppressHydrationWarning>{timeAgo(a.updated_at)}</span>
@@ -97,33 +97,81 @@ export function StatusDonut({ counts, total, size = 170, className = "mx-auto mt
 }
 
 
+// Column widths shared by the job rows and their header (JobRowHeader), so labels sit exactly over the values.
+const COL = {
+  company: (wide: boolean) => `hidden min-w-0 shrink-0 sm:block ${wide ? "w-[180px] xl:w-auto xl:flex-[1] xl:shrink" : "w-[180px]"}`,
+  role: (wide: boolean) => `min-w-0 flex-1 ${wide ? "xl:flex-[1.4]" : ""}`,
+  fit: (headed: boolean) => `flex shrink-0 ${headed ? "w-[3.25rem] justify-center" : "w-[7.5rem] justify-end"}`,
+  // Headed lists: Next step gives up part of its share to a gap at the row's end, so Match and the bin sit close to Next step
+  // (company and role keep the same widths).
+  next: (headed: boolean) => `hidden min-w-[180px] xl:block ${headed ? "flex-[0.6]" : "flex-[1.1]"}`,
+  gap: "hidden flex-[0.5] xl:-ml-20 xl:block", // -ml offsets the row gap and the bin's xl:ml-14, so other columns don't move
+};
+
+/** Column labels for a headed job list (Jobs page). `lead` / `trailing` are spacers matching the rows' extras. */
+export function JobRowHeader({ lead, trailing }: { lead?: React.ReactNode; trailing?: React.ReactNode }) {
+  const label = "text-[0.76rem] font-bold uppercase tracking-[0.12em] text-brand-ink";
+  return (
+    <>
+      {lead}
+      <span className={`${COL.company(true)} ${label}`}>Company</span>
+      <span className={`${COL.role(true)} ${label}`}>Role</span>
+      <span className={`${COL.next(true)} ${label}`}>Next step</span>
+      <span className={`${COL.fit(true)} ${label}`}>Match</span>
+      {trailing}
+      <span className={COL.gap} />
+    </>
+  );
+}
+
 /**
  * One job as a compact row - the app's standard way to list jobs (Jobs page, Home, practice pickers).
  * Pure layout: the caller wraps it in a link, a checkbox button or a radio button and passes `lead` (e.g. the box).
+ * The status chip shows beside the role only once the job has moved past "Saved" (every job starts there).
  */
-export function JobRowContent({ a, practised, lead, showNext = true, showTime = true, trailing }: { a: Application; practised?: Set<string>; lead?: React.ReactNode; showNext?: boolean; showTime?: boolean; trailing?: React.ReactNode }) {
+export function JobRowContent({ a, practised, lead, showNext = true, showTime = true, action, headed = false, trailing }: {
+  a: Application;
+  practised?: Set<string>;
+  lead?: React.ReactNode;
+  showNext?: boolean;
+  showTime?: boolean;
+  /** Shown in the "Next" column in place of the next-step text (e.g. an Analyse button). */
+  action?: React.ReactNode;
+  /** Under a JobRowHeader: no "Next:" prefix, and a narrow match column (just the %, nothing until analysed). */
+  headed?: boolean;
+  trailing?: React.ReactNode;
+}) {
   const an = a.analysis as Analysis | null;
   const steps = showNext ? journey(a, practised ?? new Set()) : [];
   const next = showNext && !["rejected", "withdrawn"].includes(a.status) ? steps.find((s) => !s.done) : undefined;
   const st = STATUS_META[a.status];
+  const fit = an ? an.fit_score * 10 : null;
   return (
     <>
       {lead}
-      <span className="hidden w-[180px] shrink-0 sm:block">
-        <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={22} iconSize={28} nameClass="truncate text-[0.86rem] font-bold text-ink" />
+      <span className={COL.company(showNext)}>
+        <CompanyWordmark name={a.company} jobUrl={a.job_url} domain={a.company_domain} logo={a.company_logo} height={24} iconSize={30} nameClass="truncate text-[0.95rem] font-bold text-ink" />
       </span>
-      <span className="min-w-0 flex-1">
-        <span className="block truncate font-semibold text-ink" title={a.role}>{a.role}</span>
-        <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.82rem] text-muted">
+      <span className={COL.role(showNext)}>
+        <span className="flex min-w-0 items-center gap-2">
+          <span className="truncate font-display text-[1.05rem] font-bold leading-snug text-ink" title={a.role}>{a.role}</span>
+          {a.status !== "saved" && <span className={`chip shrink-0 ${st.cls}`}>{st.label}</span>}
+        </span>
+        <span className="mt-0.5 flex min-w-0 items-center gap-1.5 text-[0.88rem] text-muted">
           <span className="truncate font-semibold text-ink sm:hidden">{a.company}</span>
           {a.location && <span className="hidden min-w-0 items-center gap-1 truncate sm:flex"><MapPin size={12} className="shrink-0" />{a.location}</span>}
+          {showTime && <span className="hidden shrink-0 whitespace-nowrap md:inline" suppressHydrationWarning>{a.location && <span className="mr-1.5">·</span>}{timeAgo(a.updated_at)}</span>}
         </span>
       </span>
-      {next && <span className="hidden w-[200px] shrink-0 truncate text-[0.84rem] text-muted xl:block" title={next.cta}>Next: <span className="font-semibold text-ink">{next.cta}</span></span>}
-      {showTime && <span className="hidden w-[4.5rem] shrink-0 text-right text-[0.8rem] text-muted md:block" suppressHydrationWarning>{timeAgo(a.updated_at)}</span>}
-      <span className={`chip hidden shrink-0 sm:inline-flex ${st.cls}`}>{st.label}</span>
-      <span className="flex w-[7.5rem] shrink-0 justify-end"><FitBadge value={an ? an.fit_score * 10 : null} size="sm" className="whitespace-nowrap" /></span>
+      {action ? (
+        <span className={`relative z-10 flex shrink-0 xl:min-w-[180px] ${headed ? "xl:flex-[0.6]" : "xl:flex-[1.1]"}`}>{action}</span>
+      ) : (
+        // Kept (empty) for closed jobs too, so every row's columns line up.
+        showNext && <span className={`${COL.next(headed)} truncate text-[0.9rem] font-semibold text-ink`} title={next?.cta}>{next && <>{!headed && <span className="font-normal text-muted">Next: </span>}{next.cta}</>}</span>
+      )}
+      <span className={COL.fit(headed)}>{(fit != null || !headed) && <FitBadge value={fit} size="sm" className="whitespace-nowrap" />}</span>
       {trailing}
+      {headed && <span className={COL.gap} />}
     </>
   );
 }

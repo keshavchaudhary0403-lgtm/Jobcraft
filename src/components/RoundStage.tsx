@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
-import { CheckCircle2, LayoutList, MoreHorizontal, RotateCcw, Trash2 } from "lucide-react";
+import { CheckCircle2, LayoutList, RotateCcw, Trash2 } from "lucide-react";
 import { restartSession } from "@/lib/actions";
 import { Spinner, useAsk } from "./client-ui";
 
@@ -64,39 +64,30 @@ export function RoundStage({
   );
 }
 
-/** Quiet "⋯" menu for rare actions on a round (delete), so they don't compete with the main task. */
+/** Round delete: one round red-soft bin button in the header (same as the job page's delete), with a confirm. */
 export function RoundMenu({ onDelete, kind }: { onDelete: () => Promise<void>; kind: "interview" | "negotiation" }) {
-  const [open, setOpen] = useState(false);
   const [ask, dialog] = useAsk();
-  const ref = useRef<HTMLDivElement>(null);
-  useEffect(() => {
-    if (!open) return;
-    const close = (e: MouseEvent) => ref.current && !ref.current.contains(e.target as Node) && setOpen(false);
-    document.addEventListener("mousedown", close);
-    return () => document.removeEventListener("mousedown", close);
-  }, [open]);
+  const [busy, setBusy] = useState(false);
   const unit = kind === "interview" ? "round" : "talk";
   return (
-    <div ref={ref} className="relative">
+    <>
       {dialog}
-      <button type="button" onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-full text-muted transition hover:bg-line-2 hover:text-ink" aria-label="More">
-        <MoreHorizontal size={18} />
+      <button
+        type="button"
+        disabled={busy}
+        className="btn btn-danger-soft h-10 w-10 shrink-0 !rounded-full px-0"
+        aria-label={`Delete ${unit}`}
+        data-tip={`Delete this ${unit}`}
+        onClick={async () => {
+          const ok = await ask({ title: `Delete this ${unit}?`, body: "The conversation, transcript and scorecard are removed. This can't be undone.", confirm: "Delete", danger: true });
+          if (ok === null) return;
+          setBusy(true);
+          await onDelete();
+          setBusy(false);
+        }}
+      >
+        {busy ? <Spinner /> : <Trash2 size={16} />}
       </button>
-      {open && (
-        <div className="pop absolute right-0 top-full z-30 mt-2 w-48 overflow-hidden rounded-2xl border border-line bg-card p-1.5 shadow-xl">
-          <button
-            type="button"
-            className="flex h-10 w-full items-center gap-2.5 rounded-xl px-3 text-[0.9rem] text-bad hover:bg-bad-soft"
-            onClick={async () => {
-              setOpen(false);
-              const ok = await ask({ title: `Delete this ${unit}?`, body: "The conversation, transcript and scorecard are removed. This can't be undone.", confirm: "Delete", danger: true });
-              if (ok !== null) await onDelete();
-            }}
-          >
-            <Trash2 size={15} /> Delete {unit}
-          </button>
-        </div>
-      )}
-    </div>
+    </>
   );
 }
