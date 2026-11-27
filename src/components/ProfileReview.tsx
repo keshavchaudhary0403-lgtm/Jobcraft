@@ -2,7 +2,7 @@
 
 import { ProfilePhoto } from "./ProfilePhoto";
 import { useEffect, useState } from "react";
-import { AlertCircle, Check, ExternalLink, FileText, NotebookPen, Plus, Tags, Trophy, UserRound, X } from "lucide-react";
+import { AlertCircle, Check, Copy, ExternalLink, FileText, NotebookPen, Plus, Tags, Trophy, UserRound, X } from "lucide-react";
 import { keepUploadedResume, uploadedResumeInfo } from "@/lib/actions";
 import { CtcField, ExperienceField, LinkedInField, TextField } from "./BasicFields";
 import { normaliseBasics } from "@/lib/profile-format";
@@ -123,6 +123,24 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
   }
 
 
+  // Add one or many skills: a pasted or typed list ("SQL, Excel; Tableau" or one per line, bullets ok) adds each.
+  function addSkills(text: string) {
+    const next = [...d.skills];
+    for (const raw of text.split(/[,;\n\r\t|•·]+/)) {
+      const v = raw.replace(/^[\s\-*–—]+/, "").replace(/\s+/g, " ").trim().slice(0, 40);
+      if (v && next.length < 25 && !next.some((x) => x.toLowerCase() === v.toLowerCase())) next.push(v);
+    }
+    if (next.length !== d.skills.length) set("skills", next);
+  }
+  const [copied, setCopied] = useState(false);
+  async function copySkills() {
+    try {
+      await navigator.clipboard.writeText(d.skills.join(", "));
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1500);
+    } catch { /* clipboard blocked: nothing to do */ }
+  }
+
   const skillsBox = (
     <div className="flex flex-wrap gap-2">
       {d.skills.map((s, i) => (
@@ -137,14 +155,17 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
         className="flex"
         onSubmit={(e) => {
           e.preventDefault();
-          const v = skill.replace(/\s+/g, " ").trim().slice(0, 40);
-          if (v && !d.skills.some((x) => x.toLowerCase() === v.toLowerCase()) && d.skills.length < 25) set("skills", [...d.skills, v]);
+          addSkills(skill);
           setSkill("");
         }}
       >
         <label className="flex h-[2rem] items-center gap-1 rounded-full border-[1.5px] border-dashed border-brand/40 bg-card pl-2.5 pr-1 text-brand focus-within:border-brand">
           <Plus size={13} />
-          <input className="w-28 bg-transparent text-[0.85rem] font-medium text-ink outline-none placeholder:text-brand/80" maxLength={40} placeholder="Add skill" value={skill} onChange={(e) => setSkill(e.target.value)} />
+          <input className="w-40 bg-transparent text-[0.85rem] font-medium text-ink outline-none placeholder:text-brand/80" maxLength={40} placeholder="Add or paste skills" value={skill} onChange={(e) => setSkill(e.target.value)}
+            onPaste={(e) => {
+              const t = e.clipboardData.getData("text");
+              if (/[,;\n|•]/.test(t)) { e.preventDefault(); addSkills(t); setSkill(""); }
+            }} />
           {skill.trim() && <button className="rounded-full bg-brand px-2 py-0.5 text-[0.72rem] font-semibold text-white">Add</button>}
         </label>
       </form>
@@ -175,9 +196,18 @@ export function ProfileReview({ userId, initial, onSaved, cta = "Save changes", 
       </Section>
   );
   const skillsS = (
-      <Section icon={Tags} tone={3} title="Skills" sub="Recruiters search and filter by these." meta={<span className={d.skills.length < 5 ? "text-clay" : ""}>{d.skills.length}/25</span>}>
+      <Section icon={Tags} tone={3} title="Skills" sub="Recruiters search and filter by these." meta={
+        <span className="flex items-center gap-2">
+          {d.skills.length > 0 && (
+            <button type="button" onClick={copySkills} className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-brand hover:bg-brand-soft" data-tip="Copy all skills, comma-separated">
+              {copied ? <><Check size={13} /> Copied</> : <><Copy size={13} /> Copy</>}
+            </button>
+          )}
+          <span className={d.skills.length < 5 ? "text-clay" : ""}>{d.skills.length}/25</span>
+        </span>
+      }>
         {skillsBox}
-        <p className="mt-3 text-[0.78rem] text-muted">Aim for 8-15. Use the names recruiters type, e.g. &ldquo;SQL&rdquo;, &ldquo;P&amp;L management&rdquo;.</p>
+        <p className="mt-3 text-[0.78rem] text-muted">Aim for 8-15. Use the names recruiters type, e.g. &ldquo;SQL&rdquo;, &ldquo;P&amp;L management&rdquo;. Paste a list (comma or one per line) to add many at once.</p>
       </Section>
   );
   const optionalS = (

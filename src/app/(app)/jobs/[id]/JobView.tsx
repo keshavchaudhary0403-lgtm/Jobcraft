@@ -1,6 +1,7 @@
 "use client";
 
 import { CompanyWordmark } from "@/components/CompanyWordmark";
+import { JdText } from "@/components/JdText";
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -192,7 +193,7 @@ export function JobView({
       </button>
 
       <Modal open={showJd} onClose={() => setShowJd(false)} title="Job description" width={720}>
-        <div className="thin-scroll max-h-[65vh] overflow-y-auto whitespace-pre-wrap pr-2 leading-relaxed text-slate-700">{app.jd}</div>
+        <div className="thin-scroll max-h-[65vh] overflow-y-auto pr-2">{app.jd ? <JdText text={app.jd} /> : <p className="text-muted">No job description saved.</p>}</div>
       </Modal>
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Job details" width={460}>
